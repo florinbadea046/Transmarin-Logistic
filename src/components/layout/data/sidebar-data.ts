@@ -1,205 +1,210 @@
 import {
-  Construction,
   LayoutDashboard,
-  Monitor,
-  Bug,
-  ListTodo,
-  FileX,
-  HelpCircle,
-  Lock,
-  Bell,
-  Package,
-  Palette,
-  ServerOff,
-  Settings,
+  Truck,
   Wrench,
-  UserCog,
-  UserX,
+  Receipt,
   Users,
-  MessagesSquare,
-  ShieldCheck,
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
-} from 'lucide-react'
-import { ClerkLogo } from '@/assets/clerk-logo'
-import { type SidebarData } from '../types'
+  BarChart3,
+  Package,
+  FileText,
+  Calendar,
+  Fuel,
+  ClipboardList,
+  UserCog,
+  Wallet,
+  TrendingUp,
+  PieChart,
+  Settings,
+  Bell,
+  Palette,
+  Monitor,
+} from "lucide-react";
+import { type SidebarData } from "../types";
 
 export const sidebarData: SidebarData = {
   user: {
-    name: 'satnaing',
-    email: 'satnaingdev@gmail.com',
-    avatar: '/avatars/shadcn.jpg',
+    name: "Admin Transmarin",
+    email: "admin@transmarin.ro",
+    avatar: "/avatars/admin.jpg",
   },
   teams: [
     {
-      name: 'Shadcn Admin',
-      logo: Command,
-      plan: 'Vite + ShadcnUI',
-    },
-    {
-      name: 'Acme Inc',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Acme Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
+      name: "Transmarin Logistic",
+      logo: Truck,
+      plan: "ERP Transport",
     },
   ],
   navGroups: [
     {
-      title: 'General',
+      title: "General",
       items: [
         {
-          title: 'Dashboard',
-          url: '/',
+          title: "Dashboard",
+          url: "/",
           icon: LayoutDashboard,
         },
-        {
-          title: 'Tasks',
-          url: '/tasks',
-          icon: ListTodo,
-        },
-        {
-          title: 'Apps',
-          url: '/apps',
-          icon: Package,
-        },
-        {
-          title: 'Chats',
-          url: '/chats',
-          badge: '3',
-          icon: MessagesSquare,
-        },
-        {
-          title: 'Users',
-          url: '/users',
-          icon: Users,
-        },
-        {
-          title: 'Secured by Clerk',
-          icon: ClerkLogo,
-          items: [
-            {
-              title: 'Sign In',
-              url: '/clerk/sign-in',
-            },
-            {
-              title: 'Sign Up',
-              url: '/clerk/sign-up',
-            },
-            {
-              title: 'User Management',
-              url: '/clerk/user-management',
-            },
-          ],
-        },
       ],
     },
     {
-      title: 'Pages',
+      title: "Module",
       items: [
         {
-          title: 'Auth',
-          icon: ShieldCheck,
+          title: "Transport & Dispecerat",
+          icon: Truck,
           items: [
             {
-              title: 'Sign In',
-              url: '/sign-in',
+              title: "Prezentare Generală",
+              url: "/transport",
+              icon: ClipboardList,
             },
             {
-              title: 'Sign In (2 Col)',
-              url: '/sign-in-2',
+              title: "Comenzi",
+              url: "/transport/orders",
+              icon: FileText,
             },
             {
-              title: 'Sign Up',
-              url: '/sign-up',
+              title: "Curse Zilnice",
+              url: "/transport/trips",
+              icon: Calendar,
             },
             {
-              title: 'Forgot Password',
-              url: '/forgot-password',
-            },
-            {
-              title: 'OTP',
-              url: '/otp',
+              title: "Șoferi & Camioane",
+              url: "/transport/drivers",
+              icon: Users,
             },
           ],
         },
         {
-          title: 'Errors',
-          icon: Bug,
+          title: "Parc Auto & Service",
+          icon: Wrench,
           items: [
             {
-              title: 'Unauthorized',
-              url: '/errors/unauthorized',
-              icon: Lock,
+              title: "Prezentare Generală",
+              url: "/fleet",
+              icon: Truck,
             },
             {
-              title: 'Forbidden',
-              url: '/errors/forbidden',
-              icon: UserX,
+              title: "Piese & Consumabile",
+              url: "/fleet/parts",
+              icon: Package,
             },
             {
-              title: 'Not Found',
-              url: '/errors/not-found',
-              icon: FileX,
-            },
-            {
-              title: 'Internal Server Error',
-              url: '/errors/internal-server-error',
-              icon: ServerOff,
-            },
-            {
-              title: 'Maintenance Error',
-              url: '/errors/maintenance-error',
-              icon: Construction,
-            },
-          ],
-        },
-      ],
-    },
-    {
-      title: 'Other',
-      items: [
-        {
-          title: 'Settings',
-          icon: Settings,
-          items: [
-            {
-              title: 'Profile',
-              url: '/settings',
-              icon: UserCog,
-            },
-            {
-              title: 'Account',
-              url: '/settings/account',
+              title: "Service & Reparații",
+              url: "/fleet/service",
               icon: Wrench,
             },
             {
-              title: 'Appearance',
-              url: '/settings/appearance',
+              title: "Combustibil",
+              url: "/fleet/fuel",
+              icon: Fuel,
+            },
+          ],
+        },
+        {
+          title: "Contabilitate",
+          icon: Receipt,
+          items: [
+            {
+              title: "Prezentare Generală",
+              url: "/accounting",
+              icon: Receipt,
+            },
+            {
+              title: "Facturi",
+              url: "/accounting/invoices",
+              icon: FileText,
+            },
+            {
+              title: "Furnizori",
+              url: "/accounting/suppliers",
+              icon: Users,
+            },
+          ],
+        },
+        {
+          title: "Resurse Umane",
+          icon: UserCog,
+          items: [
+            {
+              title: "Prezentare Generală",
+              url: "/hr",
+              icon: Users,
+            },
+            {
+              title: "Angajați",
+              url: "/hr/employees",
+              icon: UserCog,
+            },
+            {
+              title: "Concedii",
+              url: "/hr/leaves",
+              icon: Calendar,
+            },
+            {
+              title: "Salarizare",
+              url: "/hr/payroll",
+              icon: Wallet,
+            },
+          ],
+        },
+        {
+          title: "Rapoarte",
+          icon: BarChart3,
+          items: [
+            {
+              title: "Dashboard Rapoarte",
+              url: "/reports",
+              icon: PieChart,
+            },
+            {
+              title: "Rapoarte Transport",
+              url: "/reports/transport",
+              icon: TrendingUp,
+            },
+            {
+              title: "Rapoarte Financiare",
+              url: "/reports/financial",
+              icon: Receipt,
+            },
+            {
+              title: "Rapoarte Parc Auto",
+              url: "/reports/fleet",
+              icon: Wrench,
+            },
+          ],
+        },
+      ],
+    },
+    {
+      title: "Setări",
+      items: [
+        {
+          title: "Setări",
+          icon: Settings,
+          items: [
+            {
+              title: "Profil",
+              url: "/settings",
+              icon: UserCog,
+            },
+            {
+              title: "Aparență",
+              url: "/settings/appearance",
               icon: Palette,
             },
             {
-              title: 'Notifications',
-              url: '/settings/notifications',
+              title: "Notificări",
+              url: "/settings/notifications",
               icon: Bell,
             },
             {
-              title: 'Display',
-              url: '/settings/display',
+              title: "Afișare",
+              url: "/settings/display",
               icon: Monitor,
             },
           ],
         },
-        {
-          title: 'Help Center',
-          url: '/help-center',
-          icon: HelpCircle,
-        },
       ],
     },
   ],
-}
+};

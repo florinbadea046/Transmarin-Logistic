@@ -1,8 +1,21 @@
+import { RouterProvider } from "@tanstack/react-router";
+import { router } from "@/routes";
+import { ThemeProvider } from "@/context/theme-provider";
+import { AuthProvider } from "@/context/auth-provider";
+import { seedMockData } from "@/data/mock-data";
+import { Toaster } from "@/components/ui/sonner";
+
+// Inițializează datele mock la prima încărcare
+seedMockData();
+
 function App() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600">Transmarin Logistic</h1>
-    </div>
+    <ThemeProvider>
+      <AuthProvider>
+        <RouterProvider router={router} />
+        <Toaster richColors />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
