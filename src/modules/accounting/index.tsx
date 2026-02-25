@@ -188,7 +188,7 @@ export default function AccountingPage() {
                       }).format(v)
                     }
                   />
-                  <Tooltip formatter={(value: number) => formatRON(value)} />
+                  <Tooltip formatter={(value: number | undefined) => (value !== undefined ? formatRON(value) : "")} />
                   <Legend />
                   <Bar dataKey="Venituri" fill="#16a34a" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="Cheltuieli" fill="#dc2626" radius={[4, 4, 0, 0]} />
