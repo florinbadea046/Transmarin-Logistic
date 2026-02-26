@@ -14,7 +14,6 @@ export default function SuppliersPage() {
 
   useEffect(() => {
     const data = localStorage.getItem(STORAGE_KEYS.suppliers);
-
     if (data) {
       const parsed: Supplier[] = JSON.parse(data);
       setSuppliers(parsed);
@@ -29,7 +28,7 @@ export default function SuppliersPage() {
       supplier.cui.toLowerCase().includes(normalizedSearch)
   );
 
-  const sortedSuppliers = [...filteredSuppliers].sort((a,b) =>
+  const sortedSuppliers = [...filteredSuppliers].sort((a, b) =>
     a.name.localeCompare(b.name)
   );
 
@@ -44,7 +43,9 @@ export default function SuppliersPage() {
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold">Furnizori</h1>
+        <h1 className="text-lg font-semibold text-white">
+          Furnizori
+        </h1>
       </Header>
 
       <Main>
@@ -57,71 +58,90 @@ export default function SuppliersPage() {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="border p-2 rounded w-full"
+            className="w-full rounded-md border border-gray-600 bg-slate-800 text-white p-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <Card>
+        <Card className="bg-slate-900 border border-slate-700">
           <CardHeader>
-            <CardTitle>Gestiune Furnizori</CardTitle>
+            <CardTitle className="text-white">
+              Gestiune Furnizori
+            </CardTitle>
           </CardHeader>
 
-          <CardContent className="text-muted-foreground">
+          <CardContent>
             {suppliers.length === 0 ? (
-              <div>
+              <div className="text-white">
                 <p className="text-lg font-medium">
                   Nu există furnizori
                 </p>
-                <p className="text-sm">
+                <p className="text-sm text-gray-400">
                   Adaugă primul furnizor.
                 </p>
               </div>
             ) : filteredSuppliers.length === 0 ? (
-              <div>
+              <div className="text-white">
                 <p className="text-lg font-medium">
-                  Niciun rezultat găsit.
+                  Niciun rezultat găsit
                 </p>
               </div>
             ) : (
               <>
-                <table className="w-full border-collapse">
-                  <thead>
-                    <tr className="border-b bg-gray-100 text-left">
-                      <th className="p-2">Nume</th>
-                      <th className="p-2">CUI</th>
-                      <th className="p-2">Adresă</th>
-                      <th className="p-2">Telefon</th>
-                      <th className="p-2">Cont bancar</th>
-                      <th className="p-2">Email</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {paginatedSuppliers.map((supplier) => (
-                      <tr key={supplier.id} className="border-b">
-                        <td className="p-2">{supplier.name}</td>
-                        <td className="p-2">{supplier.cui}</td>
-                        <td className="p-2">{supplier.address}</td>
-                        <td className="p-2">{supplier.phone}</td>
-                        <td className="p-2">{supplier.bankAccount}</td>
-                        <td className="p-2">{supplier.email}</td>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse text-white">
+                    <thead>
+                      <tr className="bg-slate-700 text-gray-200 text-sm uppercase tracking-wider">
+                        <th className="p-3 text-left">Nume</th>
+                        <th className="p-3 text-left">CUI</th>
+                        <th className="p-3 text-left">Adresă</th>
+                        <th className="p-3 text-left">Telefon</th>
+                        <th className="p-3 text-left">Cont bancar</th>
+                        <th className="p-3 text-left">Email</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
 
-                <div className="flex justify-between items-center mt-4">
+                    <tbody>
+                      {paginatedSuppliers.map((supplier) => (
+                        <tr
+                          key={supplier.id}
+                          className="border-b border-slate-700 hover:bg-slate-800 transition-colors"
+                        >
+                          <td className="p-3 font-medium">
+                            {supplier.name}
+                          </td>
+                          <td className="p-3 text-gray-300">
+                            {supplier.cui}
+                          </td>
+                          <td className="p-3 text-gray-300">
+                            {supplier.address}
+                          </td>
+                          <td className="p-3 text-gray-300">
+                            {supplier.phone}
+                          </td>
+                          <td className="p-3 text-gray-300">
+                            {supplier.bankAccount}
+                          </td>
+                          <td className="p-3 text-gray-300">
+                            {supplier.email}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="flex justify-between items-center mt-6 text-white">
                   <button
                     onClick={() =>
                       setCurrentPage((prev) => Math.max(prev - 1, 1))
                     }
                     disabled={currentPage === 1}
-                    className="border px-3 py-1 rounded disabled:opacity-50"
+                    className="px-4 py-2 rounded-md border border-slate-600 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 transition"
                   >
                     Previous
                   </button>
 
-                  <span>
+                  <span className="text-gray-300">
                     Pagina {currentPage} din {totalPages}
                   </span>
 
@@ -132,7 +152,7 @@ export default function SuppliersPage() {
                       )
                     }
                     disabled={currentPage === totalPages}
-                    className="border px-3 py-1 rounded disabled:opacity-50"
+                    className="px-4 py-2 rounded-md border border-slate-600 bg-slate-800 hover:bg-slate-700 disabled:opacity-40 transition"
                   >
                     Next
                   </button>
