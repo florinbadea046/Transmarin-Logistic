@@ -54,12 +54,12 @@ export function DataTableColumnHeader<TData, TValue>({
         <DropdownMenuContent align="start">
           <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
             <ArrowUpIcon className="size-3.5 text-muted-foreground/70" />
-            Asc
+            Asc Order
           </DropdownMenuItem>
 
           <DropdownMenuItem onClick={() => column.toggleSorting(true)}>
             <ArrowDownIcon className="size-3.5 text-muted-foreground/70" />
-            Desc
+            Desc Order
           </DropdownMenuItem>
 
           {column.getCanHide() && (

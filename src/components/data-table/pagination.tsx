@@ -33,27 +33,22 @@ export function DataTablePagination<TData>({
   return (
     <div
       className={cn(
-        "flex items-center justify-between overflow-clip px-2",
-        "@max-2xl/content:flex-col-reverse @max-2xl/content:gap-4",
+        "flex flex-col gap-3 px-2 sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
-      style={{ overflowClipMargin: 1 }}
     >
-      <div className="flex w-full items-center justify-between">
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium @2xl/content:hidden">
-          Page {currentPage} of {totalPages}
-        </div>
-        <div className="flex items-center gap-2 @max-2xl/content:flex-row-reverse">
+      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-4">
+        <div className="flex items-center gap-2">
           <Select
             value={`${table.getState().pagination.pageSize}`}
             onValueChange={(value) => {
               table.setPageSize(Number(value));
             }}
           >
-            <SelectTrigger className="h-8 w-[70px]">
+            <SelectTrigger className="h-8 w-[76px]">
               <SelectValue placeholder={table.getState().pagination.pageSize} />
             </SelectTrigger>
-            <SelectContent side="top">
+            <SelectContent side="top" align="start">
               {pageSizes.map((pageSize) => (
                 <SelectItem key={pageSize} value={`${pageSize}`}>
                   {pageSize}
@@ -61,27 +56,34 @@ export function DataTablePagination<TData>({
               ))}
             </SelectContent>
           </Select>
-          <p className="hidden text-sm font-medium sm:block">Rows per page</p>
+
+          <p className="text-sm font-medium">Rows per page</p>
+        </div>
+
+        <div className="text-sm font-medium text-muted-foreground sm:hidden">
+          Page {currentPage} of {totalPages}
         </div>
       </div>
 
-      <div className="flex items-center sm:space-x-6 lg:space-x-8">
-        <div className="flex w-[100px] items-center justify-center text-sm font-medium @max-3xl/content:hidden">
+      <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
+        <div className="hidden text-sm font-medium text-muted-foreground sm:block">
           Page {currentPage} of {totalPages}
         </div>
-        <div className="flex items-center space-x-2">
+
+        <div className="flex max-w-full items-center gap-2 overflow-x-auto py-1">
           <Button
             variant="outline"
-            className="size-8 p-0 @max-md/content:hidden"
+            className="size-8 shrink-0 p-0"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to first page</span>
             <DoubleArrowLeftIcon className="h-4 w-4" />
           </Button>
+
           <Button
             variant="outline"
-            className="size-8 p-0"
+            className="size-8 shrink-0 p-0"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
@@ -96,7 +98,7 @@ export function DataTablePagination<TData>({
               ) : (
                 <Button
                   variant={currentPage === pageNumber ? "default" : "outline"}
-                  className="h-8 min-w-8 px-2"
+                  className="h-8 min-w-8 shrink-0 px-2"
                   onClick={() => table.setPageIndex((pageNumber as number) - 1)}
                 >
                   <span className="sr-only">Go to page {pageNumber}</span>
@@ -108,16 +110,17 @@ export function DataTablePagination<TData>({
 
           <Button
             variant="outline"
-            className="size-8 p-0"
+            className="size-8 shrink-0 p-0"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to next page</span>
             <ChevronRightIcon className="h-4 w-4" />
           </Button>
+
           <Button
             variant="outline"
-            className="size-8 p-0 @max-md/content:hidden"
+            className="size-8 shrink-0 p-0"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
