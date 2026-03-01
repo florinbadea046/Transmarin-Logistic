@@ -1,10 +1,20 @@
-import { useMemo, useState } from "react";
+import * as React from "react";
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  type SortingState,
+  type ColumnFiltersState,
+  useReactTable,
+} from "@tanstack/react-table";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -12,69 +22,165 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { DataTableColumnHeader } from "@/components/data-table/column-header";
+import { DataTablePagination } from "@/components/data-table/pagination";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee } from "@/modules/hr/types";
 
-const PAGE_SIZES = [5, 10, 20];
-
-type SortKey = "name" | "position" | "department" | "hireDate" | "salary";
-type SortDir = "asc" | "desc";
+const columns: ColumnDef<Employee>[] = [
+  {
+    accessorKey: "name",
+    enableHiding: false,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Nume" />
+    ),
+    cell: ({ row }) => (
+      <div className="font-medium whitespace-nowrap">
+        {row.getValue("name")}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "position",
+    enableHiding: false,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Funcție" />
+    ),
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap">{row.getValue("position")}</div>
+    ),
+  },
+  {
+    accessorKey: "department",
+    enableHiding: false,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Departament" />
+    ),
+    cell: ({ row }) => (
+      <Badge variant="secondary">{row.getValue("department")}</Badge>
+    ),
+    filterFn: (row, id, value) => {
+      if (!value || value === "Toate") return true;
+      return row.getValue(id) === value;
+    },
+  },
+  {
+    accessorKey: "phone",
+    header: "Telefon",
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap">{row.getValue("phone")}</div>
+    ),
+    enableSorting: false,
+  },
+  {
+    accessorKey: "email",
+    header: "Email",
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap">{row.getValue("email")}</div>
+    ),
+    enableSorting: false,
+  },
+  {
+    accessorKey: "hireDate",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Data angajării" />
+    ),
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap">
+        {formatDate(row.getValue("hireDate"))}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "salary",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Salariu" />
+    ),
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap font-medium">
+        {(row.getValue("salary") as number).toLocaleString("ro-RO")} RON
+      </div>
+    ),
+    sortingFn: (a, b, id) => {
+      const av = (a.getValue(id) as number) ?? 0;
+      const bv = (b.getValue(id) as number) ?? 0;
+      return av === bv ? 0 : av > bv ? 1 : -1;
+    },
+  },
+];
 
 export default function EmployeesPage() {
-  const [search, setSearch] = useState("");
-  const [dept, setDept] = useState("Toate");
-  const [sortKey, setSortKey] = useState<SortKey>("name");
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
-
-  const [employees] = useState<Employee[]>(() =>
+  const [data] = React.useState<Employee[]>(() =>
     getCollection<Employee>(STORAGE_KEYS.employees),
   );
+  const [sorting, setSorting] = React.useState<SortingState>([
+    { id: "name", desc: false },
+  ]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [search, setSearch] = React.useState("");
+  const [dept, setDept] = React.useState("Toate");
 
-  const departments = useMemo(() => {
-    const uniq = Array.from(new Set(employees.map((e) => e.department))).sort();
+  const departments = React.useMemo(() => {
+    const uniq = Array.from(new Set(data.map((e) => e.department))).sort();
     return ["Toate", ...uniq];
-  }, [employees]);
+  }, [data]);
 
-  const filtered = useMemo(() => {
-    const q = search.toLowerCase();
-    return [...employees]
-      .filter(
-        (e) =>
-          (dept === "Toate" || e.department === dept) &&
-          (e.name.toLowerCase().includes(q) ||
-            e.email.toLowerCase().includes(q) ||
-            e.position.toLowerCase().includes(q)),
-      )
-      .sort((a, b) => {
-        if (sortKey === "salary") {
-          const an = Number(a.salary);
-          const bn = Number(b.salary);
-          if (an < bn) return sortDir === "asc" ? -1 : 1;
-          if (an > bn) return sortDir === "asc" ? 1 : -1;
-          return 0;
-        }
-        const av = String(a[sortKey] ?? "");
-        const bv = String(b[sortKey] ?? "");
-        if (av < bv) return sortDir === "asc" ? -1 : 1;
-        if (av > bv) return sortDir === "asc" ? 1 : -1;
-        return 0;
-      });
-  }, [employees, search, dept, sortKey, sortDir]);
+  const table = useReactTable({
+    data,
+    columns,
+    state: { sorting, columnFilters, globalFilter: search },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setSearch,
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
+    globalFilterFn: (row, columnId, value) => {
+      const normalize = (s: string) =>
+        s
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "");
+      const q = normalize(String(value));
+      if (!q) return true;
+      return (
+        normalize(String(row.getValue("name"))).includes(q) ||
+        normalize(String(row.getValue("position"))).includes(q) ||
+        normalize(String(row.getValue("email"))).includes(q)
+      );
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: { pagination: { pageSize: 5, pageIndex: 0 } },
+  });
 
-  const handleSort = (key: SortKey) => {
-    if (sortKey === key) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
-    else {
-      setSortKey(key);
-      setSortDir("asc");
+  const handleDeptChange = (v: string) => {
+    setDept(v);
+    if (v === "Toate") {
+      table.getColumn("department")?.setFilterValue(undefined);
+    } else {
+      table.getColumn("department")?.setFilterValue(v);
     }
-    setPage(1);
+    table.setPageIndex(0);
   };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setSearch(v);
+    table.setPageIndex(0);
+  };
+
   return (
     <>
       <Header>
@@ -86,28 +192,17 @@ export default function EmployeesPage() {
             <div className="flex items-center justify-between flex-wrap gap-2">
               <CardTitle>Lista Angajați</CardTitle>
               <span className="text-sm text-muted-foreground">
-                {filtered.length} angajați
+                {table.getFilteredRowModel().rows.length} angajați
               </span>
             </div>
-
-            {/* Filtre */}
             <div className="flex flex-wrap gap-2 mt-3">
               <Input
                 placeholder="Caută după nume, funcție sau email..."
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
+                onChange={handleSearch}
                 className="max-w-xs"
               />
-              <Select
-                value={dept}
-                onValueChange={(v) => {
-                  setDept(v);
-                  setPage(1);
-                }}
-              >
+              <Select value={dept} onValueChange={handleDeptChange}>
                 <SelectTrigger className="w-44">
                   <SelectValue placeholder="Departament" />
                 </SelectTrigger>
@@ -119,182 +214,64 @@ export default function EmployeesPage() {
                   ))}
                 </SelectContent>
               </Select>
-              <Select
-                value={String(pageSize)}
-                onValueChange={(v) => {
-                  setPageSize(Number(v));
-                  setPage(1);
-                }}
-              >
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PAGE_SIZES.map((n) => (
-                    <SelectItem key={n} value={String(n)}>
-                      {n} / pagină
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           </CardHeader>
 
-          <CardContent>
-            {/* Tabel */}
-            <div className="overflow-x-auto rounded-md border">
-              <table className="w-full text-sm">
-                <thead className="bg-muted/40">
-                  <tr>
-                    <th
-                      className="p-3 text-left font-semibold cursor-pointer select-none hover:bg-muted/60 whitespace-nowrap"
-                      onClick={() => handleSort("name")}
-                    >
-                      Nume{" "}
-                      {sortKey === "name"
-                        ? sortDir === "asc"
-                          ? "▲"
-                          : "▼"
-                        : "↕"}
-                    </th>
-                    <th
-                      className="p-3 text-left font-semibold cursor-pointer select-none hover:bg-muted/60 whitespace-nowrap"
-                      onClick={() => handleSort("position")}
-                    >
-                      Funcție{" "}
-                      {sortKey === "position"
-                        ? sortDir === "asc"
-                          ? "▲"
-                          : "▼"
-                        : "↕"}
-                    </th>
-                    <th
-                      className="p-3 text-left font-semibold cursor-pointer select-none hover:bg-muted/60 whitespace-nowrap"
-                      onClick={() => handleSort("department")}
-                    >
-                      Departament{" "}
-                      {sortKey === "department"
-                        ? sortDir === "asc"
-                          ? "▲"
-                          : "▼"
-                        : "↕"}
-                    </th>
-                    <th className="p-3 text-left font-semibold whitespace-nowrap">
-                      Telefon
-                    </th>
-                    <th className="p-3 text-left font-semibold whitespace-nowrap">
-                      Email
-                    </th>
-                    <th
-                      className="p-3 text-left font-semibold cursor-pointer select-none hover:bg-muted/60 whitespace-nowrap"
-                      onClick={() => handleSort("hireDate")}
-                    >
-                      Data angajării{" "}
-                      {sortKey === "hireDate"
-                        ? sortDir === "asc"
-                          ? "▲"
-                          : "▼"
-                        : "↕"}
-                    </th>
-                    <th
-                      className="p-3 text-left font-semibold cursor-pointer select-none hover:bg-muted/60 whitespace-nowrap"
-                      onClick={() => handleSort("salary")}
-                    >
-                      Salariu{" "}
-                      {sortKey === "salary"
-                        ? sortDir === "asc"
-                          ? "▲"
-                          : "▼"
-                        : "↕"}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {paginated.length === 0 ? (
-                    <tr>
-                      <td
-                        colSpan={7}
-                        className="p-8 text-center text-muted-foreground"
+          <CardContent className="space-y-4">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <TableRow key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <TableHead key={header.id}>
+                          {header.isPlaceholder
+                            ? null
+                            : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableHeader>
+                <TableBody>
+                  {table.getRowModel().rows?.length ? (
+                    table.getRowModel().rows.map((row) => (
+                      <TableRow key={row.id}>
+                        {row.getVisibleCells().map((cell) => (
+                          <TableCell key={cell.id}>
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={columns.length}
+                        className="h-24 text-center text-muted-foreground"
                       >
                         Niciun angajat găsit.
-                      </td>
-                    </tr>
-                  ) : (
-                    paginated.map((emp, i) => (
-                      <tr
-                        key={emp.id}
-                        className={`border-t hover:bg-muted/50 transition-colors ${i % 2 !== 0 ? "bg-muted/20" : ""}`}
-                      >
-                        <td className="p-3 font-medium whitespace-nowrap">
-                          {emp.name}
-                        </td>
-                        <td className="p-3 whitespace-nowrap">
-                          {emp.position}
-                        </td>
-                        <td className="p-3 whitespace-nowrap">
-                          <Badge variant="secondary">{emp.department}</Badge>
-                        </td>
-                        <td className="p-3 whitespace-nowrap">{emp.phone}</td>
-                        <td className="p-3 whitespace-nowrap">{emp.email}</td>
-                        <td className="p-3 whitespace-nowrap">
-                          {formatDate(emp.hireDate)}
-                        </td>
-                        <td className="p-3 whitespace-nowrap font-medium">
-                          {emp.salary.toLocaleString("ro-RO")} RON
-                        </td>
-                      </tr>
-                    ))
+                      </TableCell>
+                    </TableRow>
                   )}
-                </tbody>
-              </table>
+                </TableBody>
+              </Table>
             </div>
 
-            {/* Paginare */}
-            <div className="flex items-center justify-between mt-4 flex-wrap gap-2">
-              <span className="text-sm text-muted-foreground">
-                Pagina {page} din {totalPages}
-              </span>
-              <div className="flex gap-1 flex-wrap">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(1)}
-                  disabled={page === 1}
-                >
-                  «
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage((p) => p - 1)}
-                  disabled={page === 1}
-                >
-                  ‹
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage((p) => p + 1)}
-                  disabled={page === totalPages}
-                >
-                  ›
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(totalPages)}
-                  disabled={page === totalPages}
-                >
-                  »
-                </Button>
-              </div>
-            </div>
+            <DataTablePagination table={table} pageSizes={[5, 10, 20]} />
           </CardContent>
         </Card>
       </Main>
     </>
   );
 }
+
 function formatDate(d: string) {
   if (!d) return "—";
   const [y, m, day] = d.split("-");
