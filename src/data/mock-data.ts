@@ -7,7 +7,7 @@ import { initCollection } from "@/utils/local-storage";
 import type { Driver, Truck, Order } from "@/modules/transport/types";
 import type { Part } from "@/modules/fleet/types";
 import type { Employee } from "@/modules/hr/types";
-import type { Supplier } from "@/modules/accounting/types";
+import type { Supplier, Invoice } from "@/modules/accounting/types";
 
 // Chei localStorage — toate modulele folosesc aceste chei
 export const STORAGE_KEYS = {
@@ -212,7 +212,48 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49BBBB1B31007593840000",
   },
 ];
-
+const seedInvoices: Invoice[] = [
+  {
+    id: "inv1",
+    type: "income",
+    number: "F-001",
+    date: "2026-03-05",
+    dueDate: "2026-03-20",
+    clientName: "SC Logistica SRL",
+    items: [{ description: "Transport marfă", quantity: 1, unitPrice: 5000, total: 5000 }],
+    totalWithoutVAT: 5000,
+    vat: 950,
+    total: 5950,
+    status: "paid",
+  },
+  {
+    id: "inv2",
+    type: "expense",
+    number: "F-002",
+    date: "2026-03-10",
+    dueDate: "2026-03-25",
+    supplierId: "s1",
+    clientName: "Auto Parts SRL",
+    items: [{ description: "Piese auto", quantity: 3, unitPrice: 800, total: 2400 }],
+    totalWithoutVAT: 2400,
+    vat: 456,
+    total: 2856,
+    status: "sent",
+  },
+  {
+    id: "inv3",
+    type: "income",
+    number: "F-003",
+    date: "2026-02-15",
+    dueDate: "2026-03-01",
+    clientName: "Trans Europa SA",
+    items: [{ description: "Transport internațional", quantity: 1, unitPrice: 8000, total: 8000 }],
+    totalWithoutVAT: 8000,
+    vat: 1520,
+    total: 9520,
+    status: "overdue",
+  },
+];
 /**
  * Încarcă datele seed în localStorage (doar dacă cheile nu există deja).
  * Apelat o singură dată la inițializarea aplicației.
@@ -227,7 +268,7 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.trips, []);
   initCollection(STORAGE_KEYS.serviceRecords, []);
   initCollection(STORAGE_KEYS.fuelRecords, []);
-  initCollection(STORAGE_KEYS.invoices, []);
+  initCollection(STORAGE_KEYS.invoices, seedInvoices);
   initCollection(STORAGE_KEYS.leaveRequests, []);
   initCollection(STORAGE_KEYS.bonuses, []);
 }
