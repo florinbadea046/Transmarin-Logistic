@@ -5,7 +5,7 @@
 
 import { initCollection } from "@/utils/local-storage";
 import type { Driver, Truck, Order } from "@/modules/transport/types";
-import type { Part } from "@/modules/fleet/types";
+import type { Part, ServiceRecord } from "@/modules/fleet/types";
 import type { Employee } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
 
@@ -460,6 +460,41 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49BBBB1B31007593840000",
   },
 ];
+const seedServiceRecords: ServiceRecord[] = [
+  {
+    id: "sr1",
+    truckId: "t1",
+    date: "2026-02-15",
+    type: "revision",
+    description: "Schimb ulei motor + filtru ulei + filtru aer",
+    cost: 485,
+    partsUsed: [{ partId: "p1", quantity: 2 }],
+    mileageAtService: 315000,
+    nextServiceDate: "2026-08-15",
+  },
+  {
+    id: "sr2",
+    truckId: "t2",
+    date: "2026-01-10",
+    type: "repair",
+    description: "Înlocuire plăcuțe frână față + spate",
+    cost: 640,
+    partsUsed: [{ partId: "p2", quantity: 2 }],
+    mileageAtService: 405000,
+    nextServiceDate: "2026-07-10",
+  },
+  {
+    id: "sr3",
+    truckId: "t3",
+    date: "2026-03-01",
+    type: "itp",
+    description: "Inspecție tehnică periodică + curea distribuție",
+    cost: 580,
+    partsUsed: [{ partId: "p3", quantity: 1 }],
+    mileageAtService: 178000,
+    nextServiceDate: "2027-03-01",
+  },
+];
 
 // ──────────────────────────────────────────────────────────
 // Helper: generează dată ISO relativă la azi
@@ -633,7 +668,7 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.employees, seedEmployees);
   initCollection(STORAGE_KEYS.suppliers, seedSuppliers);
   initCollection(STORAGE_KEYS.trips, []);
-  initCollection(STORAGE_KEYS.serviceRecords, []);
+  initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
   initCollection(STORAGE_KEYS.fuelRecords, []);
   initCollection(STORAGE_KEYS.invoices, seedInvoices);
   initCollection(STORAGE_KEYS.leaveRequests, []);
