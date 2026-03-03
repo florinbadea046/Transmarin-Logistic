@@ -28,6 +28,12 @@ export default [
       ...tseslint.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
 
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+
       "react-refresh/only-export-components": [
         "warn",
         { allowConstantExport: true },
@@ -37,6 +43,13 @@ export default [
 
   {
     files: ["src/components/ui/**/*.{ts,tsx}"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
+  },
+
+  {
+    files: ["src/context/**/*.{ts,tsx}"],
     rules: {
       "react-refresh/only-export-components": "off",
     },
