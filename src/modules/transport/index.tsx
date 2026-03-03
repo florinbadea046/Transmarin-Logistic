@@ -11,7 +11,7 @@
 //   1. Implementați tabelul cu comenzi (TanStack Table)
 //   2. Import comenzi din CSV/Excel (Papaparse / xlsx)
 //   3. Planificare curse zilnice cu drag & drop sau formular
-//   4. Dashboard operațional cu KPI-uri
+//   4. Dashboard operațional cu KPI-uri ✅ COMPLETAT
 //   5. Calcul cost per cursă (km gol vs încărcat)
 // ──────────────────────────────────────────────────────────
 
@@ -37,119 +37,142 @@ export default function TransportPage() {
       (link.href === "/transport/orders" && pathname === "/transport"),
   }));
 
-  // State pentru KPI-uri
-  const [kpiData, setKpiData] = useState({
-    activeOrders: 0,
-    todayTrips: 0,
-    monthlyKm: 0,
-    availableDrivers: 0
-  });
+  // State pentru cele 4 KPI-uri cerute în task
+  const [activeOrders, setActiveOrders] = useState<number>(0);
+  const [todayTrips, setTodayTrips] = useState<number>(0);
+  const [monthlyKm, setMonthlyKm] = useState<number>(0);
+  const [availableDrivers, setAvailableDrivers] = useState<number>(0);
 
-  // Calculează KPI-urile din localStorage
   useEffect(() => {
+    // Funcție pentru calcularea KPI-urilor din localStorage
     const calculateKPIs = () => {
       try {
         // 1. Calculează comenzile active
         const orders = JSON.parse(localStorage.getItem('transport_orders') || '[]');
-        const activeOrdersCount = orders.filter((order: any) => 
-          order.status === 'active' || order.status === 'in_progress' || order.status === 'pending'
+        const activeCount = orders.filter((order: any) => 
+          order.status === 'active' || 
+          order.status === 'in_progress' || 
+          order.status === 'pending'
         ).length;
+        setActiveOrders(activeCount);
 
         // 2. Calculează cursele de azi
         const trips = JSON.parse(localStorage.getItem('transport_trips') || '[]');
         const today = new Date().toISOString().split('T')[0];
-        const todayTripsCount = trips.filter((trip: any) => {
-          const tripDate = new Date(trip.date || trip.createdAt || trip.scheduledDate).toISOString().split('T')[0];
-          return tripDate === today;
+        const todayCount = trips.filter((trip: any) => {
+          const tripDate = new Date(trip.date || trip.createdAt || trip.scheduledDate);
+          return tripDate.toISOString().split('T')[0] === today;
         }).length;
+        setTodayTrips(todayCount);
 
-        // 3. Calculează km total luna curentă
+        // 3. Calculează km total luna curentă (încărcat + gol)
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
-        const monthlyKmTotal = trips
+        const totalKm = trips
           .filter((trip: any) => {
             const tripDate = new Date(trip.date || trip.createdAt || trip.scheduledDate);
             return tripDate.getMonth() === currentMonth && 
                    tripDate.getFullYear() === currentYear;
           })
-          .reduce((total: number, trip: any) => {
-            const loadedKm = parseFloat(trip.loadedKm || trip.kmLoaded || trip.distance || 0);
-            const emptyKm = parseFloat(trip.emptyKm || trip.kmEmpty || 0);
-            return total + loadedKm + emptyKm;
+          .reduce((sum: number, trip: any) => {
+            const loaded = parseFloat(trip.loadedKm || trip.kmLoaded || 0);
+            const empty = parseFloat(trip.emptyKm || trip.kmEmpty || 0);
+            return sum + loaded + empty;
           }, 0);
+        setMonthlyKm(Math.round(totalKm));
 
         // 4. Calculează șoferii disponibili
         const drivers = JSON.parse(localStorage.getItem('transport_drivers') || '[]');
-        const availableDriversCount = drivers.filter((driver: any) => 
-          driver.status === 'available' || driver.available === true
+        const availableCount = drivers.filter((driver: any) => 
+          driver.status === 'available' || 
+          driver.available === true
         ).length;
-
-        setKpiData({
-          activeOrders: activeOrdersCount,
-          todayTrips: todayTripsCount,
-          monthlyKm: Math.round(monthlyKmTotal),
-          availableDrivers: availableDriversCount
-        });
+        setAvailableDrivers(availableCount);
 
       } catch (error) {
-        console.error('Error calculating KPIs:', error);
-        // În caz de eroare, setează valori default
-        setKpiData({
-          activeOrders: 0,
-          todayTrips: 0,
-          monthlyKm: 0,
-          availableDrivers: 0
-        });
+        console.error('Eroare la calcularea KPI-urilor:', error);
+        // Setează valori default în caz de eroare
+        setActiveOrders(0);
+        setTodayTrips(0);
+        setMonthlyKm(0);
+        setAvailableDrivers(0);
       }
     };
 
-    // Generează date mock pentru dezvoltare (opțional - poate fi eliminat în producție)
+    // Funcție pentru generarea datelor mock (pentru dezvoltare/testare)
     const initializeMockData = () => {
+      // Creează date mock doar dacă nu există deja în localStorage
       if (!localStorage.getItem('transport_orders')) {
         const mockOrders = [
-          { id: '1', status: 'active', client: 'SC Transport SRL', destination: 'București' },
-          { id: '2', status: 'active', client: 'Mega Distribution', destination: 'Constanța' },
-          { id: '3', status: 'completed', client: 'Fast Delivery', destination: 'Timișoara' },
-          { id: '4', status: 'in_progress', client: 'Euro Logistics', destination: 'Cluj' },
-          { id: '5', status: 'pending', client: 'Express Cargo', destination: 'Brașov' }
+          { id: '1', status: 'active', client: 'Client A', destination: 'București' },
+          { id: '2', status: 'active', client: 'Client B', destination: 'Constanța' },
+          { id: '3', status: 'completed', client: 'Client C', destination: 'Cluj' },
+          { id: '4', status: 'in_progress', client: 'Client D', destination: 'Timișoara' },
+          { id: '5', status: 'pending', client: 'Client E', destination: 'Iași' }
         ];
         localStorage.setItem('transport_orders', JSON.stringify(mockOrders));
       }
 
       if (!localStorage.getItem('transport_trips')) {
-        const today = new Date().toISOString();
-        const yesterday = new Date(Date.now() - 86400000).toISOString();
+        const today = new Date();
+        const yesterday = new Date(Date.now() - 86400000);
+        
         const mockTrips = [
-          { id: '1', date: today, loadedKm: 250, emptyKm: 50, driver: 'Ion Popescu' },
-          { id: '2', date: today, loadedKm: 180, emptyKm: 30, driver: 'Andrei Ionescu' },
-          { id: '3', date: yesterday, loadedKm: 320, emptyKm: 70, driver: 'Mihai Popa' },
-          { id: '4', date: today, loadedKm: 150, emptyKm: 20, driver: 'George Radu' }
+          { 
+            id: '1', 
+            date: today.toISOString(), 
+            loadedKm: 250, 
+            emptyKm: 50, 
+            driver: 'Ion Popescu' 
+          },
+          { 
+            id: '2', 
+            date: today.toISOString(), 
+            loadedKm: 180, 
+            emptyKm: 30, 
+            driver: 'Andrei Ionescu' 
+          },
+          { 
+            id: '3', 
+            date: yesterday.toISOString(), 
+            loadedKm: 320, 
+            emptyKm: 70, 
+            driver: 'Mihai Popa' 
+          },
+          { 
+            id: '4', 
+            date: today.toISOString(), 
+            loadedKm: 150, 
+            emptyKm: 20, 
+            driver: 'George Radu' 
+          }
         ];
         localStorage.setItem('transport_trips', JSON.stringify(mockTrips));
       }
 
       if (!localStorage.getItem('transport_drivers')) {
         const mockDrivers = [
-          { id: '1', name: 'Ion Popescu', status: 'available', truck: 'B-123-XYZ' },
-          { id: '2', name: 'Andrei Ionescu', status: 'available', truck: 'B-456-ABC' },
-          { id: '3', name: 'Mihai Popa', status: 'busy', truck: 'CJ-789-DEF' },
-          { id: '4', name: 'George Radu', status: 'available', truck: 'TM-012-GHI' },
-          { id: '5', name: 'Vasile Marin', status: 'available', truck: 'CT-345-JKL' }
+          { id: '1', name: 'Ion Popescu', status: 'available', truck: 'B-123-ABC' },
+          { id: '2', name: 'Andrei Ionescu', status: 'available', truck: 'B-456-DEF' },
+          { id: '3', name: 'Mihai Popa', status: 'busy', truck: 'CJ-789-GHI' },
+          { id: '4', name: 'George Radu', status: 'available', truck: 'TM-012-JKL' },
+          { id: '5', name: 'Vasile Marin', status: 'available', truck: 'CT-345-MNO' },
+          { id: '6', name: 'Costel Dobre', status: 'busy', truck: 'IS-678-PQR' }
         ];
         localStorage.setItem('transport_drivers', JSON.stringify(mockDrivers));
       }
     };
 
-    // Inițializează date mock dacă nu există
+    // Inițializează date mock pentru testare
     initializeMockData();
     
-    // Calculează KPI-urile
+    // Calculează KPI-urile inițial
     calculateKPIs();
 
-    // Refresh automat la fiecare 30 de secunde
+    // Recalculează KPI-urile la fiecare 30 de secunde
     const interval = setInterval(calculateKPIs, 30000);
 
-    // Ascultă pentru schimbări în localStorage
+    // Ascultă pentru schimbări în localStorage (din alte tab-uri)
     const handleStorageChange = (e: StorageEvent) => {
       if (e.key?.startsWith('transport_')) {
         calculateKPIs();
@@ -157,6 +180,7 @@ export default function TransportPage() {
     };
     window.addEventListener('storage', handleStorageChange);
 
+    // Cleanup
     return () => {
       clearInterval(interval);
       window.removeEventListener('storage', handleStorageChange);
@@ -176,50 +200,58 @@ export default function TransportPage() {
           </p>
         </div>
 
+        {/* Grid cu 4 KPI Cards conform cerinței */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* KPI 1: Comenzi Active */}
           <Card>
             <CardHeader>
               <CardTitle>Comenzi Active</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{kpiData.activeOrders}</p>
+              <p className="text-3xl font-bold">{activeOrders}</p>
               <p className="text-sm text-muted-foreground">
                 Comenzi în desfășurare
               </p>
             </CardContent>
           </Card>
+
+          {/* KPI 2: Curse Azi */}
           <Card>
             <CardHeader>
               <CardTitle>Curse Azi</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{kpiData.todayTrips}</p>
+              <p className="text-3xl font-bold">{todayTrips}</p>
               <p className="text-sm text-muted-foreground">
-                {new Date().toLocaleDateString('ro-RO')}
+                Livrări programate azi
               </p>
             </CardContent>
           </Card>
+
+          {/* KPI 3: Km Total Luna */}
           <Card>
             <CardHeader>
               <CardTitle>Km Total Luna</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">
-                {kpiData.monthlyKm.toLocaleString('ro-RO')}
+                {monthlyKm.toLocaleString('ro-RO')}
               </p>
               <p className="text-sm text-muted-foreground">
-                {new Date().toLocaleDateString('ro-RO', { month: 'long' })}
+                Km parcurși în {new Date().toLocaleDateString('ro-RO', { month: 'long' })}
               </p>
             </CardContent>
           </Card>
+
+          {/* KPI 4: Șoferi Disponibili */}
           <Card>
             <CardHeader>
               <CardTitle>Șoferi Disponibili</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{kpiData.availableDrivers}</p>
+              <p className="text-3xl font-bold">{availableDrivers}</p>
               <p className="text-sm text-muted-foreground">
-                Disponibili pentru curse noi
+                Șoferi gata pentru curse noi
               </p>
             </CardContent>
           </Card>
