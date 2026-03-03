@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { getCollection } from "@/utils/local-storage";
 import type { Truck } from "@/modules/transport/types";
 
 export function TrucksCount() {
   const [trucks, setTrucks] = useState<Truck[]>([]);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEYS.trucks);
-    if (raw) setTrucks(JSON.parse(raw));
+    setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
   }, []);
 
   const availableCount = trucks.filter((t) => t.status === "available").length;

@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Truck } from "@/modules/transport/types";
+import { getCollection } from "@/utils/local-storage";
+
+
 
 export function ServiceCount() {
   const [trucks, setTrucks] = useState<Truck[]>([]);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEYS.trucks);
-    if (raw) setTrucks(JSON.parse(raw));
+    setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
   }, []);
 
   const inServiceCount = trucks.filter((t) => t.status === "in_service").length;

@@ -25,9 +25,6 @@ import { TrucksCount } from "@/modules/fleet/components/TrucksCount";
 import { LowStockCount } from "@/modules/fleet/components/LowStockCount";
 import { ServiceCount } from "@/modules/fleet/components/ServiceCount";
 
-
-
-
 const topNavLinks = [
   { title: "Piese & Consum.", href: "/fleet/parts", isActive: false },
   { title: "Service", href: "/fleet/service", isActive: false },

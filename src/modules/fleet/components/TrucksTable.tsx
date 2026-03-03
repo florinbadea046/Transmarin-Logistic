@@ -1,12 +1,21 @@
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { getCollection } from "@/utils/local-storage";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import type { Truck } from "@/modules/transport/types";
 
 const statusConfig: Record<Truck["status"], { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  available:   { label: "Disponibil",   variant: "default" },
-  on_trip:     { label: "În cursă",     variant: "secondary" },
-  in_service:  { label: "În service",   variant: "destructive" },
+  available:  { label: "Disponibil",  variant: "default" },
+  on_trip:    { label: "În cursă",    variant: "secondary" },
+  in_service: { label: "În service",  variant: "destructive" },
 };
 
 const isExpired = (dateStr: string) => new Date(dateStr).getTime() < Date.now();
@@ -17,9 +26,19 @@ const isExpiringSoon = (dateStr: string) => {
 
 const DateCell = ({ date }: { date: string }) => {
   if (isExpired(date))
-    return <span className="text-red-600 font-semibold">{date} ⚠️</span>;
+    return (
+      <span className="text-red-600 font-semibold">
+        {date} <span aria-hidden="true">⚠️</span>
+        <span className="sr-only">Expirat</span>
+      </span>
+    );
   if (isExpiringSoon(date))
-    return <span className="text-amber-500 font-semibold">{date} ⚠️</span>;
+    return (
+      <span className="text-amber-500 font-semibold">
+        {date} <span aria-hidden="true">⚠️</span>
+        <span className="sr-only">Expiră curând</span>
+      </span>
+    );
   return <span>{date}</span>;
 };
 
@@ -27,8 +46,7 @@ export function TrucksTable() {
   const [trucks, setTrucks] = useState<Truck[]>([]);
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEYS.trucks);
-    if (raw) setTrucks(JSON.parse(raw));
+    setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
   }, []);
 
   if (trucks.length === 0)
@@ -36,37 +54,37 @@ export function TrucksTable() {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b text-muted-foreground text-left">
-            <th className="pb-3 pr-4 font-medium">Nr. înmatriculare</th>
-            <th className="pb-3 pr-4 font-medium">Marcă / Model</th>
-            <th className="pb-3 pr-4 font-medium">An</th>
-            <th className="pb-3 pr-4 font-medium">Km</th>
-            <th className="pb-3 pr-4 font-medium">Status</th>
-            <th className="pb-3 pr-4 font-medium">ITP</th>
-            <th className="pb-3 pr-4 font-medium">RCA</th>
-            <th className="pb-3 font-medium">Vignetă</th>
-          </tr>
-        </thead>
-        <tbody>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nr. înmatriculare</TableHead>
+            <TableHead>Marcă / Model</TableHead>
+            <TableHead>An</TableHead>
+            <TableHead>Km</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>ITP</TableHead>
+            <TableHead>RCA</TableHead>
+            <TableHead>Vignetă</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
           {trucks.map((truck) => {
             const { label, variant } = statusConfig[truck.status];
             return (
-              <tr key={truck.id} className="border-b last:border-0 hover:bg-muted/40 transition-colors">
-                <td className="py-3 pr-4 font-semibold">{truck.plateNumber}</td>
-                <td className="py-3 pr-4">{truck.brand} {truck.model}</td>
-                <td className="py-3 pr-4">{truck.year}</td>
-                <td className="py-3 pr-4">{truck.mileage.toLocaleString("ro-RO")} km</td>
-                <td className="py-3 pr-4"><Badge variant={variant}>{label}</Badge></td>
-                <td className="py-3 pr-4"><DateCell date={truck.itpExpiry} /></td>
-                <td className="py-3 pr-4"><DateCell date={truck.rcaExpiry} /></td>
-                <td className="py-3"><DateCell date={truck.vignetteExpiry} /></td>
-              </tr>
+              <TableRow key={truck.id}>
+                <TableCell className="font-semibold">{truck.plateNumber}</TableCell>
+                <TableCell>{truck.brand} {truck.model}</TableCell>
+                <TableCell>{truck.year}</TableCell>
+                <TableCell>{truck.mileage.toLocaleString("ro-RO")} km</TableCell>
+                <TableCell><Badge variant={variant}>{label}</Badge></TableCell>
+                <TableCell><DateCell date={truck.itpExpiry} /></TableCell>
+                <TableCell><DateCell date={truck.rcaExpiry} /></TableCell>
+                <TableCell><DateCell date={truck.vignetteExpiry} /></TableCell>
+              </TableRow>
             );
           })}
-        </tbody>
-      </table>
+        </TableBody>
+      </Table>
     </div>
   );
 }
