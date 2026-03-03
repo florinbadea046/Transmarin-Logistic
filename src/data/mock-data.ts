@@ -5,7 +5,7 @@
 
 import { initCollection } from "@/utils/local-storage";
 import type { Driver, Truck, Order } from "@/modules/transport/types";
-import type { Part, ServiceRecord } from "@/modules/fleet/types";
+import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
 import type { Employee } from "@/modules/hr/types";
 import type { Supplier } from "@/modules/accounting/types";
 
@@ -495,6 +495,19 @@ const seedServiceRecords: ServiceRecord[] = [
     nextServiceDate: "2027-03-01",
   },
 ];
+const seedFuelRecords: FuelRecord[] = [
+  { id: "f1", truckId: "t1", date: "2026-01-10", liters: 420, cost: 2940, mileage: 310000 },
+  { id: "f2", truckId: "t1", date: "2026-02-05", liters: 390, cost: 2730, mileage: 313500 },
+  { id: "f3", truckId: "t1", date: "2026-03-01", liters: 410, cost: 2870, mileage: 317000 },
+
+  { id: "f4", truckId: "t2", date: "2026-01-12", liters: 450, cost: 3150, mileage: 400000 },
+  { id: "f5", truckId: "t2", date: "2026-02-08", liters: 480, cost: 3360, mileage: 403800 },
+  { id: "f6", truckId: "t2", date: "2026-03-03", liters: 460, cost: 3220, mileage: 407500 },
+
+  { id: "f7", truckId: "t3", date: "2026-01-15", liters: 380, cost: 2660, mileage: 174000 },
+  { id: "f8", truckId: "t3", date: "2026-02-10", liters: 400, cost: 2800, mileage: 177200 },
+  { id: "f9", truckId: "t3", date: "2026-03-05", liters: 390, cost: 2730, mileage: 180500 },
+];
 
 /**
  * Încarcă datele seed în localStorage (doar dacă cheile nu există deja).
@@ -509,7 +522,7 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.suppliers, seedSuppliers);
   initCollection(STORAGE_KEYS.trips, []);
   initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
-  initCollection(STORAGE_KEYS.fuelRecords, []);
+  initCollection(STORAGE_KEYS.fuelRecords, seedFuelRecords);
   initCollection(STORAGE_KEYS.invoices, []);
   initCollection(STORAGE_KEYS.leaveRequests, []);
   initCollection(STORAGE_KEYS.bonuses, []);
