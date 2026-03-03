@@ -1,4 +1,6 @@
 import * as React from "react";
+import { z } from "zod";
+import { format } from "date-fns";
 import {
   type ColumnDef,
   flexRender,
@@ -18,6 +20,27 @@ import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+
 import {
   Table,
   TableBody,
@@ -148,6 +171,69 @@ const columns: ColumnDef<Order>[] = [
   },
 ];
 
+const orderSchema = z.object({
+  clientName: z.string().trim().min(1, "Clientul este obligatoriu"),
+  origin: z.string().trim().min(1, "Originea este obligatorie"),
+  destination: z.string().trim().min(1, "Destinația este obligatorie"),
+  date: z.date().refine((d) => d instanceof Date && !isNaN(d.getTime()), {
+    message: "Data este obligatorie",
+  }),
+  weight: z
+    .union([z.string(), z.number()])
+    .transform((v) => (typeof v === "string" ? Number(v) : v))
+    .refine((n) => typeof n === "number" && Number.isFinite(n), {
+      message: "Greutatea este obligatorie",
+    })
+    .refine((n) => n > 0, {
+      message: "Greutatea trebuie să fie > 0",
+    }),
+  notes: z.string().trim().optional(),
+});
+
+type OrderForm = z.infer<typeof orderSchema>;
+
+function safeRandomId() {
+  const c = globalThis as any;
+  if (c?.crypto?.randomUUID) return c.crypto.randomUUID();
+  return `order_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+}
+
+function setOrdersToStorage(orders: Order[]) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.orders, JSON.stringify(orders));
+  } catch {
+    return;
+  }
+}
+
+function norm(s: string) {
+  return s.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function round2(n: number) {
+  return Math.round(n * 100) / 100;
+}
+
+function isDuplicateOrder(
+  existing: Order,
+  incoming: {
+    clientName: string;
+    origin: string;
+    destination: string;
+    date: string;
+    weight: number;
+  },
+) {
+  const e = existing as any;
+  return (
+    norm(String(e.clientName ?? "")) === norm(incoming.clientName) &&
+    norm(String(e.origin ?? "")) === norm(incoming.origin) &&
+    norm(String(e.destination ?? "")) === norm(incoming.destination) &&
+    String(e.date ?? "") === incoming.date &&
+    round2(Number(e.weight ?? 0)) === round2(incoming.weight)
+  );
+}
+
 export default function OrdersPage() {
   const [data, setData] = React.useState<Order[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -156,6 +242,21 @@ export default function OrdersPage() {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+
+  const [open, setOpen] = React.useState(false);
+  const [dateOpen, setDateOpen] = React.useState(false);
+  const [form, setForm] = React.useState<OrderForm>({
+    clientName: "",
+    origin: "",
+    destination: "",
+    date: new Date(),
+    weight: 1,
+    notes: "",
+  });
+  const [errors, setErrors] = React.useState<
+    Partial<Record<keyof OrderForm, string>>
+  >({});
+  const [formError, setFormError] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     const orders = getCollection<Order>(STORAGE_KEYS.orders);
@@ -188,6 +289,68 @@ export default function OrdersPage() {
     columnResizeMode: "onChange",
   });
 
+  const resetForm = React.useCallback(() => {
+    setForm({
+      clientName: "",
+      origin: "",
+      destination: "",
+      date: new Date(),
+      weight: 1,
+      notes: "",
+    });
+    setErrors({});
+    setFormError(null);
+  }, []);
+
+  function onSubmit() {
+    setErrors({});
+    setFormError(null);
+
+    const parsed = orderSchema.safeParse(form);
+    if (!parsed.success) {
+      const nextErrors: Partial<Record<keyof OrderForm, string>> = {};
+      for (const issue of parsed.error.issues) {
+        const key = issue.path[0] as keyof OrderForm | undefined;
+        if (key && !nextErrors[key]) nextErrors[key] = issue.message;
+      }
+      setErrors(nextErrors);
+      return;
+    }
+
+    const values = parsed.data;
+
+    const payload = {
+      clientName: values.clientName,
+      origin: values.origin,
+      destination: values.destination,
+      date: format(values.date, "yyyy-MM-dd"),
+      weight: values.weight,
+    };
+
+    if (data.some((o) => isDuplicateOrder(o, payload))) {
+      setFormError("Există deja o comandă identică (aceleași date).");
+      return;
+    }
+
+    const newOrder = {
+      id: safeRandomId(),
+      clientName: values.clientName,
+      origin: values.origin,
+      destination: values.destination,
+      date: payload.date,
+      weight: values.weight,
+      status: "pending",
+      ...(values.notes ? { notes: values.notes } : {}),
+    } as unknown as Order;
+
+    const next = [newOrder, ...data];
+    setData(next);
+    setOrdersToStorage(next);
+
+    setOpen(false);
+    resetForm();
+  }
+
   return (
     <>
       <Header>
@@ -196,8 +359,207 @@ export default function OrdersPage() {
 
       <Main>
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between gap-3">
             <CardTitle>Gestiune Comenzi</CardTitle>
+
+            <Dialog
+              open={open}
+              onOpenChange={(v) => {
+                setOpen(v);
+
+                if (!v) {
+                  resetForm();
+                  setDateOpen(false);
+                }
+              }}
+            >
+              <DialogTrigger asChild>
+                <Button>Adaugă comandă</Button>
+              </DialogTrigger>
+
+              <DialogContent className="max-w-[640px]">
+                <DialogHeader>
+                  <DialogTitle>Adaugă comandă</DialogTitle>
+                  <DialogDescription className="sr-only">
+                    Formular pentru adăugarea unei comenzi noi.
+                  </DialogDescription>
+                </DialogHeader>
+
+                {formError ? (
+                  <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                    {formError}
+                  </div>
+                ) : null}
+
+                <div className="grid gap-4">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="grid gap-2">
+                      <Label htmlFor="clientName">Client *</Label>
+                      <Input
+                        id="clientName"
+                        value={form.clientName}
+                        onChange={(e) =>
+                          setForm((p) => ({
+                            ...p,
+                            clientName: e.target.value,
+                          }))
+                        }
+                        placeholder="Ex: SC Transmarin SRL"
+                      />
+                      {errors.clientName ? (
+                        <p className="text-xs text-destructive">
+                          {errors.clientName}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label htmlFor="weight">Greutate (t) *</Label>
+                      <Input
+                        id="weight"
+                        inputMode="decimal"
+                        type="number"
+                        step="0.01"
+                        min={0}
+                        value={form.weight as any}
+                        onChange={(e) =>
+                          setForm((p) => ({
+                            ...p,
+                            weight: e.target.value as any,
+                          }))
+                        }
+                        placeholder="Ex: 12.5"
+                      />
+                      {errors.weight ? (
+                        <p className="text-xs text-destructive">
+                          {errors.weight}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label htmlFor="origin">Origine *</Label>
+                      <Input
+                        id="origin"
+                        value={form.origin}
+                        onChange={(e) =>
+                          setForm((p) => ({ ...p, origin: e.target.value }))
+                        }
+                        placeholder="Ex: Brașov"
+                      />
+                      {errors.origin ? (
+                        <p className="text-xs text-destructive">
+                          {errors.origin}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="grid gap-2">
+                      <Label htmlFor="destination">Destinație *</Label>
+                      <Input
+                        id="destination"
+                        value={form.destination}
+                        onChange={(e) =>
+                          setForm((p) => ({
+                            ...p,
+                            destination: e.target.value,
+                          }))
+                        }
+                        placeholder="Ex: Constanța"
+                      />
+                      {errors.destination ? (
+                        <p className="text-xs text-destructive">
+                          {errors.destination}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="grid gap-2 sm:col-span-2">
+                      <Label>Dată *</Label>
+                      <Popover open={dateOpen} onOpenChange={setDateOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !form.date && "text-muted-foreground",
+                            )}
+                          >
+                            {form.date ? (
+                              <span className="tabular-nums">
+                                {format(form.date, "yyyy-MM-dd")}
+                              </span>
+                            ) : (
+                              "Selectează data"
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent
+                          side="bottom"
+                          align="center"
+                          avoidCollisions={false}
+                          className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2 p-0 overflow-hidden rounded-xl border bg-popover shadow-2xl w-[260px]"
+                        >
+                          <Calendar
+                            mode="single"
+                            selected={form.date}
+                            onSelect={(d) => {
+                              if (!d) return;
+                              setForm((p) => ({ ...p, date: d }));
+                              setDateOpen(false);
+                            }}
+                            initialFocus
+                            fixedWeeks
+                            style={{ ["--cell-size" as any]: "24px" }}
+                            className="p-1 text-xs w-full"
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {errors.date ? (
+                        <p className="text-xs text-destructive">
+                          {errors.date}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    <div className="grid gap-2 sm:col-span-2">
+                      <Label htmlFor="notes">Note</Label>
+                      <Textarea
+                        id="notes"
+                        value={form.notes ?? ""}
+                        onChange={(e) =>
+                          setForm((p) => ({ ...p, notes: e.target.value }))
+                        }
+                        placeholder="Detalii extra (opțional)"
+                        className="min-h-[100px]"
+                      />
+                      {errors.notes ? (
+                        <p className="text-xs text-destructive">
+                          {errors.notes}
+                        </p>
+                      ) : null}
+                    </div>
+                  </div>
+                </div>
+
+                <DialogFooter className="gap-2 sm:gap-0">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setOpen(false);
+                      resetForm();
+                    }}
+                  >
+                    Anulează
+                  </Button>
+                  <Button type="button" onClick={onSubmit}>
+                    Salvează
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </CardHeader>
 
           <CardContent className="space-y-4">
