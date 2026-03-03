@@ -15,20 +15,9 @@
 //   5. Calcul cost per cursă (km gol vs încărcat)
 // ──────────────────────────────────────────────────────────
 
-import { Header } from "@/components/layout/header";
-import { Main } from "@/components/layout/main";
-import { TopNav } from "@/components/layout/top-nav";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLocation } from "@tanstack/react-router";
-
-const topNavLinks = [
-  { title: "Comenzi", href: "/transport/orders", isActive: false },
-  { title: "Curse", href: "/transport/trips", isActive: false },
-  { title: "Șoferi & Camioane", href: "/transport/drivers", isActive: false },
-];
-
 export default function TransportPage() {
   const { pathname } = useLocation();
+
   const links = topNavLinks.map((link) => ({
     ...link,
     isActive:
@@ -36,11 +25,56 @@ export default function TransportPage() {
       (link.href === "/transport/orders" && pathname === "/transport"),
   }));
 
+  // 🔹 AICI începe logica KPI (NU în map)
+
+  const orders = getCollection<Order>(STORAGE_KEYS.transport_orders);
+  const trips = getCollection<Trip>(STORAGE_KEYS.transport_trips);
+
+  const today = new Date();
+  const month = today.getMonth();
+  const year = today.getFullYear();
+
+  const activeOrders = useMemo(
+    () =>
+      orders.filter(
+        (o) =>
+          o.status === "pending" ||
+          o.status === "assigned" ||
+          o.status === "in_transit"
+      ).length,
+    [orders]
+  );
+
+  const tripsToday = useMemo(
+    () =>
+      trips.filter((t) => {
+        const d = new Date(t.date);
+        return (
+          d.getDate() === today.getDate() &&
+          d.getMonth() === month &&
+          d.getFullYear() === year
+        );
+      }).length,
+    [trips]
+  );
+
+  const totalKmMonth = useMemo(
+    () =>
+      trips
+        .filter((t) => {
+          const d = new Date(t.date);
+          return d.getMonth() === month && d.getFullYear() === year;
+        })
+        .reduce((sum, t) => sum + t.kmLoaded + t.kmEmpty, 0),
+    [trips]
+  );
+
   return (
     <>
       <Header>
         <TopNav links={links} />
       </Header>
+
       <Main>
         <div className="mb-6">
           <h1 className="text-2xl font-bold">Transport & Dispecerat</h1>
@@ -55,44 +89,35 @@ export default function TransportPage() {
               <CardTitle>Comenzi Active</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">--</p>
-              <p className="text-sm text-muted-foreground">
-                TODO: Numărați comenzile din localStorage
-              </p>
+              <p className="text-3xl font-bold">{activeOrders}</p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Curse Azi</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">--</p>
-              <p className="text-sm text-muted-foreground">
-                TODO: Numărați cursele zilei
-              </p>
+              <p className="text-3xl font-bold">{tripsToday}</p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader>
               <CardTitle>Km Total Luna</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">--</p>
-              <p className="text-sm text-muted-foreground">
-                TODO: Suma km (încărcat + gol)
-              </p>
+              <p className="text-3xl font-bold">{totalKmMonth}</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* TODO: Adăugați aici tabelul principal cu comenzi */}
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>Lista Comenzi</CardTitle>
           </CardHeader>
           <CardContent className="flex h-64 items-center justify-center text-muted-foreground">
-            TODO: Tabel TanStack Table cu comenzi — import CSV, filtrare,
-            sortare
+            TODO: Tabel TanStack Table cu comenzi — import CSV, filtrare, sortare
           </CardContent>
         </Card>
       </Main>
