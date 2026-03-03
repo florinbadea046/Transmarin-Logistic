@@ -20,6 +20,10 @@ import { Main } from "@/components/layout/main";
 import { TopNav } from "@/components/layout/top-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocation } from "@tanstack/react-router";
+import { TrucksTable } from "@/modules/fleet/components/TrucksTable";
+import { TrucksCount } from "@/modules/fleet/components/TrucksCount";
+import { LowStockCount } from "@/modules/fleet/components/LowStockCount";
+import { ServiceCount } from "@/modules/fleet/components/ServiceCount";
 
 const topNavLinks = [
   { title: "Piese & Consum.", href: "/fleet/parts", isActive: false },
@@ -55,10 +59,7 @@ export default function FleetPage() {
               <CardTitle>Camioane în Flotă</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">--</p>
-              <p className="text-sm text-muted-foreground">
-                TODO: Din localStorage
-              </p>
+              <TrucksCount />
             </CardContent>
           </Card>
           <Card>
@@ -66,10 +67,7 @@ export default function FleetPage() {
               <CardTitle>Piese sub Stoc Minim</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold text-red-500">--</p>
-              <p className="text-sm text-muted-foreground">
-                TODO: Alertă stoc scăzut
-              </p>
+              <LowStockCount />
             </CardContent>
           </Card>
           <Card>
@@ -77,10 +75,7 @@ export default function FleetPage() {
               <CardTitle>Service Programat</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">--</p>
-              <p className="text-sm text-muted-foreground">
-                TODO: Următoarea revizie
-              </p>
+              <ServiceCount />
             </CardContent>
           </Card>
         </div>
@@ -89,8 +84,8 @@ export default function FleetPage() {
           <CardHeader>
             <CardTitle>Parc Auto</CardTitle>
           </CardHeader>
-          <CardContent className="flex h-64 items-center justify-center text-muted-foreground">
-            TODO: Tabel cu toate camioanele, status, km, expirări
+          <CardContent>
+            <TrucksTable />
           </CardContent>
         </Card>
       </Main>
