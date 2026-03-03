@@ -11,6 +11,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { getCollection } from "@/utils/local-storage";
 import type { Part } from "@/modules/fleet/types";
 import { AllocatePart } from "@/modules/fleet/components/AllocatePart";
 
@@ -30,8 +31,7 @@ export function PartsCRUD() {
     const [form, setForm] = useState<Omit<Part, "id">>(emptyForm);
 
     useEffect(() => {
-        const raw = localStorage.getItem(STORAGE_KEYS.parts);
-        if (raw) setParts(JSON.parse(raw));
+        setParts(getCollection<Part>(STORAGE_KEYS.parts));
     }, []);
 
     const save = (updated: Part[]) => {
@@ -74,7 +74,7 @@ export function PartsCRUD() {
 
     return (
         <div>
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-start mb-4 px-6">
                 <Button onClick={() => handleOpen()}>+ Adaugă piesă</Button>
             </div>
 
@@ -116,15 +116,9 @@ export function PartsCRUD() {
                                                 <Button size="sm" variant="outline" onClick={() => handleOpen(part)}>
                                                     Editează
                                                 </Button>
+                                                <AllocatePart part={part} />
                                                 <Button size="sm" variant="destructive" onClick={() => handleDelete(part.id)}>
                                                     Șterge
-                                                </Button>
-                                            </div>
-                                        </td>
-                                        <td className="py-3">
-                                            <div className="flex gap-2 items-center justify-center">
-                                                <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-                                                    Alocă
                                                 </Button>
                                             </div>
                                         </td>
