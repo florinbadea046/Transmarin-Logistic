@@ -212,13 +212,28 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49BBBB1B31007593840000",
   },
 ];
+
+// ──────────────────────────────────────────────────────────
+// Helper: generează dată ISO relativă la azi
+// ex: relativeDate(0, 5)  → ziua 5 a lunii curente
+//     relativeDate(-1, 15) → ziua 15 a lunii trecute
+// ──────────────────────────────────────────────────────────
+function relativeDate(monthOffset: number, day: number): string {
+  const d = new Date();
+  d.setDate(1); // evităm overflow de lună
+  d.setMonth(d.getMonth() + monthOffset);
+  d.setDate(day);
+  return d.toISOString().slice(0, 10);
+}
+
 const seedInvoices: Invoice[] = [
+  // Luna curentă — venit
   {
     id: "inv1",
     type: "income",
     number: "F-001",
-    date: "2026-03-05",
-    dueDate: "2026-03-20",
+    date: relativeDate(0, 5),
+    dueDate: relativeDate(0, 20),
     clientName: "SC Logistica SRL",
     items: [{ description: "Transport marfă", quantity: 1, unitPrice: 5000, total: 5000 }],
     totalWithoutVAT: 5000,
@@ -226,12 +241,13 @@ const seedInvoices: Invoice[] = [
     total: 5950,
     status: "paid",
   },
+  // Luna curentă — cheltuială
   {
     id: "inv2",
     type: "expense",
     number: "F-002",
-    date: "2026-03-10",
-    dueDate: "2026-03-25",
+    date: relativeDate(0, 10),
+    dueDate: relativeDate(0, 25),
     supplierId: "s1",
     clientName: "Auto Parts SRL",
     items: [{ description: "Piese auto", quantity: 3, unitPrice: 800, total: 2400 }],
@@ -240,12 +256,13 @@ const seedInvoices: Invoice[] = [
     total: 2856,
     status: "sent",
   },
+  // Luna trecută — venit overdue
   {
     id: "inv3",
     type: "income",
     number: "F-003",
-    date: "2026-02-15",
-    dueDate: "2026-03-01",
+    date: relativeDate(-1, 15),
+    dueDate: relativeDate(-1, 28),
     clientName: "Trans Europa SA",
     items: [{ description: "Transport internațional", quantity: 1, unitPrice: 8000, total: 8000 }],
     totalWithoutVAT: 8000,
@@ -253,7 +270,109 @@ const seedInvoices: Invoice[] = [
     total: 9520,
     status: "overdue",
   },
+  // Luna trecută — cheltuială
+  {
+    id: "inv4",
+    type: "expense",
+    number: "F-004",
+    date: relativeDate(-1, 10),
+    dueDate: relativeDate(-1, 25),
+    supplierId: "s2",
+    clientName: "Brake Systems SA",
+    items: [{ description: "Plăcuțe frână", quantity: 4, unitPrice: 320, total: 1280 }],
+    totalWithoutVAT: 1280,
+    vat: 243,
+    total: 1523,
+    status: "paid",
+  },
+  // Acum 2 luni — venit
+  {
+    id: "inv5",
+    type: "income",
+    number: "F-005",
+    date: relativeDate(-2, 8),
+    dueDate: relativeDate(-2, 22),
+    clientName: "Cargo Plus SRL",
+    items: [{ description: "Transport intern", quantity: 2, unitPrice: 3000, total: 6000 }],
+    totalWithoutVAT: 6000,
+    vat: 1140,
+    total: 7140,
+    status: "paid",
+  },
+  // Acum 2 luni — cheltuială
+  {
+    id: "inv6",
+    type: "expense",
+    number: "F-006",
+    date: relativeDate(-2, 20),
+    dueDate: relativeDate(-1, 5),
+    supplierId: "s1",
+    clientName: "Auto Parts SRL",
+    items: [{ description: "Filtre ulei", quantity: 10, unitPrice: 45, total: 450 }],
+    totalWithoutVAT: 450,
+    vat: 85,
+    total: 535,
+    status: "paid",
+  },
+  // Acum 3 luni — venit
+  {
+    id: "inv7",
+    type: "income",
+    number: "F-007",
+    date: relativeDate(-3, 12),
+    dueDate: relativeDate(-3, 26),
+    clientName: "SC Logistica SRL",
+    items: [{ description: "Transport marfă frigorifică", quantity: 1, unitPrice: 7000, total: 7000 }],
+    totalWithoutVAT: 7000,
+    vat: 1330,
+    total: 8330,
+    status: "paid",
+  },
+  // Acum 4 luni — venit
+  {
+    id: "inv8",
+    type: "income",
+    number: "F-008",
+    date: relativeDate(-4, 3),
+    dueDate: relativeDate(-4, 18),
+    clientName: "Trans Europa SA",
+    items: [{ description: "Transport extern", quantity: 1, unitPrice: 12000, total: 12000 }],
+    totalWithoutVAT: 12000,
+    vat: 2280,
+    total: 14280,
+    status: "paid",
+  },
+  // Acum 5 luni — venit
+  {
+    id: "inv9",
+    type: "income",
+    number: "F-009",
+    date: relativeDate(-5, 7),
+    dueDate: relativeDate(-5, 21),
+    clientName: "Cargo Plus SRL",
+    items: [{ description: "Transport ADR", quantity: 1, unitPrice: 9000, total: 9000 }],
+    totalWithoutVAT: 9000,
+    vat: 1710,
+    total: 10710,
+    status: "paid",
+  },
+  // Acum 5 luni — cheltuială
+  {
+    id: "inv10",
+    type: "expense",
+    number: "F-010",
+    date: relativeDate(-5, 15),
+    dueDate: relativeDate(-4, 1),
+    supplierId: "s2",
+    clientName: "Brake Systems SA",
+    items: [{ description: "Service periodic", quantity: 1, unitPrice: 2500, total: 2500 }],
+    totalWithoutVAT: 2500,
+    vat: 475,
+    total: 2975,
+    status: "paid",
+  },
 ];
+
 /**
  * Încarcă datele seed în localStorage (doar dacă cheile nu există deja).
  * Apelat o singură dată la inițializarea aplicației.

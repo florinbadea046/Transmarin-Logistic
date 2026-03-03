@@ -1,8 +1,18 @@
 // ──────────────────────────────────────────────────────────
 // MODUL: Contabilitate Simplificată — Pagina principală
-// D7: KPI cards — total venituri luna, total cheltuieli luna,
-//     sold (venituri-cheltuieli), nr. facturi neplatite
-// D8: BarChart venituri vs cheltuieli pe ultimele 6 luni
+//
+// Acest modul conține:
+// - Ruta: /accounting              — dashboard principal (overview financiar)
+// - Ruta: /accounting/invoices     — listă facturi (venituri/cheltuieli)
+// - Ruta: /accounting/suppliers    — furnizori (parteneri de business)
+//
+// TODO pentru studenți:
+// - D7: Implementați KPI cards pentru:
+//       • total venituri luna curentă
+//       • total cheltuieli luna curentă
+//       • sold (venituri - cheltuieli)
+//       • număr facturi neplătite
+// - D8: Implementați un BarChart cu venituri vs cheltuieli pe ultimele 6 luni
 // ──────────────────────────────────────────────────────────
 
 import { useMemo } from "react";
@@ -13,6 +23,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocation } from "@tanstack/react-router";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { getCollection } from "@/utils/local-storage";
+import { formatCurrency } from "@/utils/format";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Invoice } from "@/modules/accounting/types";
 
@@ -21,12 +32,13 @@ import type { Invoice } from "@/modules/accounting/types";
 // ──────────────────────────────────────────────────────────
 const MONTH_NAMES = ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-function formatRON(value: number): string {
-  return new Intl.NumberFormat("ro-RO", {
-    style: "currency",
-    currency: "RON",
-    maximumFractionDigits: 0,
-  }).format(value);
+/** Parsare stabilă a datelor ISO "YYYY-MM-DD" fără probleme de timezone */
+function parseDate(dateStr: string): { year: number; month: number } {
+  const [yearStr, monthStr] = dateStr.split("-");
+  return {
+    year: Number(yearStr),
+    month: Number(monthStr) - 1, // 0-indexed ca getMonth()
+  };
 }
 
 // ──────────────────────────────────────────────────────────
@@ -48,7 +60,6 @@ export default function AccountingPage() {
     isActive: pathname === link.href || (link.href === "/accounting/invoices" && pathname === "/accounting"),
   }));
 
-  // ── Citim facturile din localStorage ──
   const invoices = useMemo(() => getCollection<Invoice>(STORAGE_KEYS.invoices), []);
 
   const now = new Date();
@@ -62,8 +73,8 @@ export default function AccountingPage() {
     let facturiNeplatite = 0;
 
     invoices.forEach((inv) => {
-      const d = new Date(inv.date);
-      const isCurrentMonth = d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      const { year, month } = parseDate(inv.date);
+      const isCurrentMonth = month === currentMonth && year === currentYear;
 
       if (isCurrentMonth) {
         if (inv.type === "income") venitLuna += inv.total;
@@ -85,7 +96,6 @@ export default function AccountingPage() {
 
   // ── D8: Venituri vs cheltuieli pe ultimele 6 luni ──
   const chartData = useMemo(() => {
-    // Construim ultimele 6 luni (inclusiv luna curentă)
     const months = Array.from({ length: 6 }, (_, i) => {
       const d = new Date(currentYear, currentMonth - 5 + i, 1);
       return {
@@ -98,10 +108,8 @@ export default function AccountingPage() {
     });
 
     invoices.forEach((inv) => {
-      const d = new Date(inv.date);
-      const m = d.getMonth();
-      const y = d.getFullYear();
-      const bucket = months.find((b) => b.month === m && b.year === y);
+      const { year, month } = parseDate(inv.date);
+      const bucket = months.find((b) => b.month === month && b.year === year);
       if (!bucket) return;
       if (inv.type === "income") bucket.venituri += inv.total;
       else bucket.cheltuieli += inv.total;
@@ -114,9 +122,6 @@ export default function AccountingPage() {
     }));
   }, [invoices, currentMonth, currentYear]);
 
-  // ──────────────────────────────────────────────────────────
-  // Render
-  // ──────────────────────────────────────────────────────────
   return (
     <>
       <Header>
@@ -135,7 +140,7 @@ export default function AccountingPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Venituri luna curentă</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-green-600">{formatRON(kpi.venitLuna)}</p>
+              <p className="text-2xl font-bold text-green-600">{formatCurrency(kpi.venitLuna)}</p>
             </CardContent>
           </Card>
 
@@ -144,7 +149,7 @@ export default function AccountingPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Cheltuieli luna curentă</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-red-500">{formatRON(kpi.cheltuieliLuna)}</p>
+              <p className="text-2xl font-bold text-red-500">{formatCurrency(kpi.cheltuieliLuna)}</p>
             </CardContent>
           </Card>
 
@@ -153,7 +158,7 @@ export default function AccountingPage() {
               <CardTitle className="text-sm font-medium text-muted-foreground">Sold (Venituri − Cheltuieli)</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className={`text-2xl font-bold ${kpi.sold >= 0 ? "text-green-600" : "text-red-500"}`}>{formatRON(kpi.sold)}</p>
+              <p className={`text-2xl font-bold ${kpi.sold >= 0 ? "text-green-600" : "text-red-500"}`}>{formatCurrency(kpi.sold)}</p>
             </CardContent>
           </Card>
 
@@ -188,7 +193,7 @@ export default function AccountingPage() {
                       }).format(v)
                     }
                   />
-                  <Tooltip formatter={(value: number | undefined) => (value !== undefined ? formatRON(value) : "")} />
+                  <Tooltip formatter={(value: number | undefined) => (value !== undefined ? formatCurrency(value) : "")} />
                   <Legend />
                   <Bar dataKey="Venituri" fill="#16a34a" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="Cheltuieli" fill="#dc2626" radius={[4, 4, 0, 0]} />
