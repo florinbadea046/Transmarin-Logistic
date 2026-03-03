@@ -32,9 +32,10 @@ import {
 } from "@/components/ui/table";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
-import { getCollection } from "@/utils/local-storage";
+import { getCollection, addItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee } from "@/modules/hr/types";
+import { formatDate } from "@/utils/format";
 
 const columns: ColumnDef<Employee>[] = [
   {
@@ -119,7 +120,7 @@ const columns: ColumnDef<Employee>[] = [
 ];
 
 export default function EmployeesPage() {
-  const [data] = React.useState<Employee[]>(() =>
+  const [data, setData] = React.useState<Employee[]>(() =>
     getCollection<Employee>(STORAGE_KEYS.employees),
   );
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -270,10 +271,4 @@ export default function EmployeesPage() {
       </Main>
     </>
   );
-}
-
-function formatDate(d: string) {
-  if (!d) return "—";
-  const [y, m, day] = d.split("-");
-  return `${day}.${m}.${y}`;
 }
