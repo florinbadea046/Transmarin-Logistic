@@ -119,12 +119,12 @@ const truckStatusFilterOptions = (
 function daysUntilExpiry(dateStr: string): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const expiry = new Date(dateStr);
+  const expiry = new Date(`${dateStr}T00:00:00`); // ← adaugat T00:00:00
   return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
 function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("ro-RO");
+  return new Date(`${dateStr}T00:00:00`).toLocaleDateString("ro-RO"); // ← adaugat T00:00:00
 }
 
 function ExpiryCell({ dateStr }: { dateStr: string }) {
@@ -260,6 +260,15 @@ export default function DriversPage() {
       return;
     }
 
+    const newTruckId = driverForm.truckId || undefined;
+    if (newTruckId) {
+      updateItem<Driver>(
+        STORAGE_KEYS.drivers,
+        (d) => d.truckId === newTruckId && d.id !== (editingDriver?.id ?? ""),
+        (d) => ({ ...d, truckId: undefined }),
+      );
+    }
+
     if (editingDriver) {
       updateItem<Driver>(
         STORAGE_KEYS.drivers,
@@ -270,7 +279,7 @@ export default function DriversPage() {
           phone: driverForm.phone.trim(),
           licenseExpiry: driverForm.licenseExpiry,
           status: driverForm.status,
-          truckId: driverForm.truckId || undefined,
+          truckId: newTruckId,
         }),
       );
       toast.success("Șoferul a fost actualizat.");
@@ -281,7 +290,7 @@ export default function DriversPage() {
         phone: driverForm.phone.trim(),
         licenseExpiry: driverForm.licenseExpiry,
         status: driverForm.status,
-        truckId: driverForm.truckId || undefined,
+        truckId: newTruckId,
       });
       toast.success("Șoferul a fost adăugat.");
     }
@@ -310,15 +319,11 @@ export default function DriversPage() {
   const handleSubmitAssign = () => {
     if (!assigningTruck) return;
 
-    drivers.forEach((d) => {
-      if (d.truckId === assigningTruck.id) {
-        updateItem<Driver>(
-          STORAGE_KEYS.drivers,
-          (dr) => dr.id === d.id,
-          (dr) => ({ ...dr, truckId: undefined }),
-        );
-      }
-    });
+    updateItem<Driver>(
+      STORAGE_KEYS.drivers,
+      (d) => d.truckId === assigningTruck.id,
+      (d) => ({ ...d, truckId: undefined }),
+    );
 
     if (selectedDriverId && selectedDriverId !== "none") {
       updateItem<Driver>(
@@ -390,7 +395,7 @@ export default function DriversPage() {
             <Badge variant="outline" className={DRIVER_STATUS_CLASS[status]}>
               <span className="md:hidden">
                 {status === "available" ? "Disp." :
-                 status === "on_trip" ? "Cursă" : "Liber"}
+                  status === "on_trip" ? "Cursă" : "Liber"}
               </span>
               <span className="hidden md:inline">
                 {DRIVER_STATUS_LABELS[status]}
@@ -430,6 +435,7 @@ export default function DriversPage() {
               size="icon"
               onClick={() => handleOpenEditDriver(row.original)}
               title="Editează"
+              aria-label="Editează șofer"
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -438,6 +444,7 @@ export default function DriversPage() {
               size="icon"
               onClick={() => setDeleteDriverId(row.original.id)}
               title="Șterge"
+              aria-label="Șterge șofer"
               className="text-red-500 hover:text-red-600"
             >
               <Trash2 className="h-4 w-4" />
@@ -489,7 +496,7 @@ export default function DriversPage() {
             <Badge variant="outline" className={TRUCK_STATUS_CLASS[status]}>
               <span className="md:hidden">
                 {status === "available" ? "Disp." :
-                 status === "on_trip" ? "Cursă" : "Serv."}
+                  status === "on_trip" ? "Cursă" : "Serv."}
               </span>
               <span className="hidden md:inline">
                 {TRUCK_STATUS_LABELS[status]}
@@ -555,6 +562,7 @@ export default function DriversPage() {
               size="icon"
               onClick={() => handleOpenAssign(row.original)}
               title="Asociere șofer"
+              aria-label="Asociere șofer"
             >
               <Link className="h-4 w-4" />
             </Button>
@@ -638,14 +646,25 @@ export default function DriversPage() {
                   <div>
                     <p className="font-medium">Documente camion expirate sau care expiră curând:</p>
                     <ul className="mt-1 space-y-0.5 text-sm">
-                      {expiringTrucks.map((t) => (
-                        <li key={t.id}>
-                          <span className="font-medium">{t.plateNumber}</span> —{" "}
-                          {daysUntilExpiry(t.itpExpiry) <= 30 && `ITP expiră ${formatDate(t.itpExpiry)} `}
-                          {daysUntilExpiry(t.rcaExpiry) <= 30 && `RCA expiră ${formatDate(t.rcaExpiry)} `}
-                          {daysUntilExpiry(t.vignetteExpiry) <= 30 && `Vignetă expiră ${formatDate(t.vignetteExpiry)}`}
-                        </li>
-                      ))}
+                      {expiringTrucks.map((t) => {
+                        const itpDays = daysUntilExpiry(t.itpExpiry);
+                        const rcaDays = daysUntilExpiry(t.rcaExpiry);
+                        const vigDays = daysUntilExpiry(t.vignetteExpiry);
+                        return (
+                          <li key={t.id}>
+                            <span className="font-medium">{t.plateNumber}</span> —{" "}
+                            {itpDays <= 30 && (
+                              <span>ITP {itpDays <= 0 ? "EXPIRAT" : `expiră ${formatDate(t.itpExpiry)}`}{" "}</span>
+                            )}
+                            {rcaDays <= 30 && (
+                              <span>RCA {rcaDays <= 0 ? "EXPIRAT" : `expiră ${formatDate(t.rcaExpiry)}`}{" "}</span>
+                            )}
+                            {vigDays <= 30 && (
+                              <span>Vignetă {vigDays <= 0 ? "EXPIRATĂ" : `expiră ${formatDate(t.vignetteExpiry)}`}</span>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 )}
@@ -689,16 +708,16 @@ export default function DriversPage() {
                               header.column.id === "phone"
                                 ? "hidden md:table-cell"
                                 : header.column.id === "truckId"
-                                ? "hidden lg:table-cell"
-                                : undefined
+                                  ? "hidden lg:table-cell"
+                                  : undefined
                             }
                           >
                             {header.isPlaceholder
                               ? null
                               : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext(),
-                                )}
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
                           </TableHead>
                         ))}
                       </TableRow>
@@ -715,8 +734,8 @@ export default function DriversPage() {
                                 cell.column.id === "phone"
                                   ? "hidden md:table-cell"
                                   : cell.column.id === "truckId"
-                                  ? "hidden lg:table-cell"
-                                  : undefined
+                                    ? "hidden lg:table-cell"
+                                    : undefined
                               }
                             >
                               {flexRender(
@@ -772,19 +791,19 @@ export default function DriversPage() {
                             key={header.id}
                             className={
                               header.column.id === "rcaExpiry" ||
-                              header.column.id === "vignetteExpiry"
+                                header.column.id === "vignetteExpiry"
                                 ? "hidden md:table-cell"
                                 : header.column.id === "driverName"
-                                ? "hidden lg:table-cell"
-                                : undefined
+                                  ? "hidden lg:table-cell"
+                                  : undefined
                             }
                           >
                             {header.isPlaceholder
                               ? null
                               : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext(),
-                                )}
+                                header.column.columnDef.header,
+                                header.getContext(),
+                              )}
                           </TableHead>
                         ))}
                       </TableRow>
@@ -799,11 +818,11 @@ export default function DriversPage() {
                               key={cell.id}
                               className={
                                 cell.column.id === "rcaExpiry" ||
-                                cell.column.id === "vignetteExpiry"
+                                  cell.column.id === "vignetteExpiry"
                                   ? "hidden md:table-cell"
                                   : cell.column.id === "driverName"
-                                  ? "hidden lg:table-cell"
-                                  : undefined
+                                    ? "hidden lg:table-cell"
+                                    : undefined
                               }
                             >
                               {flexRender(
