@@ -7,7 +7,7 @@ import { initCollection } from "@/utils/local-storage";
 import type { Driver, Truck, Order } from "@/modules/transport/types";
 import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
 import type { Employee } from "@/modules/hr/types";
-import type { Supplier } from "@/modules/accounting/types";
+import type { Supplier, Invoice } from "@/modules/accounting/types";
 
 // Chei localStorage — toate modulele folosesc aceste chei
 export const STORAGE_KEYS = {
