@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/table";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
-import { getCollection, addItem, generateId } from "@/utils/local-storage";
+import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
@@ -120,7 +120,7 @@ const columns: ColumnDef<Employee>[] = [
 ];
 
 export default function EmployeesPage() {
-  const [data, setData] = React.useState<Employee[]>(() =>
+  const [data] = React.useState<Employee[]>(() =>
     getCollection<Employee>(STORAGE_KEYS.employees),
   );
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -145,7 +145,7 @@ export default function EmployeesPage() {
     onColumnFiltersChange: setColumnFilters,
     onGlobalFilterChange: setSearch,
 
-    globalFilterFn: (row, columnId, value) => {
+    globalFilterFn: (row, _columnId, value) => {
       const normalize = (s: string) =>
         s
           .toLowerCase()
@@ -254,7 +254,7 @@ export default function EmployeesPage() {
                   ) : (
                     <TableRow>
                       <TableCell
-                        colSpan={columns.length}
+                        colSpan={table.getVisibleLeafColumns().length}
                         className="h-24 text-center text-muted-foreground"
                       >
                         Niciun angajat găsit.
