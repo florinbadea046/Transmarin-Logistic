@@ -19,5 +19,13 @@ export function calculateTotalCost(
   partsUsed: { partId: string; quantity: number }[],
   parts: Part[]
 ): number {
-  return partsUsed.reduce((sum, pu) => sum + getPartPrice(parts, pu.partId) * pu.quantity, 0);
+  const priceById = new Map<string, number>();
+  for (const part of parts) {
+    priceById.set(part.id, part.unitPrice ?? 0);
+  }
+
+  return partsUsed.reduce(
+    (sum, pu) => sum + (priceById.get(pu.partId) ?? 0) * pu.quantity,
+    0
+  );
 }

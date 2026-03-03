@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,9 +34,16 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
-import { getConsumption, buildChartData, ALERT_THRESHOLD, CHART_COLORS } from "@/modules/fleet/utils/fuelUtils";
+import {
+  getConsumption,
+  buildChartData,
+  buildTruckRecordsMap,
+  ALERT_THRESHOLD,
+  CHART_COLORS,
+} from "@/modules/fleet/utils/fuelUtils";
 import type { FuelRecord } from "@/modules/fleet/types";
 import type { Truck } from "@/modules/transport/types";
 
@@ -59,19 +66,23 @@ export function FuelCRUD() {
     setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
   }, []);
 
-  const chartData = buildChartData(records, trucks);
-
   const save = (updated: FuelRecord[]) => {
     setRecords(updated);
     localStorage.setItem(STORAGE_KEYS.fuelRecords, JSON.stringify(updated));
   };
 
-  const getTruckLabel = (id: string) => {
-    const t = trucks.find((t) => t.id === id);
-    return t ? `${t.plateNumber} — ${t.brand} ${t.model}` : id;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: ["liters", "cost", "mileage"].includes(name) ? Number(value) : value,
+    }));
   };
 
   const handleSubmit = () => {
+    // Guard against missing required fields
+    if (!form.truckId || !form.date) return;
+
     const newRecord: FuelRecord = {
       id: crypto.randomUUID(),
       ...form,
@@ -85,12 +96,12 @@ export function FuelCRUD() {
     save(records.filter((r) => r.id !== id));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: ["liters", "cost", "mileage"].includes(name) ? Number(value) : value,
-    }));
+  const truckRecordsMap = useMemo(() => buildTruckRecordsMap(records), [records]);
+  const chartData = useMemo(() => buildChartData(records, trucks), [records, trucks]);
+
+  const getTruckLabel = (id: string) => {
+    const t = trucks.find((t) => t.id === id);
+    return t ? `${t.plateNumber} — ${t.brand} ${t.model}` : id;
   };
 
   return (
@@ -150,7 +161,8 @@ export function FuelCRUD() {
               </TableHeader>
               <TableBody>
                 {records.map((record) => {
-                  const cons = getConsumption(record, records);
+                  const truckRecords = truckRecordsMap[record.truckId] || [];
+                  const cons = getConsumption(record, truckRecords);
                   const isAlert = cons !== null && parseFloat(cons) > ALERT_THRESHOLD;
                   return (
                     <TableRow key={record.id}>
@@ -167,7 +179,8 @@ export function FuelCRUD() {
                             {cons} L/100km
                             {isAlert && (
                               <>
-                                {" "}<span aria-hidden="true">⚠️</span>
+                                {" "}
+                                <span aria-hidden="true">⚠️</span>
                                 <span className="sr-only">Consum anormal</span>
                               </>
                             )}

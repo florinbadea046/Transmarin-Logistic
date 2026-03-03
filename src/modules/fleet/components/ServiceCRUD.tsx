@@ -192,8 +192,8 @@ export function ServiceCRUD() {
                       <span className="text-muted-foreground">—</span>
                     ) : (
                       <ul className="text-xs space-y-1">
-                        {record.partsUsed.map((pu) => (
-                          <li key={pu.partId}>
+                        {record.partsUsed.map((pu, index) => (
+                          <li key={`${pu.partId}-${index}`}>
                             {getPartName(parts, pu.partId)} × {pu.quantity}
                           </li>
                         ))}

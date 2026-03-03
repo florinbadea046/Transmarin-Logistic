@@ -3,9 +3,19 @@ import type { Truck } from "@/modules/transport/types";
 
 const ALLOCATIONS_KEY = "transmarin_allocations";
 
+function safeParseAllocations(raw: string | null): any[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
 export function allocatePartToTruck(part: Part, truck: Truck): void {
   const raw = localStorage.getItem(ALLOCATIONS_KEY);
-  const allocations = raw ? JSON.parse(raw) : [];
+  const allocations = safeParseAllocations(raw);
 
   allocations.push({
     id: crypto.randomUUID(),

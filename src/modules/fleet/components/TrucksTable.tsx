@@ -23,7 +23,9 @@ const DateCell = ({ date }: { date: string }) => {
   if (status === "expired") {
     return (
       <span className="text-red-600 font-semibold">
-        {date} ⚠️
+        {date}{" "}
+        <span aria-hidden="true">⚠️</span>
+        <span className="sr-only">Expirat</span>
       </span>
     );
   }
@@ -31,7 +33,9 @@ const DateCell = ({ date }: { date: string }) => {
   if (status === "soon") {
     return (
       <span className="text-amber-500 font-semibold">
-        {date} ⚠️
+        {date}{" "}
+        <span aria-hidden="true">⚠️</span>
+        <span className="sr-only">Expiră curând</span>
       </span>
     );
   }
