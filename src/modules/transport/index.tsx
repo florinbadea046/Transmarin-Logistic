@@ -15,11 +15,14 @@
 //   5. Calcul cost per cursă (km gol vs încărcat)
 // ──────────────────────────────────────────────────────────
 
+// ──────────────────────────────────────────────────────────
+// MODUL: Transport & Dispecerat — Pagina principală
+// ──────────────────────────────────────────────────────────
+
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { TopNav } from "@/components/layout/top-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useLocation } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
 const topNavLinks = [
@@ -29,22 +32,19 @@ const topNavLinks = [
 ];
 
 export default function TransportPage() {
-  const { pathname } = useLocation();
-  const links = topNavLinks.map((link) => ({
+  // Nu mai folosim useLocation - setăm manual link-ul activ
+  const links = topNavLinks.map(link => ({
     ...link,
-    isActive:
-      pathname === link.href ||
-      (link.href === "/transport/orders" && pathname === "/transport"),
+    isActive: link.href === "/transport/orders" // Comenzi e pagina default
   }));
 
-  // State pentru cele 4 KPI-uri cerute în task
+  // State pentru cele 4 KPI-uri
   const [activeOrders, setActiveOrders] = useState<number>(0);
   const [todayTrips, setTodayTrips] = useState<number>(0);
   const [monthlyKm, setMonthlyKm] = useState<number>(0);
   const [availableDrivers, setAvailableDrivers] = useState<number>(0);
 
   useEffect(() => {
-    // Funcție pentru calcularea KPI-urilor din localStorage
     const calculateKPIs = () => {
       try {
         // 1. Calculează comenzile active
@@ -65,7 +65,7 @@ export default function TransportPage() {
         }).length;
         setTodayTrips(todayCount);
 
-        // 3. Calculează km total luna curentă (încărcat + gol)
+        // 3. Calculează km total luna curentă
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
         const totalKm = trips
@@ -91,7 +91,6 @@ export default function TransportPage() {
 
       } catch (error) {
         console.error('Eroare la calcularea KPI-urilor:', error);
-        // Setează valori default în caz de eroare
         setActiveOrders(0);
         setTodayTrips(0);
         setMonthlyKm(0);
@@ -99,9 +98,8 @@ export default function TransportPage() {
       }
     };
 
-    // Funcție pentru generarea datelor mock (pentru dezvoltare/testare)
+    // Date mock pentru testare
     const initializeMockData = () => {
-      // Creează date mock doar dacă nu există deja în localStorage
       if (!localStorage.getItem('transport_orders')) {
         const mockOrders = [
           { id: '1', status: 'active', client: 'Client A', destination: 'București' },
@@ -118,72 +116,33 @@ export default function TransportPage() {
         const yesterday = new Date(Date.now() - 86400000);
         
         const mockTrips = [
-          { 
-            id: '1', 
-            date: today.toISOString(), 
-            loadedKm: 250, 
-            emptyKm: 50, 
-            driver: 'Ion Popescu' 
-          },
-          { 
-            id: '2', 
-            date: today.toISOString(), 
-            loadedKm: 180, 
-            emptyKm: 30, 
-            driver: 'Andrei Ionescu' 
-          },
-          { 
-            id: '3', 
-            date: yesterday.toISOString(), 
-            loadedKm: 320, 
-            emptyKm: 70, 
-            driver: 'Mihai Popa' 
-          },
-          { 
-            id: '4', 
-            date: today.toISOString(), 
-            loadedKm: 150, 
-            emptyKm: 20, 
-            driver: 'George Radu' 
-          }
+          { id: '1', date: today.toISOString(), loadedKm: 250, emptyKm: 50 },
+          { id: '2', date: today.toISOString(), loadedKm: 180, emptyKm: 30 },
+          { id: '3', date: yesterday.toISOString(), loadedKm: 320, emptyKm: 70 },
+          { id: '4', date: today.toISOString(), loadedKm: 150, emptyKm: 20 }
         ];
         localStorage.setItem('transport_trips', JSON.stringify(mockTrips));
       }
 
       if (!localStorage.getItem('transport_drivers')) {
         const mockDrivers = [
-          { id: '1', name: 'Ion Popescu', status: 'available', truck: 'B-123-ABC' },
-          { id: '2', name: 'Andrei Ionescu', status: 'available', truck: 'B-456-DEF' },
-          { id: '3', name: 'Mihai Popa', status: 'busy', truck: 'CJ-789-GHI' },
-          { id: '4', name: 'George Radu', status: 'available', truck: 'TM-012-JKL' },
-          { id: '5', name: 'Vasile Marin', status: 'available', truck: 'CT-345-MNO' },
-          { id: '6', name: 'Costel Dobre', status: 'busy', truck: 'IS-678-PQR' }
+          { id: '1', name: 'Ion Popescu', status: 'available' },
+          { id: '2', name: 'Andrei Ionescu', status: 'available' },
+          { id: '3', name: 'Mihai Popa', status: 'busy' },
+          { id: '4', name: 'George Radu', status: 'available' },
+          { id: '5', name: 'Vasile Marin', status: 'available' }
         ];
         localStorage.setItem('transport_drivers', JSON.stringify(mockDrivers));
       }
     };
 
-    // Inițializează date mock pentru testare
     initializeMockData();
-    
-    // Calculează KPI-urile inițial
     calculateKPIs();
 
-    // Recalculează KPI-urile la fiecare 30 de secunde
     const interval = setInterval(calculateKPIs, 30000);
 
-    // Ascultă pentru schimbări în localStorage (din alte tab-uri)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key?.startsWith('transport_')) {
-        calculateKPIs();
-      }
-    };
-    window.addEventListener('storage', handleStorageChange);
-
-    // Cleanup
     return () => {
       clearInterval(interval);
-      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
@@ -200,9 +159,8 @@ export default function TransportPage() {
           </p>
         </div>
 
-        {/* Grid cu 4 KPI Cards conform cerinței */}
+        {/* Grid cu 4 KPI Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* KPI 1: Comenzi Active */}
           <Card>
             <CardHeader>
               <CardTitle>Comenzi Active</CardTitle>
@@ -215,7 +173,6 @@ export default function TransportPage() {
             </CardContent>
           </Card>
 
-          {/* KPI 2: Curse Azi */}
           <Card>
             <CardHeader>
               <CardTitle>Curse Azi</CardTitle>
@@ -228,7 +185,6 @@ export default function TransportPage() {
             </CardContent>
           </Card>
 
-          {/* KPI 3: Km Total Luna */}
           <Card>
             <CardHeader>
               <CardTitle>Km Total Luna</CardTitle>
@@ -243,7 +199,6 @@ export default function TransportPage() {
             </CardContent>
           </Card>
 
-          {/* KPI 4: Șoferi Disponibili */}
           <Card>
             <CardHeader>
               <CardTitle>Șoferi Disponibili</CardTitle>
@@ -257,7 +212,6 @@ export default function TransportPage() {
           </Card>
         </div>
 
-        {/* TODO: Adăugați aici tabelul principal cu comenzi */}
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>Lista Comenzi</CardTitle>
