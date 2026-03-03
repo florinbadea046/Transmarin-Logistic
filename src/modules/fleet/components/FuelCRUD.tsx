@@ -36,10 +36,9 @@ import {
 } from "recharts";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
+import { getConsumption, buildChartData, ALERT_THRESHOLD, CHART_COLORS } from "@/modules/fleet/utils/fuelUtils";
 import type { FuelRecord } from "@/modules/fleet/types";
 import type { Truck } from "@/modules/transport/types";
-
-const ALERT_THRESHOLD = 35;
 
 const emptyForm = {
   truckId: "",
@@ -60,6 +59,8 @@ export function FuelCRUD() {
     setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
   }, []);
 
+  const chartData = buildChartData(records, trucks);
+
   const save = (updated: FuelRecord[]) => {
     setRecords(updated);
     localStorage.setItem(STORAGE_KEYS.fuelRecords, JSON.stringify(updated));
@@ -69,39 +70,6 @@ export function FuelCRUD() {
     const t = trucks.find((t) => t.id === id);
     return t ? `${t.plateNumber} — ${t.brand} ${t.model}` : id;
   };
-
-  const getConsumption = (record: FuelRecord, allRecords: FuelRecord[]) => {
-    const truckRecords = allRecords
-      .filter((r) => r.truckId === record.truckId)
-      .sort((a, b) => a.mileage - b.mileage);
-    const idx = truckRecords.findIndex((r) => r.id === record.id);
-    if (idx === 0) return null;
-    const prev = truckRecords[idx - 1];
-    const kmDiff = record.mileage - prev.mileage;
-    if (kmDiff <= 0) return null;
-    return ((record.liters / kmDiff) * 100).toFixed(1);
-  };
-
-  const chartData = (() => {
-    const result: Record<string, string | number>[] = [];
-    trucks.forEach((truck) => {
-      const truckRecords = [...records]
-        .filter((r) => r.truckId === truck.id)
-        .sort((a, b) => a.mileage - b.mileage);
-      truckRecords.forEach((rec, idx) => {
-        if (idx === 0) return;
-        const prev = truckRecords[idx - 1];
-        const kmDiff = rec.mileage - prev.mileage;
-        if (kmDiff <= 0) return;
-        const cons = parseFloat(((rec.liters / kmDiff) * 100).toFixed(1));
-        if (!result[idx - 1]) result[idx - 1] = { index: idx };
-        result[idx - 1][truck.plateNumber] = cons;
-      });
-    });
-    return result;
-  })();
-
-  const COLORS = ["#6366f1", "#f59e0b", "#10b981"];
 
   const handleSubmit = () => {
     const newRecord: FuelRecord = {
@@ -150,7 +118,7 @@ export function FuelCRUD() {
                       key={truck.id}
                       type="monotone"
                       dataKey={truck.plateNumber}
-                      stroke={COLORS[i % COLORS.length]}
+                      stroke={CHART_COLORS[i % CHART_COLORS.length]}
                       strokeWidth={2.5}
                       dot={false}
                       activeDot={{ r: 5 }}
@@ -249,7 +217,7 @@ export function FuelCRUD() {
                   type="date"
                   value={form.date}
                   onChange={handleChange}
-                  className="w-8/12 [&::-webkit-calendar-picker-indicator]:ml-auto"
+                  className="w-full [&::-webkit-calendar-picker-indicator]:ml-auto"
                 />
               </div>
               <div className="space-y-1">

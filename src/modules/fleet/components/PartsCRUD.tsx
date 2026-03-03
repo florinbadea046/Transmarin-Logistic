@@ -14,6 +14,8 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
 import type { Part } from "@/modules/fleet/types";
 import { AllocatePart } from "@/modules/fleet/components/AllocatePart";
+import { savePart, deletePart, isLowStock } from "@/modules/fleet/utils/partsUtils";
+
 
 const emptyForm: Omit<Part, "id"> = {
     name: "",
@@ -52,16 +54,12 @@ export function PartsCRUD() {
     };
 
     const handleSubmit = () => {
-        if (editingPart) {
-            save(parts.map((p) => (p.id === editingPart.id ? { ...editingPart, ...form } : p)));
-        } else {
-            save([...parts, { id: crypto.randomUUID(), ...form }]);
-        }
+        save(savePart(parts, form, editingPart));
         setOpen(false);
     };
 
     const handleDelete = (id: string) => {
-        save(parts.filter((p) => p.id !== id));
+        save(deletePart(parts, id));
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,7 +94,7 @@ export function PartsCRUD() {
                         </thead>
                         <tbody>
                             {parts.map((part) => {
-                                const isLow = part.quantity < part.minStock;
+                                const isLow = isLowStock(part);
                                 return (
                                     <tr key={part.id} className="border-b last:border-0 hover:bg-muted/40 transition-colors">
                                         <td className="py-3 pr-4 font-semibold">{part.name}</td>
