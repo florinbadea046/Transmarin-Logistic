@@ -4,21 +4,24 @@ import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Supplier } from "@/modules/accounting/types";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { getCollection } from "@/utils/local-storage";
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedSupplier, setSelectedSupplier] =
+    useState<Supplier | null>(null);
 
   const itemsPerPage = 5;
 
   useEffect(() => {
-    const data = localStorage.getItem(STORAGE_KEYS.suppliers);
-    if (data) {
-      const parsed: Supplier[] = JSON.parse(data);
-      setSuppliers(parsed);
-    }
-  }, []);
+  const suppliersFromStorage =
+    getCollection<Supplier>(STORAGE_KEYS.suppliers);
+
+  setSuppliers(suppliersFromStorage);
+}, []);
 
   const normalizedSearch = search.trim().toLowerCase();
 
