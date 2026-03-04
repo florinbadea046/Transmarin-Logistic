@@ -1,6 +1,6 @@
 import * as React from "react";
 import { z } from "zod";
-import { format } from "date-fns";
+import { format, parseISO, startOfDay, endOfDay } from "date-fns";
 import {
   type ColumnDef,
   flexRender,
@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { CalendarIcon, X } from "lucide-react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
 import {
@@ -72,11 +73,11 @@ const statusMeta: Record<
     variant?: "default" | "secondary" | "destructive" | "outline";
   }
 > = {
-  pending: { label: "În așteptare", variant: "secondary" },
-  assigned: { label: "Asignată", variant: "outline" },
-  in_transit: { label: "În tranzit", variant: "default" },
-  delivered: { label: "Livrată", variant: "secondary" },
-  cancelled: { label: "Anulată", variant: "destructive" },
+  pending: { label: "In asteptare", variant: "secondary" },
+  assigned: { label: "Asignata", variant: "outline" },
+  in_transit: { label: "In tranzit", variant: "default" },
+  delivered: { label: "Livrata", variant: "secondary" },
+  cancelled: { label: "Anulata", variant: "destructive" },
 };
 
 const statusFilterOptions = (Object.keys(statusMeta) as Order["status"][]).map(
@@ -86,7 +87,7 @@ const statusFilterOptions = (Object.keys(statusMeta) as Order["status"][]).map(
 const orderSchema = z.object({
   clientName: z.string().trim().min(1, "Clientul este obligatoriu"),
   origin: z.string().trim().min(1, "Originea este obligatorie"),
-  destination: z.string().trim().min(1, "Destinația este obligatorie"),
+  destination: z.string().trim().min(1, "Destinatia este obligatorie"),
   date: z.date().refine((d) => d instanceof Date && !isNaN(d.getTime()), {
     message: "Data este obligatorie",
   }),
@@ -113,8 +114,8 @@ function safeRandomId() {
 function setOrdersToStorage(orders: Order[]) {
   try {
     localStorage.setItem(STORAGE_KEYS.orders, JSON.stringify(orders));
-  } catch {
-    return;
+  } catch (e) {
+    void e;
   }
 }
 
@@ -156,6 +157,112 @@ const EMPTY_FORM: OrderForm = {
   weight: 1,
   notes: "",
 };
+
+function DateButton({
+  date,
+  placeholder,
+  onSelect,
+}: {
+  date: Date | undefined;
+  placeholder: string;
+  onSelect: (d: Date | undefined) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          className={cn(
+            "h-8 w-full justify-start text-left text-sm font-normal sm:w-[150px]",
+            !date && "text-muted-foreground",
+          )}
+        >
+          <CalendarIcon className="mr-2 h-3.5 w-3.5 shrink-0" />
+          {date ? (
+            <span className="tabular-nums">{format(date, "yyyy-MM-dd")}</span>
+          ) : (
+            placeholder
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={date}
+          onSelect={(d) => {
+            onSelect(d);
+            setOpen(false);
+          }}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+interface AdvancedFiltersProps {
+  dateFrom: Date | undefined;
+  dateTo: Date | undefined;
+  origin: string;
+  destination: string;
+  onDateFrom: (d: Date | undefined) => void;
+  onDateTo: (d: Date | undefined) => void;
+  onOrigin: (v: string) => void;
+  onDestination: (v: string) => void;
+  onReset: () => void;
+  hasActive: boolean;
+}
+
+function AdvancedFilters({
+  dateFrom,
+  dateTo,
+  origin,
+  destination,
+  onDateFrom,
+  onDateTo,
+  onOrigin,
+  onDestination,
+  onReset,
+  hasActive,
+}: AdvancedFiltersProps) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <DateButton
+        date={dateFrom}
+        placeholder="De la data"
+        onSelect={onDateFrom}
+      />
+      <DateButton
+        date={dateTo}
+        placeholder="Pana la data"
+        onSelect={onDateTo}
+      />
+      <Input
+        value={origin}
+        onChange={(e) => onOrigin(e.target.value)}
+        placeholder="Origine..."
+        className="h-8 w-full sm:w-[140px]"
+      />
+      <Input
+        value={destination}
+        onChange={(e) => onDestination(e.target.value)}
+        placeholder="Destinatie..."
+        className="h-8 w-full sm:w-[140px]"
+      />
+      {hasActive && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 px-2"
+          onClick={onReset}
+        >
+          Resetare filtre <X className="ml-1 h-3.5 w-3.5" />
+        </Button>
+      )}
+    </div>
+  );
+}
 
 interface OrderFormDialogProps {
   open: boolean;
@@ -404,10 +511,51 @@ export default function OrdersPage() {
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [deletingOrder, setDeletingOrder] = React.useState<Order | null>(null);
 
+  const [dateFrom, setDateFrom] = React.useState<Date | undefined>(undefined);
+  const [dateTo, setDateTo] = React.useState<Date | undefined>(undefined);
+  const [filterOrigin, setFilterOrigin] = React.useState("");
+  const [filterDestination, setFilterDestination] = React.useState("");
+
   React.useEffect(() => {
-    const orders = getCollection<Order>(STORAGE_KEYS.orders);
-    setData(orders);
+    setData(getCollection<Order>(STORAGE_KEYS.orders));
   }, []);
+
+  const filteredData = React.useMemo(() => {
+    return data.filter((o) => {
+      if (dateFrom || dateTo) {
+        const d = parseISO(o.date);
+        if (dateFrom && d < startOfDay(dateFrom)) return false;
+        if (dateTo && d > endOfDay(dateTo)) return false;
+      }
+      if (
+        filterOrigin.trim() &&
+        !o.origin.toLowerCase().includes(filterOrigin.trim().toLowerCase())
+      )
+        return false;
+      if (
+        filterDestination.trim() &&
+        !o.destination
+          .toLowerCase()
+          .includes(filterDestination.trim().toLowerCase())
+      )
+        return false;
+      return true;
+    });
+  }, [data, dateFrom, dateTo, filterOrigin, filterDestination]);
+
+  const hasAdvancedFilter = !!(
+    dateFrom ||
+    dateTo ||
+    filterOrigin ||
+    filterDestination
+  );
+
+  function resetAdvancedFilters() {
+    setDateFrom(undefined);
+    setDateTo(undefined);
+    setFilterOrigin("");
+    setFilterDestination("");
+  }
 
   function handleAdd(values: OrderForm): string | null {
     const dateStr = format(values.date, "yyyy-MM-dd");
@@ -645,7 +793,7 @@ export default function OrdersPage() {
   );
 
   const table = useReactTable({
-    data,
+    data: filteredData,
     columns,
     state: {
       sorting,
@@ -702,6 +850,19 @@ export default function OrdersPage() {
                   options: statusFilterOptions,
                 },
               ]}
+            />
+
+            <AdvancedFilters
+              dateFrom={dateFrom}
+              dateTo={dateTo}
+              origin={filterOrigin}
+              destination={filterDestination}
+              onDateFrom={setDateFrom}
+              onDateTo={setDateTo}
+              onOrigin={setFilterOrigin}
+              onDestination={setFilterDestination}
+              onReset={resetAdvancedFilters}
+              hasActive={hasAdvancedFilter}
             />
 
             <div className="rounded-lg border">
