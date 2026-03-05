@@ -10,35 +10,36 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+
 import type { Truck } from "@/modules/transport/types";
-
-const statusConfig: Record<Truck["status"], { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  available:  { label: "Disponibil",  variant: "default" },
-  on_trip:    { label: "În cursă",    variant: "secondary" },
-  in_service: { label: "În service",  variant: "destructive" },
-};
-
-const isExpired = (dateStr: string) => new Date(dateStr).getTime() < Date.now();
-const isExpiringSoon = (dateStr: string) => {
-  const diff = new Date(dateStr).getTime() - Date.now();
-  return diff > 0 && diff < 30 * 24 * 60 * 60 * 1000;
-};
+import {
+  STATUS_CONFIG,
+  getDateStatus,
+} from "@/modules/fleet/utils/truckUtils";
 
 const DateCell = ({ date }: { date: string }) => {
-  if (isExpired(date))
+  const status = getDateStatus(date);
+
+  if (status === "expired") {
     return (
       <span className="text-red-600 font-semibold">
-        {date} <span aria-hidden="true">⚠️</span>
+        {date}{" "}
+        <span aria-hidden="true">⚠️</span>
         <span className="sr-only">Expirat</span>
       </span>
     );
-  if (isExpiringSoon(date))
+  }
+
+  if (status === "soon") {
     return (
       <span className="text-amber-500 font-semibold">
-        {date} <span aria-hidden="true">⚠️</span>
+        {date}{" "}
+        <span aria-hidden="true">⚠️</span>
         <span className="sr-only">Expiră curând</span>
       </span>
     );
+  }
+
   return <span>{date}</span>;
 };
 
@@ -49,8 +50,13 @@ export function TrucksTable() {
     setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
   }, []);
 
-  if (trucks.length === 0)
-    return <p className="text-muted-foreground text-center py-10">Nu există camioane înregistrate.</p>;
+  if (trucks.length === 0) {
+    return (
+      <p className="text-muted-foreground text-center py-10">
+        Nu există camioane înregistrate.
+      </p>
+    );
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -69,17 +75,42 @@ export function TrucksTable() {
         </TableHeader>
         <TableBody>
           {trucks.map((truck) => {
-            const { label, variant } = statusConfig[truck.status];
+            const { label, variant } =
+              STATUS_CONFIG[truck.status];
+
             return (
               <TableRow key={truck.id}>
-                <TableCell className="font-semibold">{truck.plateNumber}</TableCell>
-                <TableCell>{truck.brand} {truck.model}</TableCell>
+                <TableCell className="font-semibold">
+                  {truck.plateNumber}
+                </TableCell>
+
+                <TableCell>
+                  {truck.brand} {truck.model}
+                </TableCell>
+
                 <TableCell>{truck.year}</TableCell>
-                <TableCell>{truck.mileage.toLocaleString("ro-RO")} km</TableCell>
-                <TableCell><Badge variant={variant}>{label}</Badge></TableCell>
-                <TableCell><DateCell date={truck.itpExpiry} /></TableCell>
-                <TableCell><DateCell date={truck.rcaExpiry} /></TableCell>
-                <TableCell><DateCell date={truck.vignetteExpiry} /></TableCell>
+
+                <TableCell>
+                  {truck.mileage.toLocaleString("ro-RO")} km
+                </TableCell>
+
+                <TableCell>
+                  <Badge variant={variant}>
+                    {label}
+                  </Badge>
+                </TableCell>
+
+                <TableCell>
+                  <DateCell date={truck.itpExpiry} />
+                </TableCell>
+
+                <TableCell>
+                  <DateCell date={truck.rcaExpiry} />
+                </TableCell>
+
+                <TableCell>
+                  <DateCell date={truck.vignetteExpiry} />
+                </TableCell>
               </TableRow>
             );
           })}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,12 +34,18 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
+import {
+  getConsumption,
+  buildChartData,
+  buildTruckRecordsMap,
+  ALERT_THRESHOLD,
+  CHART_COLORS,
+} from "@/modules/fleet/utils/fuelUtils";
 import type { FuelRecord } from "@/modules/fleet/types";
 import type { Truck } from "@/modules/transport/types";
-
-const ALERT_THRESHOLD = 35;
 
 const emptyForm = {
   truckId: "",
@@ -65,45 +71,18 @@ export function FuelCRUD() {
     localStorage.setItem(STORAGE_KEYS.fuelRecords, JSON.stringify(updated));
   };
 
-  const getTruckLabel = (id: string) => {
-    const t = trucks.find((t) => t.id === id);
-    return t ? `${t.plateNumber} — ${t.brand} ${t.model}` : id;
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({
+      ...prev,
+      [name]: ["liters", "cost", "mileage"].includes(name) ? Number(value) : value,
+    }));
   };
-
-  const getConsumption = (record: FuelRecord, allRecords: FuelRecord[]) => {
-    const truckRecords = allRecords
-      .filter((r) => r.truckId === record.truckId)
-      .sort((a, b) => a.mileage - b.mileage);
-    const idx = truckRecords.findIndex((r) => r.id === record.id);
-    if (idx === 0) return null;
-    const prev = truckRecords[idx - 1];
-    const kmDiff = record.mileage - prev.mileage;
-    if (kmDiff <= 0) return null;
-    return ((record.liters / kmDiff) * 100).toFixed(1);
-  };
-
-  const chartData = (() => {
-    const result: Record<string, string | number>[] = [];
-    trucks.forEach((truck) => {
-      const truckRecords = [...records]
-        .filter((r) => r.truckId === truck.id)
-        .sort((a, b) => a.mileage - b.mileage);
-      truckRecords.forEach((rec, idx) => {
-        if (idx === 0) return;
-        const prev = truckRecords[idx - 1];
-        const kmDiff = rec.mileage - prev.mileage;
-        if (kmDiff <= 0) return;
-        const cons = parseFloat(((rec.liters / kmDiff) * 100).toFixed(1));
-        if (!result[idx - 1]) result[idx - 1] = { index: idx };
-        result[idx - 1][truck.plateNumber] = cons;
-      });
-    });
-    return result;
-  })();
-
-  const COLORS = ["#6366f1", "#f59e0b", "#10b981"];
 
   const handleSubmit = () => {
+    // Guard against missing required fields
+    if (!form.truckId || !form.date) return;
+
     const newRecord: FuelRecord = {
       id: crypto.randomUUID(),
       ...form,
@@ -117,12 +96,12 @@ export function FuelCRUD() {
     save(records.filter((r) => r.id !== id));
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({
-      ...prev,
-      [name]: ["liters", "cost", "mileage"].includes(name) ? Number(value) : value,
-    }));
+  const truckRecordsMap = useMemo(() => buildTruckRecordsMap(records), [records]);
+  const chartData = useMemo(() => buildChartData(records, trucks), [records, trucks]);
+
+  const getTruckLabel = (id: string) => {
+    const t = trucks.find((t) => t.id === id);
+    return t ? `${t.plateNumber} — ${t.brand} ${t.model}` : id;
   };
 
   return (
@@ -150,7 +129,7 @@ export function FuelCRUD() {
                       key={truck.id}
                       type="monotone"
                       dataKey={truck.plateNumber}
-                      stroke={COLORS[i % COLORS.length]}
+                      stroke={CHART_COLORS[i % CHART_COLORS.length]}
                       strokeWidth={2.5}
                       dot={false}
                       activeDot={{ r: 5 }}
@@ -182,7 +161,8 @@ export function FuelCRUD() {
               </TableHeader>
               <TableBody>
                 {records.map((record) => {
-                  const cons = getConsumption(record, records);
+                  const truckRecords = truckRecordsMap[record.truckId] || [];
+                  const cons = getConsumption(record, truckRecords);
                   const isAlert = cons !== null && parseFloat(cons) > ALERT_THRESHOLD;
                   return (
                     <TableRow key={record.id}>
@@ -199,7 +179,8 @@ export function FuelCRUD() {
                             {cons} L/100km
                             {isAlert && (
                               <>
-                                {" "}<span aria-hidden="true">⚠️</span>
+                                {" "}
+                                <span aria-hidden="true">⚠️</span>
                                 <span className="sr-only">Consum anormal</span>
                               </>
                             )}
@@ -249,7 +230,7 @@ export function FuelCRUD() {
                   type="date"
                   value={form.date}
                   onChange={handleChange}
-                  className="w-8/12 [&::-webkit-calendar-picker-indicator]:ml-auto"
+                  className="w-full [&::-webkit-calendar-picker-indicator]:ml-auto"
                 />
               </div>
               <div className="space-y-1">
