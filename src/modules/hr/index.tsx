@@ -23,6 +23,7 @@ import { useLocation } from "@tanstack/react-router";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, LeaveRequest, Bonus } from "@/modules/hr/types";
+import { formatCurrency } from "../../utils/format";
 
 const topNavLinks = [
   { title: "Angajați", href: "/hr/employees", isActive: false },
@@ -47,8 +48,12 @@ export default function HRPage() {
   // Total angajați
   const totalEmployees = employees.length;
 
-  // Concedii active azi
-  const today = new Date().toISOString().split("T")[0];
+  // Concedii active luna curentă
+  const today = [
+    new Date().getFullYear(),
+    String(new Date().getMonth() + 1).padStart(2, "0"),
+    String(new Date().getDate()).padStart(2, "0"),
+  ].join("-");
 
   // Total bonusuri luna aceasta
   const currentMonth = today.slice(0, 7);
@@ -96,7 +101,7 @@ export default function HRPage() {
             <CardContent>
               <p className="text-3xl font-bold">{totalEmployees}</p>
               <p className="text-sm text-muted-foreground">
-                TODO: Din localStorage
+                Număr total de angajați în sistem
               </p>
             </CardContent>
           </Card>
@@ -107,7 +112,7 @@ export default function HRPage() {
             <CardContent>
               <p className="text-3xl font-bold">{activeLeavesThisMonth}</p>
               <p className="text-sm text-muted-foreground">
-                TODO: Concedii luna asta
+                Cererile de concediu aprobate care se suprapun cu luna curentă.
               </p>
             </CardContent>
           </Card>
@@ -118,7 +123,7 @@ export default function HRPage() {
             <CardContent>
               <p className="text-3xl font-bold text-red-500">{expiredDocs}</p>
               <p className="text-sm text-muted-foreground">
-                TODO: Alerte documente
+                Numărul documentelor de angajat cu dată de expirare depășită.
               </p>
             </CardContent>
           </Card>
@@ -128,7 +133,7 @@ export default function HRPage() {
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">
-                {totalBonusesThisMonth.toLocaleString("ro-RO")} RON
+                {formatCurrency(totalBonusesThisMonth)}
               </p>
               <p className="text-sm text-muted-foreground">
                 Diurnă/bonus/ore supl. − amenzi
