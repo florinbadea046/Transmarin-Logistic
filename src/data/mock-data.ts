@@ -431,11 +431,47 @@ const seedEmployees: Employee[] = [
     id: "e3",
     name: "Ana Radu",
     position: "Dispecer",
-    department: "Operațiuni",
+    department: "Dispecerat",
     phone: "0722000001",
     email: "ana@transmarin.ro",
     hireDate: "2021-01-10",
     salary: 4800,
+    documents: [],
+  },
+
+  {
+    id: "e4",
+    name: "Andrei Stoica",
+    position: "Mecanic",
+    department: "Service",
+    phone: "0721000003",
+    email: "andrei@transmarin.ro",
+    hireDate: "2022-05-20",
+    salary: 5300,
+    documents: [],
+  },
+
+  {
+    id: "e5",
+    name: "Maria Popescu",
+    position: "Contabil",
+    department: "Contabilitate",
+    phone: "0723000001",
+    email: "maria@transmarin.ro",
+    hireDate: "2023-02-01",
+    salary: 5000,
+    documents: [],
+  },
+
+  {
+    id: "e6",
+    name: "Ioana Ionescu",
+    position: "Manager",
+    department: "Administrativ",
+    phone: "0724000001",
+    email: "ioana@transmarin.ro",
+    hireDate: "2024-01-15",
+    salary: 6000,
     documents: [],
   },
 ];
@@ -518,7 +554,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(0, 5),
     dueDate: relativeDate(0, 20),
     clientName: "SC Logistica SRL",
-    items: [{ description: "Transport marfă", quantity: 1, unitPrice: 5000, total: 5000 }],
+    items: [
+      {
+        description: "Transport marfă",
+        quantity: 1,
+        unitPrice: 5000,
+        total: 5000,
+      },
+    ],
     totalWithoutVAT: 5000,
     vat: 950,
     total: 5950,
@@ -533,7 +576,9 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(0, 25),
     supplierId: "s1",
     clientName: "Auto Parts SRL",
-    items: [{ description: "Piese auto", quantity: 3, unitPrice: 800, total: 2400 }],
+    items: [
+      { description: "Piese auto", quantity: 3, unitPrice: 800, total: 2400 },
+    ],
     totalWithoutVAT: 2400,
     vat: 456,
     total: 2856,
@@ -547,7 +592,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(-1, 15),
     dueDate: relativeDate(-1, 28),
     clientName: "Trans Europa SA",
-    items: [{ description: "Transport internațional", quantity: 1, unitPrice: 8000, total: 8000 }],
+    items: [
+      {
+        description: "Transport internațional",
+        quantity: 1,
+        unitPrice: 8000,
+        total: 8000,
+      },
+    ],
     totalWithoutVAT: 8000,
     vat: 1520,
     total: 9520,
@@ -562,7 +614,14 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(-1, 25),
     supplierId: "s2",
     clientName: "Brake Systems SA",
-    items: [{ description: "Plăcuțe frână", quantity: 4, unitPrice: 320, total: 1280 }],
+    items: [
+      {
+        description: "Plăcuțe frână",
+        quantity: 4,
+        unitPrice: 320,
+        total: 1280,
+      },
+    ],
     totalWithoutVAT: 1280,
     vat: 243,
     total: 1523,
@@ -576,7 +635,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(-2, 8),
     dueDate: relativeDate(-2, 22),
     clientName: "Cargo Plus SRL",
-    items: [{ description: "Transport intern", quantity: 2, unitPrice: 3000, total: 6000 }],
+    items: [
+      {
+        description: "Transport intern",
+        quantity: 2,
+        unitPrice: 3000,
+        total: 6000,
+      },
+    ],
     totalWithoutVAT: 6000,
     vat: 1140,
     total: 7140,
@@ -591,7 +657,9 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(-1, 5),
     supplierId: "s1",
     clientName: "Auto Parts SRL",
-    items: [{ description: "Filtre ulei", quantity: 10, unitPrice: 45, total: 450 }],
+    items: [
+      { description: "Filtre ulei", quantity: 10, unitPrice: 45, total: 450 },
+    ],
     totalWithoutVAT: 450,
     vat: 85,
     total: 535,
@@ -605,7 +673,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(-3, 12),
     dueDate: relativeDate(-3, 26),
     clientName: "SC Logistica SRL",
-    items: [{ description: "Transport marfă frigorifică", quantity: 1, unitPrice: 7000, total: 7000 }],
+    items: [
+      {
+        description: "Transport marfă frigorifică",
+        quantity: 1,
+        unitPrice: 7000,
+        total: 7000,
+      },
+    ],
     totalWithoutVAT: 7000,
     vat: 1330,
     total: 8330,
@@ -619,7 +694,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(-4, 3),
     dueDate: relativeDate(-4, 18),
     clientName: "Trans Europa SA",
-    items: [{ description: "Transport extern", quantity: 1, unitPrice: 12000, total: 12000 }],
+    items: [
+      {
+        description: "Transport extern",
+        quantity: 1,
+        unitPrice: 12000,
+        total: 12000,
+      },
+    ],
     totalWithoutVAT: 12000,
     vat: 2280,
     total: 14280,
@@ -633,7 +715,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(-5, 7),
     dueDate: relativeDate(-5, 21),
     clientName: "Cargo Plus SRL",
-    items: [{ description: "Transport ADR", quantity: 1, unitPrice: 9000, total: 9000 }],
+    items: [
+      {
+        description: "Transport ADR",
+        quantity: 1,
+        unitPrice: 9000,
+        total: 9000,
+      },
+    ],
     totalWithoutVAT: 9000,
     vat: 1710,
     total: 10710,
@@ -648,7 +737,14 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(-4, 1),
     supplierId: "s2",
     clientName: "Brake Systems SA",
-    items: [{ description: "Service periodic", quantity: 1, unitPrice: 2500, total: 2500 }],
+    items: [
+      {
+        description: "Service periodic",
+        quantity: 1,
+        unitPrice: 2500,
+        total: 2500,
+      },
+    ],
     totalWithoutVAT: 2500,
     vat: 475,
     total: 2975,
@@ -674,3 +770,13 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.leaveRequests, []);
   initCollection(STORAGE_KEYS.bonuses, []);
 }
+
+export { seedEmployees };
+export const EMPLOYEE_DEPARTMENTS = [
+  "Dispecerat",
+  "Transport",
+  "Service",
+  "Contabilitate",
+  "Administrativ",
+] as const;
+
