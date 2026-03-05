@@ -23,6 +23,7 @@ import type { Employee } from "@/modules/hr/types";
 import { addItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS, EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
 import { DatePicker } from "@/components/date-picker";
+import { format } from "date-fns";
 
 const employeeSchema = z.object({
   name: z.string().min(2, "Numele este obligatoriu"),
@@ -66,7 +67,7 @@ export default function AddEmployeeDialog({
       documents: [],
     };
     addItem<Employee>(STORAGE_KEYS.employees, newEmployee);
-    if (onAdd) onAdd(newEmployee);
+    onAdd(newEmployee);
     form.reset();
     setSelectedDate(undefined);
     setOpen(false);
@@ -137,7 +138,8 @@ export default function AddEmployeeDialog({
               setSelectedDate(date);
               form.setValue(
                 "hireDate",
-                date ? date.toISOString().slice(0, 10) : "",
+                date ? format(date, "yyyy-MM-dd") : "",
+                { shouldValidate: true, shouldTouch: true },
               );
             }}
             placeholder="Data angajării"

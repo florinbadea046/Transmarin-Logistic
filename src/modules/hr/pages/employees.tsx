@@ -36,7 +36,7 @@ import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
-import AddEmployeeDialog from "../components/add-employee-dialog";
+import AddEmployeeDialog from "@/modules/hr/components/add-employee-dialog";
 import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
 
 const columns: ColumnDef<Employee>[] = [
@@ -196,7 +196,11 @@ export default function EmployeesPage() {
               <span className="text-sm text-muted-foreground">
                 {table.getFilteredRowModel().rows.length} angajați
               </span>
-              <AddEmployeeDialog onAdd={() => setData(getCollection<Employee>(STORAGE_KEYS.employees))} />
+              <AddEmployeeDialog
+                onAdd={() =>
+                  setData(getCollection<Employee>(STORAGE_KEYS.employees))
+                }
+              />
             </div>
             <div className="flex flex-wrap gap-2 mt-3">
               <Input
