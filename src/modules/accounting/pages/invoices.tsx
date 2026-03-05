@@ -28,7 +28,17 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Pencil, Plus, Search, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Trash2, Pencil, Plus, Search } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type InvoiceType = "venit" | "cheltuială";
@@ -137,7 +147,13 @@ const initialMock: Invoice[] = [
 ];
 
 // ── Mobile Invoice Card ───────────────────────────────────────────────────────
-function InvoiceCard({ inv, onEdit }: { inv: Invoice; onEdit: (inv: Invoice) => void }) {
+function InvoiceCard({
+  inv, onEdit, onDelete,
+}: {
+  inv: Invoice;
+  onEdit: (inv: Invoice) => void;
+  onDelete: (id: string) => void;
+}) {
   const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii);
 
   return (
@@ -178,9 +194,18 @@ function InvoiceCard({ inv, onEdit }: { inv: Invoice; onEdit: (inv: Invoice) => 
         </div>
       </div>
 
-      <div className="flex justify-end border-t pt-2">
+      <div className="flex justify-end gap-2 border-t pt-2">
         <Button size="sm" variant="ghost" onClick={() => onEdit(inv)}>
           <Pencil className="w-4 h-4 mr-1" /> Editează
+        </Button>
+        <Button
+          size="sm"
+          variant="ghost"
+          className="text-red-400 hover:text-red-300"
+          disabled={inv.status === "plătită"}
+          onClick={() => onDelete(inv.id)}
+        >
+          <Trash2 className="w-4 h-4 mr-1" /> Șterge
         </Button>
       </div>
     </div>
@@ -197,6 +222,7 @@ export default function InvoicesPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormState>(defaultForm());
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -235,6 +261,11 @@ export default function InvoicesPage() {
     setDialogOpen(false);
   };
 
+  const handleDelete = () => {
+    setInvoices((prev) => prev.filter((inv) => inv.id !== deleteId));
+    setDeleteId(null);
+  };
+
   const updateLine = (idx: number, field: keyof InvoiceLine, value: string | number) => {
     setForm((prev) => {
       const linii = [...prev.linii];
@@ -265,7 +296,6 @@ export default function InvoicesPage() {
           </CardHeader>
 
           <CardContent>
-            {/* Filtre */}
             <div className="flex flex-col gap-3 mb-6">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -306,12 +336,15 @@ export default function InvoicesPage() {
             {/* Mobile: carduri */}
             <div className="flex flex-col gap-3 md:hidden">
               {filtered.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">
-                  Nu există facturi pentru filtrele selectate.
-                </p>
+                <p className="text-center text-muted-foreground py-8">Nu există facturi pentru filtrele selectate.</p>
               ) : (
                 filtered.map((inv) => (
-                  <InvoiceCard key={inv.id} inv={inv} onEdit={openEdit} />
+                  <InvoiceCard
+                    key={inv.id}
+                    inv={inv}
+                    onEdit={openEdit}
+                    onDelete={(id) => setDeleteId(id)}
+                  />
                 ))
               )}
             </div>
@@ -366,9 +399,20 @@ export default function InvoicesPage() {
                             </Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            <Button size="icon" variant="ghost" onClick={() => openEdit(inv)}>
-                              <Pencil className="w-4 h-4" />
-                            </Button>
+                            <div className="flex justify-end gap-2">
+                              <Button size="icon" variant="ghost" onClick={() => openEdit(inv)}>
+                                <Pencil className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="text-red-400 hover:text-red-300"
+                                disabled={inv.status === "plătită"}
+                                onClick={() => setDeleteId(inv.id)}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
                           </TableCell>
                         </TableRow>
                       );
@@ -573,6 +617,27 @@ export default function InvoicesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* ── AlertDialog Ștergere ── */}
+      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ești sigur că vrei să ștergi această factură? Acțiunea nu poate fi anulată.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto">Anulează</AlertDialogCancel>
+            <AlertDialogAction
+              className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
+              onClick={handleDelete}
+            >
+              Șterge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
