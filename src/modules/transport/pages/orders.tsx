@@ -62,7 +62,7 @@ import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
 import { DataTableToolbar } from "@/components/data-table/toolbar";
 
-import type { Order } from "@/modules/transport/types";
+import type { Order, Trip } from "@/modules/transport/types";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -191,11 +191,7 @@ function DateButton({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className="w-auto p-0"
-        align="start"
-        collisionPadding={20}
-      >
+      <PopoverContent className="w-auto p-0" align="start" collisionPadding={8}>
         <Calendar
           mode="single"
           selected={date}
@@ -293,6 +289,132 @@ function ExportMenu({ orders }: { orders: Order[] }) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function OrderDetailDialog({
+  order,
+  open,
+  onOpenChange,
+}: {
+  order: Order | null;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
+  const trips = React.useMemo(() => {
+    if (!order) return [];
+    return getCollection<Trip>(STORAGE_KEYS.trips).filter(
+      (t) => t.orderId === order.id,
+    );
+  }, [order]);
+
+  const totalFuelCost = trips.reduce((sum, t) => sum + (t.fuelCost ?? 0), 0);
+  const totalKm = trips.reduce(
+    (sum, t) => sum + (t.kmLoaded ?? 0) + (t.kmEmpty ?? 0),
+    0,
+  );
+  const costPerKm = totalKm > 0 ? totalFuelCost / totalKm : null;
+
+  if (!order) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-[480px]">
+        <DialogHeader>
+          <DialogTitle>Detaliu comanda</DialogTitle>
+          <DialogDescription className="sr-only">
+            Detalii comanda si costuri asociate.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 text-sm">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-lg border p-3">
+            <span className="text-muted-foreground">Client</span>
+            <span className="font-medium">{order.clientName}</span>
+            <span className="text-muted-foreground">Ruta</span>
+            <span>
+              {order.origin} &rarr; {order.destination}
+            </span>
+            <span className="text-muted-foreground">Data</span>
+            <span className="tabular-nums">{order.date}</span>
+            <span className="text-muted-foreground">Status</span>
+            <span>{order.status}</span>
+            {order.weight != null && (
+              <>
+                <span className="text-muted-foreground">Greutate</span>
+                <span className="tabular-nums">{order.weight} t</span>
+              </>
+            )}
+            {order.notes && (
+              <>
+                <span className="text-muted-foreground">Note</span>
+                <span>{order.notes}</span>
+              </>
+            )}
+          </div>
+
+          <div className="rounded-lg border p-3 space-y-2">
+            <p className="font-medium">Costuri curse asociate</p>
+            {trips.length === 0 ? (
+              <p className="text-muted-foreground text-xs">
+                Nu exista curse asociate acestei comenzi.
+              </p>
+            ) : (
+              <div className="space-y-1">
+                {trips.map((t, i) => {
+                  const km = (t.kmLoaded ?? 0) + (t.kmEmpty ?? 0);
+                  const cpk = km > 0 ? t.fuelCost / km : null;
+                  return (
+                    <div
+                      key={t.id}
+                      className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs border-b last:border-0 pb-1 last:pb-0"
+                    >
+                      <span className="text-muted-foreground">
+                        Cursa {i + 1}
+                      </span>
+                      <span className="tabular-nums">{t.date}</span>
+                      <span className="text-muted-foreground">
+                        Km incarcati
+                      </span>
+                      <span className="tabular-nums">{t.kmLoaded} km</span>
+                      <span className="text-muted-foreground">Km goi</span>
+                      <span className="tabular-nums">{t.kmEmpty} km</span>
+                      <span className="text-muted-foreground">
+                        Cost combustibil
+                      </span>
+                      <span className="tabular-nums font-medium">
+                        {t.fuelCost.toFixed(2)} RON
+                      </span>
+                      <span className="text-muted-foreground">Cost/km</span>
+                      <span className="tabular-nums">
+                        {cpk != null ? `${cpk.toFixed(2)} RON/km` : "—"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-x-4 pt-2 border-t text-sm font-medium">
+              <span>Total cost combustibil</span>
+              <span className="tabular-nums">
+                {totalFuelCost.toFixed(2)} RON
+              </span>
+              <span>Cost/km total</span>
+              <span className="tabular-nums">
+                {costPerKm != null ? `${costPerKm.toFixed(2)} RON/km` : "—"}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Inchide
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -605,6 +727,8 @@ export default function OrdersPage() {
   const [editingOrder, setEditingOrder] = React.useState<Order | null>(null);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [deletingOrder, setDeletingOrder] = React.useState<Order | null>(null);
+  const [detailOpen, setDetailOpen] = React.useState(false);
+  const [detailOrder, setDetailOrder] = React.useState<Order | null>(null);
 
   const [dateFrom, setDateFrom] = React.useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = React.useState<Date | undefined>(undefined);
@@ -723,6 +847,11 @@ export default function OrdersPage() {
   function openDelete(order: Order) {
     setDeletingOrder(order);
     setDeleteOpen(true);
+  }
+
+  function openDetail(order: Order) {
+    setDetailOrder(order);
+    setDetailOpen(true);
   }
 
   const editInitialValues: OrderForm | undefined = editingOrder
@@ -860,6 +989,12 @@ export default function OrdersPage() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <DropdownMenuItem
+                    className="cursor-pointer"
+                    onClick={() => openDetail(order)}
+                  >
+                    Detalii
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     className="cursor-pointer"
                     onClick={() => openEdit(order)}
@@ -1039,6 +1174,15 @@ export default function OrdersPage() {
         title="Editeaza comanda"
         initialValues={editInitialValues}
         onSave={handleEdit}
+      />
+
+      <OrderDetailDialog
+        order={detailOrder}
+        open={detailOpen}
+        onOpenChange={(v) => {
+          setDetailOpen(v);
+          if (!v) setDetailOrder(null);
+        }}
       />
 
       <ConfirmDialog
