@@ -427,11 +427,47 @@ const seedEmployees: Employee[] = [
     id: "e3",
     name: "Ana Radu",
     position: "Dispecer",
-    department: "Operațiuni",
+    department: "Dispecerat",
     phone: "0722000001",
     email: "ana@transmarin.ro",
     hireDate: "2021-01-10",
     salary: 4800,
+    documents: [],
+  },
+
+  {
+    id: "e4",
+    name: "Andrei Stoica",
+    position: "Mecanic",
+    department: "Service",
+    phone: "0721000003",
+    email: "andrei@transmarin.ro",
+    hireDate: "2022-05-20",
+    salary: 5300,
+    documents: [],
+  },
+
+  {
+    id: "e5",
+    name: "Maria Popescu",
+    position: "Contabil",
+    department: "Contabilitate",
+    phone: "0723000001",
+    email: "maria@transmarin.ro",
+    hireDate: "2023-02-01",
+    salary: 5000,
+    documents: [],
+  },
+
+  {
+    id: "e6",
+    name: "Ioana Ionescu",
+    position: "Manager",
+    department: "Administrativ",
+    phone: "0724000001",
+    email: "ioana@transmarin.ro",
+    hireDate: "2024-01-15",
+    salary: 6000,
     documents: [],
   },
 ];
@@ -728,3 +764,13 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.leaveRequests, []);
   initCollection(STORAGE_KEYS.bonuses, []);
 }
+
+export { seedEmployees };
+export const EMPLOYEE_DEPARTMENTS = [
+  "Dispecerat",
+  "Transport",
+  "Service",
+  "Contabilitate",
+  "Administrativ",
+] as const;
+
