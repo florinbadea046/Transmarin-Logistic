@@ -647,6 +647,17 @@ const seedFuelRecords: FuelRecord[] = [
   { id: "f7", truckId: "t3", date: "2026-01-15", liters: 380, cost: 2660, mileage: 174000 },
   { id: "f8", truckId: "t3", date: "2026-02-10", liters: 400, cost: 2800, mileage: 177200 },
   { id: "f9", truckId: "t3", date: "2026-03-05", liters: 390, cost: 2730, mileage: 180500 },
+];
+
+// Helper: generează o dată relativă la luna curentă
+// monthOffset: 0 = luna curentă, -1 = luna trecută, etc.
+// day: ziua din lună
+function relativeDate(monthOffset: number, day: number): string {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() + monthOffset, day);
+  return d.toISOString().split("T")[0];
+}
+
 const seedInvoices: Invoice[] = [
   // Luna curentă — venit
   {
