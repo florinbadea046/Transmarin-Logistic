@@ -5,7 +5,7 @@
 
 import { initCollection } from "@/utils/local-storage";
 import type { Driver, Truck, Order } from "@/modules/transport/types";
-import type { Part, ServiceRecord } from "@/modules/fleet/types";
+import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
 import type { Employee } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
 
@@ -491,20 +491,18 @@ const seedServiceRecords: ServiceRecord[] = [
     nextServiceDate: "2027-03-01",
   },
 ];
+const seedFuelRecords: FuelRecord[] = [
+  { id: "f1", truckId: "t1", date: "2026-01-10", liters: 420, cost: 2940, mileage: 310000 },
+  { id: "f2", truckId: "t1", date: "2026-02-05", liters: 390, cost: 2730, mileage: 313500 },
+  { id: "f3", truckId: "t1", date: "2026-03-01", liters: 410, cost: 2870, mileage: 317000 },
 
-// ──────────────────────────────────────────────────────────
-// Helper: generează dată ISO relativă la azi
-// ex: relativeDate(0, 5)  → ziua 5 a lunii curente
-//     relativeDate(-1, 15) → ziua 15 a lunii trecute
-// ──────────────────────────────────────────────────────────
-function relativeDate(monthOffset: number, day: number): string {
-  const d = new Date();
-  d.setDate(1); // evităm overflow de lună
-  d.setMonth(d.getMonth() + monthOffset);
-  d.setDate(day);
-  return d.toISOString().slice(0, 10);
-}
+  { id: "f4", truckId: "t2", date: "2026-01-12", liters: 450, cost: 3150, mileage: 400000 },
+  { id: "f5", truckId: "t2", date: "2026-02-08", liters: 480, cost: 3360, mileage: 403800 },
+  { id: "f6", truckId: "t2", date: "2026-03-03", liters: 460, cost: 3220, mileage: 407500 },
 
+  { id: "f7", truckId: "t3", date: "2026-01-15", liters: 380, cost: 2660, mileage: 174000 },
+  { id: "f8", truckId: "t3", date: "2026-02-10", liters: 400, cost: 2800, mileage: 177200 },
+  { id: "f9", truckId: "t3", date: "2026-03-05", liters: 390, cost: 2730, mileage: 180500 },
 const seedInvoices: Invoice[] = [
   // Luna curentă — venit
   {
@@ -725,8 +723,8 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.suppliers, seedSuppliers);
   initCollection(STORAGE_KEYS.trips, []);
   initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
-  initCollection(STORAGE_KEYS.fuelRecords, []);
-  initCollection(STORAGE_KEYS.invoices, seedInvoices);
+  initCollection(STORAGE_KEYS.fuelRecords, seedFuelRecords);
+  initCollection(STORAGE_KEYS.invoices, []);
   initCollection(STORAGE_KEYS.leaveRequests, []);
   initCollection(STORAGE_KEYS.bonuses, []);
 }
