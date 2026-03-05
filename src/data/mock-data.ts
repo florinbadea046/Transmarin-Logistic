@@ -459,8 +459,8 @@ const seedSuppliers: Supplier[] = [
     email: "office@brakesystems.ro",
     bankAccount: "RO49BBBB1B31007593840000",
   },
-   {
-    id: "s4",
+  {
+    id: "s3",
     name: "Electro Auto SA",
     cui: "RO99887766",
     address: "Calea Aradului 45, Timișoara",
@@ -469,7 +469,7 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49DDDD1B31007593840000",
   },
   {
-    id: "s5",
+    id: "s4",
     name: "Fleet Service SRL",
     cui: "RO55667788",
     address: "Str. Traian 7, Brașov",
@@ -478,7 +478,7 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49EEEE1B31007593840000",
   },
   {
-    id: "s6",
+    id: "s5",
     name: "Gearbox Solutions SRL",
     cui: "RO44332211",
     address: "Bd. Republicii 12, Ploiești",
@@ -487,7 +487,7 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49FFFF1B31007593840000",
   },
   {
-    id: "s7",
+    id: "s6",
     name: "Hydraulic Parts SA",
     cui: "RO66778899",
     address: "Str. Fabricii 3, Cluj-Napoca",
@@ -496,7 +496,7 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49GGGG1B31007593840000",
   },
   {
-    id: "s8",
+    id: "s7",
     name: "Industrial Motors SRL",
     cui: "RO22114455",
     address: "Str. Depozitelor 22, Iași",
@@ -505,7 +505,7 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49HHHH1B31007593840000",
   },
   {
-    id: "s9",
+    id: "s8",
     name: "Logistic Components SA",
     cui: "RO33445566",
     address: "Str. Energiei 9, Sibiu",
@@ -514,7 +514,7 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49IIII1B31007593840000",
   },
   {
-    id: "s10",
+    id: "s9",
     name: "Marine Supplies SRL",
     cui: "RO77889900",
     address: "Str. Portului 77, Constanța",
@@ -523,7 +523,7 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49JJJJ1B31007593840000",
   },
   {
-    id: "s11",
+    id: "s10",
     name: "Oil & Filters SRL",
     cui: "RO55443322",
     address: "Bd. Metalurgiei 14, București",
@@ -532,7 +532,7 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49KKKK1B31007593840000",
   },
   {
-    id: "s12",
+    id: "s11",
     name: "Power Drive SA",
     cui: "RO66554433",
     address: "Str. Uzinei 5, Oradea",
@@ -541,7 +541,7 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49LLLL1B31007593840000",
   },
   {
-    id: "s13",
+    id: "s12",
     name: "Quick Service SRL",
     cui: "RO88776655",
     address: "Str. Libertății 11, Craiova",
@@ -550,7 +550,7 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49MMMM1B31007593840000",
   },
   {
-    id: "s14",
+    id: "s13",
     name: "Truck Systems SRL",
     cui: "RO99001122",
     address: "Bd. Constructorilor 8, Arad",
@@ -559,14 +559,14 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49NNNN1B31007593840000",
   },
   {
-    id: "s15",
+    id: "s14",
     name: "Universal Auto SA",
     cui: "RO10293847",
     address: "Str. Republicii 2, Bacău",
     phone: "0234401400",
     email: "office@universalauto.ro",
     bankAccount: "RO49OOOO1B31007593840000",
-  }
+  },
 ];
 const seedServiceRecords: ServiceRecord[] = [
   {

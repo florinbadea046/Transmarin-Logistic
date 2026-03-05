@@ -1,5 +1,15 @@
-import { useState, useEffect } from "react";
-import { Supplier } from "../types";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import type { Supplier } from "../types";
 
 type SupplierModalProps = {
   isOpen: boolean;
@@ -8,39 +18,36 @@ type SupplierModalProps = {
   onSave: (supplier: Supplier) => void;
 };
 
+const emptySupplier: Supplier = {
+  id: "",
+  name: "",
+  cui: "",
+  address: "",
+  phone: "",
+  email: "",
+  bankAccount: "",
+};
+
 export function SupplierModal({
   isOpen,
   onClose,
   initialData,
   onSave,
 }: SupplierModalProps) {
-  const emptySupplier: Supplier = {
-    id: "",
-    name: "",
-    cui: "",
-    address: "",
-    phone: "",
-    email: "",
-    bankAccount: "",
-  };
-
   const [formData, setFormData] = useState<Supplier>(emptySupplier);
 
   useEffect(() => {
+    if (!isOpen) return;
     if (initialData) {
       setFormData(initialData);
     } else {
       setFormData(emptySupplier);
     }
-  }, [initialData]);
+  }, [initialData, isOpen]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = () => {
@@ -48,93 +55,92 @@ export function SupplierModal({
       alert("Numele și CUI sunt obligatorii");
       return;
     }
-
     onSave(formData);
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-slate-900 w-full max-w-lg rounded-xl p-6 border border-slate-700 shadow-xl">
-        
-        <h2 className="text-xl font-semibold text-white mb-4">
-          {initialData ? "Editează Furnizor" : "Adaugă Furnizor"}
-        </h2>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {initialData ? "Editează Furnizor" : "Adaugă Furnizor"}
+          </DialogTitle>
+        </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="grid gap-4 py-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="name">Nume</Label>
+              <Input
+                id="name"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="cui">CUI</Label>
+              <Input
+                id="cui"
+                name="cui"
+                value={formData.cui}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
 
-          <input
-            type="text"
-            name="name"
-            placeholder="Nume"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-slate-800 border border-slate-600 text-white"
-          />
+          <div className="space-y-1">
+            <Label htmlFor="address">Adresă</Label>
+            <Input
+              id="address"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+            />
+          </div>
 
-          <input
-            type="text"
-            name="cui"
-            placeholder="CUI"
-            value={formData.cui}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-slate-800 border border-slate-600 text-white"
-          />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label htmlFor="phone">Telefon</Label>
+              <Input
+                id="phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+              />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+          </div>
 
-          <input
-            type="text"
-            name="address"
-            placeholder="Adresă"
-            value={formData.address}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-slate-800 border border-slate-600 text-white"
-          />
-
-          <input
-            type="text"
-            name="phone"
-            placeholder="Telefon"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-slate-800 border border-slate-600 text-white"
-          />
-
-          <input
-            type="text"
-            name="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-slate-800 border border-slate-600 text-white"
-          />
-
-          <input
-            type="text"
-            name="bankAccount"
-            placeholder="Cont bancar"
-            value={formData.bankAccount}
-            onChange={handleChange}
-            className="w-full p-2 rounded bg-slate-800 border border-slate-600 text-white"
-          />
+          <div className="space-y-1">
+            <Label htmlFor="bankAccount">Cont bancar</Label>
+            <Input
+              id="bankAccount"
+              name="bankAccount"
+              value={formData.bankAccount}
+              onChange={handleChange}
+            />
+          </div>
         </div>
 
-        <div className="flex justify-end gap-3 mt-6">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded bg-slate-700 text-white hover:bg-slate-600"
-          >
+        <DialogFooter>
+          <Button variant="outline" onClick={onClose}>
             Anulează
-          </button>
-
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
-          >
-            Salvează
-          </button>
-        </div>
-      </div>
-    </div>
+          </Button>
+          <Button onClick={handleSubmit}>
+            {initialData ? "Salvează" : "Adaugă"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

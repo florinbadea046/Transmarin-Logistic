@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Supplier } from "@/modules/accounting/types";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { SupplierModal } from "../components/SupplierModal";
-import { getCollection } from "@/utils/local-storage";
+import { getCollection, setCollection } from "@/utils/local-storage";
 
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -35,7 +35,7 @@ export default function SuppliersPage() {
     a.name.localeCompare(b.name)
   );
 
-  const totalPages = Math.ceil(sortedSuppliers.length / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(sortedSuppliers.length / itemsPerPage));
   const startIndex = (currentPage - 1) * itemsPerPage;
 
   const paginatedSuppliers = sortedSuppliers.slice(
@@ -59,10 +59,7 @@ export default function SuppliersPage() {
     }
 
     setSuppliers(updatedSuppliers);
-    localStorage.setItem(
-      STORAGE_KEYS.suppliers,
-      JSON.stringify(updatedSuppliers)
-    );
+    setCollection(STORAGE_KEYS.suppliers, updatedSuppliers);
     setIsModalOpen(false);
   };
 
@@ -72,10 +69,7 @@ export default function SuppliersPage() {
 
     const updatedSuppliers = suppliers.filter((s) => s.id !== id);
     setSuppliers(updatedSuppliers);
-    localStorage.setItem(
-      STORAGE_KEYS.suppliers,
-      JSON.stringify(updatedSuppliers)
-    );
+    setCollection(STORAGE_KEYS.suppliers, updatedSuppliers);
   };
 
   return (
@@ -110,9 +104,10 @@ export default function SuppliersPage() {
           <CardContent>
             {suppliers.length === 0 ? (
               <p className="text-white">Nu există furnizori</p>
+            ) : sortedSuppliers.length === 0 ? (
+              <p className="text-white">Niciun furnizor găsit</p>
             ) : (
               <>
-                {/* Card view pe mobile/tablet (<1024px) */}
                 <div className="flex flex-col gap-3 lg:hidden">
                   {paginatedSuppliers.map((supplier) => (
                     <div
@@ -152,7 +147,6 @@ export default function SuppliersPage() {
                   ))}
                 </div>
 
-                {/* Tabel view pe desktop (>=1024px) */}
                 <div className="hidden lg:block overflow-x-auto">
                   <table className="w-full text-white text-sm">
                     <thead className="bg-slate-700">
