@@ -36,7 +36,8 @@ import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
-import AddEmployeeDialog from "../components/add-employee-dialog";
+import EmployeeDialog from "../components/employee-dialog";
+import { EmployeeRow } from "../components/employee-row";
 import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
 
 const columns: ColumnDef<Employee>[] = [
@@ -119,6 +120,13 @@ const columns: ColumnDef<Employee>[] = [
       return av === bv ? 0 : av > bv ? 1 : -1;
     },
   },
+  {
+    id: "actions",
+    enableSorting: false,
+    enableHiding: false,
+    header: () => null,
+    cell: () => null,
+  },
 ];
 
 export default function EmployeesPage() {
@@ -196,7 +204,12 @@ export default function EmployeesPage() {
               <span className="text-sm text-muted-foreground">
                 {table.getFilteredRowModel().rows.length} angajați
               </span>
-              <AddEmployeeDialog onAdd={() => setData(getCollection<Employee>(STORAGE_KEYS.employees))} />
+              <EmployeeDialog
+                mode="add"
+                onAdd={() =>
+                  setData(getCollection<Employee>(STORAGE_KEYS.employees))
+                }
+              />
             </div>
             <div className="flex flex-wrap gap-2 mt-3">
               <Input
@@ -242,16 +255,7 @@ export default function EmployeesPage() {
                 <TableBody>
                   {table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map((row) => (
-                      <TableRow key={row.id}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
+                      <EmployeeRow key={row.id} row={row} setData={setData} />
                     ))
                   ) : (
                     <TableRow>
