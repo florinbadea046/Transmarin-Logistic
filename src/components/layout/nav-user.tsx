@@ -1,19 +1,12 @@
-import { Link, useNavigate } from "@tanstack/react-router";
-import {
-  BadgeCheck,
-  Bell,
-  ChevronsUpDown,
-  CreditCard,
-  LogOut,
-  Sparkles,
-} from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { ChevronsUpDown, LogOut, Languages } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/context/auth-provider";
 import useDialogState from "@/hooks/use-dialog-state";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -40,6 +33,12 @@ export function NavUser({ user }: NavUserProps) {
   const [open, setOpen] = useDialogState();
   const { logout } = useAuth();
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const currentLang = i18n.language?.startsWith("ro") ? "ro" : "en";
+  const toggleLang = () =>
+    i18n.changeLanguage(currentLang === "ro" ? "en" : "ro");
+
   return (
     <>
       <SidebarMenu>
@@ -79,6 +78,19 @@ export function NavUser({ user }: NavUserProps) {
                   </div>
                 </div>
               </DropdownMenuLabel>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem onClick={toggleLang} className="cursor-pointer">
+                <Languages className="mr-2 h-4 w-4" />
+                <span>{t("language.label")}:</span>
+                <span className="ml-auto font-medium uppercase">
+                  {currentLang}
+                </span>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
               <DropdownMenuItem
                 variant="destructive"
                 onClick={() => setOpen(true)}
