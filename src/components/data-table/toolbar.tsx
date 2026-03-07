@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { Cross2Icon } from "@radix-ui/react-icons";
 import type { Table } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTableFacetedFilter } from "./faceted-filter";
@@ -10,6 +11,7 @@ type DataTableToolbarProps<TData> = {
   table: Table<TData>;
   searchPlaceholder?: string;
   searchKey?: string;
+  columnLabels?: Record<string, string>;
   filters?: {
     columnId: string;
     title: string;
@@ -23,10 +25,12 @@ type DataTableToolbarProps<TData> = {
 
 export function DataTableToolbar<TData>({
   table,
-  searchPlaceholder = "Filter...",
+  searchPlaceholder,
   searchKey,
   filters = [],
+  columnLabels,
 }: DataTableToolbarProps<TData>) {
+  const { t } = useTranslation();
   const isFiltered =
     table.getState().columnFilters.length > 0 || table.getState().globalFilter;
 
@@ -35,7 +39,7 @@ export function DataTableToolbar<TData>({
       <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center sm:gap-2">
         {searchKey ? (
           <Input
-            placeholder={searchPlaceholder}
+            placeholder={searchPlaceholder ?? t("table.search")}
             value={
               (table.getColumn(searchKey)?.getFilterValue() as string) ?? ""
             }
@@ -46,7 +50,7 @@ export function DataTableToolbar<TData>({
           />
         ) : (
           <Input
-            placeholder={searchPlaceholder}
+            placeholder={searchPlaceholder ?? t("table.search")}
             value={table.getState().globalFilter ?? ""}
             onChange={(event) => table.setGlobalFilter(event.target.value)}
             className="h-8 w-full sm:w-[220px] lg:w-[250px]"
@@ -76,7 +80,7 @@ export function DataTableToolbar<TData>({
               }}
               className="h-8 px-2 lg:px-3"
             >
-              Reset
+              {t("table.reset")}
               <Cross2Icon className="ms-2 h-4 w-4" />
             </Button>
           )}
@@ -84,7 +88,7 @@ export function DataTableToolbar<TData>({
       </div>
 
       <div className="flex w-full justify-end sm:w-auto">
-        <DataTableViewOptions table={table} />
+        <DataTableViewOptions table={table} columnLabels={columnLabels} />
       </div>
     </div>
   );
