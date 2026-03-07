@@ -12,20 +12,16 @@ import { Alert } from "@/components/ui/alert";
 export default function ConfirmDeleteDialog({
   disabled,
   onDelete,
-  open: externalOpen,
-  onOpenChange: externalOnOpenChange,
+  open,
+  onOpenChange,
 }: {
   disabled: boolean;
   onDelete: () => void;
-  open?: boolean;
-  onOpenChange?: (v: boolean) => void;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
 }) {
-  const [internalOpen, setInternalOpen] = React.useState(false);
-  const open = externalOpen !== undefined ? externalOpen : internalOpen;
-  const setOpen = externalOnOpenChange ?? setInternalOpen;
-
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Confirmă ștergerea</DialogTitle>
@@ -49,7 +45,7 @@ export default function ConfirmDeleteDialog({
                 size="sm"
                 onClick={() => {
                   onDelete();
-                  setOpen(false);
+                  onOpenChange(false);
                 }}
               >
                 Șterge

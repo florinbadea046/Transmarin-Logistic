@@ -14,26 +14,19 @@ import EmployeeDialog from "./employee-dialog";
 import ConfirmDeleteDialog from "./confirm-delete-dialog";
 import { getCollection, updateItem, removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import type { Employee, LeaveRequest } from "@/modules/hr/types";
+import type { Employee } from "@/modules/hr/types";
 import { toast } from "sonner";
 
 interface EmployeeRowProps {
   row: Row<Employee>;
   setData: React.Dispatch<React.SetStateAction<Employee[]>>;
+  hasActiveLeave: boolean;
 }
 
-export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
+export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, hasActiveLeave }) => {
   const employee = row.original;
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
-
-  const leaveRequests = getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests);
-  const hasActiveLeave = leaveRequests.some(
-    (leave) =>
-      leave.employeeId === employee.id &&
-      leave.status === "approved" &&
-      new Date(leave.endDate) >= new Date(),
-  );
 
   return (
     <TableRow key={row.id}>
