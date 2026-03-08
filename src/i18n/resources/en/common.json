@@ -86,6 +86,21 @@
       "weight": "Weight",
       "notes": "Notes",
       "title": "Order detail"
+    },
+    "import": {
+      "title": "Import Orders from CSV",
+      "button": "Import",
+      "dropzone": "Drag & drop a CSV file or click to browse",
+      "dropzoneHint": "Accepted columns: Client, Origin/Origine, Destination/Destinatie, Date/Data (yyyy-MM-dd), Weight/Greutate (t), Status, Notes/Note",
+      "validCount": "{{count}} valid row(s)",
+      "invalidCount": "{{count}} invalid row(s)",
+      "errorsCol": "Errors",
+      "invalidDate": "Date must be in format yyyy-MM-dd",
+      "reupload": "Upload another file",
+      "confirm": "Import {{count}} row(s)",
+      "toastSuccess": "{{count}} order(s) imported successfully.",
+      "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
+      "toastAllSkipped": "No orders imported — all rows are duplicates."
     }
   },
   "language": {
@@ -104,5 +119,18 @@
     "noResults": "No results found.",
     "search": "Search...",
     "clearFilters": "Clear filters"
+  },
+  "trips": {
+    "title": "Trips",
+    "fields": {
+      "orderId": "Order ID",
+      "driverId": "Driver ID",
+      "truckId": "Truck ID",
+      "date": "Date",
+      "kmLoaded": "Loaded km",
+      "kmEmpty": "Empty km",
+      "fuelCost": "Fuel cost",
+      "status": "Status"
+    }
   }
 }

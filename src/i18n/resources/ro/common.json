@@ -86,6 +86,21 @@
       "weight": "Greutate",
       "notes": "Note",
       "title": "Detaliu comandă"
+    },
+    "import": {
+      "title": "Import Comenzi din CSV",
+      "button": "Import",
+      "dropzone": "Trage un fișier CSV aici sau dă click pentru a selecta",
+      "dropzoneHint": "Coloane acceptate: Client, Origine/Origin, Destinatie/Destination, Data/Date (yyyy-MM-dd), Greutate (t)/Weight (t), Status, Note/Notes",
+      "validCount": "{{count}} rând(uri) valide",
+      "invalidCount": "{{count}} rând(uri) invalide",
+      "errorsCol": "Erori",
+      "invalidDate": "Data trebuie să fie în formatul yyyy-MM-dd",
+      "reupload": "Încarcă alt fișier",
+      "confirm": "Importă {{count}} rând(uri)",
+      "toastSuccess": "{{count}} comandă(zi) importată(e) cu succes.",
+      "toastPartial": "{{added}} importate, {{skipped}} ignorate (duplicate).",
+      "toastAllSkipped": "Nicio comandă importată — toate rândurile sunt duplicate."
     }
   },
   "language": {
@@ -104,5 +119,18 @@
     "noResults": "Niciun rezultat.",
     "search": "Caută...",
     "clearFilters": "Șterge filtre"
+  },
+  "trips": {
+    "title": "Curse",
+    "fields": {
+      "orderId": "ID Comandă",
+      "driverId": "ID Șofer",
+      "truckId": "ID Camion",
+      "date": "Dată",
+      "kmLoaded": "Km încărcați",
+      "kmEmpty": "Km goi",
+      "fuelCost": "Cost combustibil",
+      "status": "Status"
+    }
   }
 }
