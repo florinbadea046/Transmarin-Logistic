@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { format, parseISO, startOfDay, endOfDay } from "date-fns";
 import {
@@ -71,44 +72,49 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
 
-const statusMeta: Record<
+type StatusMeta = Record<
   Order["status"],
   {
     label: string;
     variant?: "default" | "secondary" | "destructive" | "outline";
   }
-> = {
-  pending: { label: "In asteptare", variant: "secondary" },
-  assigned: { label: "Asignata", variant: "outline" },
-  in_transit: { label: "In tranzit", variant: "default" },
-  delivered: { label: "Livrata", variant: "secondary" },
-  cancelled: { label: "Anulata", variant: "destructive" },
-};
+>;
 
-const statusFilterOptions = (Object.keys(statusMeta) as Order["status"][]).map(
-  (value) => ({ value, label: statusMeta[value].label }),
-);
+function getStatusMeta(t: (k: string) => string): StatusMeta {
+  return {
+    pending: { label: t("orders.status.pending"), variant: "secondary" },
+    assigned: { label: t("orders.status.assigned"), variant: "outline" },
+    in_transit: { label: t("orders.status.in_transit"), variant: "default" },
+    delivered: { label: t("orders.status.delivered"), variant: "secondary" },
+    cancelled: { label: t("orders.status.cancelled"), variant: "destructive" },
+  };
+}
 
-const orderSchema = z.object({
-  clientName: z.string().trim().min(1, "Clientul este obligatoriu"),
-  origin: z.string().trim().min(1, "Originea este obligatorie"),
-  destination: z.string().trim().min(1, "Destinatia este obligatorie"),
-  date: z.date().refine((d) => d instanceof Date && !isNaN(d.getTime()), {
-    message: "Data este obligatorie",
-  }),
-  weight: z
-    .union([z.string(), z.number()])
-    .transform((v) => (typeof v === "string" ? Number(v) : v))
-    .refine((n) => typeof n === "number" && Number.isFinite(n), {
-      message: "Greutatea este obligatorie",
-    })
-    .refine((n) => n > 0, {
-      message: "Greutatea trebuie sa fie > 0",
+function makeOrderSchema(t: (k: string) => string) {
+  return z.object({
+    clientName: z.string().trim().min(1, t("orders.validation.clientRequired")),
+    origin: z.string().trim().min(1, t("orders.validation.originRequired")),
+    destination: z
+      .string()
+      .trim()
+      .min(1, t("orders.validation.destinationRequired")),
+    date: z.date().refine((d) => d instanceof Date && !isNaN(d.getTime()), {
+      message: t("orders.validation.dateRequired"),
     }),
-  notes: z.string().trim().optional(),
-});
+    weight: z
+      .union([z.string(), z.number()])
+      .transform((v) => (typeof v === "string" ? Number(v) : v))
+      .refine((n) => typeof n === "number" && Number.isFinite(n), {
+        message: t("orders.validation.weightRequired"),
+      })
+      .refine((n) => n > 0, {
+        message: t("orders.validation.weightPositive"),
+      }),
+    notes: z.string().trim().optional(),
+  });
+}
 
-type OrderForm = z.infer<typeof orderSchema>;
+type OrderForm = z.infer<ReturnType<typeof makeOrderSchema>>;
 
 function safeRandomId() {
   const c = globalThis as any;
@@ -163,6 +169,7 @@ const EMPTY_FORM: OrderForm = {
   notes: "",
 };
 
+// ─── Date picker button ───────────────────────────────────
 function DateButton({
   date,
   placeholder,
@@ -206,33 +213,33 @@ function DateButton({
   );
 }
 
-const EXPORT_COLS = [
-  { key: "clientName", label: "Client" },
-  { key: "origin", label: "Origine" },
-  { key: "destination", label: "Destinatie" },
-  { key: "date", label: "Data" },
-  { key: "status", label: "Status" },
-  { key: "weight", label: "Greutate (t)" },
-  { key: "notes", label: "Note" },
-];
+// ─── Advanced Filters ─────────────────────────────────────
+function getExportCols(t: (k: string) => string) {
+  return [
+    { key: "clientName", label: t("orders.fields.client") },
+    { key: "origin", label: t("orders.fields.origin") },
+    { key: "destination", label: t("orders.fields.destination") },
+    { key: "date", label: t("orders.fields.date") },
+    { key: "status", label: t("orders.fields.status") },
+    { key: "weight", label: t("orders.fields.weight") },
+    { key: "notes", label: t("orders.fields.notes") },
+  ];
+}
 
-function toRows(orders: Order[]) {
+function toRows(orders: Order[], cols: ReturnType<typeof getExportCols>) {
   return orders.map((o) =>
-    Object.fromEntries(
-      EXPORT_COLS.map((c) => [c.label, (o as any)[c.key] ?? ""]),
-    ),
+    Object.fromEntries(cols.map((c) => [c.label, (o as any)[c.key] ?? ""])),
   );
 }
 
-function exportPDF(orders: Order[]) {
+function exportPDF(orders: Order[], t: (k: string) => string) {
+  const cols = getExportCols(t);
   const doc = new jsPDF();
   doc.setFontSize(14);
-  doc.text("Comenzi", 14, 16);
+  doc.text(t("orders.manage"), 14, 16);
   autoTable(doc, {
-    head: [EXPORT_COLS.map((c) => c.label)],
-    body: orders.map((o) =>
-      EXPORT_COLS.map((c) => String((o as any)[c.key] ?? "")),
-    ),
+    head: [cols.map((c) => c.label)],
+    body: orders.map((o) => cols.map((c) => String((o as any)[c.key] ?? ""))),
     startY: 22,
     styles: { fontSize: 8 },
     headStyles: { fillColor: [30, 30, 30] },
@@ -240,15 +247,17 @@ function exportPDF(orders: Order[]) {
   doc.save("comenzi.pdf");
 }
 
-function exportExcel(orders: Order[]) {
-  const ws = XLSX.utils.json_to_sheet(toRows(orders));
+function exportExcel(orders: Order[], t: (k: string) => string) {
+  const cols = getExportCols(t);
+  const ws = XLSX.utils.json_to_sheet(toRows(orders, cols));
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Comenzi");
+  XLSX.utils.book_append_sheet(wb, ws, t("orders.title"));
   XLSX.writeFile(wb, "comenzi.xlsx");
 }
 
-function exportCSV(orders: Order[]) {
-  const csv = Papa.unparse(toRows(orders));
+function exportCSV(orders: Order[], t: (k: string) => string) {
+  const cols = getExportCols(t);
+  const csv = Papa.unparse(toRows(orders, cols));
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -259,6 +268,7 @@ function exportCSV(orders: Order[]) {
 }
 
 function ExportMenu({ orders }: { orders: Order[] }) {
+  const { t } = useTranslation();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -269,21 +279,21 @@ function ExportMenu({ orders }: { orders: Order[] }) {
       <DropdownMenuContent align="end">
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => exportPDF(orders)}
+          onClick={() => exportPDF(orders, t)}
         >
           Export PDF
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => exportExcel(orders)}
+          onClick={() => exportExcel(orders, t)}
         >
           Export Excel
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => exportCSV(orders)}
+          onClick={() => exportCSV(orders, t)}
         >
           Export CSV
         </DropdownMenuItem>
@@ -301,6 +311,7 @@ function OrderDetailDialog({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const trips = React.useMemo(() => {
     if (!order) return [];
     return getCollection<Trip>(STORAGE_KEYS.trips).filter(
@@ -321,71 +332,89 @@ function OrderDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[480px]">
         <DialogHeader>
-          <DialogTitle>Detaliu comanda</DialogTitle>
+          <DialogTitle>{t("orders.detail.title")}</DialogTitle>
           <DialogDescription className="sr-only">
-            Detalii comanda si costuri asociate.
+            {t("orders.detail.title")}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 text-sm">
           <div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-lg border p-3">
-            <span className="text-muted-foreground">Client</span>
+            <span className="text-muted-foreground">
+              {t("orders.fields.client")}
+            </span>
             <span className="font-medium">{order.clientName}</span>
-            <span className="text-muted-foreground">Ruta</span>
+            <span className="text-muted-foreground">
+              {t("orders.detail.route")}
+            </span>
             <span>
               {order.origin} &rarr; {order.destination}
             </span>
-            <span className="text-muted-foreground">Data</span>
+            <span className="text-muted-foreground">
+              {t("orders.detail.date")}
+            </span>
             <span className="tabular-nums">{order.date}</span>
-            <span className="text-muted-foreground">Status</span>
+            <span className="text-muted-foreground">
+              {t("orders.detail.status")}
+            </span>
             <span>{order.status}</span>
             {order.weight != null && (
               <>
-                <span className="text-muted-foreground">Greutate</span>
-                <span className="tabular-nums">{order.weight} t</span>
+                <span className="text-muted-foreground">
+                  {t("orders.detail.weight")}
+                </span>
+                <span className="tabular-nums">
+                  {order.weight} {t("orders.fields.weightUnit")}
+                </span>
               </>
             )}
             {order.notes && (
               <>
-                <span className="text-muted-foreground">Note</span>
+                <span className="text-muted-foreground">
+                  {t("orders.fields.notes")}
+                </span>
                 <span>{order.notes}</span>
               </>
             )}
           </div>
 
           <div className="rounded-lg border p-3 space-y-2">
-            <p className="font-medium">Costuri curse asociate</p>
+            <p className="font-medium">{t("orders.costs.title")}</p>
             {trips.length === 0 ? (
               <p className="text-muted-foreground text-xs">
-                Nu exista curse asociate acestei comenzi.
+                {t("orders.costs.noTrips")}
               </p>
             ) : (
               <div className="space-y-1">
-                {trips.map((t, i) => {
-                  const km = (t.kmLoaded ?? 0) + (t.kmEmpty ?? 0);
-                  const cpk = km > 0 ? t.fuelCost / km : null;
+                {trips.map((trip, i) => {
+                  const km = (trip.kmLoaded ?? 0) + (trip.kmEmpty ?? 0);
+                  const cpk = km > 0 ? trip.fuelCost / km : null;
                   return (
                     <div
-                      key={t.id}
+                      key={trip.id}
                       className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs border-b last:border-0 pb-1 last:pb-0"
                     >
                       <span className="text-muted-foreground">
-                        Cursa {i + 1}
+                        {t("orders.costs.trip", { index: i + 1 })}
                       </span>
-                      <span className="tabular-nums">{t.date}</span>
+                      <span className="tabular-nums">{trip.date}</span>
                       <span className="text-muted-foreground">
-                        Km incarcati
+                        {t("orders.costs.kmLoaded")}
                       </span>
-                      <span className="tabular-nums">{t.kmLoaded} km</span>
-                      <span className="text-muted-foreground">Km goi</span>
-                      <span className="tabular-nums">{t.kmEmpty} km</span>
+                      <span className="tabular-nums">{trip.kmLoaded} km</span>
                       <span className="text-muted-foreground">
-                        Cost combustibil
+                        {t("orders.costs.kmEmpty")}
+                      </span>
+                      <span className="tabular-nums">{trip.kmEmpty} km</span>
+                      <span className="text-muted-foreground">
+                        {t("orders.costs.fuelCost")}
                       </span>
                       <span className="tabular-nums font-medium">
-                        {t.fuelCost.toFixed(2)} RON
+                        {trip.fuelCost.toFixed(2)} RON
                       </span>
-                      <span className="text-muted-foreground">Cost/km</span>
+                      <span className="text-muted-foreground">
+                        {t("orders.costs.costPerKm")}
+                      </span>
                       <span className="tabular-nums">
                         {cpk != null ? `${cpk.toFixed(2)} RON/km` : "—"}
                       </span>
@@ -396,11 +425,11 @@ function OrderDetailDialog({
             )}
 
             <div className="grid grid-cols-2 gap-x-4 pt-2 border-t text-sm font-medium">
-              <span>Total cost combustibil</span>
+              <span>{t("orders.costs.totalFuel")}</span>
               <span className="tabular-nums">
                 {totalFuelCost.toFixed(2)} RON
               </span>
-              <span>Cost/km total</span>
+              <span>{t("orders.costs.totalCostPerKm")}</span>
               <span className="tabular-nums">
                 {costPerKm != null ? `${costPerKm.toFixed(2)} RON/km` : "—"}
               </span>
@@ -410,7 +439,7 @@ function OrderDetailDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Inchide
+            {t("orders.close")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -443,28 +472,29 @@ function AdvancedFilters({
   onReset,
   hasActive,
 }: AdvancedFiltersProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-wrap items-center gap-2">
       <DateButton
         date={dateFrom}
-        placeholder="De la data"
+        placeholder={t("orders.filters.from")}
         onSelect={onDateFrom}
       />
       <DateButton
         date={dateTo}
-        placeholder="Pana la data"
+        placeholder={t("orders.filters.to")}
         onSelect={onDateTo}
       />
       <Input
         value={origin}
         onChange={(e) => onOrigin(e.target.value)}
-        placeholder="Origine..."
+        placeholder={t("orders.placeholders.filterOrigin")}
         className="h-8 w-full sm:w-[140px]"
       />
       <Input
         value={destination}
         onChange={(e) => onDestination(e.target.value)}
-        placeholder="Destinatie..."
+        placeholder={t("orders.placeholders.filterDest")}
         className="h-8 w-full sm:w-[140px]"
       />
       {hasActive && (
@@ -474,13 +504,14 @@ function AdvancedFilters({
           className="h-8 px-2"
           onClick={onReset}
         >
-          Resetare filtre <X className="ml-1 h-3.5 w-3.5" />
+          {t("orders.actions.reset")} <X className="ml-1 h-3.5 w-3.5" />
         </Button>
       )}
     </div>
   );
 }
 
+// ─── Order Form Dialog ────────────────────────────────────
 interface OrderFormDialogProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -498,6 +529,7 @@ function OrderFormDialog({
   onSave,
   triggerButton,
 }: OrderFormDialogProps) {
+  const { t } = useTranslation();
   const [dateOpen, setDateOpen] = React.useState(false);
   const [form, setForm] = React.useState<OrderForm>(
     initialValues ?? EMPTY_FORM,
@@ -521,7 +553,7 @@ function OrderFormDialog({
     setErrors({});
     setFormError(null);
 
-    const parsed = orderSchema.safeParse(form);
+    const parsed = makeOrderSchema(t).safeParse(form);
     if (!parsed.success) {
       const nextErrors: Partial<Record<keyof OrderForm, string>> = {};
       for (const issue of parsed.error.issues) {
@@ -568,14 +600,14 @@ function OrderFormDialog({
         <div className="grid gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="clientName">Client *</Label>
+              <Label htmlFor="clientName">{t("orders.fields.client")} *</Label>
               <Input
                 id="clientName"
                 value={form.clientName}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, clientName: e.target.value }))
                 }
-                placeholder="Ex: SC Transmarin SRL"
+                placeholder={t("orders.placeholders.client")}
               />
               {errors.clientName ? (
                 <p className="text-xs text-destructive">{errors.clientName}</p>
@@ -583,7 +615,7 @@ function OrderFormDialog({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="weight">Greutate (t) *</Label>
+              <Label htmlFor="weight">{t("orders.fields.weight")} *</Label>
               <Input
                 id="weight"
                 inputMode="decimal"
@@ -594,7 +626,7 @@ function OrderFormDialog({
                 onChange={(e) =>
                   setForm((p) => ({ ...p, weight: e.target.value as any }))
                 }
-                placeholder="Ex: 12.5"
+                placeholder={t("orders.placeholders.weight")}
               />
               {errors.weight ? (
                 <p className="text-xs text-destructive">{errors.weight}</p>
@@ -602,14 +634,14 @@ function OrderFormDialog({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="origin">Origine *</Label>
+              <Label htmlFor="origin">{t("orders.fields.origin")} *</Label>
               <Input
                 id="origin"
                 value={form.origin}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, origin: e.target.value }))
                 }
-                placeholder="Ex: Brasov"
+                placeholder={t("orders.placeholders.origin")}
               />
               {errors.origin ? (
                 <p className="text-xs text-destructive">{errors.origin}</p>
@@ -617,14 +649,16 @@ function OrderFormDialog({
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="destination">Destinatie *</Label>
+              <Label htmlFor="destination">
+                {t("orders.fields.destination")} *
+              </Label>
               <Input
                 id="destination"
                 value={form.destination}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, destination: e.target.value }))
                 }
-                placeholder="Ex: Constanta"
+                placeholder={t("orders.placeholders.destination")}
               />
               {errors.destination ? (
                 <p className="text-xs text-destructive">{errors.destination}</p>
@@ -632,7 +666,7 @@ function OrderFormDialog({
             </div>
 
             <div className="grid gap-2 sm:col-span-2">
-              <Label>Data *</Label>
+              <Label>{t("orders.fields.date")} *</Label>
               <Popover open={dateOpen} onOpenChange={setDateOpen}>
                 <PopoverTrigger asChild>
                   <Button
@@ -647,7 +681,7 @@ function OrderFormDialog({
                         {format(form.date, "yyyy-MM-dd")}
                       </span>
                     ) : (
-                      "Selecteaza data"
+                      t("orders.placeholders.selectDate")
                     )}
                   </Button>
                 </PopoverTrigger>
@@ -679,14 +713,14 @@ function OrderFormDialog({
             </div>
 
             <div className="grid gap-2 sm:col-span-2">
-              <Label htmlFor="notes">Note</Label>
+              <Label htmlFor="notes">{t("orders.fields.notes")}</Label>
               <Textarea
                 id="notes"
                 value={form.notes ?? ""}
                 onChange={(e) =>
                   setForm((p) => ({ ...p, notes: e.target.value }))
                 }
-                placeholder="Detalii extra (optional)"
+                placeholder={t("orders.placeholders.notes")}
                 className="min-h-[100px]"
               />
               {errors.notes ? (
@@ -702,10 +736,10 @@ function OrderFormDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
           >
-            Anuleaza
+            {t("orders.cancel")}
           </Button>
           <Button type="button" onClick={handleSubmit}>
-            Salveaza
+            {t("orders.save")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -713,7 +747,13 @@ function OrderFormDialog({
   );
 }
 
+// ─── Main Page ────────────────────────────────────────────
 export default function OrdersPage() {
+  const { t } = useTranslation();
+  const statusMeta = getStatusMeta(t);
+  const statusFilterOptions = (
+    Object.keys(statusMeta) as Order["status"][]
+  ).map((value) => ({ value, label: statusMeta[value].label }));
   const [data, setData] = React.useState<Order[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -787,7 +827,7 @@ export default function OrdersPage() {
     };
 
     if (data.some((o) => isDuplicateOrder(o, payload))) {
-      return "Exista deja o comanda identica (aceleasi date).";
+      return t("orders.duplicate");
     }
 
     const newOrder = {
@@ -816,7 +856,7 @@ export default function OrdersPage() {
     };
 
     if (data.some((o) => isDuplicateOrder(o, payload, editingOrder.id))) {
-      return "Exista deja o comanda identica (aceleasi date).";
+      return t("orders.duplicate");
     }
 
     const next = data.map((o) =>
@@ -865,162 +905,182 @@ export default function OrdersPage() {
       }
     : undefined;
 
-  const columns: ColumnDef<Order>[] = React.useMemo(
-    () => [
-      {
-        accessorKey: "clientName",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Client" />
-        ),
-        cell: ({ row }) => (
-          <div className="font-medium">{row.getValue("clientName")}</div>
-        ),
-        enableSorting: true,
+  const columns: ColumnDef<Order>[] = [
+    {
+      accessorKey: "clientName",
+      meta: { label: t("orders.fields.client") },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={t("orders.fields.client")}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="font-medium">{row.getValue("clientName")}</div>
+      ),
+      enableSorting: true,
+    },
+    {
+      accessorKey: "origin",
+      meta: { label: t("orders.fields.origin") },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={t("orders.fields.origin")}
+        />
+      ),
+      cell: ({ row }) => <div>{row.getValue("origin")}</div>,
+      enableSorting: true,
+    },
+    {
+      accessorKey: "destination",
+      meta: { label: t("orders.fields.destination") },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={t("orders.fields.destination")}
+        />
+      ),
+      cell: ({ row }) => <div>{row.getValue("destination")}</div>,
+      enableSorting: true,
+    },
+    {
+      accessorKey: "date",
+      meta: { label: t("orders.fields.date") },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={t("orders.fields.date")}
+        />
+      ),
+      cell: ({ row }) => {
+        const value = row.getValue("date") as string;
+        return <div className="tabular-nums">{value}</div>;
       },
-      {
-        accessorKey: "origin",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Origine" />
-        ),
-        cell: ({ row }) => <div>{row.getValue("origin")}</div>,
-        enableSorting: true,
+      enableSorting: true,
+      size: 130,
+      minSize: 120,
+      maxSize: 150,
+    },
+    {
+      accessorKey: "status",
+      meta: { label: t("orders.fields.status") },
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={t("orders.fields.status")}
+        />
+      ),
+      cell: ({ row }) => {
+        const value = row.getValue("status") as Order["status"];
+        const meta = statusMeta[value];
+        return (
+          <Badge
+            variant={meta.variant ?? "secondary"}
+            className="whitespace-nowrap"
+          >
+            {meta.label}
+          </Badge>
+        );
       },
-      {
-        accessorKey: "destination",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Destinatie" />
-        ),
-        cell: ({ row }) => <div>{row.getValue("destination")}</div>,
-        enableSorting: true,
+      enableSorting: true,
+      filterFn: (row, id, value) => {
+        const selected = value as string[] | undefined;
+        if (!selected || selected.length === 0) return true;
+        return selected.includes(row.getValue(id));
       },
-      {
-        accessorKey: "date",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Data" />
-        ),
-        cell: ({ row }) => {
-          const value = row.getValue("date") as string;
-          return <div className="tabular-nums">{value}</div>;
-        },
-        enableSorting: true,
-        size: 130,
-        minSize: 120,
-        maxSize: 150,
-      },
-      {
-        accessorKey: "status",
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Status" />
-        ),
-        cell: ({ row }) => {
-          const value = row.getValue("status") as Order["status"];
-          const meta = statusMeta[value];
-          return (
-            <Badge
-              variant={meta.variant ?? "secondary"}
-              className="whitespace-nowrap"
-            >
-              {meta.label}
-            </Badge>
-          );
-        },
-        enableSorting: true,
-        filterFn: (row, id, value) => {
-          const selected = value as string[] | undefined;
-          if (!selected || selected.length === 0) return true;
-          return selected.includes(row.getValue(id));
-        },
-        size: 140,
-        minSize: 130,
-        maxSize: 160,
-      },
-      {
-        accessorKey: "weight",
-        header: ({ column }) => (
-          <div className="mx-auto w-fit text-xs">
-            <DataTableColumnHeader column={column} title="Greutate (t)" />
+      size: 140,
+      minSize: 130,
+      maxSize: 160,
+    },
+    {
+      accessorKey: "weight",
+      meta: { label: t("orders.fields.weight") },
+      header: ({ column }) => (
+        <div className="mx-auto w-fit text-xs">
+          <DataTableColumnHeader
+            column={column}
+            title={t("orders.fields.weight")}
+          />
+        </div>
+      ),
+      cell: ({ row }) => {
+        const value = row.getValue("weight") as number | undefined;
+        return (
+          <div className="text-xs tabular-nums text-center">
+            {typeof value === "number" ? value : "—"}
           </div>
-        ),
-        cell: ({ row }) => {
-          const value = row.getValue("weight") as number | undefined;
-          return (
-            <div className="text-xs tabular-nums text-center">
-              {typeof value === "number" ? value : "—"}
-            </div>
-          );
-        },
-        enableSorting: true,
-        sortingFn: (a, b, id) => {
-          const av = (a.getValue(id) as number | undefined) ?? -Infinity;
-          const bv = (b.getValue(id) as number | undefined) ?? -Infinity;
-          return av === bv ? 0 : av > bv ? 1 : -1;
-        },
-        size: 90,
-        minSize: 80,
-        maxSize: 110,
+        );
       },
-      {
-        id: "actions",
-        header: () => <span className="sr-only">Actiuni</span>,
-        cell: ({ row }) => {
-          const order = row.original;
-          return (
-            <div className="flex items-center justify-end">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-7 w-7 p-0"
-                    aria-label="Optiuni rand"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="15"
-                      height="15"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      aria-hidden="true"
-                    >
-                      <circle cx="12" cy="5" r="1.5" />
-                      <circle cx="12" cy="12" r="1.5" />
-                      <circle cx="12" cy="19" r="1.5" />
-                    </svg>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => openDetail(order)}
-                  >
-                    Detalii
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() => openEdit(order)}
-                  >
-                    Editeaza
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    className="cursor-pointer text-destructive focus:text-destructive"
-                    onClick={() => openDelete(order)}
-                  >
-                    Sterge
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          );
-        },
-        size: 56,
-        minSize: 48,
-        maxSize: 64,
-        enableSorting: false,
+      enableSorting: true,
+      sortingFn: (a, b, id) => {
+        const av = (a.getValue(id) as number | undefined) ?? -Infinity;
+        const bv = (b.getValue(id) as number | undefined) ?? -Infinity;
+        return av === bv ? 0 : av > bv ? 1 : -1;
       },
-    ],
-
-    [],
-  );
+      size: 90,
+      minSize: 80,
+      maxSize: 110,
+    },
+    {
+      id: "actions",
+      header: () => <span className="sr-only">Actiuni</span>,
+      cell: ({ row }) => {
+        const order = row.original;
+        return (
+          <div className="flex items-center justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0"
+                  aria-label="Optiuni rand"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="15"
+                    height="15"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="5" r="1.5" />
+                    <circle cx="12" cy="12" r="1.5" />
+                    <circle cx="12" cy="19" r="1.5" />
+                  </svg>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => openDetail(order)}
+                >
+                  {t("orders.actions.details")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => openEdit(order)}
+                >
+                  {t("orders.actions.edit")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer text-destructive focus:text-destructive"
+                  onClick={() => openDelete(order)}
+                >
+                  {t("orders.actions.delete")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+      size: 56,
+      minSize: 48,
+      maxSize: 64,
+      enableSorting: false,
+    },
+  ];
 
   const table = useReactTable({
     data: filteredData,
@@ -1051,21 +1111,21 @@ export default function OrdersPage() {
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold">Comenzi</h1>
+        <h1 className="text-lg font-semibold">{t("orders.title")}</h1>
       </Header>
 
       <Main>
         <Card>
           <CardHeader className="flex flex-wrap items-center justify-between gap-3">
-            <CardTitle>Gestiune Comenzi</CardTitle>
+            <CardTitle>{t("orders.manage")}</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <ExportMenu orders={filteredData} />
               <OrderFormDialog
                 open={addOpen}
                 onOpenChange={setAddOpen}
-                title="Adauga comanda"
+                title={t("orders.add")}
                 onSave={handleAdd}
-                triggerButton={<Button>Adauga comanda</Button>}
+                triggerButton={<Button>{t("orders.add")}</Button>}
               />
             </div>
           </CardHeader>
@@ -1073,12 +1133,20 @@ export default function OrdersPage() {
           <CardContent className="space-y-4">
             <DataTableToolbar
               table={table}
-              searchPlaceholder="Cauta comenzi..."
+              searchPlaceholder={t("orders.placeholders.search")}
               searchKey="clientName"
+              columnLabels={{
+                clientName: t("orders.fields.client"),
+                origin: t("orders.fields.origin"),
+                destination: t("orders.fields.destination"),
+                date: t("orders.fields.date"),
+                status: t("orders.fields.status"),
+                weight: t("orders.fields.weight"),
+              }}
               filters={[
                 {
                   columnId: "status",
-                  title: "Status",
+                  title: t("orders.fields.status"),
                   options: statusFilterOptions,
                 },
               ]}
@@ -1171,7 +1239,7 @@ export default function OrdersPage() {
           setEditOpen(v);
           if (!v) setEditingOrder(null);
         }}
-        title="Editeaza comanda"
+        title={t("orders.edit")}
         initialValues={editInitialValues}
         onSave={handleEdit}
       />
@@ -1191,21 +1259,25 @@ export default function OrdersPage() {
           setDeleteOpen(v);
           if (!v) setDeletingOrder(null);
         }}
-        title="Sterge comanda"
+        title={t("orders.delete")}
         desc={
           deletingOrder ? (
-            <span>
-              Esti sigur ca vrei sa stergi comanda pentru{" "}
-              <strong>{deletingOrder.clientName}</strong> (
-              {deletingOrder.origin} &rarr; {deletingOrder.destination},{" "}
-              {deletingOrder.date})? Aceasta actiune este ireversibila.
-            </span>
+            <span
+              dangerouslySetInnerHTML={{
+                __html: t("orders.confirmDelete", {
+                  name: `<strong>${deletingOrder.clientName}</strong>`,
+                  origin: deletingOrder.origin,
+                  destination: deletingOrder.destination,
+                  date: deletingOrder.date,
+                }),
+              }}
+            />
           ) : (
-            "Esti sigur ca vrei sa stergi aceasta comanda?"
+            t("orders.confirmDeleteFallback")
           )
         }
-        confirmText="Sterge"
-        cancelBtnText="Anuleaza"
+        confirmText={t("orders.actions.delete")}
+        cancelBtnText={t("orders.cancel")}
         destructive
         handleConfirm={handleDelete}
       />
