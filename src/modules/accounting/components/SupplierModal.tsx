@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +14,22 @@ import {
 } from "@/components/ui/dialog";
 import type { Supplier } from "../types";
 
+const supplierSchema = z.object({
+  id: z.string(),
+  name: z.string().min(3, "Numele trebuie să aibă minim 3 caractere"),
+  cui: z
+    .string()
+    .regex(/^RO[0-9]{2,10}$/, "CUI invalid (ex: RO12345678)"),
+  address: z.string().min(1, "Adresa este obligatorie"),
+  phone: z
+    .string()
+    .regex(/^07[0-9]{8}$/, "Telefonul trebuie să înceapă cu 07 și să aibă 10 cifre"),
+  email: z.string().email("Email invalid"),
+  bankAccount: z.string().min(1, "Contul bancar este obligatoriu"),
+});
+
+type SupplierFormData = z.infer<typeof supplierSchema>;
+
 type SupplierModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -18,7 +37,7 @@ type SupplierModalProps = {
   onSave: (supplier: Supplier) => void;
 };
 
-const emptySupplier: Supplier = {
+const emptySupplier: SupplierFormData = {
   id: "",
   name: "",
   cui: "",
@@ -28,34 +47,24 @@ const emptySupplier: Supplier = {
   bankAccount: "",
 };
 
-export function SupplierModal({
-  isOpen,
-  onClose,
-  initialData,
-  onSave,
-}: SupplierModalProps) {
-  const [formData, setFormData] = useState<Supplier>(emptySupplier);
+export function SupplierModal({ isOpen, onClose, initialData, onSave }: SupplierModalProps) {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<SupplierFormData>({
+    resolver: zodResolver(supplierSchema),
+    defaultValues: emptySupplier,
+  });
 
   useEffect(() => {
     if (!isOpen) return;
-    if (initialData) {
-      setFormData(initialData);
-    } else {
-      setFormData(emptySupplier);
-    }
-  }, [initialData, isOpen]);
+    reset(initialData ?? emptySupplier);
+  }, [initialData, isOpen, reset]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSubmit = () => {
-    if (!formData.name || !formData.cui) {
-      alert("Numele și CUI sunt obligatorii");
-      return;
-    }
-    onSave(formData);
+  const onSubmit = (data: SupplierFormData) => {
+    onSave(data as Supplier);
   };
 
   return (
@@ -71,64 +80,51 @@ export function SupplierModal({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="name">Nume</Label>
-              <Input
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-              />
+              <Input id="name" {...register("name")} />
+              {errors.name && (
+                <p className="text-red-400 text-xs">{errors.name.message}</p>
+              )}
             </div>
             <div className="space-y-1">
               <Label htmlFor="cui">CUI</Label>
-              <Input
-                id="cui"
-                name="cui"
-                value={formData.cui}
-                onChange={handleChange}
-              />
+              <Input id="cui" {...register("cui")} placeholder="RO12345678" />
+              {errors.cui && (
+                <p className="text-red-400 text-xs">{errors.cui.message}</p>
+              )}
             </div>
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="address">Adresă</Label>
-            <Input
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-            />
+            <Input id="address" {...register("address")} />
+            {errors.address && (
+              <p className="text-red-400 text-xs">{errors.address.message}</p>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="phone">Telefon</Label>
-              <Input
-                id="phone"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-              />
+              <Input id="phone" {...register("phone")} placeholder="07xxxxxxxx" />
+              {errors.phone && (
+                <p className="text-red-400 text-xs">{errors.phone.message}</p>
+              )}
             </div>
             <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-              />
+              <Input id="email" type="email" {...register("email")} />
+              {errors.email && (
+                <p className="text-red-400 text-xs">{errors.email.message}</p>
+              )}
             </div>
           </div>
 
           <div className="space-y-1">
             <Label htmlFor="bankAccount">Cont bancar</Label>
-            <Input
-              id="bankAccount"
-              name="bankAccount"
-              value={formData.bankAccount}
-              onChange={handleChange}
-            />
+            <Input id="bankAccount" {...register("bankAccount")} />
+            {errors.bankAccount && (
+              <p className="text-red-400 text-xs">{errors.bankAccount.message}</p>
+            )}
           </div>
         </div>
 
@@ -136,7 +132,7 @@ export function SupplierModal({
           <Button variant="outline" onClick={onClose}>
             Anulează
           </Button>
-          <Button onClick={handleSubmit}>
+          <Button onClick={handleSubmit(onSubmit)}>
             {initialData ? "Salvează" : "Adaugă"}
           </Button>
         </DialogFooter>
