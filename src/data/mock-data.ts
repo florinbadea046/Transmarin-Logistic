@@ -637,6 +637,69 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49OOOO1B31007593840000",
   },
 ];
+const seedLeaveRequests: LeaveRequest[] = [
+  {
+    id: "lr1",
+    employeeId: "e1",
+    type: "annual",
+    startDate: "2026-03-10",
+    endDate: "2026-03-21",
+    days: 10,
+    status: "approved",
+    reason: "Vacanță de primăvară",
+  },
+  {
+    id: "lr2",
+    employeeId: "e2",
+    type: "sick",
+    startDate: "2026-02-17",
+    endDate: "2026-02-21",
+    days: 5,
+    status: "approved",
+    reason: "Răceală",
+  },
+  {
+    id: "lr3",
+    employeeId: "e3",
+    type: "annual",
+    startDate: "2026-04-01",
+    endDate: "2026-04-05",
+    days: 5,
+    status: "pending",
+    reason: "Concediu personal",
+  },
+  {
+    id: "lr4",
+    employeeId: "e1",
+    type: "unpaid",
+    startDate: "2026-01-13",
+    endDate: "2026-01-14",
+    days: 2,
+    status: "rejected",
+    reason: "Treburi personale",
+  },
+  {
+    id: "lr5",
+    employeeId: "e2",
+    type: "other",
+    startDate: "2026-04-20",
+    endDate: "2026-04-20",
+    days: 1,
+    status: "pending",
+    reason: "Eveniment familial",
+  },
+  {
+    id: "lr6",
+    employeeId: "e4",
+    type: "annual",
+    startDate: "2026-03-20",
+    endDate: "2026-03-28",
+    days: 9,
+    status: "approved",
+    reason: "Concediu anual",
+  },
+];
+
 const seedServiceRecords: ServiceRecord[] = [
   {
     id: "sr1",
@@ -979,18 +1042,6 @@ const seedTrips: Trip[] = [
   },
 ];
 
-const seedLeaveRequests: LeaveRequest[] = [
-  {
-    id: "lr1",
-    employeeId: "e4",
-    type: "annual",
-    startDate: "2026-03-20",
-    endDate: "2026-03-28",
-    days: 9,
-    status: "approved",
-    reason: "Concediu anual",
-  },
-];
 
 /**
  * Încarcă datele seed în localStorage (doar dacă cheile nu există deja).
@@ -1006,7 +1057,7 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.trips, seedTrips);
   initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
   initCollection(STORAGE_KEYS.fuelRecords, seedFuelRecords);
-  initCollection(STORAGE_KEYS.invoices, []);
+  initCollection(STORAGE_KEYS.invoices, seedInvoices);
   initCollection(STORAGE_KEYS.leaveRequests, seedLeaveRequests);
   initCollection(STORAGE_KEYS.bonuses, []);
 }
