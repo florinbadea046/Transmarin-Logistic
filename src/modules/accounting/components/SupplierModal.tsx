@@ -1,3 +1,4 @@
+
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -65,8 +66,8 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
 
   const onSubmit = (data: SupplierFormData) => {
     onSave(data as Supplier);
-  };
-
+   };
+  
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
@@ -80,6 +81,7 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="name">Nume</Label>
+
               <Input id="name" {...register("name")} />
               {errors.name && (
                 <p className="text-red-400 text-xs">{errors.name.message}</p>
@@ -96,6 +98,7 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
 
           <div className="space-y-1">
             <Label htmlFor="address">Adresă</Label>
+
             <Input id="address" {...register("address")} />
             {errors.address && (
               <p className="text-red-400 text-xs">{errors.address.message}</p>
@@ -105,6 +108,7 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="phone">Telefon</Label>
+
               <Input id="phone" {...register("phone")} placeholder="07xxxxxxxx" />
               {errors.phone && (
                 <p className="text-red-400 text-xs">{errors.phone.message}</p>
@@ -121,6 +125,7 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
 
           <div className="space-y-1">
             <Label htmlFor="bankAccount">Cont bancar</Label>
+
             <Input id="bankAccount" {...register("bankAccount")} />
             {errors.bankAccount && (
               <p className="text-red-400 text-xs">{errors.bankAccount.message}</p>
@@ -132,6 +137,7 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
           <Button variant="outline" onClick={onClose}>
             Anulează
           </Button>
+
           <Button onClick={handleSubmit(onSubmit)}>
             {initialData ? "Salvează" : "Adaugă"}
           </Button>

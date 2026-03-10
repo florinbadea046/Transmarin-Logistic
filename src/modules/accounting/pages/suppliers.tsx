@@ -16,6 +16,7 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import { SupplierModal } from "../components/SupplierModal";
 import { getCollection, setCollection } from "@/utils/local-storage";
 
+
 const columnHelper = createColumnHelper<Supplier>();
 
 export default function SuppliersPage() {
@@ -213,6 +214,7 @@ export default function SuppliersPage() {
                 </button>
               </div>
             </div>
+
           </CardContent>
         </Card>
       </Main>
