@@ -111,9 +111,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
           setData(getCollection<Employee>(STORAGE_KEYS.employees));
           toast.success("Angajat actualizat cu succes");
         }}
-        onUpdate={() => {
-          setData(getCollection<Employee>(STORAGE_KEYS.employees));
-        }}
+
       />
       <ConfirmDeleteDialog
         employeeName={employee.name}
