@@ -1,6 +1,6 @@
 // ──────────────────────────────────────────────────────────
 // Transport → Sub-pagină: Tabel Curse (Trips)
-// A6 — Implementat conform cerinței
+// A6 + A7 — Implementat conform cerinței
 // ──────────────────────────────────────────────────────────
 
 import * as React from "react";
@@ -68,6 +68,7 @@ import type { Trip, Driver, Truck, Order } from "@/modules/transport/types";
 import {
   getCollection,
   addItem,
+  updateItem,
   generateId,
 } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
@@ -307,6 +308,20 @@ export default function TripsPage() {
       fuelCost: Number(values.fuelCost),
     };
     addItem<Trip>(STORAGE_KEYS.trips, newTrip);
+
+    // A7: actualizează status comandă → assigned
+    updateItem<Order>(
+      STORAGE_KEYS.orders,
+      (o) => o.id === values.orderId,
+      (o) => ({ ...o, status: "assigned" }),
+    );
+
+    // A7: actualizează status șofer → on_trip
+    updateItem<Driver>(
+      STORAGE_KEYS.drivers,
+      (d) => d.id === values.driverId,
+      (d) => ({ ...d, status: "on_trip" }),
+    );
     loadData();
     setDialogOpen(false);
     form.reset();
@@ -424,7 +439,9 @@ export default function TripsPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {orders.map((order) => (
+                        {orders
+                          .filter((o) => o.status === "pending" || o.status === "assigned")
+                          .map((order) => (
                           <SelectItem key={order.id} value={order.id}>
                             {order.clientName} — {order.origin} → {order.destination}
                           </SelectItem>
@@ -450,7 +467,9 @@ export default function TripsPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {drivers.map((driver) => (
+                        {drivers
+                          .filter((d) => d.status === "available")
+                          .map((driver) => (
                           <SelectItem key={driver.id} value={driver.id}>
                             {driver.name}
                           </SelectItem>
@@ -476,7 +495,9 @@ export default function TripsPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {trucks.map((truck) => (
+                        {trucks
+                          .filter((t) => t.status === "available")
+                          .map((truck) => (
                           <SelectItem key={truck.id} value={truck.id}>
                             {truck.plateNumber} — {truck.brand} {truck.model}
                           </SelectItem>
