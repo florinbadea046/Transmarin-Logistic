@@ -4,5 +4,133 @@
   },
   "transport": {
     "orders": "Comenzi"
+  },
+  "orders": {
+    "title": "Comenzi",
+    "manage": "Gestiune Comenzi",
+    "add": "Adaugă comandă",
+    "edit": "Editează comandă",
+    "delete": "Șterge comanda",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "close": "Închide",
+    "noResults": "Nu există comenzi pentru filtrul curent.",
+    "duplicate": "Există deja o comandă identică (aceleași date).",
+    "confirmDelete": "Ești sigur că vrei să ștergi comanda pentru {{name}} ({{origin}} → {{destination}}, {{date}})? Această acțiune este ireversibilă.",
+    "confirmDeleteFallback": "Ești sigur că vrei să ștergi această comandă?",
+    "fields": {
+      "client": "Client",
+      "origin": "Origine",
+      "destination": "Destinație",
+      "date": "Dată",
+      "status": "Status",
+      "weight": "Greutate (t)",
+      "notes": "Note",
+      "weightUnit": "t"
+    },
+    "placeholders": {
+      "client": "Ex: SC Transmarin SRL",
+      "origin": "Ex: Brașov",
+      "destination": "Ex: Constanța",
+      "weight": "Ex: 12.5",
+      "notes": "Detalii extra (opțional)",
+      "selectDate": "Selectează data",
+      "search": "Caută comenzi...",
+      "filterOrigin": "Origine...",
+      "filterDest": "Destinație..."
+    },
+    "validation": {
+      "clientRequired": "Clientul este obligatoriu",
+      "originRequired": "Originea este obligatorie",
+      "destinationRequired": "Destinația este obligatorie",
+      "dateRequired": "Data este obligatorie",
+      "weightRequired": "Greutatea este obligatorie",
+      "weightPositive": "Greutatea trebuie să fie > 0"
+    },
+    "status": {
+      "pending": "În așteptare",
+      "assigned": "Asignată",
+      "in_transit": "În tranzit",
+      "delivered": "Livrată",
+      "cancelled": "Anulată"
+    },
+    "actions": {
+      "details": "Detalii",
+      "edit": "Editează",
+      "delete": "Șterge",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV",
+      "reset": "Resetare filtre"
+    },
+    "filters": {
+      "from": "De la dată",
+      "to": "Până la dată"
+    },
+    "costs": {
+      "title": "Costuri curse asociate",
+      "noTrips": "Nu există curse asociate acestei comenzi.",
+      "trip": "Cursa {{index}}",
+      "kmLoaded": "Km încărcați",
+      "kmEmpty": "Km goi",
+      "fuelCost": "Cost combustibil",
+      "costPerKm": "Cost/km",
+      "totalFuel": "Total cost combustibil",
+      "totalCostPerKm": "Cost/km total"
+    },
+    "detail": {
+      "route": "Rută",
+      "date": "Dată",
+      "status": "Status",
+      "weight": "Greutate",
+      "notes": "Note",
+      "title": "Detaliu comandă"
+    },
+    "import": {
+      "title": "Import Comenzi din CSV",
+      "button": "Import",
+      "dropzone": "Trage un fișier CSV aici sau dă click pentru a selecta",
+      "dropzoneHint": "Coloane acceptate: Client, Origine/Origin, Destinatie/Destination, Data/Date (yyyy-MM-dd), Greutate (t)/Weight (t), Status, Note/Notes",
+      "validCount": "{{count}} rând(uri) valide",
+      "invalidCount": "{{count}} rând(uri) invalide",
+      "errorsCol": "Erori",
+      "invalidDate": "Data trebuie să fie în formatul yyyy-MM-dd",
+      "reupload": "Încarcă alt fișier",
+      "confirm": "Importă {{count}} rând(uri)",
+      "toastSuccess": "{{count}} comandă(zi) importată(e) cu succes.",
+      "toastPartial": "{{added}} importate, {{skipped}} ignorate (duplicate).",
+      "toastAllSkipped": "Nicio comandă importată — toate rândurile sunt duplicate."
+    }
+  },
+  "language": {
+    "label": "Limbă",
+    "ro": "Română",
+    "en": "Engleză"
+  },
+  "table": {
+    "asc": "Ordine Crescătoare",
+    "desc": "Ordine Descrescătoare",
+    "hide": "Ascunde",
+    "view": "Vizualizare",
+    "toggleColumns": "Coloane vizibile",
+    "reset": "Resetare",
+    "selected": "selectate",
+    "noResults": "Niciun rezultat.",
+    "search": "Caută...",
+    "clearFilters": "Șterge filtre"
+  },
+  "trips": {
+    "title": "Curse",
+    "fields": {
+      "orderId": "ID Comandă",
+      "driverId": "ID Șofer",
+      "truckId": "ID Camion",
+      "date": "Dată",
+      "kmLoaded": "Km încărcați",
+      "kmEmpty": "Km goi",
+      "fuelCost": "Cost combustibil",
+      "status": "Status"
+    }
   }
 }

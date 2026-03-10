@@ -34,8 +34,11 @@ import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import type { Employee } from "@/modules/hr/types";
+import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
+import EmployeeDialog from "../components/employee-dialog";
+import { EmployeeRow } from "../components/employee-row";
+import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
 
 const columns: ColumnDef<Employee>[] = [
   {
@@ -117,11 +120,22 @@ const columns: ColumnDef<Employee>[] = [
       return av === bv ? 0 : av > bv ? 1 : -1;
     },
   },
+  {
+    id: "actions",
+    enableSorting: false,
+    enableHiding: false,
+    header: () => null,
+    cell: () => null,
+  },
 ];
 
 export default function EmployeesPage() {
-  const [data] = React.useState<Employee[]>(() =>
+  const [data, setData] = React.useState<Employee[]>(() =>
     getCollection<Employee>(STORAGE_KEYS.employees),
+  );
+  const leaveRequests = React.useMemo(
+    () => getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests),
+    [],
   );
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "name", desc: false },
@@ -133,9 +147,8 @@ export default function EmployeesPage() {
   const [dept, setDept] = React.useState("Toate");
 
   const departments = React.useMemo(() => {
-    const uniq = Array.from(new Set(data.map((e) => e.department))).sort();
-    return ["Toate", ...uniq];
-  }, [data]);
+    return ["Toate", ...EMPLOYEE_DEPARTMENTS];
+  }, []);
 
   const table = useReactTable({
     data,
@@ -195,6 +208,12 @@ export default function EmployeesPage() {
               <span className="text-sm text-muted-foreground">
                 {table.getFilteredRowModel().rows.length} angajați
               </span>
+              <EmployeeDialog
+                mode="add"
+                onAdd={() =>
+                  setData(getCollection<Employee>(STORAGE_KEYS.employees))
+                }
+              />
             </div>
             <div className="flex flex-wrap gap-2 mt-3">
               <Input
@@ -239,18 +258,23 @@ export default function EmployeesPage() {
                 </TableHeader>
                 <TableBody>
                   {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow key={row.id}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
+                    table.getRowModel().rows.map((row) => {
+                      const today = new Date().toISOString().slice(0, 10);
+                      const hasActiveLeave = leaveRequests.some(
+                        (leave) =>
+                          leave.employeeId === row.original.id &&
+                          leave.status === "approved" &&
+                          leave.endDate >= today,
+                      );
+                      return (
+                        <EmployeeRow
+                          key={row.id}
+                          row={row}
+                          setData={setData}
+                          hasActiveLeave={hasActiveLeave}
+                        />
+                      );
+                    })
                   ) : (
                     <TableRow>
                       <TableCell

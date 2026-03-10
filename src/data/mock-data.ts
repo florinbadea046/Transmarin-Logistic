@@ -5,7 +5,7 @@
 
 import { initCollection } from "@/utils/local-storage";
 import type { Driver, Truck, Order } from "@/modules/transport/types";
-import type { Part, ServiceRecord } from "@/modules/fleet/types";
+import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
 
@@ -101,8 +101,8 @@ const seedOrders: Order[] = [
   {
     id: "o1",
     clientName: "SC Logistica SRL",
-    origin: "Constanța",
-    destination: "București",
+    origin: "Constanta",
+    destination: "Bucuresti",
     date: "2026-02-20",
     status: "delivered",
     weight: 18,
@@ -110,8 +110,8 @@ const seedOrders: Order[] = [
   {
     id: "o2",
     clientName: "Trans Europa SA",
-    origin: "Timișoara",
-    destination: "Constanța",
+    origin: "Timisoara",
+    destination: "Constanta",
     date: "2026-02-21",
     status: "in_transit",
     weight: 22,
@@ -120,18 +120,16 @@ const seedOrders: Order[] = [
     id: "o3",
     clientName: "Cargo Plus SRL",
     origin: "Cluj-Napoca",
-    destination: "Brăila",
+    destination: "Braila",
     date: "2026-02-22",
     status: "pending",
     weight: 15,
   },
-
-  // --- Extra orders (pentru paginare/filtre) ---
   {
     id: "o4",
     clientName: "Danube Freight SRL",
-    origin: "Galați",
-    destination: "Iași",
+    origin: "Galati",
+    destination: "Iasi",
     date: "2026-02-23",
     status: "assigned",
     weight: 12,
@@ -139,7 +137,7 @@ const seedOrders: Order[] = [
   {
     id: "o5",
     clientName: "BlueRoad Logistics",
-    origin: "Brașov",
+    origin: "Brasov",
     destination: "Sibiu",
     date: "2026-02-24",
     status: "pending",
@@ -149,7 +147,7 @@ const seedOrders: Order[] = [
     id: "o6",
     clientName: "Carpathia Transport",
     origin: "Sibiu",
-    destination: "Brașov",
+    destination: "Brasov",
     date: "2026-02-25",
     status: "in_transit",
     weight: 14,
@@ -157,8 +155,8 @@ const seedOrders: Order[] = [
   {
     id: "o7",
     clientName: "Atlas Cargo SA",
-    origin: "București",
-    destination: "Ploiești",
+    origin: "Bucuresti",
+    destination: "Ploiesti",
     date: "2026-02-26",
     status: "delivered",
     weight: 7,
@@ -166,7 +164,7 @@ const seedOrders: Order[] = [
   {
     id: "o8",
     clientName: "PortLine SRL",
-    origin: "Constanța",
+    origin: "Constanta",
     destination: "Craiova",
     date: "2026-02-27",
     status: "assigned",
@@ -176,7 +174,7 @@ const seedOrders: Order[] = [
     id: "o9",
     clientName: "EuroHaul SRL",
     origin: "Craiova",
-    destination: "Timișoara",
+    destination: "Timisoara",
     date: "2026-02-28",
     status: "in_transit",
     weight: 16,
@@ -190,7 +188,6 @@ const seedOrders: Order[] = [
     status: "pending",
     weight: 10,
   },
-
   {
     id: "o11",
     clientName: "FastTrack SRL",
@@ -204,7 +201,7 @@ const seedOrders: Order[] = [
     id: "o12",
     clientName: "Balkan Cargo SA",
     origin: "Deva",
-    destination: "București",
+    destination: "Bucuresti",
     date: "2026-03-03",
     status: "cancelled",
     weight: 11,
@@ -212,8 +209,8 @@ const seedOrders: Order[] = [
   {
     id: "o13",
     clientName: "TransMarin Partners",
-    origin: "Pitești",
-    destination: "Constanța",
+    origin: "Pitesti",
+    destination: "Constanta",
     date: "2026-03-04",
     status: "assigned",
     weight: 13,
@@ -221,8 +218,8 @@ const seedOrders: Order[] = [
   {
     id: "o14",
     clientName: "GreenWay Logistics",
-    origin: "Buzău",
-    destination: "Galați",
+    origin: "Buzau",
+    destination: "Galati",
     date: "2026-03-05",
     status: "pending",
     weight: 8,
@@ -231,7 +228,7 @@ const seedOrders: Order[] = [
     id: "o15",
     clientName: "Delta Freight",
     origin: "Tulcea",
-    destination: "Constanța",
+    destination: "Constanta",
     date: "2026-03-06",
     status: "in_transit",
     weight: 17,
@@ -240,7 +237,7 @@ const seedOrders: Order[] = [
     id: "o16",
     clientName: "SteelMove SRL",
     origin: "Hunedoara",
-    destination: "Târgu Mureș",
+    destination: "Targu Mures",
     date: "2026-03-07",
     status: "assigned",
     weight: 24,
@@ -248,7 +245,7 @@ const seedOrders: Order[] = [
   {
     id: "o17",
     clientName: "CityLink Transport",
-    origin: "Târgu Mureș",
+    origin: "Targu Mures",
     destination: "Cluj-Napoca",
     date: "2026-03-08",
     status: "delivered",
@@ -257,8 +254,8 @@ const seedOrders: Order[] = [
   {
     id: "o18",
     clientName: "OceanBridge SRL",
-    origin: "Constanța",
-    destination: "București",
+    origin: "Constanta",
+    destination: "Bucuresti",
     date: "2026-03-09",
     status: "in_transit",
     weight: 19,
@@ -266,8 +263,8 @@ const seedOrders: Order[] = [
   {
     id: "o19",
     clientName: "Rapid Haulage",
-    origin: "București",
-    destination: "Brașov",
+    origin: "Bucuresti",
+    destination: "Brasov",
     date: "2026-03-10",
     status: "pending",
     weight: 9,
@@ -275,13 +272,12 @@ const seedOrders: Order[] = [
   {
     id: "o20",
     clientName: "WestLine Cargo",
-    origin: "Timișoara",
+    origin: "Timisoara",
     destination: "Oradea",
     date: "2026-03-11",
     status: "assigned",
     weight: 15,
   },
-
   {
     id: "o21",
     clientName: "Central Freight",
@@ -294,7 +290,7 @@ const seedOrders: Order[] = [
   {
     id: "o22",
     clientName: "IronRoute SA",
-    origin: "Reșița",
+    origin: "Resita",
     destination: "Arad",
     date: "2026-03-13",
     status: "cancelled",
@@ -303,8 +299,8 @@ const seedOrders: Order[] = [
   {
     id: "o23",
     clientName: "Skyline Logistics",
-    origin: "Iași",
-    destination: "Bacău",
+    origin: "Iasi",
+    destination: "Bacau",
     date: "2026-03-14",
     status: "pending",
     weight: 7,
@@ -312,8 +308,8 @@ const seedOrders: Order[] = [
   {
     id: "o24",
     clientName: "RoadRunner SRL",
-    origin: "Bacău",
-    destination: "Botoșani",
+    origin: "Bacau",
+    destination: "Botosani",
     date: "2026-03-15",
     status: "in_transit",
     weight: 11,
@@ -321,7 +317,7 @@ const seedOrders: Order[] = [
   {
     id: "o25",
     clientName: "CargoHub SRL",
-    origin: "Botoșani",
+    origin: "Botosani",
     destination: "Suceava",
     date: "2026-03-16",
     status: "assigned",
@@ -331,7 +327,7 @@ const seedOrders: Order[] = [
     id: "o26",
     clientName: "TransValea",
     origin: "Suceava",
-    destination: "Iași",
+    destination: "Iasi",
     date: "2026-03-17",
     status: "delivered",
     weight: 6,
@@ -339,8 +335,8 @@ const seedOrders: Order[] = [
   {
     id: "o27",
     clientName: "HarborLine",
-    origin: "Constanța",
-    destination: "Galați",
+    origin: "Constanta",
+    destination: "Galati",
     date: "2026-03-18",
     status: "pending",
     weight: 21,
@@ -348,8 +344,8 @@ const seedOrders: Order[] = [
   {
     id: "o28",
     clientName: "Mountain Freight",
-    origin: "Brașov",
-    destination: "București",
+    origin: "Brasov",
+    destination: "Bucuresti",
     date: "2026-03-19",
     status: "in_transit",
     weight: 13,
@@ -357,8 +353,8 @@ const seedOrders: Order[] = [
   {
     id: "o29",
     clientName: "EastWest Cargo",
-    origin: "București",
-    destination: "Iași",
+    origin: "Bucuresti",
+    destination: "Iasi",
     date: "2026-03-20",
     status: "assigned",
     weight: 16,
@@ -366,8 +362,8 @@ const seedOrders: Order[] = [
   {
     id: "o30",
     clientName: "Danube Express",
-    origin: "Galați",
-    destination: "Brăila",
+    origin: "Galati",
+    destination: "Braila",
     date: "2026-03-21",
     status: "delivered",
     weight: 4,
@@ -431,11 +427,47 @@ const seedEmployees: Employee[] = [
     id: "e3",
     name: "Ana Radu",
     position: "Dispecer",
-    department: "Operațiuni",
+    department: "Dispecerat",
     phone: "0722000001",
     email: "ana@transmarin.ro",
     hireDate: "2021-01-10",
     salary: 4800,
+    documents: [],
+  },
+
+  {
+    id: "e4",
+    name: "Andrei Stoica",
+    position: "Mecanic",
+    department: "Service",
+    phone: "0721000003",
+    email: "andrei@transmarin.ro",
+    hireDate: "2022-05-20",
+    salary: 5300,
+    documents: [],
+  },
+
+  {
+    id: "e5",
+    name: "Maria Popescu",
+    position: "Contabil",
+    department: "Contabilitate",
+    phone: "0723000001",
+    email: "maria@transmarin.ro",
+    hireDate: "2023-02-01",
+    salary: 5000,
+    documents: [],
+  },
+
+  {
+    id: "e6",
+    name: "Ioana Ionescu",
+    position: "Manager",
+    department: "Administrativ",
+    phone: "0724000001",
+    email: "ioana@transmarin.ro",
+    hireDate: "2024-01-15",
+    salary: 6000,
     documents: [],
   },
 ];
@@ -458,6 +490,114 @@ const seedSuppliers: Supplier[] = [
     phone: "0212000200",
     email: "office@brakesystems.ro",
     bankAccount: "RO49BBBB1B31007593840000",
+  },
+  {
+    id: "s3",
+    name: "Electro Auto SA",
+    cui: "RO99887766",
+    address: "Calea Aradului 45, Timișoara",
+    phone: "0256400400",
+    email: "contact@electroauto.ro",
+    bankAccount: "RO49DDDD1B31007593840000",
+  },
+  {
+    id: "s4",
+    name: "Fleet Service SRL",
+    cui: "RO55667788",
+    address: "Str. Traian 7, Brașov",
+    phone: "0268400500",
+    email: "office@fleetservice.ro",
+    bankAccount: "RO49EEEE1B31007593840000",
+  },
+  {
+    id: "s5",
+    name: "Gearbox Solutions SRL",
+    cui: "RO44332211",
+    address: "Bd. Republicii 12, Ploiești",
+    phone: "0244400600",
+    email: "info@gearbox.ro",
+    bankAccount: "RO49FFFF1B31007593840000",
+  },
+  {
+    id: "s6",
+    name: "Hydraulic Parts SA",
+    cui: "RO66778899",
+    address: "Str. Fabricii 3, Cluj-Napoca",
+    phone: "0264400700",
+    email: "contact@hydraulic.ro",
+    bankAccount: "RO49GGGG1B31007593840000",
+  },
+  {
+    id: "s7",
+    name: "Industrial Motors SRL",
+    cui: "RO22114455",
+    address: "Str. Depozitelor 22, Iași",
+    phone: "0232400800",
+    email: "sales@industrialmotors.ro",
+    bankAccount: "RO49HHHH1B31007593840000",
+  },
+  {
+    id: "s8",
+    name: "Logistic Components SA",
+    cui: "RO33445566",
+    address: "Str. Energiei 9, Sibiu",
+    phone: "0269400900",
+    email: "office@logisticcomponents.ro",
+    bankAccount: "RO49IIII1B31007593840000",
+  },
+  {
+    id: "s9",
+    name: "Marine Supplies SRL",
+    cui: "RO77889900",
+    address: "Str. Portului 77, Constanța",
+    phone: "0241500101",
+    email: "contact@marinesupplies.ro",
+    bankAccount: "RO49JJJJ1B31007593840000",
+  },
+  {
+    id: "s10",
+    name: "Oil & Filters SRL",
+    cui: "RO55443322",
+    address: "Bd. Metalurgiei 14, București",
+    phone: "0212000201",
+    email: "office@oilfilters.ro",
+    bankAccount: "RO49KKKK1B31007593840000",
+  },
+  {
+    id: "s11",
+    name: "Power Drive SA",
+    cui: "RO66554433",
+    address: "Str. Uzinei 5, Oradea",
+    phone: "0259401100",
+    email: "contact@powerdrive.ro",
+    bankAccount: "RO49LLLL1B31007593840000",
+  },
+  {
+    id: "s12",
+    name: "Quick Service SRL",
+    cui: "RO88776655",
+    address: "Str. Libertății 11, Craiova",
+    phone: "0251401200",
+    email: "office@quickservice.ro",
+    bankAccount: "RO49MMMM1B31007593840000",
+  },
+  {
+    id: "s13",
+    name: "Truck Systems SRL",
+    cui: "RO99001122",
+    address: "Bd. Constructorilor 8, Arad",
+    phone: "0257401300",
+    email: "contact@trucksystems.ro",
+    bankAccount: "RO49NNNN1B31007593840000",
+  },
+  {
+    id: "s14",
+    name: "Universal Auto SA",
+    cui: "RO10293847",
+    address: "Str. Republicii 2, Bacău",
+    phone: "0234401400",
+    email: "office@universalauto.ro",
+    bankAccount: "RO49OOOO1B31007593840000",
   },
 ];
 const seedLeaveRequests: LeaveRequest[] = [
@@ -548,18 +688,27 @@ const seedServiceRecords: ServiceRecord[] = [
     nextServiceDate: "2027-03-01",
   },
 ];
+const seedFuelRecords: FuelRecord[] = [
+  { id: "f1", truckId: "t1", date: "2026-01-10", liters: 420, cost: 2940, mileage: 310000 },
+  { id: "f2", truckId: "t1", date: "2026-02-05", liters: 390, cost: 2730, mileage: 313500 },
+  { id: "f3", truckId: "t1", date: "2026-03-01", liters: 410, cost: 2870, mileage: 317000 },
 
-// ──────────────────────────────────────────────────────────
-// Helper: generează dată ISO relativă la azi
-// ex: relativeDate(0, 5)  → ziua 5 a lunii curente
-//     relativeDate(-1, 15) → ziua 15 a lunii trecute
-// ──────────────────────────────────────────────────────────
+  { id: "f4", truckId: "t2", date: "2026-01-12", liters: 450, cost: 3150, mileage: 400000 },
+  { id: "f5", truckId: "t2", date: "2026-02-08", liters: 480, cost: 3360, mileage: 403800 },
+  { id: "f6", truckId: "t2", date: "2026-03-03", liters: 460, cost: 3220, mileage: 407500 },
+
+  { id: "f7", truckId: "t3", date: "2026-01-15", liters: 380, cost: 2660, mileage: 174000 },
+  { id: "f8", truckId: "t3", date: "2026-02-10", liters: 400, cost: 2800, mileage: 177200 },
+  { id: "f9", truckId: "t3", date: "2026-03-05", liters: 390, cost: 2730, mileage: 180500 },
+];
+
+// Helper: generează o dată relativă la luna curentă
+// monthOffset: 0 = luna curentă, -1 = luna trecută, etc.
+// day: ziua din lună
 function relativeDate(monthOffset: number, day: number): string {
-  const d = new Date();
-  d.setDate(1); // evităm overflow de lună
-  d.setMonth(d.getMonth() + monthOffset);
-  d.setDate(day);
-  return d.toISOString().slice(0, 10);
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() + monthOffset, day);
+  return d.toISOString().split("T")[0];
 }
 
 const seedInvoices: Invoice[] = [
@@ -571,7 +720,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(0, 5),
     dueDate: relativeDate(0, 20),
     clientName: "SC Logistica SRL",
-    items: [{ description: "Transport marfă", quantity: 1, unitPrice: 5000, total: 5000 }],
+    items: [
+      {
+        description: "Transport marfă",
+        quantity: 1,
+        unitPrice: 5000,
+        total: 5000,
+      },
+    ],
     totalWithoutVAT: 5000,
     vat: 950,
     total: 5950,
@@ -586,7 +742,9 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(0, 25),
     supplierId: "s1",
     clientName: "Auto Parts SRL",
-    items: [{ description: "Piese auto", quantity: 3, unitPrice: 800, total: 2400 }],
+    items: [
+      { description: "Piese auto", quantity: 3, unitPrice: 800, total: 2400 },
+    ],
     totalWithoutVAT: 2400,
     vat: 456,
     total: 2856,
@@ -600,7 +758,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(-1, 15),
     dueDate: relativeDate(-1, 28),
     clientName: "Trans Europa SA",
-    items: [{ description: "Transport internațional", quantity: 1, unitPrice: 8000, total: 8000 }],
+    items: [
+      {
+        description: "Transport internațional",
+        quantity: 1,
+        unitPrice: 8000,
+        total: 8000,
+      },
+    ],
     totalWithoutVAT: 8000,
     vat: 1520,
     total: 9520,
@@ -615,7 +780,14 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(-1, 25),
     supplierId: "s2",
     clientName: "Brake Systems SA",
-    items: [{ description: "Plăcuțe frână", quantity: 4, unitPrice: 320, total: 1280 }],
+    items: [
+      {
+        description: "Plăcuțe frână",
+        quantity: 4,
+        unitPrice: 320,
+        total: 1280,
+      },
+    ],
     totalWithoutVAT: 1280,
     vat: 243,
     total: 1523,
@@ -629,7 +801,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(-2, 8),
     dueDate: relativeDate(-2, 22),
     clientName: "Cargo Plus SRL",
-    items: [{ description: "Transport intern", quantity: 2, unitPrice: 3000, total: 6000 }],
+    items: [
+      {
+        description: "Transport intern",
+        quantity: 2,
+        unitPrice: 3000,
+        total: 6000,
+      },
+    ],
     totalWithoutVAT: 6000,
     vat: 1140,
     total: 7140,
@@ -644,7 +823,9 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(-1, 5),
     supplierId: "s1",
     clientName: "Auto Parts SRL",
-    items: [{ description: "Filtre ulei", quantity: 10, unitPrice: 45, total: 450 }],
+    items: [
+      { description: "Filtre ulei", quantity: 10, unitPrice: 45, total: 450 },
+    ],
     totalWithoutVAT: 450,
     vat: 85,
     total: 535,
@@ -658,7 +839,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(-3, 12),
     dueDate: relativeDate(-3, 26),
     clientName: "SC Logistica SRL",
-    items: [{ description: "Transport marfă frigorifică", quantity: 1, unitPrice: 7000, total: 7000 }],
+    items: [
+      {
+        description: "Transport marfă frigorifică",
+        quantity: 1,
+        unitPrice: 7000,
+        total: 7000,
+      },
+    ],
     totalWithoutVAT: 7000,
     vat: 1330,
     total: 8330,
@@ -672,7 +860,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(-4, 3),
     dueDate: relativeDate(-4, 18),
     clientName: "Trans Europa SA",
-    items: [{ description: "Transport extern", quantity: 1, unitPrice: 12000, total: 12000 }],
+    items: [
+      {
+        description: "Transport extern",
+        quantity: 1,
+        unitPrice: 12000,
+        total: 12000,
+      },
+    ],
     totalWithoutVAT: 12000,
     vat: 2280,
     total: 14280,
@@ -686,7 +881,14 @@ const seedInvoices: Invoice[] = [
     date: relativeDate(-5, 7),
     dueDate: relativeDate(-5, 21),
     clientName: "Cargo Plus SRL",
-    items: [{ description: "Transport ADR", quantity: 1, unitPrice: 9000, total: 9000 }],
+    items: [
+      {
+        description: "Transport ADR",
+        quantity: 1,
+        unitPrice: 9000,
+        total: 9000,
+      },
+    ],
     totalWithoutVAT: 9000,
     vat: 1710,
     total: 10710,
@@ -701,7 +903,14 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(-4, 1),
     supplierId: "s2",
     clientName: "Brake Systems SA",
-    items: [{ description: "Service periodic", quantity: 1, unitPrice: 2500, total: 2500 }],
+    items: [
+      {
+        description: "Service periodic",
+        quantity: 1,
+        unitPrice: 2500,
+        total: 2500,
+      },
+    ],
     totalWithoutVAT: 2500,
     vat: 475,
     total: 2975,
@@ -722,8 +931,18 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.suppliers, seedSuppliers);
   initCollection(STORAGE_KEYS.trips, []);
   initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
-  initCollection(STORAGE_KEYS.fuelRecords, []);
+  initCollection(STORAGE_KEYS.fuelRecords, seedFuelRecords);
   initCollection(STORAGE_KEYS.invoices, seedInvoices);
   initCollection(STORAGE_KEYS.leaveRequests, seedLeaveRequests);
   initCollection(STORAGE_KEYS.bonuses, []);
 }
+
+export { seedEmployees };
+export const EMPLOYEE_DEPARTMENTS = [
+  "Dispecerat",
+  "Transport",
+  "Service",
+  "Contabilitate",
+  "Administrativ",
+] as const;
+

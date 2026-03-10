@@ -18,6 +18,10 @@ import {
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Part } from "@/modules/fleet/types";
 import type { Truck } from "@/modules/transport/types";
+import { allocatePartToTruck } from "@/modules/fleet/utils/allocationUtils";
+import { getCollection } from "@/utils/local-storage";
+
+
 
 interface Props {
   part: Part;
@@ -29,29 +33,14 @@ export function AllocatePart({ part }: Props) {
   const [selectedTruckId, setSelectedTruckId] = useState<string>("");
 
   useEffect(() => {
-    const raw = localStorage.getItem(STORAGE_KEYS.trucks);
-    if (raw) setTrucks(JSON.parse(raw));
+    setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
   }, []);
 
   const handleAllocate = () => {
     if (!selectedTruckId) return;
-
     const truck = trucks.find((t) => t.id === selectedTruckId);
     if (!truck) return;
-
-    const rawAllocations = localStorage.getItem("transmarin_allocations");
-    const allocations = rawAllocations ? JSON.parse(rawAllocations) : [];
-
-    allocations.push({
-      id: crypto.randomUUID(),
-      partId: part.id,
-      partName: part.name,
-      truckId: truck.id,
-      truckPlate: truck.plateNumber,
-      allocatedAt: new Date().toISOString(),
-    });
-
-    localStorage.setItem("transmarin_allocations", JSON.stringify(allocations));
+    allocatePartToTruck(part, truck);
     setOpen(false);
     setSelectedTruckId("");
   };
