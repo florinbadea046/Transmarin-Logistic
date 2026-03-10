@@ -7,38 +7,29 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Employee } from "@/modules/hr/types";
+import type { Employee, EmployeeDocument } from "@/modules/hr/types";
 import { addItem, generateId } from "@/utils/local-storage";
-import { STORAGE_KEYS, EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
-import { DatePicker } from "@/components/date-picker";
-
-const employeeSchema = z.object({
-  name: z.string().min(2, "Numele este obligatoriu"),
-  position: z.string().min(2, "Funcția este obligatorie"),
-  department: z.string().min(2, "Departamentul este obligatoriu"),
-  phone: z.string().min(6, "Telefon invalid"),
-  email: z.string().email("Email invalid"),
-  hireDate: z.string().min(1, "Data angajării este obligatorie"),
-  salary: z.coerce.number().min(1, "Salariul este obligatoriu"),
-});
-
-type EmployeeFormValues = z.infer<typeof employeeSchema>;
+import { STORAGE_KEYS } from "@/data/mock-data";
+import {
+  EmployeeFormFields,
+  employeeSchema,
+  type EmployeeFormValues,
+} from "./employee-form-fields";
+import { DocumentsTab } from "./documents-tab";
 
 type Props =
   | { mode: "add"; onAdd: () => void }
-  | { mode: "edit"; employee: Employee; onEdit: (employee: Employee) => void; open?: boolean; onOpenChange?: (v: boolean) => void };
+  | {
+      mode: "edit";
+      employee: Employee;
+      onEdit: (employee: Employee) => void;
+      open?: boolean;
+      onOpenChange?: (v: boolean) => void;
+    };
 
 export default function EmployeeDialog(props: Props) {
   const isEdit = props.mode === "edit";
@@ -55,8 +46,8 @@ export default function EmployeeDialog(props: Props) {
     employee?.hireDate ? new Date(employee.hireDate) : undefined,
   );
 
-  const form = useForm({
-    resolver: zodResolver(employeeSchema),
+  const form = useForm<EmployeeFormValues>({
+    resolver: zodResolver(employeeSchema) as Resolver<EmployeeFormValues>,
     defaultValues: {
       name: employee?.name ?? "",
       position: employee?.position ?? "",
@@ -68,6 +59,14 @@ export default function EmployeeDialog(props: Props) {
     },
   });
 
+  const [documents, setDocuments] = React.useState<EmployeeDocument[]>(
+    employee?.documents ?? [],
+  );
+
+  React.useEffect(() => {
+    if (open && isEdit) setDocuments(employee!.documents ?? []);
+  }, [open, employee, isEdit]);
+
   const handleOpenChange = (val: boolean) => {
     setOpen(val);
     if (!val && !isEdit) {
@@ -78,14 +77,13 @@ export default function EmployeeDialog(props: Props) {
 
   const handleSubmit = (values: EmployeeFormValues) => {
     if (props.mode === "edit") {
-      props.onEdit({ ...props.employee, ...values });
+      props.onEdit({ ...props.employee, ...values, documents });
     } else {
-      const newEmployee: Employee = {
+      addItem<Employee>(STORAGE_KEYS.employees, {
         ...values,
         id: generateId(),
         documents: [],
-      };
-      addItem<Employee>(STORAGE_KEYS.employees, newEmployee);
+      });
       props.onAdd();
       form.reset();
       setSelectedDate(undefined);
@@ -98,95 +96,57 @@ export default function EmployeeDialog(props: Props) {
       {showTrigger && (
         <DialogTrigger asChild>
           {isEdit ? (
-            <Button variant="outline" size="sm">Editează</Button>
+            <Button variant="outline" size="sm">
+              Editează
+            </Button>
           ) : (
             <Button variant="default">Adaugă angajat</Button>
           )}
         </DialogTrigger>
       )}
-      <DialogContent>
+      <DialogContent className="max-w-lg overflow-y-auto max-h-[90dvh]">
         <DialogHeader>
           <DialogTitle>
             {isEdit ? "Editare angajat" : "Adaugă angajat"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
-          <Input placeholder="Nume" {...form.register("name")} />
-          {form.formState.errors.name && (
-            <span className="text-xs text-red-500">
-              {form.formState.errors.name.message}
-            </span>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
+          {isEdit ? (
+            <Tabs defaultValue="personal" className="space-y-3">
+              <TabsList className="w-full">
+                <TabsTrigger value="personal" className="flex-1">
+                  Date personale
+                </TabsTrigger>
+                <TabsTrigger value="documents" className="flex-1">
+                  Documente
+                  {documents.length > 0 && (
+                    <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">
+                      {documents.length}
+                    </span>
+                  )}
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="personal" className="space-y-3 mt-0 min-h-[340px]">
+                <EmployeeFormFields
+                  form={form}
+                  selectedDate={selectedDate}
+                  onDateSelect={setSelectedDate}
+                />
+              </TabsContent>
+              <TabsContent value="documents" className="space-y-2 mt-0 min-h-[340px]">
+                <DocumentsTab documents={documents} onChange={setDocuments} />
+              </TabsContent>
+            </Tabs>
+          ) : (
+            <div className="space-y-3">
+              <EmployeeFormFields
+                form={form}
+                selectedDate={selectedDate}
+                onDateSelect={setSelectedDate}
+              />
+            </div>
           )}
-          <Input placeholder="Funcție" {...form.register("position")} />
-          {form.formState.errors.position && (
-            <span className="text-xs text-red-500">
-              {form.formState.errors.position.message}
-            </span>
-          )}
-          <Select
-            value={form.watch("department")}
-            onValueChange={(val) =>
-              form.setValue("department", val, {
-                shouldValidate: true,
-                shouldTouch: true,
-              })
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Departament" />
-            </SelectTrigger>
-            <SelectContent>
-              {EMPLOYEE_DEPARTMENTS.map((dep) => (
-                <SelectItem key={dep} value={dep}>
-                  {dep}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {form.formState.errors.department && (
-            <span className="text-xs text-red-500">
-              {form.formState.errors.department.message}
-            </span>
-          )}
-          <Input placeholder="Telefon" {...form.register("phone")} />
-          {form.formState.errors.phone && (
-            <span className="text-xs text-red-500">
-              {form.formState.errors.phone.message}
-            </span>
-          )}
-          <Input placeholder="Email" {...form.register("email")} />
-          {form.formState.errors.email && (
-            <span className="text-xs text-red-500">
-              {form.formState.errors.email.message}
-            </span>
-          )}
-          <DatePicker
-            selected={selectedDate}
-            onSelect={(date) => {
-              setSelectedDate(date);
-              form.setValue(
-                "hireDate",
-                date ? date.toISOString().slice(0, 10) : "",
-              );
-            }}
-            placeholder="Data angajării"
-          />
-          {form.formState.errors.hireDate && (
-            <span className="text-xs text-red-500">
-              {form.formState.errors.hireDate.message}
-            </span>
-          )}
-          <Input
-            type="number"
-            placeholder="Salariu"
-            {...form.register("salary")}
-          />
-          {form.formState.errors.salary && (
-            <span className="text-xs text-red-500">
-              {form.formState.errors.salary.message}
-            </span>
-          )}
-          <div className="flex gap-2 justify-end pt-2">
+          <div className="flex gap-2 justify-end pt-4">
             <DialogClose asChild>
               <Button type="button" variant="outline">
                 Anulează

@@ -34,7 +34,7 @@ import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import type { Employee, LeaveRequest } from "@/modules/hr/types";
+import type { Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
 import EmployeeDialog from "../components/employee-dialog";
 import { EmployeeRow } from "../components/employee-row";
@@ -132,10 +132,6 @@ const columns: ColumnDef<Employee>[] = [
 export default function EmployeesPage() {
   const [data, setData] = React.useState<Employee[]>(() =>
     getCollection<Employee>(STORAGE_KEYS.employees),
-  );
-  const leaveRequests = React.useMemo(
-    () => getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests),
-    [],
   );
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "name", desc: false },
@@ -258,23 +254,11 @@ export default function EmployeesPage() {
                 </TableHeader>
                 <TableBody>
                   {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => {
-                      const today = new Date().toISOString().slice(0, 10);
-                      const hasActiveLeave = leaveRequests.some(
-                        (leave) =>
-                          leave.employeeId === row.original.id &&
-                          leave.status === "approved" &&
-                          leave.endDate >= today,
-                      );
-                      return (
-                        <EmployeeRow
-                          key={row.id}
-                          row={row}
-                          setData={setData}
-                          hasActiveLeave={hasActiveLeave}
-                        />
-                      );
-                    })
+                    table
+                      .getRowModel()
+                      .rows.map((row) => (
+                        <EmployeeRow key={row.id} row={row} setData={setData} />
+                      ))
                   ) : (
                     <TableRow>
                       <TableCell
