@@ -14,19 +14,51 @@ import EmployeeDialog from "./employee-dialog";
 import ConfirmDeleteDialog from "./confirm-delete-dialog";
 import { getCollection, updateItem, removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import type { Employee } from "@/modules/hr/types";
+import type { Employee, LeaveRequest } from "@/modules/hr/types";
+import type { Trip } from "@/modules/transport/types";
 import { toast } from "sonner";
 
 interface EmployeeRowProps {
   row: Row<Employee>;
   setData: React.Dispatch<React.SetStateAction<Employee[]>>;
-  hasActiveLeave: boolean;
 }
 
-export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, hasActiveLeave }) => {
+export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
   const employee = row.original;
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+
+  const handleDeleteClick = () => {
+    const trips = getCollection<Trip>(STORAGE_KEYS.trips);
+    const isOnActiveTrip = trips.some(
+      (t) => t.driverId === employee.id && t.status === "active",
+    );
+    if (isOnActiveTrip) {
+      toast.warning(
+        "Angajatul nu poate fi șters: este șofer pe o cursă activă.",
+      );
+      return;
+    }
+
+    const today = new Date().toISOString().slice(0, 10);
+    const leaveRequests = getCollection<LeaveRequest>(
+      STORAGE_KEYS.leaveRequests,
+    );
+    const hasFutureLeave = leaveRequests.some(
+      (l) =>
+        l.employeeId === employee.id &&
+        l.status === "approved" &&
+        l.endDate >= today,
+    );
+    if (hasFutureLeave) {
+      toast.warning(
+        "Angajatul nu poate fi șters: are concediu aprobat în viitor.",
+      );
+      return;
+    }
+
+    setDeleteOpen(true);
+  };
 
   return (
     <TableRow key={row.id}>
@@ -50,8 +82,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, hasActiv
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-destructive focus:text-destructive"
-                  disabled={hasActiveLeave}
-                  onClick={() => setDeleteOpen(true)}
+                  onClick={handleDeleteClick}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Șterge
@@ -80,9 +111,12 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, hasActiv
           setData(getCollection<Employee>(STORAGE_KEYS.employees));
           toast.success("Angajat actualizat cu succes");
         }}
+        onUpdate={() => {
+          setData(getCollection<Employee>(STORAGE_KEYS.employees));
+        }}
       />
       <ConfirmDeleteDialog
-        disabled={hasActiveLeave}
+        employeeName={employee.name}
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
         onDelete={() => {
