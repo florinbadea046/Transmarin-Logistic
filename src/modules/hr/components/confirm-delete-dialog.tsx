@@ -1,59 +1,46 @@
-import * as React from "react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Alert } from "@/components/ui/alert";
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function ConfirmDeleteDialog({
-  disabled,
+  employeeName,
   onDelete,
   open,
   onOpenChange,
 }: {
-  disabled: boolean;
+  employeeName: string;
   onDelete: () => void;
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Confirmă ștergerea</DialogTitle>
-        </DialogHeader>
-        {disabled ? (
-          <Alert variant="destructive">
-            Angajatul are concedii active și nu poate fi șters.
-          </Alert>
-        ) : (
-          <>
-            <p>Ești sigur că vrei să ștergi acest angajat?</p>
-            <div className="flex gap-2 justify-end pt-2">
-              <DialogClose asChild>
-                <Button type="button" variant="outline" size="sm">
-                  Anulează
-                </Button>
-              </DialogClose>
-              <Button
-                type="button"
-                variant="destructive"
-                size="sm"
-                onClick={() => {
-                  onDelete();
-                  onOpenChange(false);
-                }}
-              >
-                Șterge
-              </Button>
-            </div>
-          </>
-        )}
-      </DialogContent>
-    </Dialog>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Confirmă ștergerea</AlertDialogTitle>
+          <AlertDialogDescription>
+            Sigur doriți să ștergeți angajatul{" "}
+            <strong className="text-foreground">{employeeName}</strong>?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Anulează</AlertDialogCancel>
+          <AlertDialogAction
+            className={buttonVariants({ variant: "destructive" })}
+            onClick={onDelete}
+          >
+            Șterge
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
