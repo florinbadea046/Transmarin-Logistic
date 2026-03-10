@@ -4,9 +4,9 @@
 // ──────────────────────────────────────────────────────────
 
 import { initCollection } from "@/utils/local-storage";
-import type { Driver, Truck, Order } from "@/modules/transport/types";
+import type { Driver, Truck, Order, Trip } from "@/modules/transport/types";
 import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
-import type { Employee } from "@/modules/hr/types";
+import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
 import { Bonus } from "../modules/hr/types";
 
@@ -411,7 +411,44 @@ const seedEmployees: Employee[] = [
     email: "gheorghe@transmarin.ro",
     hireDate: "2019-03-01",
     salary: 5500,
-    documents: [],
+    documents: [
+      {
+        id: "doc1",
+        type: "license",
+        name: "Permis categoria C",
+        expiryDate: "2027-03-15",
+      },
+      {
+        id: "doc2",
+        type: "tachograph",
+        name: "Card tahograf",
+        expiryDate: "2026-04-01",
+      },
+      {
+        id: "doc3",
+        type: "adr",
+        name: "Certificat ADR",
+        expiryDate: "2026-03-05",
+      },
+      {
+        id: "doc4",
+        type: "medical",
+        name: "Fișă medicală",
+        expiryDate: "2026-02-15",
+      },
+      {
+        id: "doc5",
+        type: "contract",
+        name: "Contract de muncă",
+        expiryDate: undefined,
+      },
+      {
+        id: "doc6",
+        type: "other",
+        name: "Aviz psihologic",
+        expiryDate: "2026-12-01",
+      },
+    ],
   },
   {
     id: "e2",
@@ -637,17 +674,80 @@ const seedServiceRecords: ServiceRecord[] = [
   },
 ];
 const seedFuelRecords: FuelRecord[] = [
-  { id: "f1", truckId: "t1", date: "2026-01-10", liters: 420, cost: 2940, mileage: 310000 },
-  { id: "f2", truckId: "t1", date: "2026-02-05", liters: 390, cost: 2730, mileage: 313500 },
-  { id: "f3", truckId: "t1", date: "2026-03-01", liters: 410, cost: 2870, mileage: 317000 },
+  {
+    id: "f1",
+    truckId: "t1",
+    date: "2026-01-10",
+    liters: 420,
+    cost: 2940,
+    mileage: 310000,
+  },
+  {
+    id: "f2",
+    truckId: "t1",
+    date: "2026-02-05",
+    liters: 390,
+    cost: 2730,
+    mileage: 313500,
+  },
+  {
+    id: "f3",
+    truckId: "t1",
+    date: "2026-03-01",
+    liters: 410,
+    cost: 2870,
+    mileage: 317000,
+  },
 
-  { id: "f4", truckId: "t2", date: "2026-01-12", liters: 450, cost: 3150, mileage: 400000 },
-  { id: "f5", truckId: "t2", date: "2026-02-08", liters: 480, cost: 3360, mileage: 403800 },
-  { id: "f6", truckId: "t2", date: "2026-03-03", liters: 460, cost: 3220, mileage: 407500 },
+  {
+    id: "f4",
+    truckId: "t2",
+    date: "2026-01-12",
+    liters: 450,
+    cost: 3150,
+    mileage: 400000,
+  },
+  {
+    id: "f5",
+    truckId: "t2",
+    date: "2026-02-08",
+    liters: 480,
+    cost: 3360,
+    mileage: 403800,
+  },
+  {
+    id: "f6",
+    truckId: "t2",
+    date: "2026-03-03",
+    liters: 460,
+    cost: 3220,
+    mileage: 407500,
+  },
 
-  { id: "f7", truckId: "t3", date: "2026-01-15", liters: 380, cost: 2660, mileage: 174000 },
-  { id: "f8", truckId: "t3", date: "2026-02-10", liters: 400, cost: 2800, mileage: 177200 },
-  { id: "f9", truckId: "t3", date: "2026-03-05", liters: 390, cost: 2730, mileage: 180500 },
+  {
+    id: "f7",
+    truckId: "t3",
+    date: "2026-01-15",
+    liters: 380,
+    cost: 2660,
+    mileage: 174000,
+  },
+  {
+    id: "f8",
+    truckId: "t3",
+    date: "2026-02-10",
+    liters: 400,
+    cost: 2800,
+    mileage: 177200,
+  },
+  {
+    id: "f9",
+    truckId: "t3",
+    date: "2026-03-05",
+    liters: 390,
+    cost: 2730,
+    mileage: 180500,
+  },
 ];
 
 // Helper: generează o dată relativă la luna curentă
@@ -866,6 +966,7 @@ const seedInvoices: Invoice[] = [
   },
 ];
 
+<<<<<<< hr-C8
 const seedBonuses: Bonus[] = [
   // Martie 2026
   {
@@ -965,6 +1066,32 @@ const seedBonuses: Bonus[] = [
     amount: 350,
     date: "2026-02-14",
     description: "Bonus activitate",
+=======
+const seedTrips: Trip[] = [
+  {
+    id: "tr1",
+    orderId: "o1",
+    driverId: "e1",
+    truckId: "t1",
+    date: "2026-03-10",
+    kmLoaded: 350,
+    kmEmpty: 50,
+    fuelCost: 800,
+    status: "active",
+  },
+];
+
+const seedLeaveRequests: LeaveRequest[] = [
+  {
+    id: "lr1",
+    employeeId: "e4",
+    type: "annual",
+    startDate: "2026-03-20",
+    endDate: "2026-03-28",
+    days: 9,
+    status: "approved",
+    reason: "Concediu anual",
+>>>>>>> main
   },
 ];
 
@@ -979,12 +1106,17 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.parts, seedParts);
   initCollection(STORAGE_KEYS.employees, seedEmployees);
   initCollection(STORAGE_KEYS.suppliers, seedSuppliers);
-  initCollection(STORAGE_KEYS.trips, []);
+  initCollection(STORAGE_KEYS.trips, seedTrips);
   initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
   initCollection(STORAGE_KEYS.fuelRecords, seedFuelRecords);
   initCollection(STORAGE_KEYS.invoices, []);
+<<<<<<< hr-C8
   initCollection(STORAGE_KEYS.leaveRequests, []);
   initCollection(STORAGE_KEYS.bonuses, seedBonuses);
+=======
+  initCollection(STORAGE_KEYS.leaveRequests, seedLeaveRequests);
+  initCollection(STORAGE_KEYS.bonuses, []);
+>>>>>>> main
 }
 
 export { seedEmployees };
@@ -995,4 +1127,3 @@ export const EMPLOYEE_DEPARTMENTS = [
   "Contabilitate",
   "Administrativ",
 ] as const;
-

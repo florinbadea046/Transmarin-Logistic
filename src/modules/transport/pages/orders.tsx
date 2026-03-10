@@ -16,6 +16,7 @@ import {
   type VisibilityState,
   useReactTable,
 } from "@tanstack/react-table";
+import { toast } from "sonner";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
@@ -38,6 +39,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -47,9 +49,8 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, X } from "lucide-react";
+import { CalendarIcon, X, Upload } from "lucide-react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-
 import {
   Table,
   TableBody,
@@ -66,7 +67,6 @@ import { DataTableToolbar } from "@/components/data-table/toolbar";
 import type { Order, Trip } from "@/modules/transport/types";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -169,7 +169,443 @@ const EMPTY_FORM: OrderForm = {
   notes: "",
 };
 
-// ─── Date picker button ───────────────────────────────────
+function getExportOrderCols(t: (k: string) => string) {
+  return [
+    { key: "clientName", label: t("orders.fields.client") },
+    { key: "origin", label: t("orders.fields.origin") },
+    { key: "destination", label: t("orders.fields.destination") },
+    { key: "date", label: t("orders.fields.date") },
+    { key: "status", label: t("orders.fields.status") },
+    { key: "weight", label: t("orders.fields.weight") },
+    { key: "notes", label: t("orders.fields.notes") },
+  ];
+}
+
+function getExportTripCols(t: (k: string) => string) {
+  return [
+    { key: "id", label: "ID" },
+    { key: "orderId", label: t("trips.fields.orderId") },
+    { key: "driverId", label: t("trips.fields.driverId") },
+    { key: "truckId", label: t("trips.fields.truckId") },
+    { key: "date", label: t("trips.fields.date") },
+    { key: "kmLoaded", label: t("trips.fields.kmLoaded") },
+    { key: "kmEmpty", label: t("trips.fields.kmEmpty") },
+    { key: "fuelCost", label: t("trips.fields.fuelCost") },
+    { key: "status", label: t("trips.fields.status") },
+  ];
+}
+
+function toRows<T>(items: T[], cols: { key: string; label: string }[]) {
+  return items.map((item) =>
+    Object.fromEntries(cols.map((c) => [c.label, (item as any)[c.key] ?? ""])),
+  );
+}
+
+function exportOrdersPDF(orders: Order[], t: (k: string) => string) {
+  const cols = getExportOrderCols(t);
+  const doc = new jsPDF();
+  doc.setFontSize(14);
+  doc.text(t("orders.manage"), 14, 16);
+  autoTable(doc, {
+    head: [cols.map((c) => c.label)],
+    body: orders.map((o) => cols.map((c) => String((o as any)[c.key] ?? ""))),
+    startY: 22,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [30, 30, 30] },
+  });
+  doc.save("comenzi.pdf");
+}
+
+function exportOrdersExcel(orders: Order[], t: (k: string) => string) {
+  const cols = getExportOrderCols(t);
+  const ws = XLSX.utils.json_to_sheet(toRows(orders, cols));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, t("orders.title"));
+  XLSX.writeFile(wb, "comenzi.xlsx");
+}
+
+function exportOrdersCSV(orders: Order[], t: (k: string) => string) {
+  const cols = getExportOrderCols(t);
+  const csv = Papa.unparse(toRows(orders, cols));
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "comenzi.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportTripsPDF(trips: Trip[], t: (k: string) => string) {
+  const cols = getExportTripCols(t);
+  const doc = new jsPDF({ orientation: "landscape" });
+  doc.setFontSize(14);
+  doc.text(t("trips.title"), 14, 16);
+  autoTable(doc, {
+    head: [cols.map((c) => c.label)],
+    body: trips.map((tr) => cols.map((c) => String((tr as any)[c.key] ?? ""))),
+    startY: 22,
+    styles: { fontSize: 7 },
+    headStyles: { fillColor: [30, 30, 30] },
+  });
+  doc.save("curse.pdf");
+}
+
+function exportTripsExcel(trips: Trip[], t: (k: string) => string) {
+  const cols = getExportTripCols(t);
+  const ws = XLSX.utils.json_to_sheet(toRows(trips, cols));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, t("trips.title"));
+  XLSX.writeFile(wb, "curse.xlsx");
+}
+
+function exportTripsCSV(trips: Trip[], t: (k: string) => string) {
+  const cols = getExportTripCols(t);
+  const csv = Papa.unparse(toRows(trips, cols));
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "curse.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function ExportMenu({ orders }: { orders: Order[] }) {
+  const { t } = useTranslation();
+  const trips = getCollection<Trip>(STORAGE_KEYS.trips);
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm">
+          {t("orders.actions.export")}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem
+          className="cursor-pointer font-medium text-xs text-muted-foreground"
+          disabled
+        >
+          {t("orders.title")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => exportOrdersPDF(orders, t)}
+        >
+          {t("orders.actions.exportPdf")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => exportOrdersExcel(orders, t)}
+        >
+          {t("orders.actions.exportExcel")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => exportOrdersCSV(orders, t)}
+        >
+          {t("orders.actions.exportCsv")}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="cursor-pointer font-medium text-xs text-muted-foreground"
+          disabled
+        >
+          {t("trips.title")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => exportTripsPDF(trips, t)}
+        >
+          {t("orders.actions.exportPdf")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => exportTripsExcel(trips, t)}
+        >
+          {t("orders.actions.exportExcel")}
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => exportTripsCSV(trips, t)}
+        >
+          {t("orders.actions.exportCsv")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+type ImportRow = {
+  raw: Record<string, string>;
+  parsed: Partial<Order> | null;
+  errors: string[];
+  index: number;
+};
+
+function parseImportRow(
+  raw: Record<string, string>,
+  index: number,
+  t: (k: string) => string,
+): ImportRow {
+  const errors: string[] = [];
+  const clientName = raw["Client"]?.trim() || raw["clientName"]?.trim() || "";
+  const origin =
+    raw["Origine"]?.trim() ||
+    raw["Origin"]?.trim() ||
+    raw["origin"]?.trim() ||
+    "";
+  const destination =
+    raw["Destinatie"]?.trim() ||
+    raw["Destination"]?.trim() ||
+    raw["destination"]?.trim() ||
+    "";
+  const date =
+    raw["Data"]?.trim() || raw["Date"]?.trim() || raw["date"]?.trim() || "";
+  const weightRaw =
+    raw["Greutate (t)"]?.trim() ||
+    raw["Weight (t)"]?.trim() ||
+    raw["weight"]?.trim() ||
+    "";
+  const notes =
+    raw["Note"]?.trim() || raw["Notes"]?.trim() || raw["notes"]?.trim() || "";
+  const statusRaw = raw["Status"]?.trim() || raw["status"]?.trim() || "";
+
+  if (!clientName) errors.push(t("orders.validation.clientRequired"));
+  if (!origin) errors.push(t("orders.validation.originRequired"));
+  if (!destination) errors.push(t("orders.validation.destinationRequired"));
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date))
+    errors.push(t("orders.import.invalidDate"));
+
+  const weight = parseFloat(weightRaw);
+  if (!weightRaw || isNaN(weight) || weight <= 0)
+    errors.push(t("orders.validation.weightPositive"));
+
+  const validStatuses: Order["status"][] = [
+    "pending",
+    "assigned",
+    "in_transit",
+    "delivered",
+    "cancelled",
+  ];
+  const status: Order["status"] = validStatuses.includes(
+    statusRaw as Order["status"],
+  )
+    ? (statusRaw as Order["status"])
+    : "pending";
+
+  if (errors.length > 0) {
+    return { raw, parsed: null, errors, index };
+  }
+
+  return {
+    raw,
+    parsed: {
+      clientName,
+      origin,
+      destination,
+      date,
+      weight,
+      notes: notes || undefined,
+      status,
+    },
+    errors: [],
+    index,
+  };
+}
+
+function ImportDialog({
+  open,
+  onOpenChange,
+  onImport,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onImport: (rows: Partial<Order>[]) => void;
+}) {
+  const { t } = useTranslation();
+  const [rows, setRows] = React.useState<ImportRow[]>([]);
+  const [step, setStep] = React.useState<"upload" | "preview">("upload");
+  const fileRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    if (!open) {
+      setRows([]);
+      setStep("upload");
+    }
+  }, [open]);
+
+  function handleFile(file: File) {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const parsed = (result.data as Record<string, string>[]).map((row, i) =>
+          parseImportRow(row, i, t),
+        );
+        setRows(parsed);
+        setStep("preview");
+      },
+    });
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) handleFile(file);
+  }
+
+  const validRows = rows.filter((r) => r.errors.length === 0 && r.parsed);
+  const invalidRows = rows.filter((r) => r.errors.length > 0);
+
+  function handleConfirm() {
+    onImport(validRows.map((r) => r.parsed!));
+    onOpenChange(false);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-[760px] max-h-[90vh] flex flex-col">
+        <DialogHeader>
+          <DialogTitle>{t("orders.import.title")}</DialogTitle>
+          <DialogDescription className="sr-only">
+            {t("orders.import.title")}
+          </DialogDescription>
+        </DialogHeader>
+
+        {step === "upload" && (
+          <div
+            className="flex flex-col items-center justify-center gap-4 rounded-lg border-2 border-dashed p-10 text-center cursor-pointer hover:border-primary transition-colors"
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            onClick={() => fileRef.current?.click()}
+          >
+            <Upload className="h-10 w-10 text-muted-foreground" />
+            <div>
+              <p className="font-medium">{t("orders.import.dropzone")}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t("orders.import.dropzoneHint")}
+              </p>
+            </div>
+            <input
+              ref={fileRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleFile(file);
+              }}
+            />
+          </div>
+        )}
+
+        {step === "preview" && (
+          <div className="flex flex-col gap-3 overflow-hidden">
+            <div className="flex items-center gap-3 text-sm">
+              <span className="text-green-600 font-medium">
+                {t("orders.import.validCount", { count: validRows.length })}
+              </span>
+              {invalidRows.length > 0 && (
+                <span className="text-destructive font-medium">
+                  {t("orders.import.invalidCount", {
+                    count: invalidRows.length,
+                  })}
+                </span>
+              )}
+            </div>
+
+            <div className="overflow-auto rounded-lg border max-h-[50vh]">
+              <Table className="text-xs">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-8">#</TableHead>
+                    <TableHead>{t("orders.fields.client")}</TableHead>
+                    <TableHead>{t("orders.fields.origin")}</TableHead>
+                    <TableHead>{t("orders.fields.destination")}</TableHead>
+                    <TableHead>{t("orders.fields.date")}</TableHead>
+                    <TableHead>{t("orders.fields.weight")}</TableHead>
+                    <TableHead>{t("orders.fields.status")}</TableHead>
+                    <TableHead>{t("orders.import.errorsCol")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rows.map((row) => (
+                    <TableRow
+                      key={row.index}
+                      className={
+                        row.errors.length > 0 ? "bg-destructive/10" : ""
+                      }
+                    >
+                      <TableCell>{row.index + 1}</TableCell>
+                      <TableCell>
+                        {row.raw["Client"] || row.raw["clientName"] || "—"}
+                      </TableCell>
+                      <TableCell>
+                        {row.raw["Origine"] ||
+                          row.raw["Origin"] ||
+                          row.raw["origin"] ||
+                          "—"}
+                      </TableCell>
+                      <TableCell>
+                        {row.raw["Destinatie"] ||
+                          row.raw["Destination"] ||
+                          row.raw["destination"] ||
+                          "—"}
+                      </TableCell>
+                      <TableCell>
+                        {row.raw["Data"] ||
+                          row.raw["Date"] ||
+                          row.raw["date"] ||
+                          "—"}
+                      </TableCell>
+                      <TableCell>
+                        {row.raw["Greutate (t)"] ||
+                          row.raw["Weight (t)"] ||
+                          row.raw["weight"] ||
+                          "—"}
+                      </TableCell>
+                      <TableCell>
+                        {row.raw["Status"] || row.raw["status"] || "pending"}
+                      </TableCell>
+                      <TableCell className="text-destructive text-xs">
+                        {row.errors.join(", ")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
+
+        <DialogFooter className="gap-2">
+          {step === "preview" && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setRows([]);
+                setStep("upload");
+              }}
+            >
+              {t("orders.import.reupload")}
+            </Button>
+          )}
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            {t("orders.cancel")}
+          </Button>
+          {step === "preview" && validRows.length > 0 && (
+            <Button onClick={handleConfirm}>
+              {t("orders.import.confirm", { count: validRows.length })}
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function DateButton({
   date,
   placeholder,
@@ -198,7 +634,11 @@ function DateButton({
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-0" align="start" collisionPadding={8}>
+      <PopoverContent
+        className="w-auto p-0"
+        align="start"
+        collisionPadding={20}
+      >
         <Calendar
           mode="single"
           selected={date}
@@ -213,92 +653,67 @@ function DateButton({
   );
 }
 
-// ─── Advanced Filters ─────────────────────────────────────
-function getExportCols(t: (k: string) => string) {
-  return [
-    { key: "clientName", label: t("orders.fields.client") },
-    { key: "origin", label: t("orders.fields.origin") },
-    { key: "destination", label: t("orders.fields.destination") },
-    { key: "date", label: t("orders.fields.date") },
-    { key: "status", label: t("orders.fields.status") },
-    { key: "weight", label: t("orders.fields.weight") },
-    { key: "notes", label: t("orders.fields.notes") },
-  ];
+interface AdvancedFiltersProps {
+  dateFrom: Date | undefined;
+  dateTo: Date | undefined;
+  origin: string;
+  destination: string;
+  onDateFrom: (d: Date | undefined) => void;
+  onDateTo: (d: Date | undefined) => void;
+  onOrigin: (v: string) => void;
+  onDestination: (v: string) => void;
+  onReset: () => void;
+  hasActive: boolean;
 }
 
-function toRows(orders: Order[], cols: ReturnType<typeof getExportCols>) {
-  return orders.map((o) =>
-    Object.fromEntries(cols.map((c) => [c.label, (o as any)[c.key] ?? ""])),
-  );
-}
-
-function exportPDF(orders: Order[], t: (k: string) => string) {
-  const cols = getExportCols(t);
-  const doc = new jsPDF();
-  doc.setFontSize(14);
-  doc.text(t("orders.manage"), 14, 16);
-  autoTable(doc, {
-    head: [cols.map((c) => c.label)],
-    body: orders.map((o) => cols.map((c) => String((o as any)[c.key] ?? ""))),
-    startY: 22,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [30, 30, 30] },
-  });
-  doc.save("comenzi.pdf");
-}
-
-function exportExcel(orders: Order[], t: (k: string) => string) {
-  const cols = getExportCols(t);
-  const ws = XLSX.utils.json_to_sheet(toRows(orders, cols));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, t("orders.title"));
-  XLSX.writeFile(wb, "comenzi.xlsx");
-}
-
-function exportCSV(orders: Order[], t: (k: string) => string) {
-  const cols = getExportCols(t);
-  const csv = Papa.unparse(toRows(orders, cols));
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "comenzi.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function ExportMenu({ orders }: { orders: Order[] }) {
+function AdvancedFilters({
+  dateFrom,
+  dateTo,
+  origin,
+  destination,
+  onDateFrom,
+  onDateTo,
+  onOrigin,
+  onDestination,
+  onReset,
+  hasActive,
+}: AdvancedFiltersProps) {
   const { t } = useTranslation();
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          Export
+    <div className="flex flex-wrap items-center gap-2">
+      <DateButton
+        date={dateFrom}
+        placeholder={t("orders.filters.from")}
+        onSelect={onDateFrom}
+      />
+      <DateButton
+        date={dateTo}
+        placeholder={t("orders.filters.to")}
+        onSelect={onDateTo}
+      />
+      <Input
+        value={origin}
+        onChange={(e) => onOrigin(e.target.value)}
+        placeholder={t("orders.placeholders.filterOrigin")}
+        className="h-8 w-full sm:w-[140px]"
+      />
+      <Input
+        value={destination}
+        onChange={(e) => onDestination(e.target.value)}
+        placeholder={t("orders.placeholders.filterDest")}
+        className="h-8 w-full sm:w-[140px]"
+      />
+      {hasActive && (
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 px-2"
+          onClick={onReset}
+        >
+          {t("orders.actions.reset")} <X className="ml-1 h-3.5 w-3.5" />
         </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => exportPDF(orders, t)}
-        >
-          Export PDF
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => exportExcel(orders, t)}
-        >
-          Export Excel
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => exportCSV(orders, t)}
-        >
-          Export CSV
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      )}
+    </div>
   );
 }
 
@@ -315,13 +730,13 @@ function OrderDetailDialog({
   const trips = React.useMemo(() => {
     if (!order) return [];
     return getCollection<Trip>(STORAGE_KEYS.trips).filter(
-      (t) => t.orderId === order.id,
+      (tr) => tr.orderId === order.id,
     );
   }, [order]);
 
-  const totalFuelCost = trips.reduce((sum, t) => sum + (t.fuelCost ?? 0), 0);
+  const totalFuelCost = trips.reduce((sum, tr) => sum + (tr.fuelCost ?? 0), 0);
   const totalKm = trips.reduce(
-    (sum, t) => sum + (t.kmLoaded ?? 0) + (t.kmEmpty ?? 0),
+    (sum, tr) => sum + (tr.kmLoaded ?? 0) + (tr.kmEmpty ?? 0),
     0,
   );
   const costPerKm = totalKm > 0 ? totalFuelCost / totalKm : null;
@@ -423,7 +838,6 @@ function OrderDetailDialog({
                 })}
               </div>
             )}
-
             <div className="grid grid-cols-2 gap-x-4 pt-2 border-t text-sm font-medium">
               <span>{t("orders.costs.totalFuel")}</span>
               <span className="tabular-nums">
@@ -447,71 +861,6 @@ function OrderDetailDialog({
   );
 }
 
-interface AdvancedFiltersProps {
-  dateFrom: Date | undefined;
-  dateTo: Date | undefined;
-  origin: string;
-  destination: string;
-  onDateFrom: (d: Date | undefined) => void;
-  onDateTo: (d: Date | undefined) => void;
-  onOrigin: (v: string) => void;
-  onDestination: (v: string) => void;
-  onReset: () => void;
-  hasActive: boolean;
-}
-
-function AdvancedFilters({
-  dateFrom,
-  dateTo,
-  origin,
-  destination,
-  onDateFrom,
-  onDateTo,
-  onOrigin,
-  onDestination,
-  onReset,
-  hasActive,
-}: AdvancedFiltersProps) {
-  const { t } = useTranslation();
-  return (
-    <div className="flex flex-wrap items-center gap-2">
-      <DateButton
-        date={dateFrom}
-        placeholder={t("orders.filters.from")}
-        onSelect={onDateFrom}
-      />
-      <DateButton
-        date={dateTo}
-        placeholder={t("orders.filters.to")}
-        onSelect={onDateTo}
-      />
-      <Input
-        value={origin}
-        onChange={(e) => onOrigin(e.target.value)}
-        placeholder={t("orders.placeholders.filterOrigin")}
-        className="h-8 w-full sm:w-[140px]"
-      />
-      <Input
-        value={destination}
-        onChange={(e) => onDestination(e.target.value)}
-        placeholder={t("orders.placeholders.filterDest")}
-        className="h-8 w-full sm:w-[140px]"
-      />
-      {hasActive && (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 px-2"
-          onClick={onReset}
-        >
-          {t("orders.actions.reset")} <X className="ml-1 h-3.5 w-3.5" />
-        </Button>
-      )}
-    </div>
-  );
-}
-
-// ─── Order Form Dialog ────────────────────────────────────
 interface OrderFormDialogProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
@@ -552,7 +901,6 @@ function OrderFormDialog({
   function handleSubmit() {
     setErrors({});
     setFormError(null);
-
     const parsed = makeOrderSchema(t).safeParse(form);
     if (!parsed.success) {
       const nextErrors: Partial<Record<keyof OrderForm, string>> = {};
@@ -563,13 +911,11 @@ function OrderFormDialog({
       setErrors(nextErrors);
       return;
     }
-
     const err = onSave(parsed.data);
     if (err) {
       setFormError(err);
       return;
     }
-
     onOpenChange(false);
   }
 
@@ -582,7 +928,6 @@ function OrderFormDialog({
       }}
     >
       {triggerButton && <DialogTrigger asChild>{triggerButton}</DialogTrigger>}
-
       <DialogContent className="max-w-[640px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -591,11 +936,11 @@ function OrderFormDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {formError ? (
+        {formError && (
           <div className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {formError}
           </div>
-        ) : null}
+        )}
 
         <div className="grid gap-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -609,11 +954,10 @@ function OrderFormDialog({
                 }
                 placeholder={t("orders.placeholders.client")}
               />
-              {errors.clientName ? (
+              {errors.clientName && (
                 <p className="text-xs text-destructive">{errors.clientName}</p>
-              ) : null}
+              )}
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="weight">{t("orders.fields.weight")} *</Label>
               <Input
@@ -628,11 +972,10 @@ function OrderFormDialog({
                 }
                 placeholder={t("orders.placeholders.weight")}
               />
-              {errors.weight ? (
+              {errors.weight && (
                 <p className="text-xs text-destructive">{errors.weight}</p>
-              ) : null}
+              )}
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="origin">{t("orders.fields.origin")} *</Label>
               <Input
@@ -643,11 +986,10 @@ function OrderFormDialog({
                 }
                 placeholder={t("orders.placeholders.origin")}
               />
-              {errors.origin ? (
+              {errors.origin && (
                 <p className="text-xs text-destructive">{errors.origin}</p>
-              ) : null}
+              )}
             </div>
-
             <div className="grid gap-2">
               <Label htmlFor="destination">
                 {t("orders.fields.destination")} *
@@ -660,11 +1002,10 @@ function OrderFormDialog({
                 }
                 placeholder={t("orders.placeholders.destination")}
               />
-              {errors.destination ? (
+              {errors.destination && (
                 <p className="text-xs text-destructive">{errors.destination}</p>
-              ) : null}
+              )}
             </div>
-
             <div className="grid gap-2 sm:col-span-2">
               <Label>{t("orders.fields.date")} *</Label>
               <Popover open={dateOpen} onOpenChange={setDateOpen}>
@@ -685,7 +1026,6 @@ function OrderFormDialog({
                     )}
                   </Button>
                 </PopoverTrigger>
-
                 <PopoverContent
                   side="bottom"
                   align="center"
@@ -707,11 +1047,10 @@ function OrderFormDialog({
                   />
                 </PopoverContent>
               </Popover>
-              {errors.date ? (
+              {errors.date && (
                 <p className="text-xs text-destructive">{errors.date}</p>
-              ) : null}
+              )}
             </div>
-
             <div className="grid gap-2 sm:col-span-2">
               <Label htmlFor="notes">{t("orders.fields.notes")}</Label>
               <Textarea
@@ -723,9 +1062,9 @@ function OrderFormDialog({
                 placeholder={t("orders.placeholders.notes")}
                 className="min-h-[100px]"
               />
-              {errors.notes ? (
+              {errors.notes && (
                 <p className="text-xs text-destructive">{errors.notes}</p>
-              ) : null}
+              )}
             </div>
           </div>
         </div>
@@ -747,7 +1086,6 @@ function OrderFormDialog({
   );
 }
 
-// ─── Main Page ────────────────────────────────────────────
 export default function OrdersPage() {
   const { t } = useTranslation();
   const statusMeta = getStatusMeta(t);
@@ -769,6 +1107,7 @@ export default function OrdersPage() {
   const [deletingOrder, setDeletingOrder] = React.useState<Order | null>(null);
   const [detailOpen, setDetailOpen] = React.useState(false);
   const [detailOrder, setDetailOrder] = React.useState<Order | null>(null);
+  const [importOpen, setImportOpen] = React.useState(false);
 
   const [dateFrom, setDateFrom] = React.useState<Date | undefined>(undefined);
   const [dateTo, setDateTo] = React.useState<Date | undefined>(undefined);
@@ -825,18 +1164,14 @@ export default function OrdersPage() {
       date: dateStr,
       weight: values.weight,
     };
-
-    if (data.some((o) => isDuplicateOrder(o, payload))) {
+    if (data.some((o) => isDuplicateOrder(o, payload)))
       return t("orders.duplicate");
-    }
-
     const newOrder = {
       id: safeRandomId(),
       ...payload,
       status: "pending",
       ...(values.notes ? { notes: values.notes } : {}),
     } as unknown as Order;
-
     const next = [newOrder, ...data];
     setData(next);
     setOrdersToStorage(next);
@@ -845,7 +1180,6 @@ export default function OrdersPage() {
 
   function handleEdit(values: OrderForm): string | null {
     if (!editingOrder) return null;
-
     const dateStr = format(values.date, "yyyy-MM-dd");
     const payload = {
       clientName: values.clientName,
@@ -854,11 +1188,8 @@ export default function OrdersPage() {
       date: dateStr,
       weight: values.weight,
     };
-
-    if (data.some((o) => isDuplicateOrder(o, payload, editingOrder.id))) {
+    if (data.some((o) => isDuplicateOrder(o, payload, editingOrder.id)))
       return t("orders.duplicate");
-    }
-
     const next = data.map((o) =>
       o.id === editingOrder.id
         ? { ...o, ...payload, notes: values.notes ?? "" }
@@ -879,16 +1210,54 @@ export default function OrdersPage() {
     setDeletingOrder(null);
   }
 
+  function handleImport(rows: Partial<Order>[]) {
+    let added = 0;
+    let skipped = 0;
+    const current = getCollection<Order>(STORAGE_KEYS.orders);
+    const next = [...current];
+
+    for (const row of rows) {
+      const payload = {
+        clientName: row.clientName ?? "",
+        origin: row.origin ?? "",
+        destination: row.destination ?? "",
+        date: row.date ?? "",
+        weight: row.weight ?? 0,
+      };
+      if (next.some((o) => isDuplicateOrder(o, payload))) {
+        skipped++;
+        continue;
+      }
+      const newOrder: Order = {
+        id: safeRandomId(),
+        ...payload,
+        status: row.status ?? "pending",
+        ...(row.notes ? { notes: row.notes } : {}),
+      };
+      next.unshift(newOrder);
+      added++;
+    }
+
+    setData(next);
+    setOrdersToStorage(next);
+
+    if (added > 0 && skipped === 0) {
+      toast.success(t("orders.import.toastSuccess", { count: added }));
+    } else if (added > 0 && skipped > 0) {
+      toast.success(t("orders.import.toastPartial", { added, skipped }));
+    } else {
+      toast.error(t("orders.import.toastAllSkipped"));
+    }
+  }
+
   function openEdit(order: Order) {
     setEditingOrder(order);
     setEditOpen(true);
   }
-
   function openDelete(order: Order) {
     setDeletingOrder(order);
     setDeleteOpen(true);
   }
-
   function openDetail(order: Order) {
     setDetailOrder(order);
     setDetailOpen(true);
@@ -953,10 +1322,9 @@ export default function OrdersPage() {
           title={t("orders.fields.date")}
         />
       ),
-      cell: ({ row }) => {
-        const value = row.getValue("date") as string;
-        return <div className="tabular-nums">{value}</div>;
-      },
+      cell: ({ row }) => (
+        <div className="tabular-nums">{row.getValue("date") as string}</div>
+      ),
       enableSorting: true,
       size: 130,
       minSize: 120,
@@ -1085,11 +1453,7 @@ export default function OrdersPage() {
   const table = useReactTable({
     data: filteredData,
     columns,
-    state: {
-      sorting,
-      columnFilters,
-      columnVisibility,
-    },
+    state: { sorting, columnFilters, columnVisibility },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
@@ -1099,12 +1463,7 @@ export default function OrdersPage() {
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 10,
-        pageIndex: 0,
-      },
-    },
+    initialState: { pagination: { pageSize: 10, pageIndex: 0 } },
     columnResizeMode: "onChange",
   });
 
@@ -1120,6 +1479,14 @@ export default function OrdersPage() {
             <CardTitle>{t("orders.manage")}</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <ExportMenu orders={filteredData} />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setImportOpen(true)}
+              >
+                <Upload className="mr-1 h-3.5 w-3.5" />
+                {t("orders.import.button")}
+              </Button>
               <OrderFormDialog
                 open={addOpen}
                 onOpenChange={setAddOpen}
@@ -1191,7 +1558,6 @@ export default function OrdersPage() {
                     </TableRow>
                   ))}
                 </TableHeader>
-
                 <TableBody>
                   {table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map((row) => (
@@ -1220,7 +1586,7 @@ export default function OrdersPage() {
                         colSpan={columns.length}
                         className="h-24 text-center text-muted-foreground"
                       >
-                        Nu exista comenzi pentru filtrul curent.
+                        {t("orders.noResults")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -1232,6 +1598,12 @@ export default function OrdersPage() {
           </CardContent>
         </Card>
       </Main>
+
+      <ImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImport={handleImport}
+      />
 
       <OrderFormDialog
         open={editOpen}
