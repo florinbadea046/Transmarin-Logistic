@@ -6,7 +6,7 @@
 import { initCollection } from "@/utils/local-storage";
 import type { Driver, Truck, Order } from "@/modules/transport/types";
 import type { Part, ServiceRecord } from "@/modules/fleet/types";
-import type { Employee } from "@/modules/hr/types";
+import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
 
 // Chei localStorage — toate modulele folosesc aceste chei
@@ -460,6 +460,59 @@ const seedSuppliers: Supplier[] = [
     bankAccount: "RO49BBBB1B31007593840000",
   },
 ];
+const seedLeaveRequests: LeaveRequest[] = [
+  {
+    id: "lr1",
+    employeeId: "e1",
+    type: "annual",
+    startDate: "2026-03-10",
+    endDate: "2026-03-21",
+    days: 10,
+    status: "approved",
+    reason: "Vacanță de primăvară",
+  },
+  {
+    id: "lr2",
+    employeeId: "e2",
+    type: "sick",
+    startDate: "2026-02-17",
+    endDate: "2026-02-21",
+    days: 5,
+    status: "approved",
+    reason: "Răceală",
+  },
+  {
+    id: "lr3",
+    employeeId: "e3",
+    type: "annual",
+    startDate: "2026-04-01",
+    endDate: "2026-04-05",
+    days: 5,
+    status: "pending",
+    reason: "Concediu personal",
+  },
+  {
+    id: "lr4",
+    employeeId: "e1",
+    type: "unpaid",
+    startDate: "2026-01-13",
+    endDate: "2026-01-14",
+    days: 2,
+    status: "rejected",
+    reason: "Treburi personale",
+  },
+  {
+    id: "lr5",
+    employeeId: "e2",
+    type: "other",
+    startDate: "2026-04-20",
+    endDate: "2026-04-20",
+    days: 1,
+    status: "pending",
+    reason: "Eveniment familial",
+  },
+];
+
 const seedServiceRecords: ServiceRecord[] = [
   {
     id: "sr1",
@@ -671,6 +724,6 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
   initCollection(STORAGE_KEYS.fuelRecords, []);
   initCollection(STORAGE_KEYS.invoices, seedInvoices);
-  initCollection(STORAGE_KEYS.leaveRequests, []);
+  initCollection(STORAGE_KEYS.leaveRequests, seedLeaveRequests);
   initCollection(STORAGE_KEYS.bonuses, []);
 }
