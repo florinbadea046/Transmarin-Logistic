@@ -37,6 +37,7 @@ import {
   calculateTotalCost,
   getPartName,
 } from "@/modules/fleet/utils/serviceUtils";
+import { exportServiceToPDF } from "@/modules/fleet/utils/exportPDF";
 
 type FormPart = {
   id: string;
@@ -61,6 +62,11 @@ export function ServiceCRUD() {
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(createEmptyForm());
 
+  // filtre export
+  const [filterTruckId, setFilterTruckId] = useState("all");
+  const [filterFrom, setFilterFrom] = useState("");
+  const [filterTo, setFilterTo] = useState("");
+
   useEffect(() => {
     setRecords(getCollection<ServiceRecord>(STORAGE_KEYS.serviceRecords));
     setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
@@ -69,17 +75,12 @@ export function ServiceCRUD() {
 
   const persist = (data: ServiceRecord[]) => {
     setRecords(data);
-    localStorage.setItem(
-      STORAGE_KEYS.serviceRecords,
-      JSON.stringify(data)
-    );
+    localStorage.setItem(STORAGE_KEYS.serviceRecords, JSON.stringify(data));
   };
 
   const getTruckLabel = (id: string) => {
     const truck = trucks.find((t) => t.id === id);
-    return truck
-      ? `${truck.plateNumber} — ${truck.brand} ${truck.model}`
-      : id;
+    return truck ? `${truck.plateNumber} — ${truck.brand} ${truck.model}` : id;
   };
 
   const totalCost = useMemo(
@@ -90,14 +91,7 @@ export function ServiceCRUD() {
   const addPart = () => {
     setForm((prev) => ({
       ...prev,
-      partsUsed: [
-        ...prev.partsUsed,
-        {
-          id: crypto.randomUUID(),
-          partId: "",
-          quantity: 1,
-        },
-      ],
+      partsUsed: [...prev.partsUsed, { id: crypto.randomUUID(), partId: "", quantity: 1 }],
     }));
   };
 
@@ -108,22 +102,15 @@ export function ServiceCRUD() {
     }));
   };
 
-  const updatePart = (
-    id: string,
-    field: "partId" | "quantity",
-    value: string | number
-  ) => {
+  const updatePart = (id: string, field: "partId" | "quantity", value: string | number) => {
     setForm((prev) => ({
       ...prev,
-      partsUsed: prev.partsUsed.map((p) =>
-        p.id === id ? { ...p, [field]: value } : p
-      ),
+      partsUsed: prev.partsUsed.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
     }));
   };
 
   const handleSubmit = () => {
     if (!form.truckId || !form.date) return;
-
     const newRecord: ServiceRecord = {
       id: crypto.randomUUID(),
       ...form,
@@ -131,7 +118,6 @@ export function ServiceCRUD() {
       cost: totalCost,
       nextServiceDate: form.nextServiceDate || undefined,
     };
-
     persist([...records, newRecord]);
     setForm(createEmptyForm());
     setOpen(false);
@@ -143,16 +129,54 @@ export function ServiceCRUD() {
 
   return (
     <div>
-      <div className="flex justify-start mb-4 px-4 md:px-6">
-        <Button onClick={() => setOpen(true)}>
-          + Programează service
+      <div className="flex flex-wrap gap-2 items-end mb-4 px-4 md:px-6">
+        <Button onClick={() => setOpen(true)}>+ Programează service</Button>
+
+        <Select value={filterTruckId} onValueChange={setFilterTruckId}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Toate camioanele" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">Toate camioanele</SelectItem>
+            {trucks.map((t) => (
+              <SelectItem key={t.id} value={t.id}>
+                {t.plateNumber}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Input
+          type="date"
+          value={filterFrom}
+          onChange={(e) => setFilterFrom(e.target.value)}
+          className="w-36"
+          placeholder="De la"
+        />
+        <Input
+          type="date"
+          value={filterTo}
+          onChange={(e) => setFilterTo(e.target.value)}
+          className="w-36"
+          placeholder="Până la"
+        />
+
+        <Button
+          variant="outline"
+          onClick={() =>
+            exportServiceToPDF(records, trucks, {
+              truckId: filterTruckId === "all" ? undefined : filterTruckId,
+              fromDate: filterFrom || undefined,
+              toDate: filterTo || undefined,
+            })
+          }
+        >
+          ⬇ Export PDF
         </Button>
       </div>
 
       {records.length === 0 ? (
-        <p className="text-muted-foreground text-center py-10">
-          Nu există înregistrări de service.
-        </p>
+        <p className="text-muted-foreground text-center py-10">Nu există înregistrări de service.</p>
       ) : (
         <div className="overflow-x-auto">
           <Table>
@@ -166,27 +190,19 @@ export function ServiceCRUD() {
                 <TableHead>Piese</TableHead>
                 <TableHead>Cost</TableHead>
                 <TableHead>Următor</TableHead>
-                <TableHead className="text-center">
-                  Acțiuni
-                </TableHead>
+                <TableHead className="text-center">Acțiuni</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {records.map((record) => (
                 <TableRow key={record.id}>
-                  <TableCell className="font-semibold">
-                    {getTruckLabel(record.truckId)}
-                  </TableCell>
+                  <TableCell className="font-semibold">{getTruckLabel(record.truckId)}</TableCell>
                   <TableCell>{record.date}</TableCell>
                   <TableCell>
-                    <Badge variant="outline">
-                      {TYPE_LABELS[record.type]}
-                    </Badge>
+                    <Badge variant="outline">{TYPE_LABELS[record.type]}</Badge>
                   </TableCell>
                   <TableCell>{record.description}</TableCell>
-                  <TableCell>
-                    {record.mileageAtService.toLocaleString("ro-RO")} km
-                  </TableCell>
+                  <TableCell>{record.mileageAtService.toLocaleString("ro-RO")} km</TableCell>
                   <TableCell>
                     {record.partsUsed.length === 0 ? (
                       <span className="text-muted-foreground">—</span>
@@ -200,19 +216,11 @@ export function ServiceCRUD() {
                       </ul>
                     )}
                   </TableCell>
-                  <TableCell className="font-semibold">
-                    {record.cost.toLocaleString("ro-RO")} RON
-                  </TableCell>
-                  <TableCell>
-                    {record.nextServiceDate ?? "—"}
-                  </TableCell>
+                  <TableCell className="font-semibold">{record.cost.toLocaleString("ro-RO")} RON</TableCell>
+                  <TableCell>{record.nextServiceDate ?? "—"}</TableCell>
                   <TableCell>
                     <div className="flex justify-center">
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => handleDelete(record.id)}
-                      >
+                      <Button size="sm" variant="destructive" onClick={() => handleDelete(record.id)}>
                         Șterge
                       </Button>
                     </div>
@@ -227,26 +235,14 @@ export function ServiceCRUD() {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>
-              Programează service nou
-            </DialogTitle>
+            <DialogTitle>Programează service nou</DialogTitle>
           </DialogHeader>
-
           <div className="space-y-6 py-4">
-
-            {/* Camion + Tip */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Camion</Label>
-                <Select
-                  value={form.truckId}
-                  onValueChange={(v) =>
-                    setForm((p) => ({ ...p, truckId: v }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Selectează camion..." />
-                  </SelectTrigger>
+                <Select value={form.truckId} onValueChange={(v) => setForm((p) => ({ ...p, truckId: v }))}>
+                  <SelectTrigger><SelectValue placeholder="Selectează camion..." /></SelectTrigger>
                   <SelectContent>
                     {trucks.map((t) => (
                       <SelectItem key={t.id} value={t.id}>
@@ -256,177 +252,68 @@ export function ServiceCRUD() {
                   </SelectContent>
                 </Select>
               </div>
-
               <div className="space-y-1">
                 <Label>Tip service</Label>
-                <Select
-                  value={form.type}
-                  onValueChange={(v) =>
-                    setForm((p) => ({
-                      ...p,
-                      type: v as ServiceRecord["type"],
-                    }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
+                <Select value={form.type} onValueChange={(v) => setForm((p) => ({ ...p, type: v as ServiceRecord["type"] }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    {Object.entries(TYPE_LABELS).map(
-                      ([value, label]) => (
-                        <SelectItem key={value} value={value}>
-                          {label}
-                        </SelectItem>
-                      )
-                    )}
+                    {Object.entries(TYPE_LABELS).map(([value, label]) => (
+                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
             </div>
 
-            {/* Descriere */}
             <div className="space-y-1">
               <Label>Descriere</Label>
-              <Input
-                value={form.description}
-                onChange={(e) =>
-                  setForm((p) => ({
-                    ...p,
-                    description: e.target.value,
-                  }))
-                }
-              />
+              <Input value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
             </div>
 
-            {/* Dată + Km + Următor */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-1">
                 <Label>Dată</Label>
-                <Input
-                  type="date"
-                  value={form.date}
-                  onChange={(e) =>
-                    setForm((p) => ({
-                      ...p,
-                      date: e.target.value,
-                    }))
-                  }
-                />
+                <Input type="date" value={form.date} onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))} />
               </div>
-
               <div className="space-y-1">
                 <Label>Km la service</Label>
-                <Input
-                  type="number"
-                  value={form.mileageAtService}
-                  onChange={(e) =>
-                    setForm((p) => ({
-                      ...p,
-                      mileageAtService: Number(e.target.value),
-                    }))
-                  }
-                />
+                <Input type="number" value={form.mileageAtService} onChange={(e) => setForm((p) => ({ ...p, mileageAtService: Number(e.target.value) }))} />
               </div>
-
               <div className="space-y-1">
                 <Label>Următor service</Label>
-                <Input
-                  type="date"
-                  value={form.nextServiceDate}
-                  onChange={(e) =>
-                    setForm((p) => ({
-                      ...p,
-                      nextServiceDate: e.target.value,
-                    }))
-                  }
-                />
+                <Input type="date" value={form.nextServiceDate} onChange={(e) => setForm((p) => ({ ...p, nextServiceDate: e.target.value }))} />
               </div>
             </div>
 
-            {/* Piese */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label>Piese consumate</Label>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={addPart}
-                >
-                  + Adaugă piesă
-                </Button>
+                <Button type="button" size="sm" variant="outline" onClick={addPart}>+ Adaugă piesă</Button>
               </div>
-
               {form.partsUsed.map((pu) => (
-                <div
-                  key={pu.id}
-                  className="flex flex-col sm:flex-row gap-2"
-                >
-                  <Select
-                    value={pu.partId}
-                    onValueChange={(v) =>
-                      updatePart(pu.id, "partId", v)
-                    }
-                  >
+                <div key={pu.id} className="flex flex-col sm:flex-row gap-2">
+                  <Select value={pu.partId} onValueChange={(v) => updatePart(pu.id, "partId", v)}>
                     <SelectTrigger className="flex-1">
                       <SelectValue placeholder="Selectează piesă..." />
                     </SelectTrigger>
                     <SelectContent>
                       {parts.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>
-                          {p.name} ({p.unitPrice} RON)
-                        </SelectItem>
+                        <SelectItem key={p.id} value={p.id}>{p.name} ({p.unitPrice} RON)</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-
-                  <Input
-                    type="number"
-                    min={1}
-                    value={pu.quantity}
-                    onChange={(e) =>
-                      updatePart(
-                        pu.id,
-                        "quantity",
-                        Number(e.target.value)
-                      )
-                    }
-                    className="sm:w-24"
-                  />
-
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="destructive"
-                    onClick={() => removePart(pu.id)}
-                  >
-                    ✕
-                  </Button>
+                  <Input type="number" min={1} value={pu.quantity} onChange={(e) => updatePart(pu.id, "quantity", Number(e.target.value))} className="sm:w-24" />
+                  <Button type="button" size="sm" variant="destructive" onClick={() => removePart(pu.id)}>✕</Button>
                 </div>
               ))}
-
               {form.partsUsed.length > 0 && (
-                <p className="text-sm font-semibold text-right">
-                  Cost total: {totalCost.toLocaleString("ro-RO")} RON
-                </p>
+                <p className="text-sm font-semibold text-right">Cost total: {totalCost.toLocaleString("ro-RO")} RON</p>
               )}
             </div>
           </div>
-
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setOpen(false)}
-            >
-              Anulează
-            </Button>
-
-            <Button
-              onClick={handleSubmit}
-              disabled={!form.truckId || !form.date}
-            >
-              Salvează
-            </Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>Anulează</Button>
+            <Button onClick={handleSubmit} disabled={!form.truckId || !form.date}>Salvează</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
