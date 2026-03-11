@@ -175,7 +175,13 @@ export function FuelCRUD() {
                           <span className="text-muted-foreground">—</span>
                         ) : (
                           <span className={isAlert ? "text-red-500 font-semibold" : ""}>
-                            {cons} L/100km {isAlert && <span aria-hidden="true">⚠️</span>}
+                            {cons} L/100km{" "}
+                            {isAlert && (
+                              <>
+                                <span aria-hidden="true">⚠️</span>
+                                <span className="sr-only">Consumul este anormal</span>
+                              </>
+                            )}
                           </span>
                         )}
                       </TableCell>
