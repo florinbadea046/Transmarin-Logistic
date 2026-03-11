@@ -1,4 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+  flexRender,
+  createColumnHelper,
+  type SortingState,
+} from "@tanstack/react-table";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,70 +16,93 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import { SupplierModal } from "../components/SupplierModal";
 import { getCollection, setCollection } from "@/utils/local-storage";
 
+
+const columnHelper = createColumnHelper<Supplier>();
+
 export default function SuppliersPage() {
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [search, setSearch] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [sorting, setSorting] = useState<SortingState>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] =
-    useState<Supplier | null>(null);
-
-  const itemsPerPage = 5;
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
 
   useEffect(() => {
-    const suppliersFromStorage =
-      getCollection<Supplier>(STORAGE_KEYS.suppliers);
-    setSuppliers(suppliersFromStorage);
+    setSuppliers(getCollection<Supplier>(STORAGE_KEYS.suppliers));
   }, []);
 
-  const normalizedSearch = search.trim().toLowerCase();
-
-  const filteredSuppliers = suppliers.filter(
-    (supplier) =>
-      supplier.name.toLowerCase().includes(normalizedSearch) ||
-      supplier.cui.toLowerCase().includes(normalizedSearch)
-  );
-
-  const sortedSuppliers = [...filteredSuppliers].sort((a, b) =>
-    a.name.localeCompare(b.name)
-  );
-
-  const totalPages = Math.max(1, Math.ceil(sortedSuppliers.length / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-
-  const paginatedSuppliers = sortedSuppliers.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  const filteredSuppliers = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return suppliers;
+    return suppliers.filter((s) =>
+      [s.name, s.cui, s.address, s.phone, s.email, s.bankAccount]
+        .some((val) => val?.toLowerCase().includes(q))
+    );
+  }, [suppliers, search]);
 
   const handleSave = (supplier: Supplier) => {
-    let updatedSuppliers: Supplier[];
-
+    let updated: Supplier[];
     if (selectedSupplier) {
-      updatedSuppliers = suppliers.map((s) =>
-        s.id === supplier.id ? supplier : s
-      );
+      updated = suppliers.map((s) => (s.id === supplier.id ? supplier : s));
     } else {
-      const newSupplier = {
-        ...supplier,
-        id: crypto.randomUUID(),
-      };
-      updatedSuppliers = [...suppliers, newSupplier];
+      updated = [...suppliers, { ...supplier, id: crypto.randomUUID() }];
     }
-
-    setSuppliers(updatedSuppliers);
-    setCollection(STORAGE_KEYS.suppliers, updatedSuppliers);
+    setSuppliers(updated);
+    setCollection(STORAGE_KEYS.suppliers, updated);
     setIsModalOpen(false);
   };
 
   const handleDelete = (id: string) => {
-    const confirmDelete = confirm("Sigur vrei să ștergi acest furnizor?");
-    if (!confirmDelete) return;
-
-    const updatedSuppliers = suppliers.filter((s) => s.id !== id);
-    setSuppliers(updatedSuppliers);
-    setCollection(STORAGE_KEYS.suppliers, updatedSuppliers);
+    if (!confirm("Sigur vrei să ștergi acest furnizor?")) return;
+    const updated = suppliers.filter((s) => s.id !== id);
+    setSuppliers(updated);
+    setCollection(STORAGE_KEYS.suppliers, updated);
   };
+
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor("name", { header: "Nume" }),
+      columnHelper.accessor("cui", { header: "CUI" }),
+      columnHelper.accessor("address", { header: "Adresă" }),
+      columnHelper.accessor("phone", { header: "Telefon" }),
+      columnHelper.accessor("email", { header: "Email" }),
+      columnHelper.accessor("bankAccount", { header: "Cont bancar" }),
+      columnHelper.display({
+        id: "actions",
+        header: "Acțiuni",
+        cell: ({ row }) => (
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                setSelectedSupplier(row.original);
+                setIsModalOpen(true);
+              }}
+              className="bg-yellow-500 px-3 py-1 rounded text-black text-sm"
+            >
+              Edit
+            </button>
+            <button
+              onClick={() => handleDelete(row.original.id)}
+              className="bg-red-600 px-3 py-1 rounded text-white text-sm"
+            >
+              Delete
+            </button>
+          </div>
+        ),
+      }),
+    ],
+    [suppliers]
+  );
+
+  const table = useReactTable({
+    data: filteredSuppliers, 
+    columns,
+    state: { sorting },
+    onSortingChange: setSorting,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: { pagination: { pageSize: 5 } },
+  });
 
   return (
     <>
@@ -82,11 +114,11 @@ export default function SuppliersPage() {
         <div className="mb-4">
           <input
             type="text"
-            placeholder="Caută după nume sau CUI"
+            placeholder="Caută după orice câmp..."
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              setCurrentPage(1);
+              table.setPageIndex(0);
             }}
             className="w-full rounded-md border border-gray-600 bg-slate-800 text-white p-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -107,126 +139,82 @@ export default function SuppliersPage() {
           </CardHeader>
 
           <CardContent>
-            {suppliers.length === 0 ? (
-              <p className="text-white">Nu există furnizori</p>
-            ) : sortedSuppliers.length === 0 ? (
-              <p className="text-white">Niciun furnizor găsit</p>
-            ) : (
-              <>
-                <div className="flex flex-col gap-3 lg:hidden">
-                  {paginatedSuppliers.map((supplier) => (
-                    <div
-                      key={supplier.id}
-                      className="bg-slate-800 rounded-lg p-4 border border-slate-700"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-white font-semibold text-base">
-                          {supplier.name}
-                        </span>
-                        <div className="flex gap-2 ml-2 shrink-0">
-                          <button
-                            onClick={() => {
-                              setSelectedSupplier(supplier);
-                              setIsModalOpen(true);
-                            }}
-                            className="bg-yellow-500 px-2 py-1 rounded text-black text-xs"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => handleDelete(supplier.id)}
-                            className="bg-red-600 px-2 py-1 rounded text-white text-xs"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
-                      <div className="text-sm text-slate-300 space-y-1">
-                        <p><span className="text-slate-400">CUI:</span> {supplier.cui}</p>
-                        <p><span className="text-slate-400">Telefon:</span> {supplier.phone}</p>
-                        <p><span className="text-slate-400">Email:</span> {supplier.email}</p>
-                        <p><span className="text-slate-400">Adresă:</span> {supplier.address}</p>
-                        <p><span className="text-slate-400">Cont bancar:</span> {supplier.bankAccount}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="hidden lg:block overflow-x-auto">
-                  <table className="w-full text-white text-sm">
-                    <thead className="bg-slate-700">
-                      <tr>
-                        <th className="p-3 text-left">Nume</th>
-                        <th className="p-3 text-left">CUI</th>
-                        <th className="p-3 text-left">Telefon</th>
-                        <th className="p-3 text-left">Adresă</th>
-                        <th className="p-3 text-left">Cont bancar</th>
-                        <th className="p-3 text-left">Email</th>
-                        <th className="p-3 text-left">Acțiuni</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedSuppliers.map((supplier) => (
-                        <tr
-                          key={supplier.id}
-                          className="border-b border-slate-700 hover:bg-slate-800"
+            <div className="overflow-x-auto">
+              <table className="w-full text-white text-sm">
+                <thead className="bg-slate-700">
+                  {table.getHeaderGroups().map((headerGroup) => (
+                    <tr key={headerGroup.id}>
+                      {headerGroup.headers.map((header) => (
+                        <th
+                          key={header.id}
+                          className="p-3 text-left cursor-pointer select-none hover:bg-slate-600"
+                          onClick={header.column.getToggleSortingHandler()}
                         >
-                          <td className="p-3">{supplier.name}</td>
-                          <td className="p-3">{supplier.cui}</td>
-                          <td className="p-3">{supplier.phone}</td>
-                          <td className="p-3">{supplier.address}</td>
-                          <td className="p-3">{supplier.bankAccount}</td>
-                          <td className="p-3">{supplier.email}</td>
-                          <td className="p-3 flex gap-2">
-                            <button
-                              onClick={() => {
-                                setSelectedSupplier(supplier);
-                                setIsModalOpen(true);
-                              }}
-                              className="bg-yellow-500 px-3 py-1 rounded text-black text-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDelete(supplier.id)}
-                              className="bg-red-600 px-3 py-1 rounded text-white text-sm"
-                            >
-                              Delete
-                            </button>
-                          </td>
-                        </tr>
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {header.column.getIsSorted() === "asc" && " ↑"}
+                          {header.column.getIsSorted() === "desc" && " ↓"}
+                        </th>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
+                    </tr>
+                  ))}
+                </thead>
+                <tbody>
+                  {table.getRowModel().rows.length === 0 ? (
+                    <tr>
+                      <td colSpan={columns.length} className="p-4 text-center text-slate-400">
+                        Niciun furnizor găsit
+                      </td>
+                    </tr>
+                  ) : (
+                    table.getRowModel().rows.map((row) => (
+                      <tr key={row.id} className="border-b border-slate-700 hover:bg-slate-800">
+                        {row.getVisibleCells().map((cell) => (
+                          <td key={cell.id} className="p-3">
+                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          </td>
+                        ))}
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-                <div className="flex justify-between items-center mt-4 text-white gap-2">
-                  <button
-                    onClick={() =>
-                      setCurrentPage((prev) => Math.max(prev - 1, 1))
-                    }
-                    className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40 min-w-[80px]"
-                    disabled={currentPage === 1}
-                  >
-                    Anterior
-                  </button>
-                  <span className="text-xs text-center">
-                    Pagina {currentPage} din {totalPages}
-                  </span>
-                  <button
-                    onClick={() =>
-                      setCurrentPage((prev) =>
-                        Math.min(prev + 1, totalPages)
-                      )
-                    }
-                    className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40 min-w-[80px]"
-                    disabled={currentPage === totalPages}
-                  >
-                    Următor
-                  </button>
-                </div>
-              </>
-            )}
+            <div className="flex flex-wrap justify-between items-center mt-4 text-white gap-3">
+              <div className="flex items-center gap-2">
+                <span className="text-sm">Rânduri pe pagină:</span>
+                <select
+                  value={table.getState().pagination.pageSize}
+                  onChange={(e) => table.setPageSize(Number(e.target.value))}
+                  className="bg-slate-700 text-white rounded px-2 py-1 text-sm"
+                >
+                  {[5, 10, 20].map((size) => (
+                    <option key={size} value={size}>{size}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                  className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40"
+                >
+                  Anterior
+                </button>
+                <span className="text-sm">
+                  Pagina {table.getState().pagination.pageIndex + 1} din {table.getPageCount()}
+                </span>
+                <button
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                  className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40"
+                >
+                  Următor
+                </button>
+              </div>
+            </div>
+
           </CardContent>
         </Card>
       </Main>
