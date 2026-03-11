@@ -38,7 +38,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Trash2, Pencil, Plus, Search } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, CheckCircle } from "lucide-react";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 type InvoiceType = "venit" | "cheltuială";
@@ -148,16 +148,20 @@ const initialMock: Invoice[] = [
 
 // ── Mobile Invoice Card ───────────────────────────────────────────────────────
 function InvoiceCard({
-  inv, onEdit, onDelete,
+  inv, onEdit, onDelete, onMarkPaid,
 }: {
   inv: Invoice;
   onEdit: (inv: Invoice) => void;
   onDelete: (id: string) => void;
+  onMarkPaid: (id: string) => void;
 }) {
   const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii);
+  const overdue = inv.status !== "plătită" && inv.status !== "anulată" && inv.scadenta
+    ? new Date(inv.scadenta) < new Date()
+    : false;
 
   return (
-    <div className="rounded-lg border p-4 space-y-3">
+    <div className={`rounded-lg border p-4 space-y-3 ${overdue ? "border-red-500/50 bg-red-500/5" : ""}`}>
       <div className="flex items-start justify-between gap-2">
         <div>
           <p className="font-semibold text-sm">{inv.nr}</p>
@@ -176,7 +180,9 @@ function InvoiceCard({
           {inv.tip === "venit" ? "Venit" : "Cheltuială"}
         </Badge>
         <span className="text-xs text-muted-foreground">Dată: {inv.data}</span>
-        <span className="text-xs text-muted-foreground">Scadență: {inv.scadenta}</span>
+        <span className={`text-xs ${overdue ? "text-red-400 font-semibold" : "text-muted-foreground"}`}>
+          Scadență: {inv.scadenta}
+        </span>
       </div>
 
       <div className="grid grid-cols-3 gap-2 text-sm border-t pt-2">
@@ -194,7 +200,17 @@ function InvoiceCard({
         </div>
       </div>
 
-      <div className="flex justify-end gap-2 border-t pt-2">
+      <div className="flex justify-end gap-2 border-t pt-2 flex-wrap">
+        {(inv.status === "neplatită" || inv.status === "parțial") && (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="text-green-400 hover:text-green-300"
+            onClick={() => onMarkPaid(inv.id)}
+          >
+            <CheckCircle className="w-4 h-4 mr-1" /> Mark as Paid
+          </Button>
+        )}
         <Button size="sm" variant="ghost" onClick={() => onEdit(inv)}>
           <Pencil className="w-4 h-4 mr-1" /> Editează
         </Button>
@@ -239,6 +255,12 @@ export default function InvoicesPage() {
     });
   }, [invoices, tipFilter, statusFilter, search]);
 
+  // ── Helpers ────────────────────────────────────────────────────────────────
+  const isOverdue = (inv: Invoice) => {
+    if (inv.status === "plătită" || inv.status === "anulată") return false;
+    return inv.scadenta ? new Date(inv.scadenta) < new Date() : false;
+  };
+
   const openNew = () => { setEditId(null); setForm(defaultForm()); setDialogOpen(true); };
 
   const openEdit = (inv: Invoice) => {
@@ -264,6 +286,12 @@ export default function InvoicesPage() {
   const handleDelete = () => {
     setInvoices((prev) => prev.filter((inv) => inv.id !== deleteId));
     setDeleteId(null);
+  };
+
+  const handleMarkPaid = (id: string) => {
+    setInvoices((prev) =>
+      prev.map((inv) => (inv.id === id ? { ...inv, status: "plătită" } : inv))
+    );
   };
 
   const updateLine = (idx: number, field: keyof InvoiceLine, value: string | number) => {
@@ -344,6 +372,7 @@ export default function InvoicesPage() {
                     inv={inv}
                     onEdit={openEdit}
                     onDelete={(id) => setDeleteId(id)}
+                    onMarkPaid={handleMarkPaid}
                   />
                 ))
               )}
@@ -376,8 +405,9 @@ export default function InvoicesPage() {
                   ) : (
                     filtered.map((inv) => {
                       const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii);
+                      const overdue = isOverdue(inv);
                       return (
-                        <TableRow key={inv.id}>
+                        <TableRow key={inv.id} className={overdue ? "bg-red-500/10 hover:bg-red-500/20" : ""}>"
                           <TableCell className="font-medium">{inv.nr}</TableCell>
                           <TableCell>
                             <Badge
@@ -388,7 +418,9 @@ export default function InvoicesPage() {
                             </Badge>
                           </TableCell>
                           <TableCell>{inv.data}</TableCell>
-                          <TableCell>{inv.scadenta}</TableCell>
+                          <TableCell className={overdue ? "text-red-400 font-semibold" : ""}>
+                            {inv.scadenta}
+                          </TableCell>
                           <TableCell>{inv.clientFurnizor}</TableCell>
                           <TableCell className="text-right">{formatCurrency(totalFaraTVA)}</TableCell>
                           <TableCell className="text-right">{formatCurrency(tva)}</TableCell>
@@ -400,6 +432,17 @@ export default function InvoicesPage() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
+                              {(inv.status === "neplatită" || inv.status === "parțial") && (
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  className="text-green-400 hover:text-green-300"
+                                  title="Mark as Paid"
+                                  onClick={() => handleMarkPaid(inv.id)}
+                                >
+                                  <CheckCircle className="w-4 h-4" />
+                                </Button>
+                              )}
                               <Button size="icon" variant="ghost" onClick={() => openEdit(inv)}>
                                 <Pencil className="w-4 h-4" />
                               </Button>
