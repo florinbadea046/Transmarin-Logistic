@@ -1,3 +1,8 @@
+// ──────────────────────────────────────────────────────────
+// Transport → Sub-pagină: Tabel Curse (Trips)
+// A6 + A7 + A8 + A13 — Implementat conform cerinței
+// ──────────────────────────────────────────────────────────
+
 import * as React from "react";
 import {
   type ColumnDef,
@@ -16,6 +21,10 @@ import {
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { PlusCircle, Play, CheckCircle } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import Papa from "papaparse";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
@@ -30,6 +39,13 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -67,6 +83,8 @@ import {
 } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 
+// ── Hook responsive ────────────────────────────────────────
+
 function useWindowWidth() {
   const [width, setWidth] = React.useState(
     typeof window !== "undefined" ? window.innerWidth : 1024,
@@ -78,6 +96,8 @@ function useWindowWidth() {
   }, []);
   return width;
 }
+
+// ── Status meta ────────────────────────────────────────────
 
 const statusMeta: Record<
   Trip["status"],
@@ -95,6 +115,88 @@ const statusFilterOptions = (Object.keys(statusMeta) as Trip["status"][]).map(
   (value) => ({ value, label: statusMeta[value].label }),
 );
 
+// ── Export ─────────────────────────────────────────────────
+
+const EXPORT_COLS = [
+  { key: "orderId", label: "Comandă" },
+  { key: "driverId", label: "Șofer" },
+  { key: "truckId", label: "Camion" },
+  { key: "date", label: "Dată" },
+  { key: "kmLoaded", label: "Km încărcat" },
+  { key: "kmEmpty", label: "Km gol" },
+  { key: "fuelCost", label: "Cost combustibil (RON)" },
+  { key: "status", label: "Status" },
+];
+
+function toRows(trips: Trip[]) {
+  return trips.map((t) =>
+    Object.fromEntries(
+      EXPORT_COLS.map((c) => [c.label, (t as any)[c.key] ?? ""]),
+    ),
+  );
+}
+
+function exportPDF(trips: Trip[]) {
+  const doc = new jsPDF();
+  doc.setFontSize(14);
+  doc.text("Curse", 14, 16);
+  autoTable(doc, {
+    head: [EXPORT_COLS.map((c) => c.label)],
+    body: trips.map((t) =>
+      EXPORT_COLS.map((c) => String((t as any)[c.key] ?? "")),
+    ),
+    startY: 22,
+    styles: { fontSize: 8 },
+    headStyles: { fillColor: [30, 30, 30] },
+  });
+  doc.save("curse.pdf");
+}
+
+function exportExcel(trips: Trip[]) {
+  const ws = XLSX.utils.json_to_sheet(toRows(trips));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Curse");
+  XLSX.writeFile(wb, "curse.xlsx");
+}
+
+function exportCSV(trips: Trip[]) {
+  const csv = Papa.unparse(toRows(trips));
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "curse.csv";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function ExportMenu({ trips }: { trips: Trip[] }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm">
+          Export
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem className="cursor-pointer" onClick={() => exportPDF(trips)}>
+          Export PDF
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer" onClick={() => exportExcel(trips)}>
+          Export Excel
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer" onClick={() => exportCSV(trips)}>
+          Export CSV
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+// ── Schema formular ────────────────────────────────────────
+
 type TripFormValues = {
   orderId: string;
   driverId: string;
@@ -105,6 +207,8 @@ type TripFormValues = {
   fuelCost: number;
   status: "planned" | "active" | "completed";
 };
+
+// ── Coloane tabel ──────────────────────────────────────────
 
 function buildColumns(
   orders: Order[],
@@ -273,6 +377,8 @@ function buildColumns(
   ];
 }
 
+// ── Componenta principală ──────────────────────────────────
+
 export default function TripsPage() {
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth < 768;
@@ -422,11 +528,14 @@ export default function TripsPage() {
         <Card className="overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between gap-2">
             <CardTitle className="text-base md:text-lg">Tabel Curse</CardTitle>
-            <Button onClick={() => setDialogOpen(true)} size="sm">
-              <PlusCircle className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Cursă nouă</span>
-              <span className="sm:hidden">Nou</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <ExportMenu trips={data} />
+              <Button onClick={() => setDialogOpen(true)} size="sm">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Cursă nouă</span>
+                <span className="sm:hidden">Nou</span>
+              </Button>
+            </div>
           </CardHeader>
 
           <CardContent className="space-y-4">
@@ -467,7 +576,6 @@ export default function TripsPage() {
                             {order.origin} → {order.destination}
                           </div>
                         )}
-                        {/* ✅ Fix mobile: flex-col în loc de grid-cols-2 */}
                         <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                           <span>Șofer: <span className="text-foreground">{driver?.name ?? "—"}</span></span>
                           <span>Data: <span className="text-foreground">{trip.date}</span></span>
