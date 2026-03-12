@@ -32,6 +32,7 @@ export interface Driver {
   phone: string;
   licenseExpiry: string;
   status: "available" | "on_trip" | "off_duty";
+  truckId?: string; // optional — camionul asociat șoferului
 }
 
 export interface Truck {
