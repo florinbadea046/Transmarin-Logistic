@@ -2,6 +2,7 @@ import * as React from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -15,11 +16,12 @@ import { generateId } from "@/utils/local-storage";
 import type { EmployeeDocument } from "@/modules/hr/types";
 
 const TYPE_LABELS: Record<EmployeeDocument["type"], string> = {
-  license: "Permis",
+  contract: "Contract",
+  license: "Permis conducere",
+  medical: "Aviz medical",
+  certificate: "Certificat",
   tachograph: "Tahograf",
   adr: "ADR",
-  medical: "Medical",
-  contract: "Contract",
   other: "Altele",
 };
 
@@ -47,7 +49,10 @@ function getExpiryBadge(expiryDate?: string) {
 const emptyDocForm = {
   type: "" as EmployeeDocument["type"] | "",
   name: "",
+  documentNumber: "",
+  issueDate: "",
   expiryDate: "",
+  notes: "",
 };
 
 interface Props {
@@ -59,18 +64,28 @@ export function DocumentsTab({ documents, onChange }: Props) {
   const [showDocForm, setShowDocForm] = React.useState(false);
   const [editingDocId, setEditingDocId] = React.useState<string | null>(null);
   const [docForm, setDocForm] = React.useState(emptyDocForm);
+  const [issueDate, setIssueDate] = React.useState<Date | undefined>(undefined);
   const [docDate, setDocDate] = React.useState<Date | undefined>(undefined);
 
   const handleDocAdd = () => {
     setEditingDocId(null);
     setDocForm(emptyDocForm);
+    setIssueDate(undefined);
     setDocDate(undefined);
     setShowDocForm(true);
   };
 
   const handleDocEdit = (doc: EmployeeDocument) => {
     setEditingDocId(doc.id);
-    setDocForm({ type: doc.type, name: doc.name, expiryDate: doc.expiryDate ?? "" });
+    setDocForm({
+      type: doc.type,
+      name: doc.name,
+      documentNumber: doc.documentNumber ?? "",
+      issueDate: doc.issueDate ?? "",
+      expiryDate: doc.expiryDate ?? "",
+      notes: doc.notes ?? "",
+    });
+    setIssueDate(doc.issueDate ? new Date(doc.issueDate) : undefined);
     setDocDate(doc.expiryDate ? new Date(doc.expiryDate) : undefined);
     setShowDocForm(true);
   };
@@ -80,7 +95,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
   };
 
   const handleDocSave = () => {
-    if (!docForm.type || !docForm.name.trim()) return;
+    if (!docForm.type) return;
     let updated: EmployeeDocument[];
     if (editingDocId) {
       updated = documents.map((d) =>
@@ -89,7 +104,10 @@ export function DocumentsTab({ documents, onChange }: Props) {
               ...d,
               type: docForm.type as EmployeeDocument["type"],
               name: docForm.name.trim(),
+              documentNumber: docForm.documentNumber?.trim() || undefined,
+              issueDate: docForm.issueDate || undefined,
               expiryDate: docForm.expiryDate || undefined,
+              notes: docForm.notes?.trim() || undefined,
             }
           : d,
       );
@@ -100,7 +118,10 @@ export function DocumentsTab({ documents, onChange }: Props) {
           id: generateId(),
           type: docForm.type as EmployeeDocument["type"],
           name: docForm.name.trim(),
+          documentNumber: docForm.documentNumber?.trim() || undefined,
+          issueDate: docForm.issueDate || undefined,
           expiryDate: docForm.expiryDate || undefined,
+          notes: docForm.notes?.trim() || undefined,
         },
       ];
     }
@@ -108,6 +129,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
     setShowDocForm(false);
     setEditingDocId(null);
     setDocForm(emptyDocForm);
+    setIssueDate(undefined);
     setDocDate(undefined);
   };
 
@@ -115,6 +137,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
     setShowDocForm(false);
     setEditingDocId(null);
     setDocForm(emptyDocForm);
+    setIssueDate(undefined);
     setDocDate(undefined);
   };
 
@@ -123,39 +146,46 @@ export function DocumentsTab({ documents, onChange }: Props) {
       {documents.length === 0 && !showDocForm ? (
         <p className="text-xs text-muted-foreground py-1">Niciun document adăugat.</p>
       ) : (
-        <div className="space-y-1.5 max-h-[260px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+        <div className="space-y-1.5 max-h-[160px] sm:max-h-[175px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
           {documents.map((doc) => (
             <div
               key={doc.id}
-              className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded border px-2 py-1.5"
+              className="rounded border px-2 py-1.5 space-y-0.5"
             >
-              <Badge variant="secondary" className="shrink-0 text-xs">
-                {TYPE_LABELS[doc.type]}
-              </Badge>
-              <span className="flex-1 min-w-0 text-xs truncate">{doc.name}</span>
-              <span className="text-xs text-muted-foreground shrink-0">
-                {doc.expiryDate ?? "—"}
-              </span>
-              {getExpiryBadge(doc.expiryDate)}
-              <div className="flex gap-1 ml-auto shrink-0">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => handleDocEdit(doc)}
-                >
-                  <Pencil className="h-3 w-3" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6 text-destructive hover:text-destructive"
-                  onClick={() => handleDocDelete(doc.id)}
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                <Badge variant="secondary" className="shrink-0 text-xs">
+                  {TYPE_LABELS[doc.type]}
+                </Badge>
+                <span className="flex-1 min-w-0 text-xs truncate">{doc.name || doc.documentNumber || "—"}</span>
+                {getExpiryBadge(doc.expiryDate)}
+                <div className="flex gap-1 ml-auto shrink-0">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    aria-label="Editează document"
+                    onClick={() => handleDocEdit(doc)}
+                  >
+                    <Pencil className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 text-destructive hover:text-destructive"
+                    aria-label="Șterge document"
+                    onClick={() => handleDocDelete(doc.id)}
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-x-3 gap-y-0 text-xs text-muted-foreground">
+                {doc.documentNumber && <span>Nr: {doc.documentNumber}</span>}
+                {doc.issueDate && <span>Emis: {doc.issueDate}</span>}
+                {doc.expiryDate && <span>Expiră: {doc.expiryDate}</span>}
+                {doc.notes && <span className="italic">{doc.notes}</span>}
               </div>
             </div>
           ))}
@@ -183,9 +213,25 @@ export function DocumentsTab({ documents, onChange }: Props) {
             </SelectContent>
           </Select>
           <Input
-            placeholder="Nume document"
+            placeholder="Nr. document"
+            value={docForm.documentNumber}
+            onChange={(e) => setDocForm((f) => ({ ...f, documentNumber: e.target.value }))}
+          />
+          <Input
+            placeholder="Denumire (opțional)"
             value={docForm.name}
             onChange={(e) => setDocForm((f) => ({ ...f, name: e.target.value }))}
+          />
+          <ExpiryDatePicker
+            selected={issueDate}
+            onSelect={(date) => {
+              setIssueDate(date);
+              setDocForm((f) => ({
+                ...f,
+                issueDate: date ? date.toISOString().slice(0, 10) : "",
+              }));
+            }}
+            placeholder="Data emitere"
           />
           <ExpiryDatePicker
             selected={docDate}
@@ -198,6 +244,12 @@ export function DocumentsTab({ documents, onChange }: Props) {
             }}
             placeholder="Data expirare"
           />
+          <Textarea
+            placeholder="Notițe (opțional)"
+            value={docForm.notes}
+            rows={2}
+            onChange={(e) => setDocForm((f) => ({ ...f, notes: e.target.value }))}
+          />
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" size="sm" onClick={handleDocCancel}>
               Renunță
@@ -205,7 +257,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
             <Button
               type="button"
               size="sm"
-              disabled={!docForm.type || !docForm.name.trim()}
+              disabled={!docForm.type}
               onClick={handleDocSave}
             >
               {editingDocId ? "Actualizează document" : "Adaugă document"}

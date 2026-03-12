@@ -1,7 +1,7 @@
 import * as React from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { flexRender, type Row, type Cell } from "@tanstack/react-table";
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import EmployeeDialog from "./employee-dialog";
 import ConfirmDeleteDialog from "./confirm-delete-dialog";
+import { EmployeeDocumentsDialog } from "./employee-documents-dialog";
 import { getCollection, updateItem, removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
@@ -27,6 +28,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
   const employee = row.original;
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [docsOpen, setDocsOpen] = React.useState(false);
 
   const handleDeleteClick = () => {
     const trips = getCollection<Trip>(STORAGE_KEYS.trips);
@@ -79,6 +81,13 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
                   <Pencil className="mr-2 h-4 w-4" />
                   Editează
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setDocsOpen(true)}
+                >
+                  <FileText className="mr-2 h-4 w-4" />
+                  Documente
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-destructive focus:text-destructive"
@@ -112,6 +121,12 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
           toast.success("Angajat actualizat cu succes");
         }}
 
+      />
+      <EmployeeDocumentsDialog
+        employee={employee}
+        open={docsOpen}
+        onOpenChange={setDocsOpen}
+        onUpdate={(updated) => setData(getCollection<Employee>(STORAGE_KEYS.employees).map(e => e.id === updated.id ? updated : e))}
       />
       <ConfirmDeleteDialog
         employeeName={employee.name}
