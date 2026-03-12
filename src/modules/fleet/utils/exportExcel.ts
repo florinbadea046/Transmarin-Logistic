@@ -9,18 +9,19 @@ export function exportPartsToExcel(parts: Part[]): void {
     "Preț unitar (RON)": p.unitPrice,
     Cantitate: p.quantity,
     "Stoc minim": p.minStock,
-    "Status stoc": p.quantity <= p.minStock ? "Stoc scăzut" : "OK",
+    "Status stoc": p.quantity < p.minStock ? "Stoc scăzut" : "OK",
   }));
 
   const ws = XLSX.utils.json_to_sheet(data);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Inventar Piese");
 
-  // Lățime coloane
-  ws["!cols"] = [
-    { wch: 25 }, { wch: 15 }, { wch: 20 },
-    { wch: 18 }, { wch: 12 }, { wch: 12 }, { wch: 14 },
-  ];
-
+  const colWidths = Object.keys(data[0] || {}).map((key) => ({
+    wch: Math.max(
+      key.length,
+      ...data.map((row) => String(row[key as keyof typeof row] ?? "").length)
+    ) + 2,
+  }));
+  ws["!cols"] = colWidths;
   XLSX.writeFile(wb, `inventar-piese-${new Date().toISOString().split("T")[0]}.xlsx`);
 }

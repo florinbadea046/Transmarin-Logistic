@@ -2,6 +2,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { ServiceRecord } from "@/modules/fleet/types";
 import { Truck } from "@/modules/transport/types";
+import { TYPE_LABELS } from "@/modules/fleet/utils/serviceUtils";
+
 
 export interface ServiceExportFilters {
   truckId?: string;
@@ -14,13 +16,6 @@ export function exportServiceToPDF(
   trucks: Truck[],
   filters?: ServiceExportFilters
 ): void {
-  const TYPE_LABELS: Record<ServiceRecord["type"], string> = {
-    revision: "Revizie",
-    repair: "Reparație",
-    itp: "ITP",
-    other: "Altele",
-  };
-
   const getTruckLabel = (id: string) => {
     const t = trucks.find((t) => t.id === id);
     return t ? `${t.plateNumber} — ${t.brand} ${t.model}` : id;

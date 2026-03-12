@@ -66,6 +66,7 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(createEmptyForm());
 
+  // filtre export
   const [filterTruckId, setFilterTruckId] = useState("all");
   const [filterFrom, setFilterFrom] = useState("");
   const [filterTo, setFilterTo] = useState("");
@@ -75,7 +76,7 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
   }, []);
 
   const persist = (data: ServiceRecord[]) => {
-    onRecordsChange(data);
+    setRecords(data);
     localStorage.setItem(STORAGE_KEYS.serviceRecords, JSON.stringify(data));
   };
 
@@ -152,12 +153,14 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
           value={filterFrom}
           onChange={(e) => setFilterFrom(e.target.value)}
           className="w-36"
+          placeholder="De la"
         />
         <Input
           type="date"
           value={filterTo}
           onChange={(e) => setFilterTo(e.target.value)}
           className="w-36"
+          placeholder="Până la"
         />
 
         <Button

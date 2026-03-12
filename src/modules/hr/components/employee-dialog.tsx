@@ -7,11 +7,10 @@ import {
   DialogTitle,
   DialogClose,
 } from "@/components/ui/dialog";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { Employee, EmployeeDocument } from "@/modules/hr/types";
+import type { Employee } from "@/modules/hr/types";
 import { addItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import {
@@ -19,7 +18,6 @@ import {
   employeeSchema,
   type EmployeeFormValues,
 } from "./employee-form-fields";
-import { DocumentsTab } from "./documents-tab";
 
 type Props =
   | { mode: "add"; onAdd: () => void }
@@ -59,14 +57,6 @@ export default function EmployeeDialog(props: Props) {
     },
   });
 
-  const [documents, setDocuments] = React.useState<EmployeeDocument[]>(
-    employee?.documents ?? [],
-  );
-
-  React.useEffect(() => {
-    if (open && isEdit) setDocuments(employee!.documents ?? []);
-  }, [open, employee, isEdit]);
-
   const handleOpenChange = (val: boolean) => {
     setOpen(val);
     if (!val && !isEdit) {
@@ -77,7 +67,7 @@ export default function EmployeeDialog(props: Props) {
 
   const handleSubmit = (values: EmployeeFormValues) => {
     if (props.mode === "edit") {
-      props.onEdit({ ...props.employee, ...values, documents });
+      props.onEdit({ ...props.employee, ...values });
     } else {
       addItem<Employee>(STORAGE_KEYS.employees, {
         ...values,
@@ -111,41 +101,13 @@ export default function EmployeeDialog(props: Props) {
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
-          {isEdit ? (
-            <Tabs defaultValue="personal" className="space-y-3">
-              <TabsList className="w-full">
-                <TabsTrigger value="personal" className="flex-1">
-                  Date personale
-                </TabsTrigger>
-                <TabsTrigger value="documents" className="flex-1">
-                  Documente
-                  {documents.length > 0 && (
-                    <span className="ml-1.5 rounded-full bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">
-                      {documents.length}
-                    </span>
-                  )}
-                </TabsTrigger>
-              </TabsList>
-              <TabsContent value="personal" className="space-y-3 mt-0 min-h-[340px]">
-                <EmployeeFormFields
-                  form={form}
-                  selectedDate={selectedDate}
-                  onDateSelect={setSelectedDate}
-                />
-              </TabsContent>
-              <TabsContent value="documents" className="space-y-2 mt-0 min-h-[340px]">
-                <DocumentsTab documents={documents} onChange={setDocuments} />
-              </TabsContent>
-            </Tabs>
-          ) : (
-            <div className="space-y-3">
-              <EmployeeFormFields
-                form={form}
-                selectedDate={selectedDate}
-                onDateSelect={setSelectedDate}
-              />
-            </div>
-          )}
+          <div className="space-y-3">
+            <EmployeeFormFields
+              form={form}
+              selectedDate={selectedDate}
+              onDateSelect={setSelectedDate}
+            />
+          </div>
           <div className="flex gap-2 justify-end pt-4">
             <DialogClose asChild>
               <Button type="button" variant="outline">
