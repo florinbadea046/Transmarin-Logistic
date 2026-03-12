@@ -47,11 +47,16 @@ import { getCollection } from "@/utils/local-storage";
 
 import type { Part } from "@/modules/fleet/types";
 import { AllocatePart } from "@/modules/fleet/components/AllocatePart";
+<<<<<<< HEAD
 import {
   savePart,
   deletePart,
   isLowStock, // Presupunem că funcția isLowStock este definită corect aici
 } from "@/modules/fleet/utils/partsUtils";
+=======
+import { savePart, deletePart, isLowStock } from "@/modules/fleet/utils/partsUtils";
+import { exportPartsToExcel } from "@/modules/fleet/utils/exportExcel";
+>>>>>>> e3bd55aec69a5de90eda6c0ffa83b9e6d2a74ef7
 
 const emptyForm: Omit<Part, "id"> = {
   name: "",
@@ -108,9 +113,20 @@ export function PartsCRUD() {
     setOpen(false);
   };
 
+<<<<<<< HEAD
   const handleDelete = (id: string) => {
     save(deletePart(parts, id));
   };
+=======
+    return (
+        <div>
+            <div className="flex justify-start gap-2 mb-4 px-6">
+                <Button onClick={() => handleOpen()}>+ Adaugă piesă</Button>
+                <Button variant="outline" onClick={() => exportPartsToExcel(parts)}>
+                    ⬇ Export Excel
+                </Button>
+            </div>
+>>>>>>> e3bd55aec69a5de90eda6c0ffa83b9e6d2a74ef7
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
