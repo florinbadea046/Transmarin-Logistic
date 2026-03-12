@@ -126,7 +126,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
         employee={employee}
         open={docsOpen}
         onOpenChange={setDocsOpen}
-        onUpdate={(updated) => setData(getCollection<Employee>(STORAGE_KEYS.employees).map(e => e.id === updated.id ? updated : e))}
+        onUpdate={(updated) => setData((prev) => prev.map((e) => e.id === updated.id ? updated : e))}
       />
       <ConfirmDeleteDialog
         employeeName={employee.name}

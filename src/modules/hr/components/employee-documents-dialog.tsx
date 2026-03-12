@@ -28,10 +28,7 @@ export function EmployeeDocumentsDialog({
       (e) => e.id === employee.id,
       (e) => ({ ...e, documents: docs }),
     );
-    const updated = getCollection<Employee>(STORAGE_KEYS.employees).find(
-      (e) => e.id === employee.id,
-    )!;
-    onUpdate(updated);
+    onUpdate({ ...employee, documents: docs });
   };
 
   return (

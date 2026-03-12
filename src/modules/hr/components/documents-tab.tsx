@@ -95,7 +95,10 @@ export function DocumentsTab({ documents, onChange }: Props) {
   };
 
   const handleDocSave = () => {
-    if (!docForm.type) return;
+    const hasIdentifier =
+      (docForm.name && docForm.name.trim().length > 0) ||
+      (docForm.documentNumber && docForm.documentNumber.trim().length > 0);
+    if (!docForm.type || !hasIdentifier) return;
     let updated: EmployeeDocument[];
     if (editingDocId) {
       updated = documents.map((d) =>
@@ -257,7 +260,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
             <Button
               type="button"
               size="sm"
-              disabled={!docForm.type}
+              disabled={!docForm.type || (!docForm.name?.trim() && !docForm.documentNumber?.trim())}
               onClick={handleDocSave}
             >
               {editingDocId ? "Actualizează document" : "Adaugă document"}
