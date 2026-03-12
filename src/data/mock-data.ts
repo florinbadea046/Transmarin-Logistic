@@ -1129,7 +1129,9 @@ const seedBonuses: Bonus[] = [
     amount: 350,
     date: "2026-02-14",
     description: "Bonus activitate",
-    
+  },
+];
+
 const seedTrips: Trip[] = [
   {
     id: "tr1",
@@ -1145,18 +1147,6 @@ const seedTrips: Trip[] = [
 ];
 
 
-const seedLeaveRequests: LeaveRequest[] = [
-  {
-    id: "lr1",
-    employeeId: "e4",
-    type: "annual",
-    startDate: "2026-03-20",
-    endDate: "2026-03-28",
-    days: 9,
-    status: "approved",
-    reason: "Concediu anual",
-  },
-];
 
 /**
  * Încarcă datele seed în localStorage (doar dacă cheile nu există deja).
