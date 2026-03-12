@@ -47,16 +47,8 @@ import { getCollection } from "@/utils/local-storage";
 
 import type { Part } from "@/modules/fleet/types";
 import { AllocatePart } from "@/modules/fleet/components/AllocatePart";
-<<<<<<< HEAD
-import {
-  savePart,
-  deletePart,
-  isLowStock, // Presupunem că funcția isLowStock este definită corect aici
-} from "@/modules/fleet/utils/partsUtils";
-=======
 import { savePart, deletePart, isLowStock } from "@/modules/fleet/utils/partsUtils";
 import { exportPartsToExcel } from "@/modules/fleet/utils/exportExcel";
->>>>>>> e3bd55aec69a5de90eda6c0ffa83b9e6d2a74ef7
 
 const emptyForm: Omit<Part, "id"> = {
   name: "",
@@ -70,18 +62,16 @@ const emptyForm: Omit<Part, "id"> = {
 
 export function PartsCRUD() {
   const [parts, setParts] = useState<Part[]>([]);
-  const [open, setOpen] = useState(false); // Stare pentru deschiderea/închiderea modalului
-  const [editingPart, setEditingPart] = useState<Part | null>(null); // Piesa curentă editată
-  const [form, setForm] = useState<Omit<Part, "id">>(emptyForm); // Starea formularului
+  const [open, setOpen] = useState(false);
+  const [editingPart, setEditingPart] = useState<Part | null>(null);
+  const [form, setForm] = useState<Omit<Part, "id">>(emptyForm);
 
-  // State-uri pentru filtrare - vor fi null pentru "Toate" (adică nicio selecție)
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
   const [stockFilter, setStockFilter] = useState<
     "in_stock" | "low_stock" | "out_of_stock" | null
   >(null);
   const [searchText, setSearchText] = useState("");
 
-  // Starea pentru paginare
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -99,7 +89,7 @@ export function PartsCRUD() {
   const handleOpen = (part?: Part) => {
     if (part) {
       setEditingPart(part);
-      const { id, ...rest } = part; // Excludem ID-ul din formă
+      const { id, ...rest } = part;
       setForm(rest);
     } else {
       setEditingPart(null);
@@ -113,26 +103,15 @@ export function PartsCRUD() {
     setOpen(false);
   };
 
-<<<<<<< HEAD
   const handleDelete = (id: string) => {
     save(deletePart(parts, id));
   };
-=======
-    return (
-        <div>
-            <div className="flex justify-start gap-2 mb-4 px-6">
-                <Button onClick={() => handleOpen()}>+ Adaugă piesă</Button>
-                <Button variant="outline" onClick={() => exportPartsToExcel(parts)}>
-                    ⬇ Export Excel
-                </Button>
-            </div>
->>>>>>> e3bd55aec69a5de90eda6c0ffa83b9e6d2a74ef7
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({
       ...prev,
-      [name]: ["quantity", "unitPrice", "minStock"].includes(name) // Convertește la număr pentru câmpurile numerice
+      [name]: ["quantity", "unitPrice", "minStock"].includes(name)
         ? Number(value)
         : value,
     }));
@@ -160,7 +139,7 @@ export function PartsCRUD() {
       }
       return true;
     });
-  }, [parts, searchText, categoryFilter, stockFilter]); // Dependențe pentru useMemo
+  }, [parts, searchText, categoryFilter, stockFilter]);
 
   const columns: ColumnDef<Part>[] = [
     {
@@ -255,9 +234,12 @@ export function PartsCRUD() {
 
   return (
     <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
-      {/* Butonul de adăugare piesă */}
-      <div className="flex justify-start mb-4">
+      {/* Butoane adăugare și export */}
+      <div className="flex justify-start gap-2 mb-4">
         <Button onClick={() => handleOpen()}>+ Adaugă piesă</Button>
+        <Button variant="outline" onClick={() => exportPartsToExcel(parts)}>
+          ⬇ Export Excel
+        </Button>
       </div>
 
       {/* Filtre */}
@@ -274,8 +256,7 @@ export function PartsCRUD() {
         <div>
           <Label htmlFor="category-filter">Categorie</Label>
           <Select
-            // Valoarea "all_categories" va fi mapată la null în onValueChange
-            value={categoryFilter ?? "__ALL_CATEGORIES__"} // Folosim o valoare sentinelă non-vidă
+            value={categoryFilter ?? "__ALL_CATEGORIES__"}
             onValueChange={(v: string) =>
               setCategoryFilter(v === "__ALL_CATEGORIES__" ? null : v)
             }
@@ -284,9 +265,7 @@ export function PartsCRUD() {
               <SelectValue placeholder="Toate categoriile" />
             </SelectTrigger>
             <SelectContent>
-              {/* SelectItem pentru "Toate" cu valoare non-vidă */}
-              <SelectItem value="__ALL_CATEGORIES__">Toate</SelectItem>{" "}
-              {/* <-- Valoare non-vidă */}
+              <SelectItem value="__ALL_CATEGORIES__">Toate</SelectItem>
               {categories.map((c) => (
                 <SelectItem key={c} value={c}>
                   {c}
@@ -298,22 +277,20 @@ export function PartsCRUD() {
         <div>
           <Label htmlFor="stock-filter">Stoc</Label>
           <Select
-            value={stockFilter ?? "__ALL_STOCK_STATUSES__"} // Folosim o valoare sentinelă non-vidă
+            value={stockFilter ?? "__ALL_STOCK_STATUSES__"}
             onValueChange={(
               v:
                 | "in_stock"
                 | "low_stock"
                 | "out_of_stock"
-                | "__ALL_STOCK_STATUSES__", // Tipul parametrului include sentinela
+                | "__ALL_STOCK_STATUSES__",
             ) => setStockFilter(v === "__ALL_STOCK_STATUSES__" ? null : v)}
           >
             <SelectTrigger id="stock-filter" className="w-[180px]">
               <SelectValue placeholder="Toate statusurile" />
             </SelectTrigger>
             <SelectContent>
-              {/* SelectItem pentru "Toate" cu valoare non-vidă */}
-              <SelectItem value="__ALL_STOCK_STATUSES__">Toate</SelectItem>{" "}
-              {/* <-- Valoare non-vidă */}
+              <SelectItem value="__ALL_STOCK_STATUSES__">Toate</SelectItem>
               <SelectItem value="in_stock">În stoc</SelectItem>
               <SelectItem value="low_stock">Stoc scăzut</SelectItem>
               <SelectItem value="out_of_stock">Stoc epuizat</SelectItem>
@@ -353,7 +330,7 @@ export function PartsCRUD() {
         </Table>
       </div>
 
-      {/* Paginare și selectare număr de rânduri pe pagină */}
+      {/* Paginare */}
       <div className="flex items-center justify-between py-2">
         <DataTablePagination table={table} />
         <div className="flex items-center space-x-2">
@@ -374,7 +351,7 @@ export function PartsCRUD() {
         </div>
       </div>
 
-      {/* Modal pentru adăugare/editare piesă */}
+      {/* Modal adăugare/editare */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>

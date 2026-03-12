@@ -4,6 +4,7 @@
 // ──────────────────────────────────────────────────────────
 
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
@@ -17,6 +18,7 @@ import { DriversSection } from "./_components/drivers-section";
 import { TrucksSection } from "./_components/trucks-section";
 
 export default function DriversPage() {
+  const { t } = useTranslation();
   const [drivers, setDrivers] = React.useState<Driver[]>([]);
   const [trucks, setTrucks] = React.useState<Truck[]>([]);
 
@@ -38,7 +40,7 @@ export default function DriversPage() {
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold">Șoferi & Camioane</h1>
+        <h1 className="text-lg font-semibold">{t("driversPage.title")}</h1>
       </Header>
 
       <Main>

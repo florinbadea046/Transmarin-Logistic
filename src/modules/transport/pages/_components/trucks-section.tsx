@@ -20,6 +20,7 @@ import {
 } from "@tanstack/react-table";
 import { Link, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -62,22 +63,6 @@ import { CardRow, EntityTable, ExpiryCell } from "./transport-shared";
 
 // ── Constante ──────────────────────────────────────────────
 
-const TRUCK_STATUS_LABELS: Record<Truck["status"], string> = {
-  available: "Disponibil",
-  on_trip: "În cursă",
-  in_service: "În service",
-};
-
-const TRUCK_STATUS_CLASS: Record<Truck["status"], string> = {
-  available: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200",
-  on_trip: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200",
-  in_service: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200",
-};
-
-const statusFilterOptions = (Object.keys(TRUCK_STATUS_LABELS) as Truck["status"][]).map(
-  (value) => ({ value, label: TRUCK_STATUS_LABELS[value] }),
-);
-
 // Regex număr înmatriculare: XX-NN-XXX (ex. CT-01-TML)
 const PLATE_REGEX = /^[A-Z]{1,2}-\d{2,3}-[A-Z]{2,3}$/;
 
@@ -104,29 +89,6 @@ interface TruckFormErrors {
   itpExpiry?: string;
   rcaExpiry?: string;
   vignetteExpiry?: string;
-}
-
-function validateTruckForm(data: TruckFormData): TruckFormErrors {
-  const errors: TruckFormErrors = {};
-  if (!data.plateNumber || !PLATE_REGEX.test(data.plateNumber.trim().toUpperCase()))
-    errors.plateNumber = "Format invalid. Exemplu: CT-01-TML";
-  if (!data.brand || data.brand.trim().length < 2)
-    errors.brand = "Marca trebuie să aibă minim 2 caractere.";
-  if (!data.model || data.model.trim().length < 1)
-    errors.model = "Modelul este obligatoriu.";
-  const year = Number(data.year);
-  if (!data.year || isNaN(year) || year < 1990 || year > new Date().getFullYear())
-    errors.year = `Anul trebuie să fie între 1990 și ${new Date().getFullYear()}.`;
-  const mileage = Number(data.mileage);
-  if (!data.mileage || isNaN(mileage) || mileage < 0)
-    errors.mileage = "Kilometrajul trebuie să fie un număr pozitiv.";
-  if (!data.itpExpiry)
-    errors.itpExpiry = "Data expirării ITP este obligatorie.";
-  if (!data.rcaExpiry)
-    errors.rcaExpiry = "Data expirării RCA este obligatorie.";
-  if (!data.vignetteExpiry)
-    errors.vignetteExpiry = "Data expirării vignetei este obligatorie.";
-  return errors;
 }
 
 const EMPTY_FORM: TruckFormData = {
@@ -156,6 +118,14 @@ function TruckMobileCard({
   onDelete: () => void;
   onAssign: () => void;
 }) {
+  const { t } = useTranslation();
+
+  const TRUCK_STATUS_CLASS: Record<Truck["status"], string> = {
+    available: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200",
+    on_trip: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200",
+    in_service: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200",
+  };
+
   return (
     <div className="rounded-lg border bg-card p-4 shadow-sm space-y-3">
       <div className="flex items-start justify-between gap-2">
@@ -166,17 +136,17 @@ function TruckMobileCard({
           </p>
         </div>
         <div className="flex shrink-0 gap-1">
-          <Button variant="ghost" size="icon" onClick={onAssign} aria-label="Asociere șofer">
+          <Button variant="ghost" size="icon" onClick={onAssign} aria-label={t("trucks.actions.assign")}>
             <Link className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Editează camion">
+          <Button variant="ghost" size="icon" onClick={onEdit} aria-label={t("trucks.actions.edit")}>
             <Pencil className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={onDelete}
-            aria-label="Șterge camion"
+            aria-label={t("trucks.actions.delete")}
             className="text-red-500 hover:text-red-600"
             disabled={truck.status === "on_trip"}
           >
@@ -185,26 +155,26 @@ function TruckMobileCard({
         </div>
       </div>
       <div className="space-y-1.5">
-        <CardRow label="Status">
+        <CardRow label={t("trucks.card.status")}>
           <Badge variant="outline" className={TRUCK_STATUS_CLASS[truck.status]}>
-            {TRUCK_STATUS_LABELS[truck.status]}
+            {t(`trucks.status.${truck.status}`)}
           </Badge>
         </CardRow>
-        <CardRow label="Șofer">
+        <CardRow label={t("trucks.card.driver")}>
           {driver
             ? <span>{driver.name}</span>
             : <span className="text-muted-foreground">—</span>}
         </CardRow>
-        <CardRow label="Km">
+        <CardRow label={t("trucks.card.mileage")}>
           <span>{truck.mileage.toLocaleString("ro-RO")}</span>
         </CardRow>
-        <CardRow label="ITP">
+        <CardRow label={t("trucks.card.itp")}>
           <ExpiryCell dateStr={truck.itpExpiry} />
         </CardRow>
-        <CardRow label="RCA">
+        <CardRow label={t("trucks.card.rca")}>
           <ExpiryCell dateStr={truck.rcaExpiry} />
         </CardRow>
-        <CardRow label="Vignetă">
+        <CardRow label={t("trucks.card.vignette")}>
           <ExpiryCell dateStr={truck.vignetteExpiry} />
         </CardRow>
       </div>
@@ -231,24 +201,26 @@ function TruckDialog({
   onFormChange: (patch: Partial<TruckFormData>) => void;
   onSubmit: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{editingTruck ? "Editează Camion" : "Adaugă Camion"}</DialogTitle>
+          <DialogTitle>
+            {editingTruck ? t("trucks.edit") : t("trucks.add")}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2">
           {/* Număr înmatriculare — full width */}
           <div className="space-y-1 sm:col-span-2">
-            <Label htmlFor="plateNumber">Număr înmatriculare</Label>
+            <Label htmlFor="plateNumber">{t("trucks.fields.plateNumber")}</Label>
             <Input
               id="plateNumber"
-              placeholder="ex. CT-01-TML"
+              placeholder={t("trucks.placeholders.plateNumber")}
               value={form.plateNumber}
-              onChange={(e) =>
-                onFormChange({ plateNumber: e.target.value.toUpperCase() })
-              }
+              onChange={(e) => onFormChange({ plateNumber: e.target.value.toUpperCase() })}
             />
             {errors.plateNumber && (
               <p className="text-xs text-red-500">{errors.plateNumber}</p>
@@ -257,10 +229,10 @@ function TruckDialog({
 
           {/* Marcă */}
           <div className="space-y-1">
-            <Label htmlFor="brand">Marcă</Label>
+            <Label htmlFor="brand">{t("trucks.fields.brand")}</Label>
             <Input
               id="brand"
-              placeholder="ex. Volvo"
+              placeholder={t("trucks.placeholders.brand")}
               value={form.brand}
               onChange={(e) => onFormChange({ brand: e.target.value })}
             />
@@ -271,10 +243,10 @@ function TruckDialog({
 
           {/* Model */}
           <div className="space-y-1">
-            <Label htmlFor="model">Model</Label>
+            <Label htmlFor="model">{t("trucks.fields.model")}</Label>
             <Input
               id="model"
-              placeholder="ex. FH16"
+              placeholder={t("trucks.placeholders.model")}
               value={form.model}
               onChange={(e) => onFormChange({ model: e.target.value })}
             />
@@ -285,11 +257,11 @@ function TruckDialog({
 
           {/* An */}
           <div className="space-y-1">
-            <Label htmlFor="year">An fabricație</Label>
+            <Label htmlFor="year">{t("trucks.fields.year")}</Label>
             <Input
               id="year"
               type="number"
-              placeholder="ex. 2021"
+              placeholder={t("trucks.placeholders.year")}
               value={form.year}
               onChange={(e) => onFormChange({ year: e.target.value })}
             />
@@ -300,11 +272,11 @@ function TruckDialog({
 
           {/* Kilometraj */}
           <div className="space-y-1">
-            <Label htmlFor="mileage">Kilometraj</Label>
+            <Label htmlFor="mileage">{t("trucks.fields.mileage")}</Label>
             <Input
               id="mileage"
               type="number"
-              placeholder="ex. 320000"
+              placeholder={t("trucks.placeholders.mileage")}
               value={form.mileage}
               onChange={(e) => onFormChange({ mileage: e.target.value })}
             />
@@ -315,23 +287,23 @@ function TruckDialog({
 
           {/* Status — full width */}
           <div className="space-y-1 sm:col-span-2">
-            <Label htmlFor="truckStatus">Status</Label>
+            <Label htmlFor="truckStatus">{t("trucks.fields.status")}</Label>
             <Select
               value={form.status}
               onValueChange={(val) => onFormChange({ status: val as Truck["status"] })}
             >
               <SelectTrigger id="truckStatus"><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="available">Disponibil</SelectItem>
-                <SelectItem value="on_trip">În cursă</SelectItem>
-                <SelectItem value="in_service">În service</SelectItem>
+                <SelectItem value="available">{t("trucks.status.available")}</SelectItem>
+                <SelectItem value="on_trip">{t("trucks.status.on_trip")}</SelectItem>
+                <SelectItem value="in_service">{t("trucks.status.in_service")}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* ITP */}
           <div className="space-y-1">
-            <Label htmlFor="itpExpiry">Expirare ITP</Label>
+            <Label htmlFor="itpExpiry">{t("trucks.fields.itpExpiry")}</Label>
             <Input
               id="itpExpiry"
               type="date"
@@ -345,7 +317,7 @@ function TruckDialog({
 
           {/* RCA */}
           <div className="space-y-1">
-            <Label htmlFor="rcaExpiry">Expirare RCA</Label>
+            <Label htmlFor="rcaExpiry">{t("trucks.fields.rcaExpiry")}</Label>
             <Input
               id="rcaExpiry"
               type="date"
@@ -359,7 +331,7 @@ function TruckDialog({
 
           {/* Vignetă — full width */}
           <div className="space-y-1 sm:col-span-2">
-            <Label htmlFor="vignetteExpiry">Expirare Vignetă</Label>
+            <Label htmlFor="vignetteExpiry">{t("trucks.fields.vignetteExpiry")}</Label>
             <Input
               id="vignetteExpiry"
               type="date"
@@ -374,10 +346,10 @@ function TruckDialog({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Anulează
+            {t("trucks.cancel")}
           </Button>
           <Button onClick={onSubmit}>
-            {editingTruck ? "Salvează" : "Adaugă"}
+            {editingTruck ? t("trucks.save") : t("trucks.actions.add")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -404,29 +376,33 @@ function AssignDialog({
   onDriverChange: (id: string) => void;
   onSubmit: () => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Asociere Șofer — {truck?.plateNumber}</DialogTitle>
+          <DialogTitle>
+            {t("trucks.assignTitle", { plateNumber: truck?.plateNumber ?? "" })}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1">
-            <Label htmlFor="assignDriver">Selectează șofer</Label>
+            <Label htmlFor="assignDriver">{t("trucks.assign.selectDriver")}</Label>
             <Select
               value={selectedDriverId || "none"}
               onValueChange={(val) => onDriverChange(val === "none" ? "" : val)}
             >
               <SelectTrigger id="assignDriver">
-                <SelectValue placeholder="Fără șofer" />
+                <SelectValue placeholder={t("trucks.placeholders.selectDriver")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Fără șofer</SelectItem>
+                <SelectItem value="none">{t("trucks.placeholders.noDriver")}</SelectItem>
                 {drivers.map((driver) => (
                   <SelectItem key={driver.id} value={driver.id}>
                     {driver.name}
                     {driver.truckId && driver.truckId !== truck?.id
-                      ? " (are camion)"
+                      ? t("trucks.assign.hasTrack")
                       : ""}
                   </SelectItem>
                 ))}
@@ -436,9 +412,9 @@ function AssignDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Anulează
+            {t("trucks.actions.cancel")}
           </Button>
-          <Button onClick={onSubmit}>Salvează</Button>
+          <Button onClick={onSubmit}>{t("trucks.actions.save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -456,6 +432,18 @@ export function TrucksSection({
   trucks: Truck[];
   onDataChange: () => void;
 }) {
+  const { t } = useTranslation();
+
+  const TRUCK_STATUS_CLASS: Record<Truck["status"], string> = {
+    available: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200",
+    on_trip: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200",
+    in_service: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200",
+  };
+
+  const statusFilterOptions = (["available", "on_trip", "in_service"] as Truck["status"][]).map(
+    (value) => ({ value, label: t(`trucks.status.${value}`) }),
+  );
+
   // Dialog CRUD
   const [truckDialogOpen, setTruckDialogOpen] = useDialogState();
   const [editingTruck, setEditingTruck] = React.useState<Truck | null>(null);
@@ -477,6 +465,32 @@ export function TrucksSection({
     (truck: Truck) => drivers.find((d) => d.truckId === truck.id),
     [drivers],
   );
+
+  // ── Validation ──
+
+  function validateTruckForm(data: TruckFormData): TruckFormErrors {
+    const errs: TruckFormErrors = {};
+    if (!data.plateNumber || !PLATE_REGEX.test(data.plateNumber.trim().toUpperCase()))
+      errs.plateNumber = t("trucks.validation.plateNumberInvalid");
+    if (!data.brand || data.brand.trim().length < 2)
+      errs.brand = t("trucks.validation.brandMin");
+    if (!data.model || data.model.trim().length < 1)
+      errs.model = t("trucks.validation.modelRequired");
+    const year = Number(data.year);
+    const maxYear = new Date().getFullYear();
+    if (!data.year || isNaN(year) || year < 1990 || year > maxYear)
+      errs.year = t("trucks.validation.yearRange", { max: maxYear });
+    const mileage = Number(data.mileage);
+    if (!data.mileage || isNaN(mileage) || mileage < 0)
+      errs.mileage = t("trucks.validation.mileagePositive");
+    if (!data.itpExpiry)
+      errs.itpExpiry = t("trucks.validation.itpExpiryRequired");
+    if (!data.rcaExpiry)
+      errs.rcaExpiry = t("trucks.validation.rcaExpiryRequired");
+    if (!data.vignetteExpiry)
+      errs.vignetteExpiry = t("trucks.validation.vignetteExpiryRequired");
+    return errs;
+  }
 
   // ── Handlers CRUD ──
 
@@ -511,9 +525,9 @@ export function TrucksSection({
     if (editingTruck) {
       updateItem<Truck>(
         STORAGE_KEYS.trucks,
-        (t) => t.id === editingTruck.id,
-        (t) => ({
-          ...t,
+        (truck) => truck.id === editingTruck.id,
+        (truck) => ({
+          ...truck,
           plateNumber: form.plateNumber.trim().toUpperCase(),
           brand: form.brand.trim(),
           model: form.model.trim(),
@@ -525,7 +539,7 @@ export function TrucksSection({
           vignetteExpiry: form.vignetteExpiry,
         }),
       );
-      toast.success("Camionul a fost actualizat.");
+      toast.success(t("trucks.toastUpdated"));
     } else {
       addItem<Truck>(STORAGE_KEYS.trucks, {
         id: generateId(),
@@ -539,7 +553,7 @@ export function TrucksSection({
         rcaExpiry: form.rcaExpiry,
         vignetteExpiry: form.vignetteExpiry,
       });
-      toast.success("Camionul a fost adăugat.");
+      toast.success(t("trucks.toastAdded"));
     }
     setTruckDialogOpen(false);
     onDataChange();
@@ -555,8 +569,8 @@ export function TrucksSection({
       (d) => ({ ...d, truckId: undefined }),
     );
 
-    removeItem<Truck>(STORAGE_KEYS.trucks, (t) => t.id === deleteTruckId);
-    toast.success("Camionul a fost șters.");
+    removeItem<Truck>(STORAGE_KEYS.trucks, (truck) => truck.id === deleteTruckId);
+    toast.success(t("trucks.toastDeleted"));
     setDeleteTruckId(null);
     onDataChange();
   };
@@ -582,9 +596,9 @@ export function TrucksSection({
         (d) => d.id === selectedDriverId,
         (d) => ({ ...d, truckId: assigningTruck.id }),
       );
-      toast.success("Asocierea a fost salvată.");
+      toast.success(t("trucks.toastAssigned"));
     } else {
-      toast.success("Camionul a fost dezasociat.");
+      toast.success(t("trucks.toastUnassigned"));
     }
     setAssignDialogOpen(false);
     onDataChange();
@@ -595,7 +609,7 @@ export function TrucksSection({
   const columns: ColumnDef<Truck>[] = React.useMemo(() => [
     {
       accessorKey: "plateNumber",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Camion" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("trucks.columns.plateNumber")} />,
       cell: ({ row }) => {
         const driver = getDriver(row.original);
         return (
@@ -613,12 +627,12 @@ export function TrucksSection({
     },
     {
       accessorKey: "status",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("trucks.columns.status")} />,
       cell: ({ row }) => {
         const status = row.getValue("status") as Truck["status"];
         return (
           <Badge variant="outline" className={`whitespace-nowrap ${TRUCK_STATUS_CLASS[status]}`}>
-            {TRUCK_STATUS_LABELS[status]}
+            {t(`trucks.status.${status}`)}
           </Badge>
         );
       },
@@ -629,22 +643,22 @@ export function TrucksSection({
     },
     {
       accessorKey: "itpExpiry",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="ITP" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("trucks.columns.itpExpiry")} />,
       cell: ({ row }) => <ExpiryCell dateStr={row.getValue("itpExpiry")} />,
     },
     {
       accessorKey: "rcaExpiry",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="RCA" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("trucks.columns.rcaExpiry")} />,
       cell: ({ row }) => <ExpiryCell dateStr={row.getValue("rcaExpiry")} />,
     },
     {
       accessorKey: "vignetteExpiry",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Vignetă" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("trucks.columns.vignetteExpiry")} />,
       cell: ({ row }) => <ExpiryCell dateStr={row.getValue("vignetteExpiry")} />,
     },
     {
       id: "driverName",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Șofer" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("trucks.columns.driver")} />,
       cell: ({ row }) => {
         const driver = getDriver(row.original);
         return (
@@ -655,7 +669,7 @@ export function TrucksSection({
     },
     {
       id: "actions",
-      header: () => <div className="text-right">Acțiuni</div>,
+      header: () => <div className="text-right">{t("trucks.columns.actions")}</div>,
       cell: ({ row }) => {
         const truck = row.original;
         const isOnTrip = truck.status === "on_trip";
@@ -665,7 +679,7 @@ export function TrucksSection({
               variant="ghost"
               size="icon"
               onClick={() => handleOpenAssign(truck)}
-              aria-label="Asociere șofer"
+              aria-label={t("trucks.actions.assign")}
             >
               <Link className="h-4 w-4" />
             </Button>
@@ -673,7 +687,7 @@ export function TrucksSection({
               variant="ghost"
               size="icon"
               onClick={() => handleOpenEdit(truck)}
-              aria-label="Editează camion"
+              aria-label={t("trucks.actions.edit")}
             >
               <Pencil className="h-4 w-4" />
             </Button>
@@ -681,10 +695,10 @@ export function TrucksSection({
               variant="ghost"
               size="icon"
               onClick={() => setDeleteTruckId(truck.id)}
-              aria-label="Șterge camion"
+              aria-label={t("trucks.actions.delete")}
               className="text-red-500 hover:text-red-600"
               disabled={isOnTrip}
-              title={isOnTrip ? "Nu poți șterge un camion aflat în cursă" : "Șterge"}
+              title={isOnTrip ? t("trucks.deleteDisabledTooltip") : undefined}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -694,7 +708,7 @@ export function TrucksSection({
       enableSorting: false,
       enableHiding: false,
     },
-  ], [drivers]);
+  ], [drivers, t]);
 
   const table = useReactTable({
     data: trucks,
@@ -718,25 +732,27 @@ export function TrucksSection({
     <>
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Camioane</CardTitle>
+          <CardTitle>{t("trucks.title")}</CardTitle>
           <Button onClick={handleOpenAdd} size="sm">
             <Plus className="mr-2 h-4 w-4" />
-            Adaugă
+            {t("trucks.actions.add")}
           </Button>
         </CardHeader>
         <CardContent>
           <EntityTable
             table={table}
             columns={columns}
-            searchPlaceholder="Caută camioane..."
+            searchPlaceholder={t("trucks.placeholders.search")}
             searchKey="plateNumber"
-            filterConfig={[{ columnId: "status", title: "Status", options: statusFilterOptions }]}
+            filterConfig={[
+              { columnId: "status", title: t("trucks.fields.status"), options: statusFilterOptions },
+            ]}
             columnVisibilityClass={{
               rcaExpiry: "hidden md:table-cell",
               vignetteExpiry: "hidden md:table-cell",
               driverName: "hidden lg:table-cell",
             }}
-            emptyText="Nu există camioane pentru filtrul curent."
+            emptyText={t("trucks.noResults")}
             renderMobileCard={(truck) => (
               <TruckMobileCard
                 truck={truck}
@@ -776,19 +792,18 @@ export function TrucksSection({
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Ești sigur?</AlertDialogTitle>
+            <AlertDialogTitle>{t("trucks.confirmDeleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Această acțiune este ireversibilă. Camionul va fi șters definitiv,
-              iar șoferul asociat va fi dezasociat automat.
+              {t("trucks.confirmDelete")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogCancel>{t("trucks.actions.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
             >
-              Șterge
+              {t("trucks.actions.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

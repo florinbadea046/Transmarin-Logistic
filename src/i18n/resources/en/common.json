@@ -103,6 +103,162 @@
       "toastAllSkipped": "No orders imported — all rows are duplicates."
     }
   },
+  "drivers": {
+    "title": "Drivers",
+    "add": "Add Driver",
+    "edit": "Edit Driver",
+    "save": "Save",
+    "cancel": "Cancel",
+    "noResults": "No drivers found for the current filter.",
+    "toastAdded": "Driver has been added.",
+    "toastUpdated": "Driver has been updated.",
+    "toastDeleted": "Driver has been deleted.",
+    "confirmDelete": "This action is irreversible. The driver will be permanently deleted.",
+    "confirmDeleteTitle": "Are you sure?",
+    "fields": {
+      "name": "Full name",
+      "phone": "Phone",
+      "licenseExpiry": "License Expiry",
+      "status": "Status",
+      "truck": "Assigned truck"
+    },
+    "placeholders": {
+      "name": "e.g. John Smith",
+      "phone": "07XXXXXXXX",
+      "search": "Search drivers...",
+      "noTruck": "No truck"
+    },
+    "validation": {
+      "nameMin": "Name must be at least 3 characters.",
+      "phoneInvalid": "Invalid phone. Accepted format: 07XXXXXXXX",
+      "licenseExpiryRequired": "License expiry date is required."
+    },
+    "status": {
+      "available": "Available",
+      "on_trip": "On trip",
+      "off_duty": "Off duty"
+    },
+    "actions": {
+      "add": "Add",
+      "edit": "Edit driver",
+      "delete": "Delete driver",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    },
+    "columns": {
+      "name": "Name",
+      "phone": "Phone",
+      "licenseExpiry": "Lic. Expiry",
+      "status": "Status",
+      "truck": "Truck",
+      "actions": "Actions"
+    },
+    "card": {
+      "status": "Status",
+      "licenseExpiry": "Lic. Expiry",
+      "truck": "Truck"
+    }
+  },
+  "trucks": {
+    "title": "Trucks",
+    "add": "Add Truck",
+    "edit": "Edit Truck",
+    "save": "Save",
+    "cancel": "Cancel",
+    "noResults": "No trucks found for the current filter.",
+    "toastAdded": "Truck has been added.",
+    "toastUpdated": "Truck has been updated.",
+    "toastDeleted": "Truck has been deleted.",
+    "confirmDelete": "This action is irreversible. The truck will be permanently deleted and the associated driver will be automatically unassigned.",
+    "confirmDeleteTitle": "Are you sure?",
+    "assignTitle": "Assign Driver — {{plateNumber}}",
+    "toastAssigned": "Assignment saved.",
+    "toastUnassigned": "Truck has been unassigned.",
+    "fields": {
+      "plateNumber": "License plate",
+      "brand": "Brand",
+      "model": "Model",
+      "year": "Year",
+      "mileage": "Mileage",
+      "status": "Status",
+      "itpExpiry": "ITP Expiry",
+      "rcaExpiry": "RCA Expiry",
+      "vignetteExpiry": "Vignette Expiry"
+    },
+    "placeholders": {
+      "plateNumber": "e.g. CT-01-TML",
+      "brand": "e.g. Volvo",
+      "model": "e.g. FH16",
+      "year": "e.g. 2021",
+      "mileage": "e.g. 320000",
+      "search": "Search trucks...",
+      "noDriver": "No driver",
+      "selectDriver": "No driver"
+    },
+    "validation": {
+      "plateNumberInvalid": "Invalid format. Example: CT-01-TML",
+      "brandMin": "Brand must be at least 2 characters.",
+      "modelRequired": "Model is required.",
+      "yearRange": "Year must be between 1990 and {{max}}.",
+      "mileagePositive": "Mileage must be a positive number.",
+      "itpExpiryRequired": "ITP expiry date is required.",
+      "rcaExpiryRequired": "RCA expiry date is required.",
+      "vignetteExpiryRequired": "Vignette expiry date is required."
+    },
+    "status": {
+      "available": "Available",
+      "on_trip": "On trip",
+      "in_service": "In service"
+    },
+    "actions": {
+      "add": "Add",
+      "edit": "Edit truck",
+      "delete": "Delete truck",
+      "assign": "Assign driver",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "save": "Save"
+    },
+    "columns": {
+      "plateNumber": "Truck",
+      "status": "Status",
+      "itpExpiry": "ITP",
+      "rcaExpiry": "RCA",
+      "vignetteExpiry": "Vignette",
+      "driver": "Driver",
+      "actions": "Actions"
+    },
+    "card": {
+      "status": "Status",
+      "driver": "Driver",
+      "mileage": "Km",
+      "itp": "ITP",
+      "rca": "RCA",
+      "vignette": "Vignette"
+    },
+    "assign": {
+      "selectDriver": "Select driver",
+      "hasTrack": " (has truck)"
+    },
+    "deleteDisabledTooltip": "Cannot delete a truck that is on a trip"
+  },
+  "expiry": {
+    "alerts": {
+      "driversTitle": "Expired or soon-to-expire driver licenses:",
+      "trucksTitle": "Expired or soon-to-expire truck documents:",
+      "expired": "license EXPIRED",
+      "expiresIn": "expires in {{days}} day{{plural}} ({{date}})",
+      "itpExpired": "ITP EXPIRED",
+      "itpExpires": "ITP expires {{date}}",
+      "rcaExpired": "RCA EXPIRED",
+      "rcaExpires": "RCA expires {{date}}",
+      "vignetteExpired": "Vignette EXPIRED",
+      "vignetteExpires": "Vignette expires {{date}}"
+    }
+  },
+  "driversPage": {
+    "title": "Drivers & Trucks"
+  },
   "language": {
     "label": "Language",
     "ro": "Romanian",
