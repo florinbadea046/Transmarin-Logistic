@@ -15,7 +15,7 @@ import { getCollection } from "@/utils/local-storage";
 import type { Part } from "@/modules/fleet/types";
 import { AllocatePart } from "@/modules/fleet/components/AllocatePart";
 import { savePart, deletePart, isLowStock } from "@/modules/fleet/utils/partsUtils";
-
+import { exportPartsToExcel } from "@/modules/fleet/utils/exportExcel";
 
 const emptyForm: Omit<Part, "id"> = {
     name: "",
@@ -72,8 +72,11 @@ export function PartsCRUD() {
 
     return (
         <div>
-            <div className="flex justify-start mb-4 px-6">
+            <div className="flex justify-start gap-2 mb-4 px-6">
                 <Button onClick={() => handleOpen()}>+ Adaugă piesă</Button>
+                <Button variant="outline" onClick={() => exportPartsToExcel(parts)}>
+                    ⬇ Export Excel
+                </Button>
             </div>
 
             {parts.length === 0 ? (

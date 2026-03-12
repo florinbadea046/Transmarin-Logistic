@@ -46,6 +46,7 @@ import {
 } from "@/modules/fleet/utils/fuelUtils";
 import type { FuelRecord } from "@/modules/fleet/types";
 import type { Truck } from "@/modules/transport/types";
+import { exportFuelToCSV } from "@/modules/fleet/utils/exportCSV";
 
 const emptyForm = {
   truckId: "",
@@ -80,13 +81,8 @@ export function FuelCRUD() {
   };
 
   const handleSubmit = () => {
-    // Guard against missing required fields
     if (!form.truckId || !form.date) return;
-
-    const newRecord: FuelRecord = {
-      id: crypto.randomUUID(),
-      ...form,
-    };
+    const newRecord: FuelRecord = { id: crypto.randomUUID(), ...form };
     save([...records, newRecord]);
     setForm(emptyForm);
     setOpen(false);
@@ -106,8 +102,11 @@ export function FuelCRUD() {
 
   return (
     <div className="space-y-6 px-6 pb-6">
-      <div className="flex justify-start pt-4">
+      <div className="flex flex-wrap gap-2 pt-4">
         <Button onClick={() => setOpen(true)}>+ Înregistrează alimentare</Button>
+        <Button variant="outline" onClick={() => exportFuelToCSV(records, trucks)}>
+          ⬇ Export CSV
+        </Button>
       </div>
 
       {chartData.length > 0 && (
@@ -176,12 +175,11 @@ export function FuelCRUD() {
                           <span className="text-muted-foreground">—</span>
                         ) : (
                           <span className={isAlert ? "text-red-500 font-semibold" : ""}>
-                            {cons} L/100km
+                            {cons} L/100km{" "}
                             {isAlert && (
                               <>
-                                {" "}
                                 <span aria-hidden="true">⚠️</span>
-                                <span className="sr-only">Consum anormal</span>
+                                <span className="sr-only">Consumul este anormal</span>
                               </>
                             )}
                           </span>
@@ -225,13 +223,7 @@ export function FuelCRUD() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Dată</Label>
-                <Input
-                  name="date"
-                  type="date"
-                  value={form.date}
-                  onChange={handleChange}
-                  className="w-full [&::-webkit-calendar-picker-indicator]:ml-auto"
-                />
+                <Input name="date" type="date" value={form.date} onChange={handleChange} className="w-full [&::-webkit-calendar-picker-indicator]:ml-auto" />
               </div>
               <div className="space-y-1">
                 <Label>Km curent</Label>
@@ -251,9 +243,7 @@ export function FuelCRUD() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>Anulează</Button>
-            <Button onClick={handleSubmit} disabled={!form.truckId || !form.date}>
-              Salvează
-            </Button>
+            <Button onClick={handleSubmit} disabled={!form.truckId || !form.date}>Salvează</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
