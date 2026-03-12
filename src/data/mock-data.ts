@@ -8,6 +8,7 @@ import type { Driver, Truck, Order, Trip } from "@/modules/transport/types";
 import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
+import { Bonus } from "../modules/hr/types";
 
 // Chei localStorage — toate modulele folosesc aceste chei
 export const STORAGE_KEYS = {
@@ -1028,6 +1029,107 @@ const seedInvoices: Invoice[] = [
   },
 ];
 
+
+const seedBonuses: Bonus[] = [
+  // Martie 2026
+  {
+    id: "b1",
+    employeeId: "e1",
+    type: "diurna",
+    amount: 350,
+    date: "2026-03-01",
+    description: "Diurnă cursă Constanța-București (7 zile)",
+  },
+  {
+    id: "b2",
+    employeeId: "e1",
+    type: "bonus",
+    amount: 500,
+    date: "2026-03-05",
+    description: "Bonus performanță Q1",
+  },
+  {
+    id: "b3",
+    employeeId: "e2",
+    type: "diurna",
+    amount: 200,
+    date: "2026-03-03",
+    description: "Diurnă cursă Timișoara-Constanța (4 zile)",
+  },
+  {
+    id: "b4",
+    employeeId: "e2",
+    type: "amenda",
+    amount: 150,
+    date: "2026-03-06",
+    description: "Amendă întârziere livrare",
+  },
+  {
+    id: "b5",
+    employeeId: "e3",
+    type: "ore_suplimentare",
+    amount: 300,
+    date: "2026-03-02",
+    description: "Ore suplimentare dispecerat",
+  },
+  {
+    id: "b6",
+    employeeId: "e4",
+    type: "bonus",
+    amount: 400,
+    date: "2026-03-04",
+    description: "Bonus reparații complexe",
+  },
+  {
+    id: "b7",
+    employeeId: "e5",
+    type: "ore_suplimentare",
+    amount: 250,
+    date: "2026-03-01",
+    description: "Ore suplimentare bilanț lunar",
+  },
+  {
+    id: "b8",
+    employeeId: "e6",
+    type: "bonus",
+    amount: 600,
+    date: "2026-03-10",
+    description: "Bonus management excelent",
+  },
+
+  // Februarie 2026
+  {
+    id: "b8",
+    employeeId: "e1",
+    type: "diurna",
+    amount: 450,
+    date: "2026-02-10",
+    description: "Diurnă cursă Cluj-Constanța (9 zile)",
+  },
+  {
+    id: "b9",
+    employeeId: "e2",
+    type: "diurna",
+    amount: 300,
+    date: "2026-02-15",
+    description: "Diurnă cursă Timișoara-Iași (6 zile)",
+  },
+  {
+    id: "b10",
+    employeeId: "e1",
+    type: "amenda",
+    amount: 200,
+    date: "2026-02-20",
+    description: "Amendă depășire program",
+  },
+  {
+    id: "b11",
+    employeeId: "e3",
+    type: "bonus",
+    amount: 350,
+    date: "2026-02-14",
+    description: "Bonus activitate",
+    
 const seedTrips: Trip[] = [
   {
     id: "tr1",
@@ -1043,6 +1145,19 @@ const seedTrips: Trip[] = [
 ];
 
 
+const seedLeaveRequests: LeaveRequest[] = [
+  {
+    id: "lr1",
+    employeeId: "e4",
+    type: "annual",
+    startDate: "2026-03-20",
+    endDate: "2026-03-28",
+    days: 9,
+    status: "approved",
+    reason: "Concediu anual",
+  },
+];
+
 /**
  * Încarcă datele seed în localStorage (doar dacă cheile nu există deja).
  * Apelat o singură dată la inițializarea aplicației.
@@ -1057,6 +1172,9 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.trips, seedTrips);
   initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
   initCollection(STORAGE_KEYS.fuelRecords, seedFuelRecords);
+  initCollection(STORAGE_KEYS.invoices, []);
+  initCollection(STORAGE_KEYS.leaveRequests, []);
+  initCollection(STORAGE_KEYS.bonuses, seedBonuses);
   initCollection(STORAGE_KEYS.invoices, seedInvoices);
   initCollection(STORAGE_KEYS.leaveRequests, seedLeaveRequests);
   initCollection(STORAGE_KEYS.bonuses, []);
