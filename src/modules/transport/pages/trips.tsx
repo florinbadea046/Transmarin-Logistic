@@ -43,6 +43,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
+import { PlusCircle } from "lucide-react";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
