@@ -16,9 +16,12 @@ export interface Employee {
 
 export interface EmployeeDocument {
   id: string;
-  type: "license" | "tachograph" | "adr" | "medical" | "contract" | "other";
+  type: "license" | "tachograph" | "adr" | "medical" | "contract" | "certificate" | "other";
   name: string;
+  documentNumber?: string;
+  issueDate?: string;
   expiryDate?: string;
+  notes?: string;
   isExpired?: boolean;
 }
 

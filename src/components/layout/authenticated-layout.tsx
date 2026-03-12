@@ -24,6 +24,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
           <SidebarInset
             className={cn(
               "@container/content",
+              "min-w-0 w-full overflow-x-hidden",
               "has-[[data-layout=fixed]]:h-svh",
               "peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-2rem)]",
             )}
