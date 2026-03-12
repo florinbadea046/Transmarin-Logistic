@@ -15,15 +15,21 @@
 //   5. Calcul cost per cursă (km gol vs încărcat)
 // ──────────────────────────────────────────────────────────
 
-// ──────────────────────────────────────────────────────────
-// MODUL: Transport & Dispecerat — Pagina principală
-// ──────────────────────────────────────────────────────────
-
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { TopNav } from "@/components/layout/top-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
+
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 const topNavLinks = [
   { title: "Comenzi", href: "/transport/orders", isActive: false },
@@ -32,65 +38,62 @@ const topNavLinks = [
 ];
 
 export default function TransportPage() {
-  // Nu mai folosim useLocation - setăm manual link-ul activ
   const links = topNavLinks.map(link => ({
     ...link,
-    isActive: link.href === "/transport/orders" // Comenzi e pagina default
+    isActive: link.href === "/transport/orders"
   }));
 
-  // State pentru cele 4 KPI-uri
   const [activeOrders, setActiveOrders] = useState<number>(0);
   const [todayTrips, setTodayTrips] = useState<number>(0);
   const [monthlyKm, setMonthlyKm] = useState<number>(0);
   const [availableDrivers, setAvailableDrivers] = useState<number>(0);
+  const [chartData, setChartData] = useState<any[]>([]);
 
   useEffect(() => {
+
     const calculateKPIs = () => {
       try {
-        // 1. Calculează comenzile active
         const orders = JSON.parse(localStorage.getItem('transport_orders') || '[]');
-        const activeCount = orders.filter((order: any) => 
-          order.status === 'active' || 
-          order.status === 'in_progress' || 
+        const activeCount = orders.filter((order: any) =>
+          order.status === 'active' ||
+          order.status === 'in_progress' ||
           order.status === 'pending'
         ).length;
         setActiveOrders(activeCount);
 
-        // 2. Calculează cursele de azi
         const trips = JSON.parse(localStorage.getItem('transport_trips') || '[]');
         const today = new Date().toISOString().split('T')[0];
+
         const todayCount = trips.filter((trip: any) => {
-          const tripDate = new Date(trip.date || trip.createdAt || trip.scheduledDate);
+          const tripDate = new Date(trip.date);
           return tripDate.toISOString().split('T')[0] === today;
         }).length;
         setTodayTrips(todayCount);
 
-        // 3. Calculează km total luna curentă
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
+
         const totalKm = trips
           .filter((trip: any) => {
-            const tripDate = new Date(trip.date || trip.createdAt || trip.scheduledDate);
-            return tripDate.getMonth() === currentMonth && 
-                   tripDate.getFullYear() === currentYear;
+            const d = new Date(trip.date);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
           })
-          .reduce((sum: number, trip: any) => {
-            const loaded = parseFloat(trip.loadedKm || trip.kmLoaded || 0);
-            const empty = parseFloat(trip.emptyKm || trip.kmEmpty || 0);
+          .reduce((sum: number, t: any) => {
+            const loaded = parseFloat(t.loadedKm || 0);
+            const empty = parseFloat(t.emptyKm || 0);
             return sum + loaded + empty;
           }, 0);
+
         setMonthlyKm(Math.round(totalKm));
 
-        // 4. Calculează șoferii disponibili
         const drivers = JSON.parse(localStorage.getItem('transport_drivers') || '[]');
-        const availableCount = drivers.filter((driver: any) => 
-          driver.status === 'available' || 
-          driver.available === true
+        const availableCount = drivers.filter((d: any) =>
+          d.status === 'available' || d.available === true
         ).length;
         setAvailableDrivers(availableCount);
 
       } catch (error) {
-        console.error('Eroare la calcularea KPI-urilor:', error);
+        console.error("Eroare KPI:", error);
         setActiveOrders(0);
         setTodayTrips(0);
         setMonthlyKm(0);
@@ -98,52 +101,81 @@ export default function TransportPage() {
       }
     };
 
-    // Date mock pentru testare
     const initializeMockData = () => {
       if (!localStorage.getItem('transport_orders')) {
-        const mockOrders = [
-          { id: '1', status: 'active', client: 'Client A', destination: 'București' },
-          { id: '2', status: 'active', client: 'Client B', destination: 'Constanța' },
-          { id: '3', status: 'completed', client: 'Client C', destination: 'Cluj' },
-          { id: '4', status: 'in_progress', client: 'Client D', destination: 'Timișoara' },
-          { id: '5', status: 'pending', client: 'Client E', destination: 'Iași' }
-        ];
-        localStorage.setItem('transport_orders', JSON.stringify(mockOrders));
+        localStorage.setItem('transport_orders', JSON.stringify([
+          { id: '1', status: 'active' },
+          { id: '2', status: 'in_progress' },
+          { id: '3', status: 'completed' },
+        ]));
       }
 
       if (!localStorage.getItem('transport_trips')) {
         const today = new Date();
-        const yesterday = new Date(Date.now() - 86400000);
-        
-        const mockTrips = [
-          { id: '1', date: today.toISOString(), loadedKm: 250, emptyKm: 50 },
-          { id: '2', date: today.toISOString(), loadedKm: 180, emptyKm: 30 },
-          { id: '3', date: yesterday.toISOString(), loadedKm: 320, emptyKm: 70 },
-          { id: '4', date: today.toISOString(), loadedKm: 150, emptyKm: 20 }
-        ];
-        localStorage.setItem('transport_trips', JSON.stringify(mockTrips));
+        const trips = [];
+
+        for (let i = 0; i < 20; i++) {
+          const d = new Date();
+          d.setMonth(today.getMonth() - Math.floor(Math.random() * 6));
+
+          trips.push({
+            id: i + 1,
+            date: d.toISOString(),
+            loadedKm: Math.floor(Math.random() * 400),
+            emptyKm: Math.floor(Math.random() * 120),
+          });
+        }
+
+        localStorage.setItem('transport_trips', JSON.stringify(trips));
       }
 
       if (!localStorage.getItem('transport_drivers')) {
-        const mockDrivers = [
-          { id: '1', name: 'Ion Popescu', status: 'available' },
-          { id: '2', name: 'Andrei Ionescu', status: 'available' },
-          { id: '3', name: 'Mihai Popa', status: 'busy' },
-          { id: '4', name: 'George Radu', status: 'available' },
-          { id: '5', name: 'Vasile Marin', status: 'available' }
-        ];
-        localStorage.setItem('transport_drivers', JSON.stringify(mockDrivers));
+        localStorage.setItem('transport_drivers', JSON.stringify([
+          { id: '1', status: 'available' },
+          { id: '2', status: 'busy' },
+          { id: '3', status: 'available' },
+        ]));
       }
+    };
+
+    const calculateLast6MonthsKm = () => {
+      const trips = JSON.parse(localStorage.getItem("transport_trips") || "[]");
+
+      const now = new Date();
+
+      const months = [...Array(6)].map((_, i) => {
+        const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+        return {
+          label: d.toLocaleString("ro-RO", { month: "short" }),
+          year: d.getFullYear(),
+          month: d.getMonth(),
+          key: `${d.getFullYear()}-${d.getMonth()}`,
+          km: 0
+        };
+      });
+
+      trips.forEach((trip: any) => {
+        const d = new Date(trip.date);
+        const key = `${d.getFullYear()}-${d.getMonth()}`;
+
+        const monthEntry = months.find(m => m.key === key);
+        if (monthEntry) {
+          const loaded = parseFloat(trip.loadedKm || 0);
+          const empty = parseFloat(trip.emptyKm || 0);
+          monthEntry.km += loaded + empty;
+        }
+      });
+
+      setChartData(months);
     };
 
     initializeMockData();
     calculateKPIs();
+    calculateLast6MonthsKm();
 
     const interval = setInterval(calculateKPIs, 30000);
+    return () => clearInterval(interval);
 
-    return () => {
-      clearInterval(interval);
-    };
   }, []);
 
   return (
@@ -159,7 +191,6 @@ export default function TransportPage() {
           </p>
         </div>
 
-        {/* Grid cu 4 KPI Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader>
@@ -167,9 +198,7 @@ export default function TransportPage() {
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">{activeOrders}</p>
-              <p className="text-sm text-muted-foreground">
-                Comenzi în desfășurare
-              </p>
+              <p className="text-sm text-muted-foreground">Comenzi în desfășurare</p>
             </CardContent>
           </Card>
 
@@ -179,9 +208,7 @@ export default function TransportPage() {
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">{todayTrips}</p>
-              <p className="text-sm text-muted-foreground">
-                Livrări programate azi
-              </p>
+              <p className="text-sm text-muted-foreground">Livrări azi</p>
             </CardContent>
           </Card>
 
@@ -190,11 +217,9 @@ export default function TransportPage() {
               <CardTitle>Km Total Luna</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">
-                {monthlyKm.toLocaleString('ro-RO')}
-              </p>
+              <p className="text-3xl font-bold">{monthlyKm.toLocaleString("ro-RO")}</p>
               <p className="text-sm text-muted-foreground">
-                Km parcurși în {new Date().toLocaleDateString('ro-RO', { month: 'long' })}
+                Km parcurși în {new Date().toLocaleDateString("ro-RO", { month: "long" })}
               </p>
             </CardContent>
           </Card>
@@ -205,22 +230,38 @@ export default function TransportPage() {
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">{availableDrivers}</p>
-              <p className="text-sm text-muted-foreground">
-                Șoferi gata pentru curse noi
-              </p>
+              <p className="text-sm text-muted-foreground">Gata de curse</p>
             </CardContent>
           </Card>
         </div>
+
+        {/* === Grafic KM ultimele 6 luni === */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>Km parcurși în ultimele 6 luni</CardTitle>
+          </CardHeader>
+          <CardContent style={{ height: 300 }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="label" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="km" fill="#3b82f6" radius={[5, 5, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
 
         <Card className="mt-6">
           <CardHeader>
             <CardTitle>Lista Comenzi</CardTitle>
           </CardHeader>
           <CardContent className="flex h-64 items-center justify-center text-muted-foreground">
-            TODO: Tabel TanStack Table cu comenzi — import CSV, filtrare,
-            sortare
+            TODO: Tabel colegilor — import CSV, filtrare, sortare
           </CardContent>
         </Card>
+
       </Main>
     </>
   );

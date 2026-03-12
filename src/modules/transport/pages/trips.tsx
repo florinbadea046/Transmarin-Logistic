@@ -2,6 +2,24 @@
 // Transport → Sub-pagină: Tabel Curse (Trips)
 // A6 + A7 + A8 + A13 — Implementat conform cerinței
 // ──────────────────────────────────────────────────────────
+import * as React from "react";
+import {
+  type ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getPaginationRowModel,
+  getSortedRowModel,
+  type SortingState,
+  type ColumnFiltersState,
+  type VisibilityState,
+  useReactTable,
+} from "@tanstack/react-table";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { PlusCircle, Play, CheckCircle } from "lucide-react";
 
 import * as React from "react";
 import {
@@ -536,6 +554,11 @@ export default function TripsPage() {
                 <span className="sm:hidden">Nou</span>
               </Button>
             </div>
+            <Button onClick={() => setDialogOpen(true)} size="sm">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              <span className="hidden sm:inline">Cursă nouă</span>
+              <span className="sm:hidden">Nou</span>
+            </Button>
           </CardHeader>
 
           <CardContent className="space-y-4">
@@ -576,6 +599,7 @@ export default function TripsPage() {
                             {order.origin} → {order.destination}
                           </div>
                         )}
+                        {/* ✅ Fix mobile: flex-col în loc de grid-cols-2 */}
                         <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                           <span>Șofer: <span className="text-foreground">{driver?.name ?? "—"}</span></span>
                           <span>Data: <span className="text-foreground">{trip.date}</span></span>
