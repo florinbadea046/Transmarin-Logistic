@@ -1,8 +1,3 @@
-// ──────────────────────────────────────────────────────────
-// Transport → Sub-pagină: Tabel Curse (Trips)
-// A6 + A7 — Implementat conform cerinței
-// ──────────────────────────────────────────────────────────
-
 import * as React from "react";
 import {
   type ColumnDef,
@@ -20,7 +15,7 @@ import {
 } from "@tanstack/react-table";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Play, CheckCircle } from "lucide-react";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
@@ -28,7 +23,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -73,7 +67,17 @@ import {
 } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 
-// ── Status meta ────────────────────────────────────────────
+function useWindowWidth() {
+  const [width, setWidth] = React.useState(
+    typeof window !== "undefined" ? window.innerWidth : 1024,
+  );
+  React.useEffect(() => {
+    const handler = () => setWidth(window.innerWidth);
+    window.addEventListener("resize", handler);
+    return () => window.removeEventListener("resize", handler);
+  }, []);
+  return width;
+}
 
 const statusMeta: Record<
   Trip["status"],
@@ -91,8 +95,6 @@ const statusFilterOptions = (Object.keys(statusMeta) as Trip["status"][]).map(
   (value) => ({ value, label: statusMeta[value].label }),
 );
 
-// ── Schema formular ────────────────────────────────────────
-
 type TripFormValues = {
   orderId: string;
   driverId: string;
@@ -104,12 +106,11 @@ type TripFormValues = {
   status: "planned" | "active" | "completed";
 };
 
-// ── Coloane tabel ──────────────────────────────────────────
-
 function buildColumns(
   orders: Order[],
   drivers: Driver[],
   trucks: Truck[],
+  onStatusChange: (trip: Trip) => void,
 ): ColumnDef<Trip>[] {
   return [
     {
@@ -152,7 +153,9 @@ function buildColumns(
         const truck = trucks.find((t) => t.id === row.getValue("truckId"));
         return (
           <div>
-            {truck ? `${truck.plateNumber} (${truck.brand} ${truck.model})` : row.getValue("truckId")}
+            {truck
+              ? `${truck.plateNumber} (${truck.brand} ${truck.model})`
+              : row.getValue("truckId")}
           </div>
         );
       },
@@ -230,12 +233,51 @@ function buildColumns(
       },
       size: 130,
     },
+    {
+      id: "actions",
+      header: () => <div className="text-center text-xs">Acțiuni</div>,
+      cell: ({ row }) => {
+        const trip = row.original;
+        return (
+          <div className="flex justify-center gap-2">
+            {trip.status === "planned" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 px-2 text-xs"
+                onClick={() => onStatusChange({ ...trip, status: "active" })}
+              >
+                <Play className="mr-1 h-3 w-3" />
+                Pornește
+              </Button>
+            )}
+            {trip.status === "active" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 px-2 text-xs text-green-600 border-green-600 hover:bg-green-50"
+                onClick={() => onStatusChange({ ...trip, status: "completed" })}
+              >
+                <CheckCircle className="mr-1 h-3 w-3" />
+                Finalizează
+              </Button>
+            )}
+            {trip.status === "completed" && (
+              <span className="text-xs text-muted-foreground">—</span>
+            )}
+          </div>
+        );
+      },
+      size: 130,
+    },
   ];
 }
 
-// ── Componenta principală ──────────────────────────────────
-
 export default function TripsPage() {
+  const windowWidth = useWindowWidth();
+  const isMobile = windowWidth < 768;
+  const isTablet = windowWidth >= 768 && windowWidth < 1024;
+
   const [data, setData] = React.useState<Trip[]>([]);
   const [orders, setOrders] = React.useState<Order[]>([]);
   const [drivers, setDrivers] = React.useState<Driver[]>([]);
@@ -246,7 +288,6 @@ export default function TripsPage() {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 
-  // Încarcă datele din localStorage
   const loadData = React.useCallback(() => {
     setData(getCollection<Trip>(STORAGE_KEYS.trips));
     setOrders(getCollection<Order>(STORAGE_KEYS.orders));
@@ -258,8 +299,54 @@ export default function TripsPage() {
     loadData();
   }, [loadData]);
 
+  React.useEffect(() => {
+    if (isMobile) {
+      setColumnVisibility({
+        driverId: false,
+        truckId: false,
+        kmLoaded: false,
+        kmEmpty: false,
+        fuelCost: false,
+      });
+    } else if (isTablet) {
+      setColumnVisibility({
+        truckId: false,
+        kmEmpty: false,
+        fuelCost: false,
+      });
+    } else {
+      setColumnVisibility({});
+    }
+  }, [isMobile, isTablet]);
+
+  function handleStatusChange(updatedTrip: Trip) {
+    updateItem<Trip>(
+      STORAGE_KEYS.trips,
+      (t) => t.id === updatedTrip.id,
+      () => updatedTrip,
+    );
+
+    if (updatedTrip.status === "completed") {
+      updateItem<Order>(
+        STORAGE_KEYS.orders,
+        (o) => o.id === updatedTrip.orderId,
+        (o) => ({ ...o, status: "delivered" }),
+      );
+      updateItem<Driver>(
+        STORAGE_KEYS.drivers,
+        (d) => d.id === updatedTrip.driverId,
+        (d) => ({ ...d, status: "available" }),
+      );
+      toast.success("Cursă finalizată!");
+    } else {
+      toast.success("Cursă pornită!");
+    }
+
+    loadData();
+  }
+
   const columns = React.useMemo(
-    () => buildColumns(orders, drivers, trucks),
+    () => buildColumns(orders, drivers, trucks, handleStatusChange),
     [orders, drivers, trucks],
   );
 
@@ -278,8 +365,6 @@ export default function TripsPage() {
     getPaginationRowModel: getPaginationRowModel(),
     initialState: { pagination: { pageSize: 10, pageIndex: 0 } },
   });
-
-  // ── Formular ─────────────────────────────────────────────
 
   const form = useForm<TripFormValues>({
     defaultValues: {
@@ -309,26 +394,23 @@ export default function TripsPage() {
     };
     addItem<Trip>(STORAGE_KEYS.trips, newTrip);
 
-    // A7: actualizează status comandă → assigned
     updateItem<Order>(
       STORAGE_KEYS.orders,
       (o) => o.id === values.orderId,
       (o) => ({ ...o, status: "assigned" }),
     );
 
-    // A7: actualizează status șofer → on_trip
     updateItem<Driver>(
       STORAGE_KEYS.drivers,
       (d) => d.id === values.driverId,
       (d) => ({ ...d, status: "on_trip" }),
     );
+
     loadData();
     setDialogOpen(false);
     form.reset();
     toast.success("Cursă adăugată cu succes!");
   }
-
-  // ── Render ────────────────────────────────────────────────
 
   return (
     <>
@@ -337,12 +419,13 @@ export default function TripsPage() {
       </Header>
 
       <Main>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Tabel Curse</CardTitle>
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between gap-2">
+            <CardTitle className="text-base md:text-lg">Tabel Curse</CardTitle>
             <Button onClick={() => setDialogOpen(true)} size="sm">
               <PlusCircle className="mr-2 h-4 w-4" />
-              Cursă nouă
+              <span className="hidden sm:inline">Cursă nouă</span>
+              <span className="sm:hidden">Nou</span>
             </Button>
           </CardHeader>
 
@@ -360,55 +443,114 @@ export default function TripsPage() {
               ]}
             />
 
-            <div className="rounded-lg border">
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <TableHead
-                          key={header.id}
-                          style={{ width: header.getSize() }}
-                        >
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow key={row.id}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id} style={{ width: cell.column.getSize() }}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </TableCell>
+            {/* ── Mobile: Cards ── */}
+            {isMobile ? (
+              <div className="space-y-3">
+                {table.getRowModel().rows?.length ? (
+                  table.getRowModel().rows.map((row) => {
+                    const trip = row.original;
+                    const order = orders.find((o) => o.id === trip.orderId);
+                    const driver = drivers.find((d) => d.id === trip.driverId);
+                    const meta = statusMeta[trip.status];
+                    return (
+                      <div key={trip.id} className="rounded-lg border p-4 space-y-2 text-sm">
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium">
+                            {order?.clientName ?? trip.orderId}
+                          </div>
+                          <Badge variant={meta.variant ?? "secondary"}>
+                            {meta.label}
+                          </Badge>
+                        </div>
+                        {order && (
+                          <div className="text-xs text-muted-foreground">
+                            {order.origin} → {order.destination}
+                          </div>
+                        )}
+                        {/* ✅ Fix mobile: flex-col în loc de grid-cols-2 */}
+                        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                          <span>Șofer: <span className="text-foreground">{driver?.name ?? "—"}</span></span>
+                          <span>Data: <span className="text-foreground">{trip.date}</span></span>
+                          <span>Km încărcat: <span className="text-foreground">{trip.kmLoaded} km</span></span>
+                          <span>Km gol: <span className="text-foreground">{trip.kmEmpty} km</span></span>
+                          <span>Cost combustibil: <span className="text-foreground">{trip.fuelCost} RON</span></span>
+                        </div>
+                        <div className="flex gap-2 pt-1">
+                          {trip.status === "planned" && (
+                            <Button size="sm" variant="outline" className="h-7 px-2 text-xs"
+                              onClick={() => handleStatusChange({ ...trip, status: "active" })}>
+                              <Play className="mr-1 h-3 w-3" /> Pornește
+                            </Button>
+                          )}
+                          {trip.status === "active" && (
+                            <Button size="sm" variant="outline"
+                              className="h-7 px-2 text-xs text-green-600 border-green-600"
+                              onClick={() => handleStatusChange({ ...trip, status: "completed" })}>
+                              <CheckCircle className="mr-1 h-3 w-3" /> Finalizează
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="h-24 flex items-center justify-center text-muted-foreground text-sm">
+                    Nu există curse. Apasă „Cursă nouă" pentru a adăuga.
+                  </div>
+                )}
+              </div>
+            ) : (
+              /* ── Tablet + Desktop: Tabel ── */
+              <div className="rounded-lg border overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    {table.getHeaderGroups().map((headerGroup) => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => (
+                          <TableHead
+                            key={header.id}
+                            style={{ width: header.getSize() }}
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                  header.column.columnDef.header,
+                                  header.getContext(),
+                                )}
+                          </TableHead>
                         ))}
                       </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={columns.length}
-                        className="h-24 text-center text-muted-foreground"
-                      >
-                        Nu există curse. Apasă „Cursă nouă" pentru a adăuga.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    ))}
+                  </TableHeader>
+
+                  <TableBody>
+                    {table.getRowModel().rows?.length ? (
+                      table.getRowModel().rows.map((row) => (
+                        <TableRow key={row.id}>
+                          {row.getVisibleCells().map((cell) => (
+                            <TableCell key={cell.id} style={{ width: cell.column.getSize() }}>
+                              {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext(),
+                              )}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      <TableRow>
+                        <TableCell
+                          colSpan={columns.length}
+                          className="h-24 text-center text-muted-foreground"
+                        >
+                          Nu există curse. Apasă „Cursă nouă" pentru a adăuga.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
 
             <DataTablePagination table={table} pageSizes={[10, 20, 50]} />
           </CardContent>
@@ -417,7 +559,7 @@ export default function TripsPage() {
 
       {/* ── Dialog: Adaugă cursă nouă ── */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-[520px]">
+        <DialogContent className="w-full max-w-[95vw] sm:max-w-[520px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Cursă nouă</DialogTitle>
           </DialogHeader>
@@ -425,7 +567,6 @@ export default function TripsPage() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 
-              {/* Comandă */}
               <FormField
                 control={form.control}
                 name="orderId"
@@ -453,7 +594,6 @@ export default function TripsPage() {
                 )}
               />
 
-              {/* Șofer */}
               <FormField
                 control={form.control}
                 name="driverId"
@@ -481,7 +621,6 @@ export default function TripsPage() {
                 )}
               />
 
-              {/* Camion */}
               <FormField
                 control={form.control}
                 name="truckId"
@@ -509,7 +648,6 @@ export default function TripsPage() {
                 )}
               />
 
-              {/* Dată */}
               <FormField
                 control={form.control}
                 name="date"
@@ -524,7 +662,6 @@ export default function TripsPage() {
                 )}
               />
 
-              {/* Km încărcat + Km gol */}
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -554,7 +691,6 @@ export default function TripsPage() {
                 />
               </div>
 
-              {/* Cost combustibil */}
               <FormField
                 control={form.control}
                 name="fuelCost"
@@ -569,7 +705,6 @@ export default function TripsPage() {
                 )}
               />
 
-              {/* Status */}
               <FormField
                 control={form.control}
                 name="status"
