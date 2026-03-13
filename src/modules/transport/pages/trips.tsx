@@ -20,30 +20,10 @@ import {
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { PlusCircle, Play, CheckCircle } from "lucide-react";
-
-import * as React from "react";
-import {
-  type ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getPaginationRowModel,
-  getSortedRowModel,
-  type SortingState,
-  type ColumnFiltersState,
-  type VisibilityState,
-  useReactTable,
-} from "@tanstack/react-table";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { PlusCircle, Play, CheckCircle } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
-import { PlusCircle } from "lucide-react";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
