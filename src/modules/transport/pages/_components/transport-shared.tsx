@@ -10,6 +10,7 @@ import {
   type Table as TanstackTable,
 } from "@tanstack/react-table";
 import { AlertTriangle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 import {
   Table,
@@ -172,7 +173,10 @@ export function ExpiryAlerts({
   expiringDrivers: Driver[];
   expiringTrucks: Truck[];
 }) {
+  const { t } = useTranslation();
+
   if (expiringDrivers.length === 0 && expiringTrucks.length === 0) return null;
+
   return (
     <div className="mb-6 rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-950">
       <div className="flex items-start gap-2 text-yellow-800 dark:text-yellow-200">
@@ -180,7 +184,7 @@ export function ExpiryAlerts({
         <div className="space-y-2">
           {expiringDrivers.length > 0 && (
             <div>
-              <p className="font-medium">Permise de conducere expirate sau care expiră curând:</p>
+              <p className="font-medium">{t("expiry.alerts.driversTitle")}</p>
               <ul className="mt-1 space-y-0.5 text-sm">
                 {expiringDrivers.map((d) => {
                   const days = daysUntilExpiry(d.licenseExpiry);
@@ -188,8 +192,12 @@ export function ExpiryAlerts({
                     <li key={d.id}>
                       <span className="font-medium">{d.name}</span> —{" "}
                       {days <= 0
-                        ? "permis EXPIRAT"
-                        : `expiră în ${days} zi${days === 1 ? "" : "le"} (${formatDate(d.licenseExpiry)})`}
+                        ? t("expiry.alerts.expired")
+                        : t("expiry.alerts.expiresIn", {
+                            days,
+                            plural: days === 1 ? "" : "e",
+                            date: formatDate(d.licenseExpiry),
+                          })}
                     </li>
                   );
                 })}
@@ -198,23 +206,35 @@ export function ExpiryAlerts({
           )}
           {expiringTrucks.length > 0 && (
             <div>
-              <p className="font-medium">Documente camion expirate sau care expiră curând:</p>
+              <p className="font-medium">{t("expiry.alerts.trucksTitle")}</p>
               <ul className="mt-1 space-y-0.5 text-sm">
-                {expiringTrucks.map((t) => {
-                  const itpDays = daysUntilExpiry(t.itpExpiry);
-                  const rcaDays = daysUntilExpiry(t.rcaExpiry);
-                  const vigDays = daysUntilExpiry(t.vignetteExpiry);
+                {expiringTrucks.map((truck) => {
+                  const itpDays = daysUntilExpiry(truck.itpExpiry);
+                  const rcaDays = daysUntilExpiry(truck.rcaExpiry);
+                  const vigDays = daysUntilExpiry(truck.vignetteExpiry);
                   return (
-                    <li key={t.id}>
-                      <span className="font-medium">{t.plateNumber}</span> —{" "}
+                    <li key={truck.id}>
+                      <span className="font-medium">{truck.plateNumber}</span> —{" "}
                       {itpDays <= 30 && (
-                        <span>ITP {itpDays <= 0 ? "EXPIRAT" : `expiră ${formatDate(t.itpExpiry)}`}{" "}</span>
+                        <span>
+                          {itpDays <= 0
+                            ? t("expiry.alerts.itpExpired")
+                            : t("expiry.alerts.itpExpires", { date: formatDate(truck.itpExpiry) })}{" "}
+                        </span>
                       )}
                       {rcaDays <= 30 && (
-                        <span>RCA {rcaDays <= 0 ? "EXPIRAT" : `expiră ${formatDate(t.rcaExpiry)}`}{" "}</span>
+                        <span>
+                          {rcaDays <= 0
+                            ? t("expiry.alerts.rcaExpired")
+                            : t("expiry.alerts.rcaExpires", { date: formatDate(truck.rcaExpiry) })}{" "}
+                        </span>
                       )}
                       {vigDays <= 30 && (
-                        <span>Vignetă {vigDays <= 0 ? "EXPIRATĂ" : `expiră ${formatDate(t.vignetteExpiry)}`}</span>
+                        <span>
+                          {vigDays <= 0
+                            ? t("expiry.alerts.vignetteExpired")
+                            : t("expiry.alerts.vignetteExpires", { date: formatDate(truck.vignetteExpiry) })}
+                        </span>
                       )}
                     </li>
                   );

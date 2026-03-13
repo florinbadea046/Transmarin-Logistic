@@ -103,6 +103,162 @@
       "toastAllSkipped": "Nicio comandă importată — toate rândurile sunt duplicate."
     }
   },
+  "drivers": {
+    "title": "Șoferi",
+    "add": "Adaugă Șofer",
+    "edit": "Editează Șofer",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "noResults": "Nu există șoferi pentru filtrul curent.",
+    "toastAdded": "Șoferul a fost adăugat.",
+    "toastUpdated": "Șoferul a fost actualizat.",
+    "toastDeleted": "Șoferul a fost șters.",
+    "confirmDelete": "Această acțiune este ireversibilă. Șoferul va fi șters definitiv.",
+    "confirmDeleteTitle": "Ești sigur?",
+    "fields": {
+      "name": "Nume complet",
+      "phone": "Telefon",
+      "licenseExpiry": "Expirare Permis",
+      "status": "Status",
+      "truck": "Camion asociat"
+    },
+    "placeholders": {
+      "name": "ex. Ion Popescu",
+      "phone": "07XXXXXXXX",
+      "search": "Caută șoferi...",
+      "noTruck": "Fără camion"
+    },
+    "validation": {
+      "nameMin": "Numele trebuie să aibă minim 3 caractere.",
+      "phoneInvalid": "Telefon invalid. Format acceptat: 07XXXXXXXX",
+      "licenseExpiryRequired": "Data expirării permisului este obligatorie."
+    },
+    "status": {
+      "available": "Disponibil",
+      "on_trip": "În cursă",
+      "off_duty": "Liber"
+    },
+    "actions": {
+      "add": "Adaugă",
+      "edit": "Editează șofer",
+      "delete": "Șterge șofer",
+      "cancel": "Anulează",
+      "confirm": "Șterge"
+    },
+    "columns": {
+      "name": "Nume",
+      "phone": "Telefon",
+      "licenseExpiry": "Exp. Permis",
+      "status": "Status",
+      "truck": "Camion",
+      "actions": "Acțiuni"
+    },
+    "card": {
+      "status": "Status",
+      "licenseExpiry": "Exp. Permis",
+      "truck": "Camion"
+    }
+  },
+  "trucks": {
+    "title": "Camioane",
+    "add": "Adaugă Camion",
+    "edit": "Editează Camion",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "noResults": "Nu există camioane pentru filtrul curent.",
+    "toastAdded": "Camionul a fost adăugat.",
+    "toastUpdated": "Camionul a fost actualizat.",
+    "toastDeleted": "Camionul a fost șters.",
+    "confirmDelete": "Această acțiune este ireversibilă. Camionul va fi șters definitiv, iar șoferul asociat va fi dezasociat automat.",
+    "confirmDeleteTitle": "Ești sigur?",
+    "assignTitle": "Asociere Șofer — {{plateNumber}}",
+    "toastAssigned": "Asocierea a fost salvată.",
+    "toastUnassigned": "Camionul a fost dezasociat.",
+    "fields": {
+      "plateNumber": "Număr înmatriculare",
+      "brand": "Marcă",
+      "model": "Model",
+      "year": "An fabricație",
+      "mileage": "Kilometraj",
+      "status": "Status",
+      "itpExpiry": "Expirare ITP",
+      "rcaExpiry": "Expirare RCA",
+      "vignetteExpiry": "Expirare Vignetă"
+    },
+    "placeholders": {
+      "plateNumber": "ex. CT-01-TML",
+      "brand": "ex. Volvo",
+      "model": "ex. FH16",
+      "year": "ex. 2021",
+      "mileage": "ex. 320000",
+      "search": "Caută camioane...",
+      "noDriver": "Fără șofer",
+      "selectDriver": "Fără șofer"
+    },
+    "validation": {
+      "plateNumberInvalid": "Format invalid. Exemplu: CT-01-TML",
+      "brandMin": "Marca trebuie să aibă minim 2 caractere.",
+      "modelRequired": "Modelul este obligatoriu.",
+      "yearRange": "Anul trebuie să fie între 1990 și {{max}}.",
+      "mileagePositive": "Kilometrajul trebuie să fie un număr pozitiv.",
+      "itpExpiryRequired": "Data expirării ITP este obligatorie.",
+      "rcaExpiryRequired": "Data expirării RCA este obligatorie.",
+      "vignetteExpiryRequired": "Data expirării vignetei este obligatorie."
+    },
+    "status": {
+      "available": "Disponibil",
+      "on_trip": "În cursă",
+      "in_service": "În service"
+    },
+    "actions": {
+      "add": "Adaugă",
+      "edit": "Editează camion",
+      "delete": "Șterge camion",
+      "assign": "Asociere șofer",
+      "cancel": "Anulează",
+      "confirm": "Șterge",
+      "save": "Salvează"
+    },
+    "columns": {
+      "plateNumber": "Camion",
+      "status": "Status",
+      "itpExpiry": "ITP",
+      "rcaExpiry": "RCA",
+      "vignetteExpiry": "Vignetă",
+      "driver": "Șofer",
+      "actions": "Acțiuni"
+    },
+    "card": {
+      "status": "Status",
+      "driver": "Șofer",
+      "mileage": "Km",
+      "itp": "ITP",
+      "rca": "RCA",
+      "vignette": "Vignetă"
+    },
+    "assign": {
+      "selectDriver": "Selectează șofer",
+      "hasTrack": " (are camion)"
+    },
+    "deleteDisabledTooltip": "Nu poți șterge un camion aflat în cursă"
+  },
+  "expiry": {
+    "alerts": {
+      "driversTitle": "Permise de conducere expirate sau care expiră curând:",
+      "trucksTitle": "Documente camion expirate sau care expiră curând:",
+      "expired": "permis EXPIRAT",
+      "expiresIn": "expiră în {{days}} zi{{plural}} ({{date}})",
+      "itpExpired": "ITP EXPIRAT",
+      "itpExpires": "ITP expiră {{date}}",
+      "rcaExpired": "RCA EXPIRAT",
+      "rcaExpires": "RCA expiră {{date}}",
+      "vignetteExpired": "Vignetă EXPIRATĂ",
+      "vignetteExpires": "Vignetă expiră {{date}}"
+    }
+  },
+  "driversPage": {
+    "title": "Șoferi & Camioane"
+  },
   "language": {
     "label": "Limbă",
     "ro": "Română",
