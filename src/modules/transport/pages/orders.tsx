@@ -67,7 +67,6 @@ import { DataTableToolbar } from "@/components/data-table/toolbar";
 import type { Order, Trip } from "@/modules/transport/types";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import { DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -651,92 +650,6 @@ function DateButton({
         />
       </PopoverContent>
     </Popover>
-  );
-}
-
-const EXPORT_COLS = [
-  { key: "clientName", label: "Client" },
-  { key: "origin", label: "Origine" },
-  { key: "destination", label: "Destinatie" },
-  { key: "date", label: "Data" },
-  { key: "status", label: "Status" },
-  { key: "weight", label: "Greutate (t)" },
-  { key: "notes", label: "Note" },
-];
-
-function toRows(orders: Order[]) {
-  return orders.map((o) =>
-    Object.fromEntries(
-      EXPORT_COLS.map((c) => [c.label, (o as any)[c.key] ?? ""]),
-    ),
-  );
-}
-
-function exportPDF(orders: Order[]) {
-  const doc = new jsPDF();
-  doc.setFontSize(14);
-  doc.text("Comenzi", 14, 16);
-  autoTable(doc, {
-    head: [EXPORT_COLS.map((c) => c.label)],
-    body: orders.map((o) =>
-      EXPORT_COLS.map((c) => String((o as any)[c.key] ?? "")),
-    ),
-    startY: 22,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [30, 30, 30] },
-  });
-  doc.save("comenzi.pdf");
-}
-
-function exportExcel(orders: Order[]) {
-  const ws = XLSX.utils.json_to_sheet(toRows(orders));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Comenzi");
-  XLSX.writeFile(wb, "comenzi.xlsx");
-}
-
-function exportCSV(orders: Order[]) {
-  const csv = Papa.unparse(toRows(orders));
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "comenzi.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function ExportMenu({ orders }: { orders: Order[] }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          Export
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => exportPDF(orders)}
-        >
-          Export PDF
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => exportExcel(orders)}
-        >
-          Export Excel
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => exportCSV(orders)}
-        >
-          Export CSV
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }
 
@@ -1563,15 +1476,6 @@ export default function OrdersPage() {
       <Main>
         <Card>
           <CardHeader className="flex flex-wrap items-center justify-between gap-3">
-            <CardTitle>Gestiune Comenzi</CardTitle>
-            <div className="flex flex-wrap items-center gap-2">
-              <ExportMenu orders={filteredData} />
-              <OrderFormDialog
-                open={addOpen}
-                onOpenChange={setAddOpen}
-                title="Adauga comanda"
-                onSave={handleAdd}
-                triggerButton={<Button>Adauga comanda</Button>}
             <CardTitle>{t("orders.manage")}</CardTitle>
             <div className="flex flex-wrap items-center gap-2">
               <ExportMenu orders={filteredData} />
