@@ -76,7 +76,7 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
   }, []);
 
   const persist = (data: ServiceRecord[]) => {
-    setRecords(data);
+    onRecordsChange(data);
     localStorage.setItem(STORAGE_KEYS.serviceRecords, JSON.stringify(data));
   };
 
