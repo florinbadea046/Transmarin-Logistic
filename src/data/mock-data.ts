@@ -1032,7 +1032,6 @@ const seedInvoices: Invoice[] = [
   },
 ];
 
-
 const seedBonuses: Bonus[] = [
   // Martie 2026
   {
@@ -1139,22 +1138,100 @@ const seedTrips: Trip[] = [
   {
     id: "tr1",
     orderId: "o1",
-    driverId: "e1",
+    driverId: "d1",
     truckId: "t1",
-    date: "2026-03-10",
+    date: "2026-02-20",
     kmLoaded: 350,
     kmEmpty: 50,
-    fuelCost: 800,
-    status: "active",
+    fuelCost: 820,
+    status: "finalizata",
+  },
+  {
+    id: "tr2",
+    orderId: "o2",
+    driverId: "d3",
+    truckId: "t2",
+    date: "2026-02-21",
+    kmLoaded: 480,
+    kmEmpty: 90,
+    fuelCost: 1140,
+    status: "in_desfasurare",
+  },
+  {
+    id: "tr3",
+    orderId: "o4",
+    driverId: "d2",
+    truckId: "t1",
+    date: "2026-02-23",
+    kmLoaded: 210,
+    kmEmpty: 30,
+    fuelCost: 510,
+    status: "planned",
+  },
+  {
+    id: "tr4",
+    orderId: "o6",
+    driverId: "d1",
+    truckId: "t2",
+    date: "2026-02-25",
+    kmLoaded: 145,
+    kmEmpty: 20,
+    fuelCost: 370,
+    status: "in_desfasurare",
+  },
+  {
+    id: "tr5",
+    orderId: "o7",
+    driverId: "d2",
+    truckId: "t1",
+    date: "2026-02-26",
+    kmLoaded: 125,
+    kmEmpty: 15,
+    fuelCost: 290,
+    status: "finalizata",
+  },
+  {
+    id: "tr6",
+    orderId: "o9",
+    driverId: "d3",
+    truckId: "t2",
+    date: "2026-02-28",
+    kmLoaded: 390,
+    kmEmpty: 70,
+    fuelCost: 930,
+    status: "anulata",
+  },
+  {
+    id: "tr7",
+    orderId: "o11",
+    driverId: "d1",
+    truckId: "t1",
+    date: "2026-03-02",
+    kmLoaded: 95,
+    kmEmpty: 10,
+    fuelCost: 220,
+    status: "finalizata",
+  },
+  {
+    id: "tr8",
+    orderId: "o8",
+    driverId: "d2",
+    truckId: "t2",
+    date: "2026-03-05",
+    kmLoaded: 430,
+    kmEmpty: 80,
+    fuelCost: 1020,
+    status: "planned",
   },
 ];
-
-
 
 /**
  * Încarcă datele seed în localStorage (doar dacă cheile nu există deja).
  * Apelat o singură dată la inițializarea aplicației.
  */
+const TRIPS_SCHEMA_VERSION = "v2";
+const TRIPS_VERSION_KEY = "transmarin_trips_schema_version";
+
 export function seedMockData(): void {
   initCollection(STORAGE_KEYS.drivers, seedDrivers);
   initCollection(STORAGE_KEYS.trucks, seedTrucks);
@@ -1162,6 +1239,10 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.parts, seedParts);
   initCollection(STORAGE_KEYS.employees, seedEmployees);
   initCollection(STORAGE_KEYS.suppliers, seedSuppliers);
+  if (localStorage.getItem(TRIPS_VERSION_KEY) !== TRIPS_SCHEMA_VERSION) {
+    localStorage.removeItem(STORAGE_KEYS.trips);
+    localStorage.setItem(TRIPS_VERSION_KEY, TRIPS_SCHEMA_VERSION);
+  }
   initCollection(STORAGE_KEYS.trips, seedTrips);
   initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
   initCollection(STORAGE_KEYS.fuelRecords, seedFuelRecords);
