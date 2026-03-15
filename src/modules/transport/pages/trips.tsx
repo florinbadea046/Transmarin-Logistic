@@ -17,7 +17,14 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { PlusCircle, Play, CheckCircle, XCircle, Pencil } from "lucide-react";
+import {
+  PlusCircle,
+  Play,
+  CheckCircle,
+  XCircle,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -64,10 +71,10 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
 import { DataTableToolbar } from "@/components/data-table/toolbar";
@@ -77,6 +84,7 @@ import {
   getCollection,
   addItem,
   updateItem,
+  removeItem,
   generateId,
 } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
@@ -296,6 +304,7 @@ function buildColumns(
   allTrips: Trip[],
   onStatusChange: (trip: Trip) => void,
   onEdit: (trip: Trip) => void,
+  onDelete: (trip: Trip) => void,
 ): ColumnDef<Trip>[] {
   return [
     {
@@ -492,6 +501,18 @@ function buildColumns(
             >
               <Pencil className="h-3 w-3 text-muted-foreground" />
             </button>
+            <button
+              title={
+                trip.status === "in_desfasurare"
+                  ? "Nu se poate șterge o cursă în desfășurare"
+                  : "Șterge"
+              }
+              onClick={() => trip.status !== "in_desfasurare" && onDelete(trip)}
+              disabled={trip.status === "in_desfasurare"}
+              className="h-6 w-6 flex items-center justify-center rounded-md border border-red-200 bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              <Trash2 className="h-3 w-3 text-red-500" />
+            </button>
             {trip.status === "planned" && (
               <>
                 <button
@@ -526,7 +547,7 @@ function buildColumns(
           </div>
         );
       },
-      size: 100,
+      size: 110,
     },
   ];
 }
@@ -542,6 +563,8 @@ export default function TripsPage() {
   const [trucks, setTrucks] = React.useState<Truck[]>([]);
   const [dialogOpen, setDialogOpen] = React.useState(false);
   const [editingTrip, setEditingTrip] = React.useState<Trip | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
+  const [deletingTrip, setDeletingTrip] = React.useState<Trip | null>(null);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -623,6 +646,20 @@ export default function TripsPage() {
     [loadData],
   );
 
+  const handleDeleteRequest = React.useCallback((trip: Trip) => {
+    setDeletingTrip(trip);
+    setDeleteDialogOpen(true);
+  }, []);
+
+  const handleDeleteConfirm = React.useCallback(() => {
+    if (!deletingTrip) return;
+    removeItem<Trip>(STORAGE_KEYS.trips, (t) => t.id === deletingTrip.id);
+    toast.success("Cursă ștearsă.");
+    setDeleteDialogOpen(false);
+    setDeletingTrip(null);
+    loadData();
+  }, [deletingTrip, loadData]);
+
   const handleEdit = React.useCallback((trip: Trip) => {
     setEditingTrip(trip);
     setDialogOpen(true);
@@ -637,8 +674,17 @@ export default function TripsPage() {
         data,
         handleStatusChange,
         handleEdit,
+        handleDeleteRequest,
       ),
-    [orders, drivers, trucks, data, handleStatusChange, handleEdit],
+    [
+      orders,
+      drivers,
+      trucks,
+      data,
+      handleStatusChange,
+      handleEdit,
+      handleDeleteRequest,
+    ],
   );
 
   const table = useReactTable({
@@ -869,6 +915,24 @@ export default function TripsPage() {
                           >
                             <Pencil className="mr-1 h-3 w-3" />
                             Editează
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 px-2 text-xs text-red-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            disabled={trip.status === "in_desfasurare"}
+                            title={
+                              trip.status === "in_desfasurare"
+                                ? "Nu se poate șterge o cursă în desfășurare"
+                                : "Șterge"
+                            }
+                            onClick={() =>
+                              trip.status !== "in_desfasurare" &&
+                              handleDeleteRequest(trip)
+                            }
+                          >
+                            <Trash2 className="mr-1 h-3 w-3" />
+                            Șterge
                           </Button>
                           {trip.status === "planned" && (
                             <>
@@ -1187,7 +1251,11 @@ export default function TripsPage() {
                               className="w-full min-w-0"
                               {...field}
                               onChange={(e) =>
-                                field.onChange(e.target.valueAsNumber)
+                                field.onChange(
+                                  isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber,
+                                )
                               }
                             />
                           </FormControl>
@@ -1211,7 +1279,11 @@ export default function TripsPage() {
                               className="w-full min-w-0"
                               {...field}
                               onChange={(e) =>
-                                field.onChange(e.target.valueAsNumber)
+                                field.onChange(
+                                  isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber,
+                                )
                               }
                             />
                           </FormControl>
@@ -1235,7 +1307,11 @@ export default function TripsPage() {
                               className="w-full min-w-0"
                               {...field}
                               onChange={(e) =>
-                                field.onChange(e.target.valueAsNumber)
+                                field.onChange(
+                                  isNaN(e.target.valueAsNumber)
+                                    ? 0
+                                    : e.target.valueAsNumber,
+                                )
                               }
                             />
                           </FormControl>
@@ -1300,6 +1376,24 @@ export default function TripsPage() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={(v) => {
+          setDeleteDialogOpen(v);
+          if (!v) setDeletingTrip(null);
+        }}
+        title="Șterge cursă"
+        desc={
+          deletingTrip
+            ? `Ești sigur că vrei să ștergi cursa pentru comanda #${deletingTrip.orderId}? Această acțiune nu poate fi anulată.`
+            : "Ești sigur că vrei să ștergi această cursă?"
+        }
+        confirmText="Șterge"
+        cancelBtnText="Anulează"
+        destructive
+        handleConfirm={handleDeleteConfirm}
+      />
     </>
   );
 }
