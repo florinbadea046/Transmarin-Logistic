@@ -36,7 +36,10 @@ import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { LeaveRequest, Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
+import LeaveDialog from "../components/leave-dialog";
+import { LeaveTableRow } from "../components/leave-row";
 
+// ── Labels ───────────────────────────────────────────────────
 const LEAVE_TYPE_LABELS: Record<LeaveRequest["type"], string> = {
   annual: "Anual",
   sick: "Medical",
@@ -60,82 +63,88 @@ function StatusBadge({ status }: { status: LeaveRequest["status"] }) {
   return <Badge variant={variant}>{STATUS_LABELS[status]}</Badge>;
 }
 
+// ── Row type ─────────────────────────────────────────────────
 type LeaveRow = LeaveRequest & { employeeName: string };
 
-function buildColumns(): ColumnDef<LeaveRow>[] {
-  return [
-    {
-      accessorKey: "employeeName",
-      enableHiding: false,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Angajat" />
-      ),
-      cell: ({ row }) => (
-        <div className="font-medium whitespace-nowrap">
-          {row.getValue("employeeName")}
-        </div>
-      ),
+// ── Columns ──────────────────────────────────────────────────
+const columns: ColumnDef<LeaveRow>[] = [
+  {
+    accessorKey: "employeeName",
+    enableHiding: false,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Angajat" />
+    ),
+    cell: ({ row }) => (
+      <div className="font-medium whitespace-nowrap">
+        {row.getValue("employeeName")}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "type",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Tip concediu" />
+    ),
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap">
+        {LEAVE_TYPE_LABELS[row.getValue("type") as LeaveRequest["type"]]}
+      </div>
+    ),
+    filterFn: (row, id, value) => {
+      if (!value || value === "Toate") return true;
+      return row.getValue(id) === value;
     },
-    {
-      accessorKey: "type",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Tip concediu" />
-      ),
-      cell: ({ row }) => (
-        <div className="whitespace-nowrap">
-          {LEAVE_TYPE_LABELS[row.getValue("type") as LeaveRequest["type"]]}
-        </div>
-      ),
-      filterFn: (row, id, value) => {
-        if (!value || value === "Toate") return true;
-        return row.getValue(id) === value;
-      },
+  },
+  {
+    id: "period",
+    header: "Perioadă",
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap">
+        {formatDate(row.original.startDate)} – {formatDate(row.original.endDate)}
+      </div>
+    ),
+    enableSorting: false,
+  },
+  {
+    accessorKey: "days",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Zile" />
+    ),
+    cell: ({ row }) => (
+      <div className="whitespace-nowrap">{row.getValue("days")} zile</div>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Status" />
+    ),
+    cell: ({ row }) => <StatusBadge status={row.getValue("status")} />,
+    filterFn: (row, id, value) => {
+      if (!value || value === "Toate") return true;
+      return row.getValue(id) === value;
     },
-    {
-      id: "period",
-      header: "Perioadă",
-      cell: ({ row }) => (
-        <div className="whitespace-nowrap">
-          {formatDate(row.original.startDate)} – {formatDate(row.original.endDate)}
-        </div>
-      ),
-      enableSorting: false,
-    },
-    {
-      accessorKey: "days",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Zile" />
-      ),
-      cell: ({ row }) => (
-        <div className="whitespace-nowrap">{row.getValue("days")} zile</div>
-      ),
-    },
-    {
-      accessorKey: "status",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Status" />
-      ),
-      cell: ({ row }) => (
-        <StatusBadge status={row.getValue("status")} />
-      ),
-      filterFn: (row, id, value) => {
-        if (!value || value === "Toate") return true;
-        return row.getValue(id) === value;
-      },
-    },
-    {
-      accessorKey: "reason",
-      header: "Motiv",
-      cell: ({ row }) => (
-        <div className="text-muted-foreground">
-          {row.getValue("reason") || "—"}
-        </div>
-      ),
-      enableSorting: false,
-    },
-  ];
-}
+  },
+  {
+    accessorKey: "reason",
+    header: "Motiv",
+    cell: ({ row }) => (
+      <div className="text-muted-foreground">
+        {row.getValue("reason") || "—"}
+      </div>
+    ),
+    enableSorting: false,
+  },
+  {
+    id: "actions",
+    enableSorting: false,
+    enableHiding: false,
+    header: () => null,
+    cell: () => null,
+  },
+];
 
+// ── Page ─────────────────────────────────────────────────────
 export default function LeavesPage() {
   const employees = React.useMemo(
     () => getCollection<Employee>(STORAGE_KEYS.employees),
@@ -148,11 +157,16 @@ export default function LeavesPage() {
     return map;
   }, [employees]);
 
-  const [data] = React.useState<LeaveRow[]>(() =>
-    getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests).map((lr) => ({
+  const toLeaveRow = React.useCallback(
+    (lr: LeaveRequest): LeaveRow => ({
       ...lr,
       employeeName: employeeMap.get(lr.employeeId) ?? lr.employeeId,
-    })),
+    }),
+    [employeeMap],
+  );
+
+  const [data, setData] = React.useState<LeaveRow[]>(() =>
+    getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests).map(toLeaveRow),
   );
 
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -164,8 +178,6 @@ export default function LeavesPage() {
   const [search, setSearch] = React.useState("");
   const [typeFilter, setTypeFilter] = React.useState("Toate");
   const [statusFilter, setStatusFilter] = React.useState("Toate");
-
-  const columns = React.useMemo(() => buildColumns(), []);
 
   const table = useReactTable({
     data,
@@ -208,6 +220,12 @@ export default function LeavesPage() {
     table.setPageIndex(0);
   };
 
+  const refreshData = React.useCallback(() => {
+    setData(
+      getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests).map(toLeaveRow),
+    );
+  }, [toLeaveRow]);
+
   return (
     <>
       <Header>
@@ -221,6 +239,7 @@ export default function LeavesPage() {
               <span className="text-sm text-muted-foreground">
                 {table.getFilteredRowModel().rows.length} cereri
               </span>
+              <LeaveDialog mode="add" onAdd={refreshData} />
             </div>
             <div className="flex flex-wrap gap-2 mt-3">
               <Input
@@ -277,16 +296,12 @@ export default function LeavesPage() {
                 <TableBody>
                   {table.getRowModel().rows?.length ? (
                     table.getRowModel().rows.map((row) => (
-                      <TableRow key={row.id}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
+                      <LeaveTableRow
+                        key={row.id}
+                        row={row}
+                        setData={setData}
+                        employeeMap={employeeMap}
+                      />
                     ))
                   ) : (
                     <TableRow>
