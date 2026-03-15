@@ -14,6 +14,7 @@ import { Pencil, Trash2, Plus } from "lucide-react";
 import { ExpiryDatePicker } from "./expiry-date-picker";
 import { generateId } from "@/utils/local-storage";
 import type { EmployeeDocument } from "@/modules/hr/types";
+import { format } from "date-fns";
 
 const TYPE_LABELS: Record<EmployeeDocument["type"], string> = {
   contract: "Contract",
@@ -248,7 +249,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
               setIssueDate(date);
               setDocForm((f) => ({
                 ...f,
-                issueDate: date ? date.toISOString().slice(0, 10) : "",
+                issueDate: date ? format(date, "yyyy-MM-dd") : "",
               }));
             }}
             placeholder="Data emitere"
@@ -259,7 +260,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
               setDocDate(date);
               setDocForm((f) => ({
                 ...f,
-                expiryDate: date ? date.toISOString().slice(0, 10) : "",
+                expiryDate: date ? format(date, "yyyy-MM-dd") : "",
               }));
             }}
             placeholder="Data expirare"
