@@ -4,7 +4,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { getCollection, updateItem } from "@/utils/local-storage";
+import { updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, EmployeeDocument } from "@/modules/hr/types";
 import { DocumentsTab } from "./documents-tab";
