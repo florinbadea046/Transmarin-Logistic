@@ -274,19 +274,122 @@
     "selected": "selectate",
     "noResults": "Niciun rezultat.",
     "search": "Caută...",
-    "clearFilters": "Șterge filtre"
+    "clearFilters": "Șterge filtre",
+    "rowsPerPage": "Rânduri pe pagină",
+    "pageOf": "Pagina {{page}} din {{total}}"
   },
   "trips": {
-    "title": "Curse",
-    "fields": {
-      "orderId": "ID Comandă",
-      "driverId": "ID Șofer",
-      "truckId": "ID Camion",
-      "date": "Dată",
-      "kmLoaded": "Km încărcați",
-      "kmEmpty": "Km goi",
+    "title": "Curse Zilnice",
+    "tableTitle": "Tabel Curse",
+    "add": "Cursă nouă",
+    "addShort": "Nou",
+    "edit": "Editează cursă",
+    "save": "Salvează modificările",
+    "saveNew": "Adaugă cursă",
+    "cancel": "Anulează",
+    "noResults": "Nu există curse. Apasă „Cursă nouă\" pentru a adăuga.",
+    "columns": {
+      "nr": "Nr.",
+      "order": "Comandă",
+      "route": "Rută",
+      "driver": "Șofer",
+      "truck": "Camion",
+      "status": "Status",
+      "departureDate": "Data plecare",
+      "arrivalDate": "Sosire estimată",
+      "kmLoaded": "Km încărcat",
+      "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil",
+      "actions": "Acțiuni"
+    },
+    "fields": {
+      "order": "Comandă",
+      "driver": "Șofer",
+      "truck": "Camion",
+      "departureDate": "Data plecare",
+      "arrivalDate": "Sosire estimată",
+      "kmLoaded": "Km încărcat",
+      "kmEmpty": "Km gol",
+      "fuelCost": "Cost combustibil (RON)",
       "status": "Status"
+    },
+    "placeholders": {
+      "order": "Selectează o comandă",
+      "driver": "Selectează șofer",
+      "truck": "Selectează camion",
+      "status": "Selectează status",
+      "search": "Caută curse...",
+      "km": "0"
+    },
+    "status": {
+      "planned": "Planificată",
+      "in_desfasurare": "În desfășurare",
+      "finalizata": "Finalizată",
+      "anulata": "Anulată"
+    },
+    "actions": {
+      "edit": "Editează",
+      "delete": "Șterge",
+      "start": "Pornește",
+      "cancel": "Anulează",
+      "finish": "Finalizează",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV"
+    },
+    "validation": {
+      "orderRequired": "Selectează o comandă",
+      "driverRequired": "Selectează un șofer",
+      "truckRequired": "Selectează un camion",
+      "departureDateRequired": "Data plecare este obligatorie",
+      "arrivalDateRequired": "Data sosire estimată este obligatorie",
+      "arrivalAfterDeparture": "Data sosire trebuie să fie după data plecare",
+      "kmLoadedPositive": "Km încărcat trebuie să fie > 0",
+      "kmEmptyPositive": "Km gol trebuie să fie > 0",
+      "fuelCostMin": "Cost combustibil trebuie să fie >= 0"
+    },
+    "toast": {
+      "added": "Cursă adăugată cu succes!",
+      "updated": "Cursă actualizată cu succes!",
+      "deleted": "Cursă ștearsă.",
+      "started": "Cursă pornită!",
+      "finished": "Cursă finalizată!",
+      "cancelled": "Cursă anulată.",
+      "error": "A apărut o eroare. Încearcă din nou."
+    },
+    "dialog": {
+      "addDesc": "Completează detaliile pentru o cursă nouă.",
+      "editDesc": "Modifică detaliile cursei existente."
+    },
+    "delete": {
+      "title": "Șterge cursă",
+      "desc": "Ești sigur că vrei să ștergi cursa pentru comanda #{{orderId}}? Această acțiune nu poate fi anulată.",
+      "descFallback": "Ești sigur că vrei să ștergi această cursă?",
+      "confirm": "Șterge",
+      "disabledTooltip": "Nu se poate șterge o cursă în desfășurare"
+    },
+    "mobile": {
+      "driver": "Șofer",
+      "departure": "Data plecare",
+      "arrival": "Sosire estimată",
+      "kmLoaded": "Km încărcat",
+      "kmEmpty": "Km gol",
+      "fuelCost": "Cost combustibil"
+    },
+    "export": {
+      "nr": "Nr. cursă",
+      "order": "Comandă",
+      "driver": "Șofer",
+      "truck": "Camion",
+      "route": "Rută",
+      "departure": "Data plecare",
+      "arrival": "Data sosire estimată",
+      "kmLoaded": "Km încărcat",
+      "kmEmpty": "Km gol",
+      "fuelCost": "Cost combustibil (RON)",
+      "status": "Status",
+      "filename": "curse"
     }
   }
 }

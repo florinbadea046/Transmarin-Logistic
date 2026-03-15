@@ -274,19 +274,122 @@
     "selected": "selected",
     "noResults": "No results found.",
     "search": "Search...",
-    "clearFilters": "Clear filters"
+    "clearFilters": "Clear filters",
+    "rowsPerPage": "Rows per page",
+    "pageOf": "Page {{page}} of {{total}}"
   },
   "trips": {
-    "title": "Trips",
+    "title": "Daily Trips",
+    "tableTitle": "Trips Table",
+    "add": "New Trip",
+    "addShort": "New",
+    "edit": "Edit Trip",
+    "save": "Save Changes",
+    "saveNew": "Add Trip",
+    "cancel": "Cancel",
+    "noResults": "No trips found. Click \"New Trip\" to add one.",
+    "columns": {
+      "nr": "No.",
+      "order": "Order",
+      "route": "Route",
+      "driver": "Driver",
+      "truck": "Truck",
+      "status": "Status",
+      "departureDate": "Departure Date",
+      "arrivalDate": "Est. Arrival",
+      "kmLoaded": "Loaded Km",
+      "kmEmpty": "Empty Km",
+      "fuelCost": "Fuel Cost",
+      "actions": "Actions"
+    },
     "fields": {
-      "orderId": "Order ID",
-      "driverId": "Driver ID",
-      "truckId": "Truck ID",
-      "date": "Date",
-      "kmLoaded": "Loaded km",
-      "kmEmpty": "Empty km",
-      "fuelCost": "Fuel cost",
+      "order": "Order",
+      "driver": "Driver",
+      "truck": "Truck",
+      "departureDate": "Departure Date",
+      "arrivalDate": "Estimated Arrival",
+      "kmLoaded": "Loaded Km",
+      "kmEmpty": "Empty Km",
+      "fuelCost": "Fuel Cost (RON)",
       "status": "Status"
+    },
+    "placeholders": {
+      "order": "Select an order",
+      "driver": "Select driver",
+      "truck": "Select truck",
+      "status": "Select status",
+      "search": "Search trips...",
+      "km": "0"
+    },
+    "status": {
+      "planned": "Planned",
+      "in_desfasurare": "In Progress",
+      "finalizata": "Completed",
+      "anulata": "Cancelled"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "start": "Start",
+      "cancel": "Cancel",
+      "finish": "Complete",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV"
+    },
+    "validation": {
+      "orderRequired": "Select an order",
+      "driverRequired": "Select a driver",
+      "truckRequired": "Select a truck",
+      "departureDateRequired": "Departure date is required",
+      "arrivalDateRequired": "Estimated arrival date is required",
+      "arrivalAfterDeparture": "Arrival date must be after departure date",
+      "kmLoadedPositive": "Loaded km must be > 0",
+      "kmEmptyPositive": "Empty km must be > 0",
+      "fuelCostMin": "Fuel cost must be >= 0"
+    },
+    "toast": {
+      "added": "Trip added successfully!",
+      "updated": "Trip updated successfully!",
+      "deleted": "Trip deleted.",
+      "started": "Trip started!",
+      "finished": "Trip completed!",
+      "cancelled": "Trip cancelled.",
+      "error": "An error occurred. Please try again."
+    },
+    "dialog": {
+      "addDesc": "Fill in the details for a new trip.",
+      "editDesc": "Edit the details of the existing trip."
+    },
+    "delete": {
+      "title": "Delete Trip",
+      "desc": "Are you sure you want to delete the trip for order #{{orderId}}? This action cannot be undone.",
+      "descFallback": "Are you sure you want to delete this trip?",
+      "confirm": "Delete",
+      "disabledTooltip": "Cannot delete a trip that is in progress"
+    },
+    "mobile": {
+      "driver": "Driver",
+      "departure": "Departure",
+      "arrival": "Est. Arrival",
+      "kmLoaded": "Loaded Km",
+      "kmEmpty": "Empty Km",
+      "fuelCost": "Fuel Cost"
+    },
+    "export": {
+      "nr": "Trip No.",
+      "order": "Order",
+      "driver": "Driver",
+      "truck": "Truck",
+      "route": "Route",
+      "departure": "Departure Date",
+      "arrival": "Est. Arrival Date",
+      "kmLoaded": "Loaded Km",
+      "kmEmpty": "Empty Km",
+      "fuelCost": "Fuel Cost (RON)",
+      "status": "Status",
+      "filename": "trips"
     }
   }
 }
