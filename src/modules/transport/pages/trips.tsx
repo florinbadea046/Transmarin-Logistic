@@ -1245,18 +1245,25 @@ export default function TripsPage() {
                         <FormItem className="min-w-0">
                           <FormControl>
                             <Input
-                              type="number"
-                              min={1}
+                              type="text"
+                              inputMode="decimal"
                               placeholder="0"
                               className="w-full min-w-0"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(
-                                  isNaN(e.target.valueAsNumber)
-                                    ? 0
-                                    : e.target.valueAsNumber,
-                                )
+                              value={
+                                field.value === 0 ? "" : String(field.value)
                               }
+                              onChange={(e) => {
+                                const v = e.target.value.replace(
+                                  /[^0-9.]/g,
+                                  "",
+                                );
+                                field.onChange(
+                                  v === "" ? 0 : parseFloat(v) || 0,
+                                );
+                              }}
+                              onBlur={() => {
+                                if (!field.value) field.onChange(0);
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1273,18 +1280,25 @@ export default function TripsPage() {
                         <FormItem className="min-w-0">
                           <FormControl>
                             <Input
-                              type="number"
-                              min={1}
+                              type="text"
+                              inputMode="decimal"
                               placeholder="0"
                               className="w-full min-w-0"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(
-                                  isNaN(e.target.valueAsNumber)
-                                    ? 0
-                                    : e.target.valueAsNumber,
-                                )
+                              value={
+                                field.value === 0 ? "" : String(field.value)
                               }
+                              onChange={(e) => {
+                                const v = e.target.value.replace(
+                                  /[^0-9.]/g,
+                                  "",
+                                );
+                                field.onChange(
+                                  v === "" ? 0 : parseFloat(v) || 0,
+                                );
+                              }}
+                              onBlur={() => {
+                                if (!field.value) field.onChange(0);
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
@@ -1301,18 +1315,25 @@ export default function TripsPage() {
                         <FormItem className="min-w-0">
                           <FormControl>
                             <Input
-                              type="number"
-                              min={0}
+                              type="text"
+                              inputMode="decimal"
                               placeholder="0"
                               className="w-full min-w-0"
-                              {...field}
-                              onChange={(e) =>
-                                field.onChange(
-                                  isNaN(e.target.valueAsNumber)
-                                    ? 0
-                                    : e.target.valueAsNumber,
-                                )
+                              value={
+                                field.value === 0 ? "" : String(field.value)
                               }
+                              onChange={(e) => {
+                                const v = e.target.value.replace(
+                                  /[^0-9.]/g,
+                                  "",
+                                );
+                                field.onChange(
+                                  v === "" ? 0 : parseFloat(v) || 0,
+                                );
+                              }}
+                              onBlur={() => {
+                                if (!field.value) field.onChange(0);
+                              }}
                             />
                           </FormControl>
                           <FormMessage />
