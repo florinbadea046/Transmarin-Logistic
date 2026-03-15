@@ -1,4 +1,4 @@
-import * as React from "react";
+import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,7 +10,11 @@ import {
 import { useWatch, type UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
-import { DatePicker } from "@/components/date-picker";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { CalendarDropdown } from "./calendar-dropdown";
 
 export const employeeSchema = z.object({
   name: z.string().min(2, "Numele este obligatoriu"),
@@ -84,14 +88,31 @@ export function EmployeeFormFields({ form, selectedDate, onDateSelect }: Props) 
           {form.formState.errors.email.message}
         </span>
       )}
-      <DatePicker
-        selected={selectedDate}
-        onSelect={(date) => {
-          onDateSelect(date);
-          form.setValue("hireDate", date ? date.toISOString().slice(0, 10) : "");
-        }}
-        placeholder="Data angajării"
-      />
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            data-empty={!selectedDate}
+            className="w-full justify-start text-start font-normal data-[empty=true]:text-muted-foreground"
+          >
+            {selectedDate ? format(selectedDate, "MMM d, yyyy") : <span>Data angajării</span>}
+            <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            captionLayout="dropdown"
+            selected={selectedDate}
+            onSelect={(date: Date | undefined) => {
+              onDateSelect(date);
+              form.setValue("hireDate", date ? format(date, "yyyy-MM-dd") : "");
+            }}
+            disabled={(date: Date) => date > new Date() || date < new Date("1900-01-01")}
+            components={{ Dropdown: CalendarDropdown }}
+          />
+        </PopoverContent>
+      </Popover>
       {form.formState.errors.hireDate && (
         <span className="text-xs text-red-500">
           {form.formState.errors.hireDate.message}
