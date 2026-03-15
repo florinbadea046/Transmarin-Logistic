@@ -1,4 +1,5 @@
 import * as React from "react";
+import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -242,7 +243,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
               setDocDate(date);
               setDocForm((f) => ({
                 ...f,
-                expiryDate: date ? date.toISOString().slice(0, 10) : "",
+                expiryDate: date ? format(date, "yyyy-MM-dd") : "",
               }));
             }}
             placeholder="Data expirare"

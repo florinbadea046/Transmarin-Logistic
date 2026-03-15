@@ -90,7 +90,8 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  variant="destructive"
+                  className="cursor-pointer"
                   onClick={handleDeleteClick}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
