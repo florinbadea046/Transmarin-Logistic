@@ -1,8 +1,3 @@
-// ──────────────────────────────────────────────────────────
-// Tipuri de date pentru modulul Transport & Dispecerat
-// Studenții vor extinde aceste tipuri pe măsură ce dezvoltă modulul.
-// ──────────────────────────────────────────────────────────
-
 export interface Order {
   id: string;
   clientName: string;
@@ -10,7 +5,7 @@ export interface Order {
   destination: string;
   date: string;
   status: "pending" | "assigned" | "in_transit" | "delivered" | "cancelled";
-  weight?: number; // tone
+  weight?: number;
   notes?: string;
 }
 
@@ -23,7 +18,7 @@ export interface Trip {
   kmLoaded: number;
   kmEmpty: number;
   fuelCost: number;
-  status: "planned" | "active" | "completed";
+  status: "planned" | "in_desfasurare" | "finalizata" | "anulata";
 }
 
 export interface Driver {
@@ -32,7 +27,7 @@ export interface Driver {
   phone: string;
   licenseExpiry: string;
   status: "available" | "on_trip" | "off_duty";
-  truckId?: string; // optional — camionul asociat șoferului
+  truckId?: string;
 }
 
 export interface Truck {
