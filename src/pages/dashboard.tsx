@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   Users,
   Receipt,
@@ -61,26 +62,6 @@ function buildLast30Days(): string[] {
   return days;
 }
 
-function shortLabel(ymd: string): string {
-  const months = [
-    "Ian",
-    "Feb",
-    "Mar",
-    "Apr",
-    "Mai",
-    "Iun",
-    "Iul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
-  const parts = ymd.split("-");
-  if (parts.length < 3) return ymd;
-  return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]}`;
-}
-
 function useTransportData() {
   const [orders, setOrders] = React.useState<Order[]>([]);
   const [trips, setTrips] = React.useState<RawTrip[]>([]);
@@ -108,6 +89,7 @@ function useTransportData() {
 }
 
 function AlerteTransport({ trucks }: { trucks: TruckType[] }) {
+  const { t } = useTranslation();
   const nowMs = new Date().getTime();
   const alerts: { label: string; daysLeft: number }[] = [];
 
@@ -115,7 +97,7 @@ function AlerteTransport({ trucks }: { trucks: TruckType[] }) {
     const checks = [
       { field: truck.itpExpiry, type: "ITP" },
       { field: truck.rcaExpiry, type: "RCA" },
-      { field: truck.vignetteExpiry, type: "Rovinietă" },
+      { field: truck.vignetteExpiry, type: t("trucks.card.vignette") },
     ];
     for (const { field, type } of checks) {
       if (!field) continue;
@@ -124,8 +106,12 @@ function AlerteTransport({ trucks }: { trucks: TruckType[] }) {
           (new Date(field).getTime() - nowMs) / 86400000,
         );
         if (daysLeft < 30) {
+          const status =
+            daysLeft < 0
+              ? t("dashboard.alerts.expired")
+              : t("dashboard.alerts.expiresIn", { days: daysLeft });
           alerts.push({
-            label: `${truck.plateNumber} — ${type} ${daysLeft < 0 ? "EXPIRAT" : `expiră în ${daysLeft} zile`}`,
+            label: `${truck.plateNumber} — ${type} ${status}`,
             daysLeft,
           });
         }
@@ -143,7 +129,7 @@ function AlerteTransport({ trucks }: { trucks: TruckType[] }) {
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-yellow-700 dark:text-yellow-400">
           <AlertTriangle className="h-4 w-4" />
-          Alerte ITP / RCA / Rovinietă (&lt;30 zile)
+          {t("dashboard.alerts.title")}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -177,6 +163,7 @@ function AlerteTransport({ trucks }: { trucks: TruckType[] }) {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation();
   const { orders, trips, trucks } = useTransportData();
 
   const today = new Date();
@@ -190,8 +177,16 @@ export default function DashboardPage() {
   ).length;
 
   const kmMonth = trips
-    .filter((t) => getTripDate(t).startsWith(thisMonth))
-    .reduce((sum, t) => sum + (t.kmLoaded ?? 0) + (t.kmEmpty ?? 0), 0);
+    .filter((trip) => getTripDate(trip).startsWith(thisMonth))
+    .reduce((sum, trip) => sum + (trip.kmLoaded ?? 0) + (trip.kmEmpty ?? 0), 0);
+
+  const months = t("dashboard.months", { returnObjects: true }) as string[];
+
+  function shortLabel(ymd: string): string {
+    const parts = ymd.split("-");
+    if (parts.length < 3) return ymd;
+    return `${parseInt(parts[2])} ${months[parseInt(parts[1]) - 1]}`;
+  }
 
   const days30 = buildLast30Days();
   const kmByDay: Record<string, number> = {};
@@ -209,7 +204,7 @@ export default function DashboardPage() {
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold">Dashboard</h1>
+        <h1 className="text-lg font-semibold">{t("dashboard.title")}</h1>
       </Header>
       <Main>
         <div className="space-y-6">
@@ -219,14 +214,14 @@ export default function DashboardPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Comenzi Active
+                  {t("dashboard.cards.activeOrders")}
                 </CardTitle>
                 <PackageCheck className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{activeOrders}</div>
                 <p className="text-xs text-muted-foreground">
-                  pending + assigned + în tranzit
+                  {t("dashboard.cards.activeOrdersDesc")}
                 </p>
               </CardContent>
             </Card>
@@ -234,33 +229,37 @@ export default function DashboardPage() {
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Angajați
+                  {t("dashboard.cards.employees")}
                 </CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">24</div>
-                <p className="text-xs text-muted-foreground">21 activi</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.cards.employeesDesc")}
+                </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Facturi Luna
+                  {t("dashboard.cards.invoices")}
                 </CardTitle>
                 <Receipt className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">45</div>
-                <p className="text-xs text-muted-foreground">8 neachitate</p>
+                <p className="text-xs text-muted-foreground">
+                  {t("dashboard.cards.invoicesDesc")}
+                </p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Km Luna Aceasta
+                  {t("dashboard.cards.kmMonth")}
                 </CardTitle>
                 <BarChart3 className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
@@ -269,7 +268,7 @@ export default function DashboardPage() {
                   {kmMonth.toLocaleString()} km
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  încărcat + gol din toate cursele
+                  {t("dashboard.cards.kmMonthDesc")}
                 </p>
               </CardContent>
             </Card>
@@ -279,7 +278,7 @@ export default function DashboardPage() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm font-medium">
-                  Km / zi — ultimele 30 zile
+                  {t("dashboard.charts.kmPerDay")}
                 </CardTitle>
               </CardHeader>
               <CardContent className="px-2">
@@ -307,7 +306,10 @@ export default function DashboardPage() {
                     />
                     <Tooltip
                       contentStyle={{ fontSize: 12 }}
-                      formatter={(v) => [`${v ?? 0} km`, "Km"]}
+                      formatter={(v) => [
+                        `${v ?? 0} km`,
+                        t("dashboard.charts.kmTooltip"),
+                      ]}
                     />
                     <Line
                       type="monotone"
@@ -324,10 +326,10 @@ export default function DashboardPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Costuri vs. Venituri</CardTitle>
+                <CardTitle>{t("dashboard.charts.costsVsRevenue")}</CardTitle>
               </CardHeader>
               <CardContent className="flex h-[220px] items-center justify-center text-muted-foreground">
-                <p>TODO: Grafic Recharts — costuri/venituri</p>
+                <p>{t("dashboard.charts.costsVsRevenueTodo")}</p>
               </CardContent>
             </Card>
           </div>
