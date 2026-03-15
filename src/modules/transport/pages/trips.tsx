@@ -17,6 +17,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   PlusCircle,
   Play,
@@ -101,189 +102,32 @@ function useWindowWidth() {
   return width;
 }
 
-const statusMeta: Record<
-  Trip["status"],
-  { label: string; badgeClass: string }
-> = {
-  planned: {
-    label: "Planificată",
-    badgeClass:
-      "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400",
-  },
-  in_desfasurare: {
-    label: "În desfășurare",
-    badgeClass:
-      "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400",
-  },
-  finalizata: {
-    label: "Finalizată",
-    badgeClass:
-      "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400",
-  },
-  anulata: {
-    label: "Anulată",
-    badgeClass:
-      "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400",
-  },
+const STATUS_BADGE_CLASSES: Record<Trip["status"], string> = {
+  planned:
+    "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400",
+  in_desfasurare:
+    "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400",
+  finalizata:
+    "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400",
+  anulata:
+    "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400",
 };
 
-const statusFilterOptions = (Object.keys(statusMeta) as Trip["status"][]).map(
-  (value) => ({ value, label: statusMeta[value].label }),
-);
-
-function StatusBadge({ status }: { status: Trip["status"] }) {
-  const meta = statusMeta[status];
+function StatusBadge({
+  status,
+  label,
+}: {
+  status: Trip["status"];
+  label: string;
+}) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap ${meta.badgeClass}`}
+      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap ${STATUS_BADGE_CLASSES[status]}`}
     >
-      {meta.label}
+      {label}
     </span>
   );
 }
-
-function toRows(
-  trips: Trip[],
-  orders: Order[],
-  drivers: Driver[],
-  trucks: Truck[],
-) {
-  return trips.map((t, idx) => {
-    const order = orders.find((o) => o.id === t.orderId);
-    const driver = drivers.find((d) => d.id === t.driverId);
-    const truck = trucks.find((tr) => tr.id === t.truckId);
-    return {
-      "Nr. cursă": idx + 1,
-      Comandă: order ? order.clientName : t.orderId,
-      Șofer: driver?.name ?? t.driverId,
-      Camion: truck ? truck.plateNumber : t.truckId,
-      Rută: order ? `${order.origin} → ${order.destination}` : "—",
-      "Data plecare": t.departureDate,
-      "Data sosire estimată": t.estimatedArrivalDate,
-      "Km încărcat": t.kmLoaded,
-      "Km gol": t.kmEmpty,
-      "Cost combustibil (RON)": t.fuelCost,
-      Status: statusMeta[t.status]?.label ?? t.status,
-    };
-  });
-}
-
-function exportPDF(
-  trips: Trip[],
-  orders: Order[],
-  drivers: Driver[],
-  trucks: Truck[],
-) {
-  const doc = new jsPDF();
-  doc.setFontSize(14);
-  doc.text("Curse", 14, 16);
-  const rows = toRows(trips, orders, drivers, trucks);
-  autoTable(doc, {
-    head: [Object.keys(rows[0] ?? {})],
-    body: rows.map((r) => Object.values(r).map(String)),
-    startY: 22,
-    styles: { fontSize: 7 },
-    headStyles: { fillColor: [30, 30, 30] },
-  });
-  doc.save("curse.pdf");
-}
-
-function exportExcel(
-  trips: Trip[],
-  orders: Order[],
-  drivers: Driver[],
-  trucks: Truck[],
-) {
-  const ws = XLSX.utils.json_to_sheet(toRows(trips, orders, drivers, trucks));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Curse");
-  XLSX.writeFile(wb, "curse.xlsx");
-}
-
-function exportCSV(
-  trips: Trip[],
-  orders: Order[],
-  drivers: Driver[],
-  trucks: Truck[],
-) {
-  const csv = Papa.unparse(toRows(trips, orders, drivers, trucks));
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "curse.csv";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function ExportMenu({
-  trips,
-  orders,
-  drivers,
-  trucks,
-}: {
-  trips: Trip[];
-  orders: Order[];
-  drivers: Driver[];
-  trucks: Truck[];
-}) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm">
-          Export
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => exportPDF(trips, orders, drivers, trucks)}
-        >
-          Export PDF
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => exportExcel(trips, orders, drivers, trucks)}
-        >
-          Export Excel
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => exportCSV(trips, orders, drivers, trucks)}
-        >
-          Export CSV
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-const tripSchema = z
-  .object({
-    orderId: z.string().min(1, "Selectează o comandă"),
-    driverId: z.string().min(1, "Selectează un șofer"),
-    truckId: z.string().min(1, "Selectează un camion"),
-    departureDate: z.string().min(1, "Data plecare este obligatorie"),
-    estimatedArrivalDate: z
-      .string()
-      .min(1, "Data sosire estimată este obligatorie"),
-    kmLoaded: z.number().positive("Km încărcat trebuie să fie > 0"),
-    kmEmpty: z.number().positive("Km gol trebuie să fie > 0"),
-    fuelCost: z.number().min(0, "Cost combustibil trebuie să fie >= 0"),
-    status: z.enum(["planned", "in_desfasurare", "finalizata", "anulata"]),
-  })
-  .refine(
-    (data) =>
-      !data.departureDate ||
-      !data.estimatedArrivalDate ||
-      data.estimatedArrivalDate >= data.departureDate,
-    {
-      message: "Data sosire trebuie să fie după data plecare",
-      path: ["estimatedArrivalDate"],
-    },
-  );
 
 type TripFormValues = {
   orderId: string;
@@ -297,6 +141,136 @@ type TripFormValues = {
   status: "planned" | "in_desfasurare" | "finalizata" | "anulata";
 };
 
+function buildSchema(t: ReturnType<typeof useTranslation>["t"]) {
+  return z
+    .object({
+      orderId: z.string().min(1, t("trips.validation.orderRequired")),
+      driverId: z.string().min(1, t("trips.validation.driverRequired")),
+      truckId: z.string().min(1, t("trips.validation.truckRequired")),
+      departureDate: z
+        .string()
+        .min(1, t("trips.validation.departureDateRequired")),
+      estimatedArrivalDate: z
+        .string()
+        .min(1, t("trips.validation.arrivalDateRequired")),
+      kmLoaded: z.number().positive(t("trips.validation.kmLoadedPositive")),
+      kmEmpty: z.number().positive(t("trips.validation.kmEmptyPositive")),
+      fuelCost: z.number().min(0, t("trips.validation.fuelCostMin")),
+      status: z.enum(["planned", "in_desfasurare", "finalizata", "anulata"]),
+    })
+    .refine(
+      (data) =>
+        !data.departureDate ||
+        !data.estimatedArrivalDate ||
+        data.estimatedArrivalDate >= data.departureDate,
+      {
+        message: t("trips.validation.arrivalAfterDeparture"),
+        path: ["estimatedArrivalDate"],
+      },
+    );
+}
+
+function toRows(
+  trips: Trip[],
+  orders: Order[],
+  drivers: Driver[],
+  trucks: Truck[],
+  t: ReturnType<typeof useTranslation>["t"],
+) {
+  return trips.map((trip, idx) => {
+    const order = orders.find((o) => o.id === trip.orderId);
+    const driver = drivers.find((d) => d.id === trip.driverId);
+    const truck = trucks.find((tr) => tr.id === trip.truckId);
+    return {
+      [t("trips.export.nr")]: idx + 1,
+      [t("trips.export.order")]: order ? order.clientName : trip.orderId,
+      [t("trips.export.driver")]: driver?.name ?? trip.driverId,
+      [t("trips.export.truck")]: truck ? truck.plateNumber : trip.truckId,
+      [t("trips.export.route")]: order
+        ? `${order.origin} → ${order.destination}`
+        : "—",
+      [t("trips.export.departure")]: trip.departureDate,
+      [t("trips.export.arrival")]: trip.estimatedArrivalDate,
+      [t("trips.export.kmLoaded")]: trip.kmLoaded,
+      [t("trips.export.kmEmpty")]: trip.kmEmpty,
+      [t("trips.export.fuelCost")]: trip.fuelCost,
+      [t("trips.export.status")]: t(`trips.status.${trip.status}`),
+    };
+  });
+}
+
+function ExportMenu({
+  trips,
+  orders,
+  drivers,
+  trucks,
+  t,
+}: {
+  trips: Trip[];
+  orders: Order[];
+  drivers: Driver[];
+  trucks: Truck[];
+  t: ReturnType<typeof useTranslation>["t"];
+}) {
+  function exportPDF() {
+    const doc = new jsPDF();
+    doc.setFontSize(14);
+    doc.text(t("trips.title"), 14, 16);
+    const rows = toRows(trips, orders, drivers, trucks, t);
+    autoTable(doc, {
+      head: [Object.keys(rows[0] ?? {})],
+      body: rows.map((r) => Object.values(r).map(String)),
+      startY: 22,
+      styles: { fontSize: 7 },
+      headStyles: { fillColor: [30, 30, 30] },
+    });
+    doc.save(`${t("trips.export.filename")}.pdf`);
+  }
+
+  function exportExcel() {
+    const ws = XLSX.utils.json_to_sheet(
+      toRows(trips, orders, drivers, trucks, t),
+    );
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, t("trips.title"));
+    XLSX.writeFile(wb, `${t("trips.export.filename")}.xlsx`);
+  }
+
+  function exportCSV() {
+    const csv = Papa.unparse(toRows(trips, orders, drivers, trucks, t));
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${t("trips.export.filename")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm">
+          {t("trips.actions.export")}
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem className="cursor-pointer" onClick={exportPDF}>
+          {t("trips.actions.exportPdf")}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer" onClick={exportExcel}>
+          {t("trips.actions.exportExcel")}
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="cursor-pointer" onClick={exportCSV}>
+          {t("trips.actions.exportCsv")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 function buildColumns(
   orders: Order[],
   drivers: Driver[],
@@ -305,15 +279,16 @@ function buildColumns(
   onStatusChange: (trip: Trip) => void,
   onEdit: (trip: Trip) => void,
   onDelete: (trip: Trip) => void,
+  t: ReturnType<typeof useTranslation>["t"],
 ): ColumnDef<Trip>[] {
   return [
     {
       id: "nr",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Nr." />
+        <DataTableColumnHeader column={column} title={t("trips.columns.nr")} />
       ),
       cell: ({ row }) => {
-        const idx = allTrips.findIndex((t) => t.id === row.original.id);
+        const idx = allTrips.findIndex((trip) => trip.id === row.original.id);
         return (
           <div className="tabular-nums text-muted-foreground text-sm">
             {idx + 1}
@@ -326,7 +301,10 @@ function buildColumns(
     {
       accessorKey: "orderId",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Comandă" />
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.order")}
+        />
       ),
       cell: ({ row }) => {
         const order = orders.find((o) => o.id === row.getValue("orderId"));
@@ -358,7 +336,10 @@ function buildColumns(
     {
       id: "route",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Rută" />
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.route")}
+        />
       ),
       cell: ({ row }) => {
         const order = orders.find((o) => o.id === row.original.orderId);
@@ -375,7 +356,10 @@ function buildColumns(
     {
       accessorKey: "driverId",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Șofer" />
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.driver")}
+        />
       ),
       cell: ({ row }) => {
         const driver = drivers.find((d) => d.id === row.getValue("driverId"));
@@ -390,10 +374,13 @@ function buildColumns(
     {
       accessorKey: "truckId",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Camion" />
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.truck")}
+        />
       ),
       cell: ({ row }) => {
-        const truck = trucks.find((t) => t.id === row.getValue("truckId"));
+        const truck = trucks.find((tr) => tr.id === row.getValue("truckId"));
         return (
           <div className="text-sm whitespace-nowrap">
             {truck
@@ -407,11 +394,17 @@ function buildColumns(
     {
       accessorKey: "status",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Status" />
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.status")}
+        />
       ),
-      cell: ({ row }) => (
-        <StatusBadge status={row.getValue("status") as Trip["status"]} />
-      ),
+      cell: ({ row }) => {
+        const status = row.getValue("status") as Trip["status"];
+        return (
+          <StatusBadge status={status} label={t(`trips.status.${status}`)} />
+        );
+      },
       enableSorting: true,
       filterFn: (row, id, value) => {
         const selected = value as string[] | undefined;
@@ -423,7 +416,10 @@ function buildColumns(
     {
       accessorKey: "departureDate",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Data plecare" />
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.departureDate")}
+        />
       ),
       cell: ({ row }) => (
         <div className="tabular-nums text-sm">
@@ -436,7 +432,10 @@ function buildColumns(
     {
       accessorKey: "estimatedArrivalDate",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Sosire estimată" />
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.arrivalDate")}
+        />
       ),
       cell: ({ row }) => (
         <div className="tabular-nums text-sm">
@@ -449,7 +448,10 @@ function buildColumns(
     {
       accessorKey: "kmLoaded",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Km încărcat" />
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.kmLoaded")}
+        />
       ),
       cell: ({ row }) => (
         <div className="tabular-nums text-right text-sm">
@@ -462,7 +464,10 @@ function buildColumns(
     {
       accessorKey: "kmEmpty",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Km gol" />
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.kmEmpty")}
+        />
       ),
       cell: ({ row }) => (
         <div className="tabular-nums text-right text-sm">
@@ -475,7 +480,10 @@ function buildColumns(
     {
       accessorKey: "fuelCost",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Cost combustibil" />
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.fuelCost")}
+        />
       ),
       cell: ({ row }) => (
         <div className="tabular-nums text-right text-sm">
@@ -488,14 +496,16 @@ function buildColumns(
     {
       id: "actions",
       header: () => (
-        <div className="text-center text-xs text-muted-foreground">Acțiuni</div>
+        <div className="text-center text-xs text-muted-foreground">
+          {t("trips.columns.actions")}
+        </div>
       ),
       cell: ({ row }) => {
         const trip = row.original;
         return (
           <div className="flex justify-center items-center gap-1">
             <button
-              title="Editează"
+              title={t("trips.actions.edit")}
               onClick={() => onEdit(trip)}
               className="h-6 w-6 flex items-center justify-center rounded-md border border-border/50 bg-transparent hover:bg-muted transition-colors"
             >
@@ -504,8 +514,8 @@ function buildColumns(
             <button
               title={
                 trip.status === "in_desfasurare"
-                  ? "Nu se poate șterge o cursă în desfășurare"
-                  : "Șterge"
+                  ? t("trips.delete.disabledTooltip")
+                  : t("trips.actions.delete")
               }
               onClick={() => trip.status !== "in_desfasurare" && onDelete(trip)}
               disabled={trip.status === "in_desfasurare"}
@@ -516,7 +526,7 @@ function buildColumns(
             {trip.status === "planned" && (
               <>
                 <button
-                  title="Pornește"
+                  title={t("trips.actions.start")}
                   onClick={() =>
                     onStatusChange({ ...trip, status: "in_desfasurare" })
                   }
@@ -525,7 +535,7 @@ function buildColumns(
                   <Play className="h-3 w-3 text-green-600" />
                 </button>
                 <button
-                  title="Anulează"
+                  title={t("trips.actions.cancel")}
                   onClick={() => onStatusChange({ ...trip, status: "anulata" })}
                   className="h-6 w-6 flex items-center justify-center rounded-md border border-red-300 bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                 >
@@ -535,7 +545,7 @@ function buildColumns(
             )}
             {trip.status === "in_desfasurare" && (
               <button
-                title="Finalizează"
+                title={t("trips.actions.finish")}
                 onClick={() =>
                   onStatusChange({ ...trip, status: "finalizata" })
                 }
@@ -553,6 +563,7 @@ function buildColumns(
 }
 
 export default function TripsPage() {
+  const { t } = useTranslation();
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth < 768;
   const isTablet = windowWidth >= 768 && windowWidth < 1024;
@@ -611,7 +622,7 @@ export default function TripsPage() {
     (updatedTrip: Trip) => {
       updateItem<Trip>(
         STORAGE_KEYS.trips,
-        (t) => t.id === updatedTrip.id,
+        (tr) => tr.id === updatedTrip.id,
         () => updatedTrip,
       );
       if (updatedTrip.status === "finalizata") {
@@ -625,7 +636,7 @@ export default function TripsPage() {
           (d) => d.id === updatedTrip.driverId,
           (d) => ({ ...d, status: "available" }),
         );
-        toast.success("Cursă finalizată!");
+        toast.success(t("trips.toast.finished"));
       } else if (updatedTrip.status === "anulata") {
         updateItem<Order>(
           STORAGE_KEYS.orders,
@@ -637,13 +648,13 @@ export default function TripsPage() {
           (d) => d.id === updatedTrip.driverId,
           (d) => ({ ...d, status: "available" }),
         );
-        toast.info("Cursă anulată.");
+        toast.info(t("trips.toast.cancelled"));
       } else if (updatedTrip.status === "in_desfasurare") {
-        toast.success("Cursă pornită!");
+        toast.success(t("trips.toast.started"));
       }
       loadData();
     },
-    [loadData],
+    [loadData, t],
   );
 
   const handleDeleteRequest = React.useCallback((trip: Trip) => {
@@ -653,17 +664,21 @@ export default function TripsPage() {
 
   const handleDeleteConfirm = React.useCallback(() => {
     if (!deletingTrip) return;
-    removeItem<Trip>(STORAGE_KEYS.trips, (t) => t.id === deletingTrip.id);
-    toast.success("Cursă ștearsă.");
+    removeItem<Trip>(STORAGE_KEYS.trips, (tr) => tr.id === deletingTrip.id);
+    toast.success(t("trips.toast.deleted"));
     setDeleteDialogOpen(false);
     setDeletingTrip(null);
     loadData();
-  }, [deletingTrip, loadData]);
+  }, [deletingTrip, loadData, t]);
 
   const handleEdit = React.useCallback((trip: Trip) => {
     setEditingTrip(trip);
     setDialogOpen(true);
   }, []);
+
+  const statusFilterOptions = (
+    ["planned", "in_desfasurare", "finalizata", "anulata"] as Trip["status"][]
+  ).map((value) => ({ value, label: t(`trips.status.${value}`) }));
 
   const columns = React.useMemo(
     () =>
@@ -675,6 +690,7 @@ export default function TripsPage() {
         handleStatusChange,
         handleEdit,
         handleDeleteRequest,
+        t,
       ),
     [
       orders,
@@ -684,6 +700,7 @@ export default function TripsPage() {
       handleStatusChange,
       handleEdit,
       handleDeleteRequest,
+      t,
     ],
   );
 
@@ -705,8 +722,10 @@ export default function TripsPage() {
 
   const today = new Date().toISOString().split("T")[0];
 
+  const schema = React.useMemo(() => buildSchema(t), [t]);
+
   const form = useForm<TripFormValues>({
-    resolver: zodResolver(tripSchema) as any,
+    resolver: zodResolver(schema) as any,
     defaultValues: {
       orderId: "",
       driverId: "",
@@ -767,10 +786,10 @@ export default function TripsPage() {
         };
         updateItem<Trip>(
           STORAGE_KEYS.trips,
-          (t) => t.id === editingTrip.id,
+          (tr) => tr.id === editingTrip.id,
           () => updatedTrip,
         );
-        toast.success("Cursă actualizată cu succes!");
+        toast.success(t("trips.toast.updated"));
       } else {
         const newTrip: Trip = {
           id: generateId(),
@@ -791,31 +810,35 @@ export default function TripsPage() {
           (d) => d.id === values.driverId,
           (d) => ({ ...d, status: "on_trip" }),
         );
-        toast.success("Cursă adăugată cu succes!");
+        toast.success(t("trips.toast.added"));
       }
       loadData();
       handleCloseDialog();
-    } catch {
-      toast.error("A apărut o eroare. Încearcă din nou.");
+    } catch (_e) {
+      void _e;
+      toast.error(t("trips.toast.error"));
     }
   }
 
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold">Curse Zilnice</h1>
+        <h1 className="text-lg font-semibold">{t("trips.title")}</h1>
       </Header>
 
       <Main>
         <Card className="overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between gap-2">
-            <CardTitle className="text-base md:text-lg">Tabel Curse</CardTitle>
+            <CardTitle className="text-base md:text-lg">
+              {t("trips.tableTitle")}
+            </CardTitle>
             <div className="flex items-center gap-2">
               <ExportMenu
                 trips={data}
                 orders={orders}
                 drivers={drivers}
                 trucks={trucks}
+                t={t}
               />
               <Button
                 onClick={() => {
@@ -825,8 +848,8 @@ export default function TripsPage() {
                 size="sm"
               >
                 <PlusCircle className="mr-2 h-4 w-4" />
-                <span className="hidden sm:inline">Cursă nouă</span>
-                <span className="sm:hidden">Nou</span>
+                <span className="hidden sm:inline">{t("trips.add")}</span>
+                <span className="sm:hidden">{t("trips.addShort")}</span>
               </Button>
             </div>
           </CardHeader>
@@ -834,15 +857,26 @@ export default function TripsPage() {
           <CardContent className="space-y-4">
             <DataTableToolbar
               table={table}
-              searchPlaceholder="Caută curse..."
+              searchPlaceholder={t("trips.placeholders.search")}
               searchKey="orderId"
               filters={[
                 {
                   columnId: "status",
-                  title: "Status",
+                  title: t("trips.columns.status"),
                   options: statusFilterOptions,
                 },
               ]}
+              columnLabels={{
+                orderId: t("trips.columns.order"),
+                driverId: t("trips.columns.driver"),
+                truckId: t("trips.columns.truck"),
+                status: t("trips.columns.status"),
+                departureDate: t("trips.columns.departureDate"),
+                estimatedArrivalDate: t("trips.columns.arrivalDate"),
+                kmLoaded: t("trips.columns.kmLoaded"),
+                kmEmpty: t("trips.columns.kmEmpty"),
+                fuelCost: t("trips.columns.fuelCost"),
+              }}
             />
 
             {isMobile ? (
@@ -861,7 +895,10 @@ export default function TripsPage() {
                           <div className="font-medium">
                             {order?.clientName ?? trip.orderId}
                           </div>
-                          <StatusBadge status={trip.status} />
+                          <StatusBadge
+                            status={trip.status}
+                            label={t(`trips.status.${trip.status}`)}
+                          />
                         </div>
                         {order && (
                           <div className="text-xs text-muted-foreground">
@@ -870,37 +907,37 @@ export default function TripsPage() {
                         )}
                         <div className="flex flex-col gap-1 text-xs text-muted-foreground">
                           <span>
-                            Șofer:{" "}
+                            {t("trips.mobile.driver")}:{" "}
                             <span className="text-foreground">
                               {driver?.name ?? "—"}
                             </span>
                           </span>
                           <span>
-                            Data plecare:{" "}
+                            {t("trips.mobile.departure")}:{" "}
                             <span className="text-foreground">
                               {trip.departureDate}
                             </span>
                           </span>
                           <span>
-                            Sosire estimată:{" "}
+                            {t("trips.mobile.arrival")}:{" "}
                             <span className="text-foreground">
                               {trip.estimatedArrivalDate}
                             </span>
                           </span>
                           <span>
-                            Km încărcat:{" "}
+                            {t("trips.mobile.kmLoaded")}:{" "}
                             <span className="text-foreground">
                               {trip.kmLoaded} km
                             </span>
                           </span>
                           <span>
-                            Km gol:{" "}
+                            {t("trips.mobile.kmEmpty")}:{" "}
                             <span className="text-foreground">
                               {trip.kmEmpty} km
                             </span>
                           </span>
                           <span>
-                            Cost combustibil:{" "}
+                            {t("trips.mobile.fuelCost")}:{" "}
                             <span className="text-foreground">
                               {trip.fuelCost} RON
                             </span>
@@ -914,7 +951,7 @@ export default function TripsPage() {
                             onClick={() => handleEdit(trip)}
                           >
                             <Pencil className="mr-1 h-3 w-3" />
-                            Editează
+                            {t("trips.actions.edit")}
                           </Button>
                           <Button
                             size="sm"
@@ -923,8 +960,8 @@ export default function TripsPage() {
                             disabled={trip.status === "in_desfasurare"}
                             title={
                               trip.status === "in_desfasurare"
-                                ? "Nu se poate șterge o cursă în desfășurare"
-                                : "Șterge"
+                                ? t("trips.delete.disabledTooltip")
+                                : t("trips.actions.delete")
                             }
                             onClick={() =>
                               trip.status !== "in_desfasurare" &&
@@ -932,7 +969,7 @@ export default function TripsPage() {
                             }
                           >
                             <Trash2 className="mr-1 h-3 w-3" />
-                            Șterge
+                            {t("trips.actions.delete")}
                           </Button>
                           {trip.status === "planned" && (
                             <>
@@ -948,7 +985,7 @@ export default function TripsPage() {
                                 }
                               >
                                 <Play className="mr-1 h-3 w-3" />
-                                Pornește
+                                {t("trips.actions.start")}
                               </Button>
                               <Button
                                 size="sm"
@@ -962,7 +999,7 @@ export default function TripsPage() {
                                 }
                               >
                                 <XCircle className="mr-1 h-3 w-3" />
-                                Anulează
+                                {t("trips.actions.cancel")}
                               </Button>
                             </>
                           )}
@@ -979,7 +1016,7 @@ export default function TripsPage() {
                               }
                             >
                               <CheckCircle className="mr-1 h-3 w-3" />
-                              Finalizează
+                              {t("trips.actions.finish")}
                             </Button>
                           )}
                         </div>
@@ -988,7 +1025,7 @@ export default function TripsPage() {
                   })
                 ) : (
                   <div className="h-24 flex items-center justify-center text-muted-foreground text-sm">
-                    Nu există curse. Apasă „Cursă nouă" pentru a adăuga.
+                    {t("trips.noResults")}
                   </div>
                 )}
               </div>
@@ -1037,7 +1074,7 @@ export default function TripsPage() {
                           colSpan={columns.length}
                           className="h-24 text-center text-muted-foreground"
                         >
-                          Nu există curse. Apasă „Cursă nouă" pentru a adăuga.
+                          {t("trips.noResults")}
                         </TableCell>
                       </TableRow>
                     )}
@@ -1055,12 +1092,12 @@ export default function TripsPage() {
         <DialogContent className="w-full max-w-[580px]">
           <DialogHeader>
             <DialogTitle>
-              {editingTrip ? "Editează cursă" : "Cursă nouă"}
+              {editingTrip ? t("trips.edit") : t("trips.add")}
             </DialogTitle>
             <DialogDescription className="sr-only">
               {editingTrip
-                ? "Modifică detaliile cursei existente."
-                : "Completează detaliile pentru o cursă nouă."}
+                ? t("trips.dialog.editDesc")
+                : t("trips.dialog.addDesc")}
             </DialogDescription>
           </DialogHeader>
 
@@ -1068,7 +1105,7 @@ export default function TripsPage() {
             <form onSubmit={form.handleSubmit(onSubmit)}>
               <div className="grid gap-3">
                 <div className="grid gap-1.5">
-                  <Label>Comandă</Label>
+                  <Label>{t("trips.fields.order")}</Label>
                   <FormField
                     control={form.control}
                     name="orderId"
@@ -1080,7 +1117,9 @@ export default function TripsPage() {
                         >
                           <FormControl>
                             <SelectTrigger className="w-full min-w-0 [&>span]:truncate [&>span]:text-left">
-                              <SelectValue placeholder="Selectează o comandă" />
+                              <SelectValue
+                                placeholder={t("trips.placeholders.order")}
+                              />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent
@@ -1115,7 +1154,7 @@ export default function TripsPage() {
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="grid gap-1.5 min-w-0">
-                    <Label>Șofer</Label>
+                    <Label>{t("trips.fields.driver")}</Label>
                     <FormField
                       control={form.control}
                       name="driverId"
@@ -1127,7 +1166,9 @@ export default function TripsPage() {
                           >
                             <FormControl>
                               <SelectTrigger className="w-full min-w-0">
-                                <SelectValue placeholder="Selectează șofer" />
+                                <SelectValue
+                                  placeholder={t("trips.placeholders.driver")}
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -1152,7 +1193,7 @@ export default function TripsPage() {
                   </div>
 
                   <div className="grid gap-1.5 min-w-0">
-                    <Label>Camion</Label>
+                    <Label>{t("trips.fields.truck")}</Label>
                     <FormField
                       control={form.control}
                       name="truckId"
@@ -1164,16 +1205,18 @@ export default function TripsPage() {
                           >
                             <FormControl>
                               <SelectTrigger className="w-full min-w-0">
-                                <SelectValue placeholder="Selectează camion" />
+                                <SelectValue
+                                  placeholder={t("trips.placeholders.truck")}
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent className="w-[var(--radix-select-trigger-width)]">
                               {trucks
                                 .filter(
-                                  (t) =>
-                                    t.status === "available" ||
+                                  (tr) =>
+                                    tr.status === "available" ||
                                     (editingTrip &&
-                                      t.id === editingTrip.truckId),
+                                      tr.id === editingTrip.truckId),
                                 )
                                 .map((truck) => (
                                   <SelectItem
@@ -1196,7 +1239,7 @@ export default function TripsPage() {
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="grid gap-1.5 min-w-0">
-                    <Label>Data plecare</Label>
+                    <Label>{t("trips.fields.departureDate")}</Label>
                     <FormField
                       control={form.control}
                       name="departureDate"
@@ -1215,7 +1258,7 @@ export default function TripsPage() {
                     />
                   </div>
                   <div className="grid gap-1.5 min-w-0">
-                    <Label>Sosire estimată</Label>
+                    <Label>{t("trips.fields.arrivalDate")}</Label>
                     <FormField
                       control={form.control}
                       name="estimatedArrivalDate"
@@ -1237,7 +1280,7 @@ export default function TripsPage() {
 
                 <div className="grid gap-3 grid-cols-2 sm:grid-cols-[1fr_1fr_1.4fr]">
                   <div className="grid gap-1.5 min-w-0">
-                    <Label>Km încărcat</Label>
+                    <Label>{t("trips.fields.kmLoaded")}</Label>
                     <FormField
                       control={form.control}
                       name="kmLoaded"
@@ -1247,7 +1290,7 @@ export default function TripsPage() {
                             <Input
                               type="text"
                               inputMode="decimal"
-                              placeholder="0"
+                              placeholder={t("trips.placeholders.km")}
                               className="w-full min-w-0"
                               value={
                                 field.value === 0 ? "" : String(field.value)
@@ -1272,7 +1315,7 @@ export default function TripsPage() {
                     />
                   </div>
                   <div className="grid gap-1.5 min-w-0">
-                    <Label>Km gol</Label>
+                    <Label>{t("trips.fields.kmEmpty")}</Label>
                     <FormField
                       control={form.control}
                       name="kmEmpty"
@@ -1282,7 +1325,7 @@ export default function TripsPage() {
                             <Input
                               type="text"
                               inputMode="decimal"
-                              placeholder="0"
+                              placeholder={t("trips.placeholders.km")}
                               className="w-full min-w-0"
                               value={
                                 field.value === 0 ? "" : String(field.value)
@@ -1307,7 +1350,7 @@ export default function TripsPage() {
                     />
                   </div>
                   <div className="grid gap-1.5 min-w-0 col-span-2 sm:col-span-1">
-                    <Label>Cost combustibil (RON)</Label>
+                    <Label>{t("trips.fields.fuelCost")}</Label>
                     <FormField
                       control={form.control}
                       name="fuelCost"
@@ -1317,7 +1360,7 @@ export default function TripsPage() {
                             <Input
                               type="text"
                               inputMode="decimal"
-                              placeholder="0"
+                              placeholder={t("trips.placeholders.km")}
                               className="w-full min-w-0"
                               value={
                                 field.value === 0 ? "" : String(field.value)
@@ -1345,7 +1388,7 @@ export default function TripsPage() {
 
                 {editingTrip && (
                   <div className="grid gap-1.5 min-w-0">
-                    <Label>Status</Label>
+                    <Label>{t("trips.fields.status")}</Label>
                     <FormField
                       control={form.control}
                       name="status"
@@ -1357,20 +1400,24 @@ export default function TripsPage() {
                           >
                             <FormControl>
                               <SelectTrigger className="w-full min-w-0">
-                                <SelectValue placeholder="Selectează status" />
+                                <SelectValue
+                                  placeholder={t("trips.placeholders.status")}
+                                />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                               <SelectItem value="planned">
-                                Planificată
+                                {t("trips.status.planned")}
                               </SelectItem>
                               <SelectItem value="in_desfasurare">
-                                În desfășurare
+                                {t("trips.status.in_desfasurare")}
                               </SelectItem>
                               <SelectItem value="finalizata">
-                                Finalizată
+                                {t("trips.status.finalizata")}
                               </SelectItem>
-                              <SelectItem value="anulata">Anulată</SelectItem>
+                              <SelectItem value="anulata">
+                                {t("trips.status.anulata")}
+                              </SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -1387,10 +1434,10 @@ export default function TripsPage() {
                   variant="outline"
                   onClick={handleCloseDialog}
                 >
-                  Anulează
+                  {t("trips.cancel")}
                 </Button>
                 <Button type="submit">
-                  {editingTrip ? "Salvează modificările" : "Adaugă cursă"}
+                  {editingTrip ? t("trips.save") : t("trips.saveNew")}
                 </Button>
               </DialogFooter>
             </form>
@@ -1404,14 +1451,14 @@ export default function TripsPage() {
           setDeleteDialogOpen(v);
           if (!v) setDeletingTrip(null);
         }}
-        title="Șterge cursă"
+        title={t("trips.delete.title")}
         desc={
           deletingTrip
-            ? `Ești sigur că vrei să ștergi cursa pentru comanda #${deletingTrip.orderId}? Această acțiune nu poate fi anulată.`
-            : "Ești sigur că vrei să ștergi această cursă?"
+            ? t("trips.delete.desc", { orderId: deletingTrip.orderId })
+            : t("trips.delete.descFallback")
         }
-        confirmText="Șterge"
-        cancelBtnText="Anulează"
+        confirmText={t("trips.delete.confirm")}
+        cancelBtnText={t("trips.cancel")}
         destructive
         handleConfirm={handleDeleteConfirm}
       />
