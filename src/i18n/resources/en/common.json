@@ -391,5 +391,43 @@
       "status": "Status",
       "filename": "trips"
     }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "cards": {
+      "activeOrders": "Active Orders",
+      "activeOrdersDesc": "pending + assigned + in transit",
+      "employees": "Employees",
+      "employeesDesc": "21 active",
+      "invoices": "Invoices This Month",
+      "invoicesDesc": "8 unpaid",
+      "kmMonth": "Km This Month",
+      "kmMonthDesc": "loaded + empty from all trips"
+    },
+    "charts": {
+      "kmPerDay": "Km / day — last 30 days",
+      "costsVsRevenue": "Costs vs. Revenue",
+      "costsVsRevenueTodo": "TODO: Recharts Chart — costs/revenue",
+      "kmTooltip": "Km"
+    },
+    "alerts": {
+      "title": "ITP / RCA / Vignette Alerts (<30 days)",
+      "expired": "EXPIRED",
+      "expiresIn": "expires in {{days}} days"
+    },
+    "months": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ]
   }
 }

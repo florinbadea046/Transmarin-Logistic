@@ -391,5 +391,43 @@
       "status": "Status",
       "filename": "curse"
     }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "cards": {
+      "activeOrders": "Comenzi Active",
+      "activeOrdersDesc": "pending + assigned + în tranzit",
+      "employees": "Angajați",
+      "employeesDesc": "21 activi",
+      "invoices": "Facturi Luna",
+      "invoicesDesc": "8 neachitate",
+      "kmMonth": "Km Luna Aceasta",
+      "kmMonthDesc": "încărcat + gol din toate cursele"
+    },
+    "charts": {
+      "kmPerDay": "Km / zi — ultimele 30 zile",
+      "costsVsRevenue": "Costuri vs. Venituri",
+      "costsVsRevenueTodo": "TODO: Grafic Recharts — costuri/venituri",
+      "kmTooltip": "Km"
+    },
+    "alerts": {
+      "title": "Alerte ITP / RCA / Rovinietă (<30 zile)",
+      "expired": "EXPIRAT",
+      "expiresIn": "expiră în {{days}} zile"
+    },
+    "months": [
+      "Ian",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mai",
+      "Iun",
+      "Iul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ]
   }
 }
