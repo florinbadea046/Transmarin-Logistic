@@ -1140,7 +1140,8 @@ const seedTrips: Trip[] = [
     orderId: "o1",
     driverId: "d1",
     truckId: "t1",
-    date: "2026-02-20",
+    departureDate: "2026-02-20",
+    estimatedArrivalDate: "2026-02-21",
     kmLoaded: 350,
     kmEmpty: 50,
     fuelCost: 820,
@@ -1151,7 +1152,8 @@ const seedTrips: Trip[] = [
     orderId: "o2",
     driverId: "d3",
     truckId: "t2",
-    date: "2026-02-21",
+    departureDate: "2026-02-21",
+    estimatedArrivalDate: "2026-02-22",
     kmLoaded: 480,
     kmEmpty: 90,
     fuelCost: 1140,
@@ -1162,7 +1164,8 @@ const seedTrips: Trip[] = [
     orderId: "o4",
     driverId: "d2",
     truckId: "t1",
-    date: "2026-02-23",
+    departureDate: "2026-02-23",
+    estimatedArrivalDate: "2026-02-24",
     kmLoaded: 210,
     kmEmpty: 30,
     fuelCost: 510,
@@ -1173,7 +1176,8 @@ const seedTrips: Trip[] = [
     orderId: "o6",
     driverId: "d1",
     truckId: "t2",
-    date: "2026-02-25",
+    departureDate: "2026-02-25",
+    estimatedArrivalDate: "2026-02-25",
     kmLoaded: 145,
     kmEmpty: 20,
     fuelCost: 370,
@@ -1184,7 +1188,8 @@ const seedTrips: Trip[] = [
     orderId: "o7",
     driverId: "d2",
     truckId: "t1",
-    date: "2026-02-26",
+    departureDate: "2026-02-26",
+    estimatedArrivalDate: "2026-02-26",
     kmLoaded: 125,
     kmEmpty: 15,
     fuelCost: 290,
@@ -1195,7 +1200,8 @@ const seedTrips: Trip[] = [
     orderId: "o9",
     driverId: "d3",
     truckId: "t2",
-    date: "2026-02-28",
+    departureDate: "2026-02-28",
+    estimatedArrivalDate: "2026-03-01",
     kmLoaded: 390,
     kmEmpty: 70,
     fuelCost: 930,
@@ -1206,7 +1212,8 @@ const seedTrips: Trip[] = [
     orderId: "o11",
     driverId: "d1",
     truckId: "t1",
-    date: "2026-03-02",
+    departureDate: "2026-03-02",
+    estimatedArrivalDate: "2026-03-02",
     kmLoaded: 95,
     kmEmpty: 10,
     fuelCost: 220,
@@ -1217,7 +1224,8 @@ const seedTrips: Trip[] = [
     orderId: "o8",
     driverId: "d2",
     truckId: "t2",
-    date: "2026-03-05",
+    departureDate: "2026-03-05",
+    estimatedArrivalDate: "2026-03-06",
     kmLoaded: 430,
     kmEmpty: 80,
     fuelCost: 1020,
@@ -1229,7 +1237,7 @@ const seedTrips: Trip[] = [
  * Încarcă datele seed în localStorage (doar dacă cheile nu există deja).
  * Apelat o singură dată la inițializarea aplicației.
  */
-const TRIPS_SCHEMA_VERSION = "v2";
+const TRIPS_SCHEMA_VERSION = "v3";
 const TRIPS_VERSION_KEY = "transmarin_trips_schema_version";
 
 export function seedMockData(): void {
