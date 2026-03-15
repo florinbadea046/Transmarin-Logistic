@@ -14,7 +14,8 @@ export interface Trip {
   orderId: string;
   driverId: string;
   truckId: string;
-  date: string;
+  departureDate: string;
+  estimatedArrivalDate: string;
   kmLoaded: number;
   kmEmpty: number;
   fuelCost: number;

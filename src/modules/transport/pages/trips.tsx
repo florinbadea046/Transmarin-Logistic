@@ -14,8 +14,10 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { toast } from "sonner";
-import { PlusCircle, Play, CheckCircle, XCircle } from "lucide-react";
+import { PlusCircle, Play, CheckCircle, XCircle, Pencil } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -24,12 +26,13 @@ import Papa from "papaparse";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -92,10 +95,7 @@ function useWindowWidth() {
 
 const statusMeta: Record<
   Trip["status"],
-  {
-    label: string;
-    badgeClass: string;
-  }
+  { label: string; badgeClass: string }
 > = {
   planned: {
     label: "Planificată",
@@ -134,19 +134,6 @@ function StatusBadge({ status }: { status: Trip["status"] }) {
   );
 }
 
-const EXPORT_COLS = [
-  { key: "tripNumber", label: "Nr. cursă" },
-  { key: "orderId", label: "Comandă" },
-  { key: "driverId", label: "Șofer" },
-  { key: "truckId", label: "Camion" },
-  { key: "route", label: "Rută" },
-  { key: "date", label: "Dată" },
-  { key: "kmLoaded", label: "Km încărcat" },
-  { key: "kmEmpty", label: "Km gol" },
-  { key: "fuelCost", label: "Cost combustibil (RON)" },
-  { key: "status", label: "Status" },
-];
-
 function toRows(
   trips: Trip[],
   orders: Order[],
@@ -159,11 +146,12 @@ function toRows(
     const truck = trucks.find((tr) => tr.id === t.truckId);
     return {
       "Nr. cursă": idx + 1,
-      Comandă: order ? `${order.clientName}` : t.orderId,
+      Comandă: order ? order.clientName : t.orderId,
       Șofer: driver?.name ?? t.driverId,
-      Camion: truck ? `${truck.plateNumber}` : t.truckId,
+      Camion: truck ? truck.plateNumber : t.truckId,
       Rută: order ? `${order.origin} → ${order.destination}` : "—",
-      Dată: t.date,
+      "Data plecare": t.departureDate,
+      "Data sosire estimată": t.estimatedArrivalDate,
       "Km încărcat": t.kmLoaded,
       "Km gol": t.kmEmpty,
       "Cost combustibil (RON)": t.fuelCost,
@@ -264,15 +252,41 @@ function ExportMenu({
   );
 }
 
+const tripSchema = z
+  .object({
+    orderId: z.string().min(1, "Selectează o comandă"),
+    driverId: z.string().min(1, "Selectează un șofer"),
+    truckId: z.string().min(1, "Selectează un camion"),
+    departureDate: z.string().min(1, "Data plecare este obligatorie"),
+    estimatedArrivalDate: z
+      .string()
+      .min(1, "Data sosire estimată este obligatorie"),
+    kmLoaded: z.number().positive("Km încărcat trebuie să fie > 0"),
+    kmEmpty: z.number().positive("Km gol trebuie să fie > 0"),
+    fuelCost: z.number().min(0, "Cost combustibil trebuie să fie >= 0"),
+    status: z.enum(["planned", "in_desfasurare", "finalizata", "anulata"]),
+  })
+  .refine(
+    (data) =>
+      !data.departureDate ||
+      !data.estimatedArrivalDate ||
+      data.estimatedArrivalDate >= data.departureDate,
+    {
+      message: "Data sosire trebuie să fie după data plecare",
+      path: ["estimatedArrivalDate"],
+    },
+  );
+
 type TripFormValues = {
   orderId: string;
   driverId: string;
   truckId: string;
-  date: string;
+  departureDate: string;
+  estimatedArrivalDate: string;
   kmLoaded: number;
   kmEmpty: number;
   fuelCost: number;
-  status: Trip["status"];
+  status: "planned" | "in_desfasurare" | "finalizata" | "anulata";
 };
 
 function buildColumns(
@@ -281,6 +295,7 @@ function buildColumns(
   trucks: Truck[],
   allTrips: Trip[],
   onStatusChange: (trip: Trip) => void,
+  onEdit: (trip: Trip) => void,
 ): ColumnDef<Trip>[] {
   return [
     {
@@ -397,15 +412,30 @@ function buildColumns(
       size: 150,
     },
     {
-      accessorKey: "date",
+      accessorKey: "departureDate",
       header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Data" />
+        <DataTableColumnHeader column={column} title="Data plecare" />
       ),
       cell: ({ row }) => (
-        <div className="tabular-nums text-sm">{row.getValue("date")}</div>
+        <div className="tabular-nums text-sm">
+          {row.getValue("departureDate")}
+        </div>
       ),
       enableSorting: true,
-      size: 110,
+      size: 120,
+    },
+    {
+      accessorKey: "estimatedArrivalDate",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Sosire estimată" />
+      ),
+      cell: ({ row }) => (
+        <div className="tabular-nums text-sm">
+          {row.getValue("estimatedArrivalDate")}
+        </div>
+      ),
+      enableSorting: true,
+      size: 130,
     },
     {
       accessorKey: "kmLoaded",
@@ -454,51 +484,49 @@ function buildColumns(
       cell: ({ row }) => {
         const trip = row.original;
         return (
-          <div className="flex justify-center gap-1">
+          <div className="flex justify-center items-center gap-1">
+            <button
+              title="Editează"
+              onClick={() => onEdit(trip)}
+              className="h-6 w-6 flex items-center justify-center rounded-md border border-border/50 bg-transparent hover:bg-muted transition-colors"
+            >
+              <Pencil className="h-3 w-3 text-muted-foreground" />
+            </button>
             {trip.status === "planned" && (
               <>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 px-2 text-xs"
+                <button
+                  title="Pornește"
                   onClick={() =>
                     onStatusChange({ ...trip, status: "in_desfasurare" })
                   }
+                  className="h-6 w-6 flex items-center justify-center rounded-md border border-green-300 bg-transparent hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
                 >
-                  <Play className="mr-1 h-3 w-3" />
-                  Pornește
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="h-7 px-2 text-xs text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  <Play className="h-3 w-3 text-green-600" />
+                </button>
+                <button
+                  title="Anulează"
                   onClick={() => onStatusChange({ ...trip, status: "anulata" })}
+                  className="h-6 w-6 flex items-center justify-center rounded-md border border-red-300 bg-transparent hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                 >
-                  <XCircle className="mr-1 h-3 w-3" />
-                  Anulează
-                </Button>
+                  <XCircle className="h-3 w-3 text-red-500" />
+                </button>
               </>
             )}
             {trip.status === "in_desfasurare" && (
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 px-2 text-xs text-green-600 border-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
+              <button
+                title="Finalizează"
                 onClick={() =>
                   onStatusChange({ ...trip, status: "finalizata" })
                 }
+                className="h-6 w-6 flex items-center justify-center rounded-md border border-green-400 bg-transparent hover:bg-green-50 dark:hover:bg-green-900/20 transition-colors"
               >
-                <CheckCircle className="mr-1 h-3 w-3" />
-                Finalizează
-              </Button>
-            )}
-            {(trip.status === "finalizata" || trip.status === "anulata") && (
-              <span className="text-xs text-muted-foreground">—</span>
+                <CheckCircle className="h-3 w-3 text-green-600" />
+              </button>
             )}
           </div>
         );
       },
-      size: 180,
+      size: 100,
     },
   ];
 }
@@ -513,6 +541,7 @@ export default function TripsPage() {
   const [drivers, setDrivers] = React.useState<Driver[]>([]);
   const [trucks, setTrucks] = React.useState<Truck[]>([]);
   const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [editingTrip, setEditingTrip] = React.useState<Trip | null>(null);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -541,59 +570,75 @@ export default function TripsPage() {
         kmLoaded: false,
         kmEmpty: false,
         fuelCost: false,
+        estimatedArrivalDate: false,
       });
     } else if (isTablet) {
       setColumnVisibility({
         truckId: false,
         kmEmpty: false,
         fuelCost: false,
+        estimatedArrivalDate: false,
       });
     } else {
       setColumnVisibility({});
     }
   }, [isMobile, isTablet]);
 
-  function handleStatusChange(updatedTrip: Trip) {
-    updateItem<Trip>(
-      STORAGE_KEYS.trips,
-      (t) => t.id === updatedTrip.id,
-      () => updatedTrip,
-    );
+  const handleStatusChange = React.useCallback(
+    (updatedTrip: Trip) => {
+      updateItem<Trip>(
+        STORAGE_KEYS.trips,
+        (t) => t.id === updatedTrip.id,
+        () => updatedTrip,
+      );
+      if (updatedTrip.status === "finalizata") {
+        updateItem<Order>(
+          STORAGE_KEYS.orders,
+          (o) => o.id === updatedTrip.orderId,
+          (o) => ({ ...o, status: "delivered" }),
+        );
+        updateItem<Driver>(
+          STORAGE_KEYS.drivers,
+          (d) => d.id === updatedTrip.driverId,
+          (d) => ({ ...d, status: "available" }),
+        );
+        toast.success("Cursă finalizată!");
+      } else if (updatedTrip.status === "anulata") {
+        updateItem<Order>(
+          STORAGE_KEYS.orders,
+          (o) => o.id === updatedTrip.orderId,
+          (o) => ({ ...o, status: "cancelled" }),
+        );
+        updateItem<Driver>(
+          STORAGE_KEYS.drivers,
+          (d) => d.id === updatedTrip.driverId,
+          (d) => ({ ...d, status: "available" }),
+        );
+        toast.info("Cursă anulată.");
+      } else if (updatedTrip.status === "in_desfasurare") {
+        toast.success("Cursă pornită!");
+      }
+      loadData();
+    },
+    [loadData],
+  );
 
-    if (updatedTrip.status === "finalizata") {
-      updateItem<Order>(
-        STORAGE_KEYS.orders,
-        (o) => o.id === updatedTrip.orderId,
-        (o) => ({ ...o, status: "delivered" }),
-      );
-      updateItem<Driver>(
-        STORAGE_KEYS.drivers,
-        (d) => d.id === updatedTrip.driverId,
-        (d) => ({ ...d, status: "available" }),
-      );
-      toast.success("Cursă finalizată!");
-    } else if (updatedTrip.status === "anulata") {
-      updateItem<Order>(
-        STORAGE_KEYS.orders,
-        (o) => o.id === updatedTrip.orderId,
-        (o) => ({ ...o, status: "cancelled" }),
-      );
-      updateItem<Driver>(
-        STORAGE_KEYS.drivers,
-        (d) => d.id === updatedTrip.driverId,
-        (d) => ({ ...d, status: "available" }),
-      );
-      toast.info("Cursă anulată.");
-    } else if (updatedTrip.status === "in_desfasurare") {
-      toast.success("Cursă pornită!");
-    }
-
-    loadData();
-  }
+  const handleEdit = React.useCallback((trip: Trip) => {
+    setEditingTrip(trip);
+    setDialogOpen(true);
+  }, []);
 
   const columns = React.useMemo(
-    () => buildColumns(orders, drivers, trucks, data, handleStatusChange),
-    [orders, drivers, trucks, data],
+    () =>
+      buildColumns(
+        orders,
+        drivers,
+        trucks,
+        data,
+        handleStatusChange,
+        handleEdit,
+      ),
+    [orders, drivers, trucks, data, handleStatusChange, handleEdit],
   );
 
   const table = useReactTable({
@@ -612,12 +657,16 @@ export default function TripsPage() {
     initialState: { pagination: { pageSize: 10, pageIndex: 0 } },
   });
 
+  const today = new Date().toISOString().split("T")[0];
+
   const form = useForm<TripFormValues>({
+    resolver: zodResolver(tripSchema) as any,
     defaultValues: {
       orderId: "",
       driverId: "",
       truckId: "",
-      date: new Date().toISOString().split("T")[0],
+      departureDate: today,
+      estimatedArrivalDate: today,
       kmLoaded: 0,
       kmEmpty: 0,
       fuelCost: 0,
@@ -625,49 +674,84 @@ export default function TripsPage() {
     },
   });
 
-  function onSubmit(values: TripFormValues) {
-    if (!values.orderId) {
-      form.setError("orderId", { message: "Selectează o comandă" });
-      return;
+  React.useEffect(() => {
+    if (dialogOpen && editingTrip) {
+      form.reset({
+        orderId: editingTrip.orderId,
+        driverId: editingTrip.driverId,
+        truckId: editingTrip.truckId,
+        departureDate: editingTrip.departureDate,
+        estimatedArrivalDate: editingTrip.estimatedArrivalDate,
+        kmLoaded: editingTrip.kmLoaded,
+        kmEmpty: editingTrip.kmEmpty,
+        fuelCost: editingTrip.fuelCost,
+        status: editingTrip.status,
+      });
+    } else if (dialogOpen && !editingTrip) {
+      form.reset({
+        orderId: "",
+        driverId: "",
+        truckId: "",
+        departureDate: today,
+        estimatedArrivalDate: today,
+        kmLoaded: 0,
+        kmEmpty: 0,
+        fuelCost: 0,
+        status: "planned",
+      });
     }
-    if (!values.driverId) {
-      form.setError("driverId", { message: "Selectează un șofer" });
-      return;
-    }
-    if (!values.truckId) {
-      form.setError("truckId", { message: "Selectează un camion" });
-      return;
-    }
-    if (!values.date) {
-      form.setError("date", { message: "Data este obligatorie" });
-      return;
-    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dialogOpen, editingTrip]);
 
-    const newTrip: Trip = {
-      id: generateId(),
-      ...values,
-      kmLoaded: Number(values.kmLoaded),
-      kmEmpty: Number(values.kmEmpty),
-      fuelCost: Number(values.fuelCost),
-    };
-    addItem<Trip>(STORAGE_KEYS.trips, newTrip);
-
-    updateItem<Order>(
-      STORAGE_KEYS.orders,
-      (o) => o.id === values.orderId,
-      (o) => ({ ...o, status: "assigned" }),
-    );
-
-    updateItem<Driver>(
-      STORAGE_KEYS.drivers,
-      (d) => d.id === values.driverId,
-      (d) => ({ ...d, status: "on_trip" }),
-    );
-
-    loadData();
+  function handleCloseDialog() {
     setDialogOpen(false);
+    setEditingTrip(null);
     form.reset();
-    toast.success("Cursă adăugată cu succes!");
+  }
+
+  function onSubmit(values: TripFormValues) {
+    try {
+      if (editingTrip) {
+        const updatedTrip: Trip = {
+          ...editingTrip,
+          ...values,
+          kmLoaded: Number(values.kmLoaded),
+          kmEmpty: Number(values.kmEmpty),
+          fuelCost: Number(values.fuelCost),
+        };
+        updateItem<Trip>(
+          STORAGE_KEYS.trips,
+          (t) => t.id === editingTrip.id,
+          () => updatedTrip,
+        );
+        toast.success("Cursă actualizată cu succes!");
+      } else {
+        const newTrip: Trip = {
+          id: generateId(),
+          ...values,
+          status: "planned",
+          kmLoaded: Number(values.kmLoaded),
+          kmEmpty: Number(values.kmEmpty),
+          fuelCost: Number(values.fuelCost),
+        };
+        addItem<Trip>(STORAGE_KEYS.trips, newTrip);
+        updateItem<Order>(
+          STORAGE_KEYS.orders,
+          (o) => o.id === values.orderId,
+          (o) => ({ ...o, status: "in_transit" }),
+        );
+        updateItem<Driver>(
+          STORAGE_KEYS.drivers,
+          (d) => d.id === values.driverId,
+          (d) => ({ ...d, status: "on_trip" }),
+        );
+        toast.success("Cursă adăugată cu succes!");
+      }
+      loadData();
+      handleCloseDialog();
+    } catch {
+      toast.error("A apărut o eroare. Încearcă din nou.");
+    }
   }
 
   return (
@@ -687,7 +771,13 @@ export default function TripsPage() {
                 drivers={drivers}
                 trucks={trucks}
               />
-              <Button onClick={() => setDialogOpen(true)} size="sm">
+              <Button
+                onClick={() => {
+                  setEditingTrip(null);
+                  setDialogOpen(true);
+                }}
+                size="sm"
+              >
                 <PlusCircle className="mr-2 h-4 w-4" />
                 <span className="hidden sm:inline">Cursă nouă</span>
                 <span className="sm:hidden">Nou</span>
@@ -740,8 +830,16 @@ export default function TripsPage() {
                             </span>
                           </span>
                           <span>
-                            Data:{" "}
-                            <span className="text-foreground">{trip.date}</span>
+                            Data plecare:{" "}
+                            <span className="text-foreground">
+                              {trip.departureDate}
+                            </span>
+                          </span>
+                          <span>
+                            Sosire estimată:{" "}
+                            <span className="text-foreground">
+                              {trip.estimatedArrivalDate}
+                            </span>
                           </span>
                           <span>
                             Km încărcat:{" "}
@@ -762,7 +860,16 @@ export default function TripsPage() {
                             </span>
                           </span>
                         </div>
-                        <div className="flex gap-2 pt-1">
+                        <div className="flex gap-2 pt-1 flex-wrap">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => handleEdit(trip)}
+                          >
+                            <Pencil className="mr-1 h-3 w-3" />
+                            Editează
+                          </Button>
                           {trip.status === "planned" && (
                             <>
                               <Button
@@ -776,7 +883,8 @@ export default function TripsPage() {
                                   })
                                 }
                               >
-                                <Play className="mr-1 h-3 w-3" /> Pornește
+                                <Play className="mr-1 h-3 w-3" />
+                                Pornește
                               </Button>
                               <Button
                                 size="sm"
@@ -789,7 +897,8 @@ export default function TripsPage() {
                                   })
                                 }
                               >
-                                <XCircle className="mr-1 h-3 w-3" /> Anulează
+                                <XCircle className="mr-1 h-3 w-3" />
+                                Anulează
                               </Button>
                             </>
                           )}
@@ -805,7 +914,7 @@ export default function TripsPage() {
                                 })
                               }
                             >
-                              <CheckCircle className="mr-1 h-3 w-3" />{" "}
+                              <CheckCircle className="mr-1 h-3 w-3" />
                               Finalizează
                             </Button>
                           )}
@@ -841,7 +950,6 @@ export default function TripsPage() {
                       </TableRow>
                     ))}
                   </TableHeader>
-
                   <TableBody>
                     {table.getRowModel().rows?.length ? (
                       table.getRowModel().rows.map((row) => (
@@ -879,213 +987,314 @@ export default function TripsPage() {
         </Card>
       </Main>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="w-full max-w-[95vw] sm:max-w-[520px] max-h-[90vh] overflow-y-auto">
+      <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
+        <DialogContent className="w-full max-w-[580px]">
           <DialogHeader>
-            <DialogTitle>Cursă nouă</DialogTitle>
+            <DialogTitle>
+              {editingTrip ? "Editează cursă" : "Cursă nouă"}
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              {editingTrip
+                ? "Modifică detaliile cursei existente."
+                : "Completează detaliile pentru o cursă nouă."}
+            </DialogDescription>
           </DialogHeader>
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <FormField
-                control={form.control}
-                name="orderId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Comandă</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selectează o comandă" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {orders
-                          .filter(
-                            (o) =>
-                              o.status === "pending" || o.status === "assigned",
-                          )
-                          .map((order) => (
-                            <SelectItem key={order.id} value={order.id}>
-                              {order.clientName} — {order.origin} →{" "}
-                              {order.destination}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <form onSubmit={form.handleSubmit(onSubmit)}>
+              <div className="grid gap-3">
+                <div className="grid gap-1.5">
+                  <Label>Comandă</Label>
+                  <FormField
+                    control={form.control}
+                    name="orderId"
+                    render={({ field }) => (
+                      <FormItem className="w-full min-w-0">
+                        <Select
+                          onValueChange={field.onChange}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full min-w-0 [&>span]:truncate [&>span]:text-left">
+                              <SelectValue placeholder="Selectează o comandă" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent
+                            className="max-h-52 w-[var(--radix-select-trigger-width)]"
+                            position="popper"
+                          >
+                            {orders
+                              .filter(
+                                (o) =>
+                                  o.status === "pending" ||
+                                  o.status === "assigned" ||
+                                  o.status === "in_transit" ||
+                                  (editingTrip && o.id === editingTrip.orderId),
+                              )
+                              .map((order) => (
+                                <SelectItem
+                                  key={order.id}
+                                  value={order.id}
+                                  className="[&>span:last-child]:truncate [&>span:last-child]:block"
+                                >
+                                  {order.clientName} — {order.origin} →{" "}
+                                  {order.destination}
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <FormField
-                control={form.control}
-                name="driverId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Șofer</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selectează un șofer" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {drivers
-                          .filter((d) => d.status === "available")
-                          .map((driver) => (
-                            <SelectItem key={driver.id} value={driver.id}>
-                              {driver.name}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-1.5 min-w-0">
+                    <Label>Șofer</Label>
+                    <FormField
+                      control={form.control}
+                      name="driverId"
+                      render={({ field }) => (
+                        <FormItem className="min-w-0">
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full min-w-0">
+                                <SelectValue placeholder="Selectează șofer" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {drivers
+                                .filter(
+                                  (d) =>
+                                    d.status === "available" ||
+                                    (editingTrip &&
+                                      d.id === editingTrip.driverId),
+                                )
+                                .map((driver) => (
+                                  <SelectItem key={driver.id} value={driver.id}>
+                                    {driver.name}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
 
-              <FormField
-                control={form.control}
-                name="truckId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Camion</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selectează un camion" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {trucks
-                          .filter((t) => t.status === "available")
-                          .map((truck) => (
-                            <SelectItem key={truck.id} value={truck.id}>
-                              {truck.plateNumber} — {truck.brand} {truck.model}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  <div className="grid gap-1.5 min-w-0">
+                    <Label>Camion</Label>
+                    <FormField
+                      control={form.control}
+                      name="truckId"
+                      render={({ field }) => (
+                        <FormItem className="min-w-0">
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full min-w-0">
+                                <SelectValue placeholder="Selectează camion" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent className="w-[var(--radix-select-trigger-width)]">
+                              {trucks
+                                .filter(
+                                  (t) =>
+                                    t.status === "available" ||
+                                    (editingTrip &&
+                                      t.id === editingTrip.truckId),
+                                )
+                                .map((truck) => (
+                                  <SelectItem
+                                    key={truck.id}
+                                    value={truck.id}
+                                    className="[&>span:last-child]:truncate [&>span:last-child]:block"
+                                  >
+                                    {truck.plateNumber} — {truck.brand}{" "}
+                                    {truck.model}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
 
-              <FormField
-                control={form.control}
-                name="date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Dată</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="grid gap-1.5 min-w-0">
+                    <Label>Data plecare</Label>
+                    <FormField
+                      control={form.control}
+                      name="departureDate"
+                      render={({ field }) => (
+                        <FormItem className="min-w-0">
+                          <FormControl>
+                            <Input
+                              type="date"
+                              className="w-full min-w-0"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-1.5 min-w-0">
+                    <Label>Sosire estimată</Label>
+                    <FormField
+                      control={form.control}
+                      name="estimatedArrivalDate"
+                      render={({ field }) => (
+                        <FormItem className="min-w-0">
+                          <FormControl>
+                            <Input
+                              type="date"
+                              className="w-full min-w-0"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="kmLoaded"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Km încărcat</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min={0}
-                          placeholder="0"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="kmEmpty"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Km gol</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          min={0}
-                          placeholder="0"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid gap-3 grid-cols-2 sm:grid-cols-[1fr_1fr_1.4fr]">
+                  <div className="grid gap-1.5 min-w-0">
+                    <Label>Km încărcat</Label>
+                    <FormField
+                      control={form.control}
+                      name="kmLoaded"
+                      render={({ field }) => (
+                        <FormItem className="min-w-0">
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={1}
+                              placeholder="0"
+                              className="w-full min-w-0"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(e.target.valueAsNumber)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-1.5 min-w-0">
+                    <Label>Km gol</Label>
+                    <FormField
+                      control={form.control}
+                      name="kmEmpty"
+                      render={({ field }) => (
+                        <FormItem className="min-w-0">
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={1}
+                              placeholder="0"
+                              className="w-full min-w-0"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(e.target.valueAsNumber)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-1.5 min-w-0 col-span-2 sm:col-span-1">
+                    <Label>Cost combustibil (RON)</Label>
+                    <FormField
+                      control={form.control}
+                      name="fuelCost"
+                      render={({ field }) => (
+                        <FormItem className="min-w-0">
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min={0}
+                              placeholder="0"
+                              className="w-full min-w-0"
+                              {...field}
+                              onChange={(e) =>
+                                field.onChange(e.target.valueAsNumber)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </div>
+
+                {editingTrip && (
+                  <div className="grid gap-1.5 min-w-0">
+                    <Label>Status</Label>
+                    <FormField
+                      control={form.control}
+                      name="status"
+                      render={({ field }) => (
+                        <FormItem className="min-w-0">
+                          <Select
+                            onValueChange={field.onChange}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full min-w-0">
+                                <SelectValue placeholder="Selectează status" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              <SelectItem value="planned">
+                                Planificată
+                              </SelectItem>
+                              <SelectItem value="in_desfasurare">
+                                În desfășurare
+                              </SelectItem>
+                              <SelectItem value="finalizata">
+                                Finalizată
+                              </SelectItem>
+                              <SelectItem value="anulata">Anulată</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                )}
               </div>
 
-              <FormField
-                control={form.control}
-                name="fuelCost"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Cost combustibil (RON)</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={0} placeholder="0" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selectează status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="planned">Planificată</SelectItem>
-                        <SelectItem value="in_desfasurare">
-                          În desfășurare
-                        </SelectItem>
-                        <SelectItem value="finalizata">Finalizată</SelectItem>
-                        <SelectItem value="anulata">Anulată</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <DialogFooter>
+              <DialogFooter className="gap-2 mt-5 sm:gap-0">
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setDialogOpen(false)}
+                  onClick={handleCloseDialog}
                 >
                   Anulează
                 </Button>
-                <Button type="submit">Adaugă cursă</Button>
+                <Button type="submit">
+                  {editingTrip ? "Salvează modificările" : "Adaugă cursă"}
+                </Button>
               </DialogFooter>
             </form>
           </Form>
