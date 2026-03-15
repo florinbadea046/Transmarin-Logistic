@@ -25,13 +25,30 @@ const TYPE_LABELS: Record<EmployeeDocument["type"], string> = {
   other: "Altele",
 };
 
+// Parse a YYYY-MM-DD string as a local date (midnight in the user's timezone)
+function parseLocalYmdDate(dateStr: string): Date {
+  const [yearStr, monthStr, dayStr] = dateStr.split("-");
+  const year = Number(yearStr);
+  const monthIndex = Number(monthStr) - 1; // JS months are 0-based
+  const day = Number(dayStr);
+  return new Date(year, monthIndex, day);
+}
+
 function getExpiryBadge(expiryDate?: string) {
   if (!expiryDate) return <Badge variant="secondary">Fără expirare</Badge>;
-  const today = new Date().toISOString().slice(0, 10);
-  if (expiryDate < today) return <Badge variant="destructive">Expirat</Badge>;
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const expiry = parseLocalYmdDate(expiryDate);
+
+  if (expiry.getTime() < today.getTime()) {
+    return <Badge variant="destructive">Expirat</Badge>;
+  }
+
   const days = Math.floor(
-    (new Date(expiryDate).getTime() - new Date(today).getTime()) / 86400000,
+    (expiry.getTime() - today.getTime()) / 86400000,
   );
+
   if (days <= 30) {
     return (
       <Badge className="border-yellow-500 text-yellow-600 bg-yellow-50 dark:bg-yellow-950 dark:text-yellow-400" variant="outline">
@@ -85,8 +102,8 @@ export function DocumentsTab({ documents, onChange }: Props) {
       expiryDate: doc.expiryDate ?? "",
       notes: doc.notes ?? "",
     });
-    setIssueDate(doc.issueDate ? new Date(doc.issueDate) : undefined);
-    setDocDate(doc.expiryDate ? new Date(doc.expiryDate) : undefined);
+    setIssueDate(doc.issueDate ? parseLocalYmdDate(doc.issueDate) : undefined);
+    setDocDate(doc.expiryDate ? parseLocalYmdDate(doc.expiryDate) : undefined);
     setShowDocForm(true);
   };
 
