@@ -18,16 +18,20 @@ import {
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DatePicker } from "@/components/date-picker";
+import { ExpiryDatePicker } from "./expiry-date-picker";
 import type { Employee, Bonus } from "@/modules/hr/types";
 import { addItem, updateItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import { BONUS_TYPE_LABELS } from "./payroll-columns";
+import { BONUS_TYPE_LABELS } from "../payroll/payroll-shared";
+
+const BONUS_FORM_TYPES = ["bonus", "amenda", "ore_suplimentare"] as const;
 
 const bonusSchema = z.object({
   employeeId: z.string().min(1, "Selectați un angajat"),
-  type: z.enum(["diurna", "bonus", "amenda", "ore_suplimentare"]),
-  amount: z.number().min(0.01, "Suma trebuie să fie pozitivă"),
+  type: z.enum(BONUS_FORM_TYPES),
+  amount: z.number().refine((value) => value !== 0, {
+    message: "Suma nu poate fi 0",
+  }),
   date: z.string().min(1, "Data este obligatorie"),
   description: z.string().min(1, "Descrierea este obligatorie"),
 });
@@ -52,6 +56,10 @@ export default function BonusDialog({
   onSave,
 }: Props) {
   const isEdit = mode === "edit";
+  const initialType =
+    bonus?.type && BONUS_FORM_TYPES.includes(bonus.type as (typeof BONUS_FORM_TYPES)[number])
+      ? (bonus.type as (typeof BONUS_FORM_TYPES)[number])
+      : undefined;
 
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
     bonus?.date ? new Date(bonus.date) : undefined,
@@ -61,7 +69,7 @@ export default function BonusDialog({
     resolver: zodResolver(bonusSchema),
     defaultValues: {
       employeeId: bonus?.employeeId ?? "",
-      type: bonus?.type ?? "bonus",
+      type: initialType as BonusFormValues["type"],
       amount: bonus?.amount ?? 0,
       date: bonus?.date ?? "",
       description: bonus?.description ?? "",
@@ -75,24 +83,28 @@ export default function BonusDialog({
     if (open) {
       form.reset({
         employeeId: bonus?.employeeId ?? "",
-        type: bonus?.type ?? "bonus",
+        type: initialType as BonusFormValues["type"],
         amount: bonus?.amount ?? 0,
         date: bonus?.date ?? "",
         description: bonus?.description ?? "",
       });
       setSelectedDate(bonus?.date ? new Date(bonus.date) : undefined);
     }
-  }, [open, bonus, form]);
+  }, [open, bonus, form, initialType]);
 
   const handleSubmit = (values: BonusFormValues) => {
+    const normalizedAmount =
+      values.type === "amenda" ? -Math.abs(values.amount) : Math.abs(values.amount);
+    const payload = { ...values, amount: normalizedAmount };
+
     if (isEdit && bonus) {
       updateItem<Bonus>(
         STORAGE_KEYS.bonuses,
         (b) => b.id === bonus.id,
-        () => ({ ...bonus, ...values }),
+        () => ({ ...bonus, ...payload }),
       );
     } else {
-      addItem<Bonus>(STORAGE_KEYS.bonuses, { ...values, id: generateId() });
+      addItem<Bonus>(STORAGE_KEYS.bonuses, { ...payload, id: generateId() });
     }
     onSave();
     onOpenChange(false);
@@ -139,17 +151,19 @@ export default function BonusDialog({
           <Select
             value={type}
             onValueChange={(val) =>
-              form.setValue("type", val as Bonus["type"], {
+              form.setValue("type", val as BonusFormValues["type"], {
                 shouldValidate: true,
               })
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Tip" />
+              <SelectValue placeholder="Selectați tip" />
             </SelectTrigger>
             <SelectContent>
               {(
-                Object.entries(BONUS_TYPE_LABELS) as [Bonus["type"], string][]
+                BONUS_FORM_TYPES.map(
+                  (val) => [val, BONUS_TYPE_LABELS[val]] as const,
+                )
               ).map(([val, label]) => (
                 <SelectItem key={val} value={val}>
                   {label}
@@ -175,7 +189,7 @@ export default function BonusDialog({
           )}
 
           <div className="[&>button]:w-full">
-            <DatePicker
+            <ExpiryDatePicker
               selected={selectedDate}
               onSelect={(date) => {
                 setSelectedDate(date);

@@ -29,6 +29,7 @@ export interface Driver {
   licenseExpiry: string;
   status: "available" | "on_trip" | "off_duty";
   truckId?: string;
+  employeeId?: string;
 }
 
 export interface Truck {

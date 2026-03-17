@@ -3,27 +3,8 @@ import { Badge } from "@/components/ui/badge";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { formatCurrency, formatDate } from "@/utils/format";
 import type { Bonus } from "@/modules/hr/types";
+import { BONUS_TYPE_LABELS, type PayrollRow } from "../payroll/payroll-shared";
 import type { BonusRow } from "./bonus-row";
-
-export const BONUS_TYPE_LABELS: Record<Bonus["type"], string> = {
-  diurna: "Diurnă",
-  bonus: "Bonus",
-  amenda: "Amendă",
-  ore_suplimentare: "Ore suplimentare",
-};
-
-// ── Payroll row type ─────────────────────────────────────────
-export type PayrollRow = {
-  id: string;
-  name: string;
-  department: string;
-  salary: number;
-  diurna: number;
-  bonusuri: number;
-  amenzi: number;
-  oreSuplimentare: number;
-  totalNet: number;
-};
 
 // ── Payroll table columns ────────────────────────────────────
 export const payrollColumns: ColumnDef<PayrollRow>[] = [
@@ -162,14 +143,15 @@ export const bonusColumns: ColumnDef<BonusRow>[] = [
       <DataTableColumnHeader column={column} title="Sumă" />
     ),
     cell: ({ row }) => {
-      const t = row.original.type;
       const v = row.getValue("amount") as number;
-      const isNegative = t === "amenda";
+      const isPenalty = row.original.type === "amenda";
+      const isNegative = v < 0 || isPenalty;
+      const absoluteValue = Math.abs(v);
       return (
         <div
           className={`whitespace-nowrap font-medium ${isNegative ? "text-red-600" : "text-green-600"}`}
         >
-          {isNegative ? `-${formatCurrency(v)}` : formatCurrency(v)}
+          {isNegative ? `-${formatCurrency(absoluteValue)}` : formatCurrency(absoluteValue)}
         </div>
       );
     },
@@ -199,26 +181,3 @@ export const bonusColumns: ColumnDef<BonusRow>[] = [
     cell: () => null,
   },
 ];
-
-// ── Month options ────────────────────────────────────────────
-function getMonthOptions() {
-  const options: { value: string; label: string }[] = [];
-  const now = new Date();
-  for (let i = 0; i < 12; i++) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const label = d.toLocaleDateString("ro-RO", {
-      month: "long",
-      year: "numeric",
-    });
-    options.push({ value, label });
-  }
-  return options;
-}
-
-export const MONTH_OPTIONS = getMonthOptions();
-
-export function currentMonth(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-}

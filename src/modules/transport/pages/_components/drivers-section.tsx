@@ -53,7 +53,8 @@ import {
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 
 import type { Driver, Truck } from "@/modules/transport/types";
-import { addItem, generateId, removeItem, updateItem } from "@/utils/local-storage";
+import type { Employee } from "@/modules/hr/types";
+import { addItem, generateId, getCollection, removeItem, updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import useDialogState from "@/hooks/use-dialog-state";
 
@@ -67,6 +68,7 @@ interface DriverFormData {
   licenseExpiry: string;
   status: Driver["status"];
   truckId: string;
+  employeeId?: string;
 }
 
 interface DriverFormErrors {
@@ -83,6 +85,7 @@ const EMPTY_FORM: DriverFormData = {
   licenseExpiry: "",
   status: "available",
   truckId: "",
+  employeeId: "",
 };
 
 // ── DriverMobileCard ───────────────────────────────────────
@@ -156,6 +159,7 @@ function DriverDialog({
   form,
   errors,
   trucks,
+  employees,
   onFormChange,
   onSubmit,
 }: {
@@ -165,6 +169,7 @@ function DriverDialog({
   form: DriverFormData;
   errors: DriverFormErrors;
   trucks: Truck[];
+  employees: Employee[];
   onFormChange: (patch: Partial<DriverFormData>) => void;
   onSubmit: () => void;
 }) {
@@ -226,6 +231,25 @@ function DriverDialog({
             </Select>
           </div>
           <div className="space-y-1">
+            <Label htmlFor="employee">{t("drivers.fields.employee") || "Angajat HR"}</Label>
+            <Select
+              value={form.employeeId || "none"}
+              onValueChange={(val) => onFormChange({ employeeId: val === "none" ? "" : val })}
+            >
+              <SelectTrigger id="employee">
+                <SelectValue placeholder="Fără legătură HR" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Fără legătură HR</SelectItem>
+                {employees.map((emp) => (
+                  <SelectItem key={emp.id} value={emp.id}>
+                    {emp.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1">
             <Label htmlFor="truck">{t("drivers.fields.truck")}</Label>
             <Select
               value={form.truckId || "none"}
@@ -269,6 +293,9 @@ export function DriversSection({
   trucks: Truck[];
   onDataChange: () => void;
 }) {
+  const [employees] = React.useState<Employee[]>(() =>
+    getCollection<Employee>(STORAGE_KEYS.employees),
+  );
   const { t } = useTranslation();
 
   const DRIVER_STATUS_CLASS: Record<Driver["status"], string> = {
@@ -326,6 +353,7 @@ export function DriversSection({
       licenseExpiry: driver.licenseExpiry,
       status: driver.status,
       truckId: driver.truckId ?? "",
+      employeeId: driver.employeeId ?? "",
     });
     setErrors({});
     setDialogOpen(true);
@@ -344,6 +372,8 @@ export function DriversSection({
       );
     }
 
+    const newEmployeeId = form.employeeId || undefined;
+
     if (editingDriver) {
       updateItem<Driver>(
         STORAGE_KEYS.drivers,
@@ -355,6 +385,7 @@ export function DriversSection({
           licenseExpiry: form.licenseExpiry,
           status: form.status,
           truckId: newTruckId,
+          employeeId: newEmployeeId,
         }),
       );
       toast.success(t("drivers.toastUpdated"));
@@ -366,6 +397,7 @@ export function DriversSection({
         licenseExpiry: form.licenseExpiry,
         status: form.status,
         truckId: newTruckId,
+        employeeId: newEmployeeId,
       });
       toast.success(t("drivers.toastAdded"));
     }
@@ -527,6 +559,7 @@ export function DriversSection({
         form={form}
         errors={errors}
         trucks={trucks}
+        employees={employees}
         onFormChange={(patch) => setForm((f) => ({ ...f, ...patch }))}
         onSubmit={handleSubmit}
       />
