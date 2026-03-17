@@ -19,8 +19,12 @@ function toPdfSafeText(value: unknown) {
     .replace(/Â/g, "A")
     .replace(/î/g, "i")
     .replace(/Î/g, "I")
+    .replace(/ş/g, "s")
+    .replace(/Ş/g, "S")
     .replace(/ș/g, "s")
     .replace(/Ș/g, "S")
+    .replace(/ţ/g, "t")
+    .replace(/Ţ/g, "T")
     .replace(/ț/g, "t")
     .replace(/Ț/g, "T");
 }
