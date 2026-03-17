@@ -15,18 +15,24 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { CalendarDropdown } from "./calendar-dropdown";
+import { useTranslation } from "react-i18next";
+import { getEmployeeDepartmentLabel } from "../utils/department-label";
 
-export const employeeSchema = z.object({
-  name: z.string().min(2, "Numele este obligatoriu"),
-  position: z.string().min(2, "Funcția este obligatorie"),
-  department: z.string().min(2, "Departamentul este obligatoriu"),
-  phone: z.string().min(6, "Telefon invalid"),
-  email: z.string().email("Email invalid"),
-  hireDate: z.string().min(1, "Data angajării este obligatorie"),
-  salary: z.coerce.number().min(1, "Salariul este obligatoriu"),
-});
+export function makeEmployeeSchema(
+  t: ReturnType<typeof useTranslation>["t"],
+) {
+  return z.object({
+    name: z.string().min(2, t("employees.validation.nameRequired")),
+    position: z.string().min(2, t("employees.validation.positionRequired")),
+    department: z.string().min(2, t("employees.validation.departmentRequired")),
+    phone: z.string().min(6, t("employees.validation.phoneInvalid")),
+    email: z.string().email(t("employees.validation.emailInvalid")),
+    hireDate: z.string().min(1, t("employees.validation.hireDateRequired")),
+    salary: z.coerce.number().min(1, t("employees.validation.salaryRequired")),
+  });
+}
 
-export type EmployeeFormValues = z.infer<typeof employeeSchema>;
+export type EmployeeFormValues = z.infer<ReturnType<typeof makeEmployeeSchema>>;
 
 interface Props {
   form: UseFormReturn<EmployeeFormValues>;
@@ -35,17 +41,21 @@ interface Props {
 }
 
 export function EmployeeFormFields({ form, selectedDate, onDateSelect }: Props) {
+  const { t } = useTranslation();
   const department = useWatch({ control: form.control, name: "department" });
 
   return (
     <>
-      <Input placeholder="Nume" {...form.register("name")} />
+      <Input placeholder={t("employees.fields.name")} {...form.register("name")} />
       {form.formState.errors.name && (
         <span className="text-xs text-red-500">
           {form.formState.errors.name.message}
         </span>
       )}
-      <Input placeholder="Funcție" {...form.register("position")} />
+      <Input
+        placeholder={t("employees.fields.position")}
+        {...form.register("position")}
+      />
       {form.formState.errors.position && (
         <span className="text-xs text-red-500">
           {form.formState.errors.position.message}
@@ -61,12 +71,12 @@ export function EmployeeFormFields({ form, selectedDate, onDateSelect }: Props) 
         }
       >
         <SelectTrigger className="w-full">
-          <SelectValue placeholder="Departament" />
+          <SelectValue placeholder={t("employees.fields.department")} />
         </SelectTrigger>
         <SelectContent>
           {EMPLOYEE_DEPARTMENTS.map((dep) => (
             <SelectItem key={dep} value={dep}>
-              {dep}
+              {getEmployeeDepartmentLabel(t, dep)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -76,13 +86,13 @@ export function EmployeeFormFields({ form, selectedDate, onDateSelect }: Props) 
           {form.formState.errors.department.message}
         </span>
       )}
-      <Input placeholder="Telefon" {...form.register("phone")} />
+      <Input placeholder={t("employees.fields.phone")} {...form.register("phone")} />
       {form.formState.errors.phone && (
         <span className="text-xs text-red-500">
           {form.formState.errors.phone.message}
         </span>
       )}
-      <Input placeholder="Email" {...form.register("email")} />
+      <Input placeholder={t("employees.fields.email")} {...form.register("email")} />
       {form.formState.errors.email && (
         <span className="text-xs text-red-500">
           {form.formState.errors.email.message}
@@ -95,7 +105,7 @@ export function EmployeeFormFields({ form, selectedDate, onDateSelect }: Props) 
             data-empty={!selectedDate}
             className="w-full justify-start text-start font-normal data-[empty=true]:text-muted-foreground"
           >
-            {selectedDate ? format(selectedDate, "MMM d, yyyy") : <span>Data angajării</span>}
+              {selectedDate ? format(selectedDate, "MMM d, yyyy") : <span>{t("employees.fields.hireDate")}</span>}
             <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -120,7 +130,7 @@ export function EmployeeFormFields({ form, selectedDate, onDateSelect }: Props) 
       )}
       <Input
         type="number"
-        placeholder="Salariu"
+        placeholder={t("employees.fields.salary")}
         {...form.register("salary")}
       />
       {form.formState.errors.salary && (

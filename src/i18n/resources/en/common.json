@@ -103,6 +103,79 @@
       "toastAllSkipped": "No orders imported — all rows are duplicates."
     }
   },
+  "employees": {
+    "title": "Employees",
+    "listTitle": "Employee List",
+    "count_one": "{{count}} employee",
+    "count_other": "{{count}} employees",
+    "empty": "No employees found.",
+    "fields": {
+      "name": "Name",
+      "position": "Position",
+      "department": "Department",
+      "phone": "Phone",
+      "email": "Email",
+      "hireDate": "Hire Date",
+      "salary": "Salary",
+      "salaryExport": "Salary (RON)"
+    },
+    "placeholders": {
+      "search": "Search by name, position or email..."
+    },
+    "filters": {
+      "all": "All"
+    },
+    "departments": {
+      "dispatch": "Dispatch",
+      "transport": "Transport",
+      "service": "Service",
+      "accounting": "Accounting",
+      "administrative": "Administrative"
+    },
+    "actions": {
+      "add": "Add Employee",
+      "edit": "Edit",
+      "delete": "Delete",
+      "documents": "Documents",
+      "save": "Save",
+      "cancel": "Cancel",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV",
+      "menu": "Employee actions"
+    },
+    "dialog": {
+      "addTitle": "Add Employee",
+      "editTitle": "Edit employee"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "positionRequired": "Position is required",
+      "departmentRequired": "Department is required",
+      "phoneInvalid": "Invalid phone",
+      "emailInvalid": "Invalid email",
+      "hireDateRequired": "Hire date is required",
+      "salaryRequired": "Salary is required"
+    },
+    "delete": {
+      "title": "Confirm deletion",
+      "description": "Are you sure you want to delete employee {{name}}?"
+    },
+    "documents": {
+      "title": "Documents — {{name}}"
+    },
+    "toast": {
+      "updated": "Employee updated successfully",
+      "deleted": "Employee deleted successfully",
+      "deleteBlockedActiveTrip": "Employee cannot be deleted: assigned as driver on an active trip.",
+      "deleteBlockedFutureLeave": "Employee cannot be deleted: has approved leave in the future."
+    },
+    "export": {
+      "pdfTitle": "Employee List",
+      "filename": "employees"
+    }
+  },
   "drivers": {
     "title": "Drivers",
     "add": "Add Driver",

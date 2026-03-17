@@ -9,6 +9,7 @@ import {
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { buttonVariants } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
 
 export default function ConfirmDeleteDialog({
   employeeName,
@@ -21,23 +22,24 @@ export default function ConfirmDeleteDialog({
   open: boolean;
   onOpenChange: (v: boolean) => void;
 }) {
+  const { t } = useTranslation();
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Confirmă ștergerea</AlertDialogTitle>
+          <AlertDialogTitle>{t("employees.delete.title")}</AlertDialogTitle>
           <AlertDialogDescription>
-            Sigur doriți să ștergeți angajatul{" "}
-            <strong className="text-foreground">{employeeName}</strong>?
+            {t("employees.delete.description", { name: employeeName })}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Anulează</AlertDialogCancel>
+          <AlertDialogCancel>{t("employees.actions.cancel")}</AlertDialogCancel>
           <AlertDialogAction
             className={buttonVariants({ variant: "destructive" })}
             onClick={onDelete}
           >
-            Șterge
+            {t("employees.actions.delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

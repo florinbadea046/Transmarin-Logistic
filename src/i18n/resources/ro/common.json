@@ -103,6 +103,80 @@
       "toastAllSkipped": "Nicio comandă importată — toate rândurile sunt duplicate."
     }
   },
+  "employees": {
+    "title": "Angajați",
+    "listTitle": "Lista Angajați",
+    "count_one": "{{count}} angajat",
+    "count_few": "{{count}} angajați",
+    "count_other": "{{count}} angajați",
+    "empty": "Niciun angajat găsit.",
+    "fields": {
+      "name": "Nume",
+      "position": "Funcție",
+      "department": "Departament",
+      "phone": "Telefon",
+      "email": "Email",
+      "hireDate": "Data angajării",
+      "salary": "Salariu",
+      "salaryExport": "Salariu (RON)"
+    },
+    "placeholders": {
+      "search": "Caută după nume, funcție sau email..."
+    },
+    "filters": {
+      "all": "Toate"
+    },
+    "departments": {
+      "dispatch": "Dispecerat",
+      "transport": "Transport",
+      "service": "Service",
+      "accounting": "Contabilitate",
+      "administrative": "Administrativ"
+    },
+    "actions": {
+      "add": "Adaugă angajat",
+      "edit": "Editează",
+      "delete": "Șterge",
+      "documents": "Documente",
+      "save": "Salvează",
+      "cancel": "Anulează",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV",
+      "menu": "Acțiuni angajat"
+    },
+    "dialog": {
+      "addTitle": "Adaugă angajat",
+      "editTitle": "Editare angajat"
+    },
+    "validation": {
+      "nameRequired": "Numele este obligatoriu",
+      "positionRequired": "Funcția este obligatorie",
+      "departmentRequired": "Departamentul este obligatoriu",
+      "phoneInvalid": "Telefon invalid",
+      "emailInvalid": "Email invalid",
+      "hireDateRequired": "Data angajării este obligatorie",
+      "salaryRequired": "Salariul este obligatoriu"
+    },
+    "delete": {
+      "title": "Confirmă ștergerea",
+      "description": "Sigur doriți să ștergeți angajatul {{name}}?"
+    },
+    "documents": {
+      "title": "Documente — {{name}}"
+    },
+    "toast": {
+      "updated": "Angajat actualizat cu succes",
+      "deleted": "Angajat șters cu succes",
+      "deleteBlockedActiveTrip": "Angajatul nu poate fi șters: este șofer pe o cursă activă.",
+      "deleteBlockedFutureLeave": "Angajatul nu poate fi șters: are concediu aprobat în viitor."
+    },
+    "export": {
+      "pdfTitle": "Lista angajați",
+      "filename": "angajati"
+    }
+  },
   "drivers": {
     "title": "Șoferi",
     "add": "Adaugă Șofer",

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   type ColumnDef,
   flexRender,
@@ -37,100 +38,117 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
 import EmployeeDialog from "../components/employee-dialog";
+import { EmployeeExportMenu } from "../components/employee-export-menu";
 import { EmployeeRow } from "../components/employee-row";
 import { EmployeeExportMenu } from "../components/employee-export-menu";
 import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
 
-const columns: ColumnDef<Employee>[] = [
-  {
-    accessorKey: "name",
-    enableHiding: false,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Nume" />
-    ),
-    cell: ({ row }) => (
-      <div className="font-medium whitespace-nowrap">
-        {row.getValue("name")}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "position",
-    enableHiding: false,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Funcție" />
-    ),
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap">{row.getValue("position")}</div>
-    ),
-  },
-  {
-    accessorKey: "department",
-    enableHiding: false,
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Departament" />
-    ),
-    cell: ({ row }) => (
-      <Badge variant="secondary">{row.getValue("department")}</Badge>
-    ),
-    filterFn: (row, id, value) => {
-      if (!value || value === "Toate") return true;
-      return row.getValue(id) === value;
+const ALL_DEPARTMENTS = "__all__";
+
+function getColumns(t: (key: string) => string): ColumnDef<Employee>[] {
+  return [
+    {
+      accessorKey: "name",
+      enableHiding: false,
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t("employees.fields.name")} />
+      ),
+      cell: ({ row }) => (
+        <div className="font-medium whitespace-nowrap">
+          {row.getValue("name")}
+        </div>
+      ),
     },
-  },
-  {
-    accessorKey: "phone",
-    header: "Telefon",
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap">{row.getValue("phone")}</div>
-    ),
-    enableSorting: false,
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap">{row.getValue("email")}</div>
-    ),
-    enableSorting: false,
-  },
-  {
-    accessorKey: "hireDate",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Data angajării" />
-    ),
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap">
-        {formatDate(row.getValue("hireDate"))}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "salary",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Salariu" />
-    ),
-    cell: ({ row }) => (
-      <div className="whitespace-nowrap font-medium">
-        {(row.getValue("salary") as number).toLocaleString("ro-RO")} RON
-      </div>
-    ),
-    sortingFn: (a, b, id) => {
-      const av = (a.getValue(id) as number) ?? 0;
-      const bv = (b.getValue(id) as number) ?? 0;
-      return av === bv ? 0 : av > bv ? 1 : -1;
+    {
+      accessorKey: "position",
+      enableHiding: false,
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={t("employees.fields.position")}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="whitespace-nowrap">{row.getValue("position")}</div>
+      ),
     },
-  },
-  {
-    id: "actions",
-    enableSorting: false,
-    enableHiding: false,
-    header: () => null,
-    cell: () => null,
-  },
-];
+    {
+      accessorKey: "department",
+      enableHiding: false,
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={t("employees.fields.department")}
+        />
+      ),
+      cell: ({ row }) => (
+        <Badge variant="secondary">
+          {getEmployeeDepartmentLabel(t, String(row.getValue("department")))}
+        </Badge>
+      ),
+      filterFn: (row, id, value) => {
+        if (!value || value === ALL_DEPARTMENTS) return true;
+        return row.getValue(id) === value;
+      },
+    },
+    {
+      accessorKey: "phone",
+      header: t("employees.fields.phone"),
+      cell: ({ row }) => (
+        <div className="whitespace-nowrap">{row.getValue("phone")}</div>
+      ),
+      enableSorting: false,
+    },
+    {
+      accessorKey: "email",
+      header: t("employees.fields.email"),
+      cell: ({ row }) => (
+        <div className="whitespace-nowrap">{row.getValue("email")}</div>
+      ),
+      enableSorting: false,
+    },
+    {
+      accessorKey: "hireDate",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={t("employees.fields.hireDate")}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="whitespace-nowrap">
+          {formatDate(row.getValue("hireDate"))}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "salary",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title={t("employees.fields.salary")} />
+      ),
+      cell: ({ row }) => (
+        <div className="whitespace-nowrap font-medium">
+          {(row.getValue("salary") as number).toLocaleString("ro-RO")} RON
+        </div>
+      ),
+      sortingFn: (a, b, id) => {
+        const av = (a.getValue(id) as number) ?? 0;
+        const bv = (b.getValue(id) as number) ?? 0;
+        return av === bv ? 0 : av > bv ? 1 : -1;
+      },
+    },
+    {
+      id: "actions",
+      enableSorting: false,
+      enableHiding: false,
+      header: () => null,
+      cell: () => null,
+    },
+  ];
+}
 
 export default function EmployeesPage() {
+  const { t } = useTranslation();
   const [data, setData] = React.useState<Employee[]>(() =>
     getCollection<Employee>(STORAGE_KEYS.employees),
   );
@@ -141,11 +159,19 @@ export default function EmployeesPage() {
     [],
   );
   const [search, setSearch] = React.useState("");
-  const [dept, setDept] = React.useState("Toate");
+  const [dept, setDept] = React.useState(ALL_DEPARTMENTS);
+
+  const columns = React.useMemo(() => getColumns(t), [t]);
 
   const departments = React.useMemo(() => {
-    return ["Toate", ...EMPLOYEE_DEPARTMENTS];
-  }, []);
+    return [
+      { value: ALL_DEPARTMENTS, label: t("employees.filters.all") },
+      ...EMPLOYEE_DEPARTMENTS.map((department) => ({
+        value: department,
+        label: getEmployeeDepartmentLabel(t, department),
+      })),
+    ];
+  }, [t]);
 
   const table = useReactTable({
     data,
@@ -178,7 +204,7 @@ export default function EmployeesPage() {
 
   const handleDeptChange = (v: string) => {
     setDept(v);
-    if (v === "Toate") {
+    if (v === ALL_DEPARTMENTS) {
       table.getColumn("department")?.setFilterValue(undefined);
     } else {
       table.getColumn("department")?.setFilterValue(v);
@@ -195,15 +221,17 @@ export default function EmployeesPage() {
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold">Angajați</h1>
+        <h1 className="text-lg font-semibold">{t("employees.title")}</h1>
       </Header>
       <Main>
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <CardTitle>Lista Angajați</CardTitle>
+              <CardTitle>{t("employees.listTitle")}</CardTitle>
               <span className="text-sm text-muted-foreground">
-                {table.getFilteredRowModel().rows.length} angajați
+                {t("employees.count", {
+                  count: table.getFilteredRowModel().rows.length,
+                })}
               </span>
               <div className="flex items-center gap-2">
                 <EmployeeExportMenu
@@ -221,19 +249,19 @@ export default function EmployeesPage() {
             </div>
             <div className="flex flex-wrap gap-2 mt-3">
               <Input
-                placeholder="Caută după nume, funcție sau email..."
+                placeholder={t("employees.placeholders.search")}
                 value={search}
                 onChange={handleSearch}
                 className="max-w-xs"
               />
               <Select value={dept} onValueChange={handleDeptChange}>
                 <SelectTrigger className="w-44">
-                  <SelectValue placeholder="Departament" />
+                  <SelectValue placeholder={t("employees.fields.department")} />
                 </SelectTrigger>
                 <SelectContent>
                   {departments.map((d) => (
-                    <SelectItem key={d} value={d}>
-                      {d}
+                    <SelectItem key={d.value} value={d.value}>
+                      {d.label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -273,7 +301,7 @@ export default function EmployeesPage() {
                         colSpan={table.getVisibleLeafColumns().length}
                         className="h-24 text-center text-muted-foreground"
                       >
-                        Niciun angajat găsit.
+                        {t("employees.empty")}
                       </TableCell>
                     </TableRow>
                   )}
