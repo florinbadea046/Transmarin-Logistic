@@ -38,6 +38,7 @@ import type { Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
 import EmployeeDialog from "../components/employee-dialog";
 import { EmployeeRow } from "../components/employee-row";
+import { EmployeeExportMenu } from "../components/employee-export-menu";
 import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
 
 const columns: ColumnDef<Employee>[] = [
@@ -204,12 +205,19 @@ export default function EmployeesPage() {
               <span className="text-sm text-muted-foreground">
                 {table.getFilteredRowModel().rows.length} angajați
               </span>
-              <EmployeeDialog
-                mode="add"
-                onAdd={() =>
-                  setData(getCollection<Employee>(STORAGE_KEYS.employees))
-                }
-              />
+              <div className="flex items-center gap-2">
+                <EmployeeExportMenu
+                  employees={table.getFilteredRowModel().rows.map(
+                    (row) => row.original,
+                  )}
+                />
+                <EmployeeDialog
+                  mode="add"
+                  onAdd={() =>
+                    setData(getCollection<Employee>(STORAGE_KEYS.employees))
+                  }
+                />
+              </div>
             </div>
             <div className="flex flex-wrap gap-2 mt-3">
               <Input
