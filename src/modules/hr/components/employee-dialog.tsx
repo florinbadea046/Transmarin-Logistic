@@ -46,8 +46,14 @@ export default function EmployeeDialog(props: Props) {
     employee?.hireDate ? new Date(employee.hireDate) : undefined,
   );
 
+  const schema = React.useMemo(() => makeEmployeeSchema(t), [t]);
+  const resolver = React.useMemo(
+    () => zodResolver(schema) as Resolver<EmployeeFormValues>,
+    [schema],
+  );
+
   const form = useForm<EmployeeFormValues>({
-    resolver: zodResolver(makeEmployeeSchema(t)) as Resolver<EmployeeFormValues>,
+    resolver,
     defaultValues: {
       name: employee?.name ?? "",
       position: employee?.position ?? "",

@@ -18,7 +18,9 @@ import { CalendarDropdown } from "./calendar-dropdown";
 import { useTranslation } from "react-i18next";
 import { getEmployeeDepartmentLabel } from "../utils/department-label";
 
-export function makeEmployeeSchema(t: (key: string) => string) {
+export function makeEmployeeSchema(
+  t: ReturnType<typeof useTranslation>["t"],
+) {
   return z.object({
     name: z.string().min(2, t("employees.validation.nameRequired")),
     position: z.string().min(2, t("employees.validation.positionRequired")),

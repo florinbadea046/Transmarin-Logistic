@@ -13,6 +13,20 @@ import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import { getEmployeeDepartmentLabel } from "../utils/department-label";
 
+type ExportEmployeeKey =
+  | "name"
+  | "position"
+  | "department"
+  | "phone"
+  | "email"
+  | "hireDate"
+  | "salary";
+
+type ExportEmployeeColumn = {
+  key: ExportEmployeeKey;
+  label: string;
+};
+
 function toPdfSafeText(value: unknown) {
   return String(value ?? "")
     .replace(/ă/g, "a")
@@ -27,7 +41,7 @@ function toPdfSafeText(value: unknown) {
     .replace(/Ț/g, "T");
 }
 
-function getExportEmployeeCols(t: (key: string) => string) {
+function getExportEmployeeCols(t: (key: string) => string): ExportEmployeeColumn[] {
   return [
     { key: "name", label: t("employees.fields.name") },
     { key: "position", label: t("employees.fields.position") },
@@ -39,18 +53,28 @@ function getExportEmployeeCols(t: (key: string) => string) {
   ];
 }
 
-function toRows<T>(
-  items: T[],
-  cols: { key: string; label: string }[],
+function getEmployeeExportValue(
+  employee: Employee,
+  key: ExportEmployeeKey,
   t: (key: string) => string,
 ) {
-  return items.map((item) =>
+  if (key === "department") {
+    return getEmployeeDepartmentLabel(t, employee.department);
+  }
+
+  return employee[key];
+}
+
+function toRows(
+  items: Employee[],
+  cols: ExportEmployeeColumn[],
+  t: (key: string) => string,
+) {
+  return items.map((employee) =>
     Object.fromEntries(
       cols.map((c) => [
         c.label,
-        c.key === "department"
-          ? getEmployeeDepartmentLabel(t, String((item as any)[c.key] ?? ""))
-          : ((item as any)[c.key] ?? ""),
+        getEmployeeExportValue(employee, c.key, t),
       ]),
     ),
   );
@@ -64,13 +88,7 @@ function exportEmployeesPDF(employees: Employee[], t: (key: string) => string) {
   autoTable(doc, {
     head: [cols.map((c) => toPdfSafeText(c.label))],
     body: employees.map((employee) =>
-      cols.map((c) =>
-        toPdfSafeText(
-          c.key === "department"
-            ? getEmployeeDepartmentLabel(t, String((employee as any)[c.key] ?? ""))
-            : (employee as any)[c.key],
-        ),
-      ),
+      cols.map((c) => toPdfSafeText(getEmployeeExportValue(employee, c.key, t))),
     ),
     startY: 22,
     styles: { fontSize: 8 },

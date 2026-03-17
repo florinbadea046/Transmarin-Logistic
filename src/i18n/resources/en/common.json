@@ -106,7 +106,8 @@
   "employees": {
     "title": "Employees",
     "listTitle": "Employee List",
-    "count": "{{count}} employees",
+    "count_one": "{{count}} employee",
+    "count_other": "{{count}} employees",
     "empty": "No employees found.",
     "fields": {
       "name": "Name",

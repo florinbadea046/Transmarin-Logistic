@@ -106,7 +106,9 @@
   "employees": {
     "title": "Angajați",
     "listTitle": "Lista Angajați",
-    "count": "{{count}} angajați",
+    "count_one": "{{count}} angajat",
+    "count_few": "{{count}} angajați",
+    "count_other": "{{count}} angajați",
     "empty": "Niciun angajat găsit.",
     "fields": {
       "name": "Nume",

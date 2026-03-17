@@ -35,7 +35,8 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
   const handleDeleteClick = () => {
     const trips = getCollection<Trip>(STORAGE_KEYS.trips);
     const isOnActiveTrip = trips.some(
-      (t) => t.driverId === employee.id && t.status === "in_desfasurare",
+      (trip) =>
+        trip.driverId === employee.id && trip.status === "in_desfasurare",
     );
     if (isOnActiveTrip) {
       toast.warning(t("employees.toast.deleteBlockedActiveTrip"));
