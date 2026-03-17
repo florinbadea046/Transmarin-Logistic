@@ -8,6 +8,7 @@ import { getCollection, updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, EmployeeDocument } from "@/modules/hr/types";
 import { DocumentsTab } from "./documents-tab";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   employee: Employee;
@@ -22,6 +23,8 @@ export function EmployeeDocumentsDialog({
   onOpenChange,
   onUpdate,
 }: Props) {
+  const { t } = useTranslation();
+
   const handleChange = (docs: EmployeeDocument[]) => {
     updateItem<Employee>(
       STORAGE_KEYS.employees,
@@ -35,7 +38,9 @@ export function EmployeeDocumentsDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Documente — {employee.name}</DialogTitle>
+          <DialogTitle>
+            {t("employees.documents.title", { name: employee.name })}
+          </DialogTitle>
         </DialogHeader>
         <DocumentsTab
           documents={employee.documents}

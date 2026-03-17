@@ -18,6 +18,7 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Trip } from "@/modules/transport/types";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface EmployeeRowProps {
   row: Row<Employee>;
@@ -25,6 +26,7 @@ interface EmployeeRowProps {
 }
 
 export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
+  const { t } = useTranslation();
   const employee = row.original;
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
@@ -33,12 +35,10 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
   const handleDeleteClick = () => {
     const trips = getCollection<Trip>(STORAGE_KEYS.trips);
     const isOnActiveTrip = trips.some(
-      (t) => t.driverId === employee.id && t.status === "active",
+      (t) => t.driverId === employee.id && t.status === "in_desfasurare",
     );
     if (isOnActiveTrip) {
-      toast.warning(
-        "Angajatul nu poate fi șters: este șofer pe o cursă activă.",
-      );
+      toast.warning(t("employees.toast.deleteBlockedActiveTrip"));
       return;
     }
 
@@ -53,9 +53,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
         l.endDate >= today,
     );
     if (hasFutureLeave) {
-      toast.warning(
-        "Angajatul nu poate fi șters: are concediu aprobat în viitor.",
-      );
+      toast.warning(t("employees.toast.deleteBlockedFutureLeave"));
       return;
     }
 
@@ -73,7 +71,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 p-0"
-                  aria-label="Acțiuni angajat"
+                  aria-label={t("employees.actions.menu")}
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
@@ -84,14 +82,14 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
                   onClick={() => setEditOpen(true)}
                 >
                   <Pencil className="mr-2 h-4 w-4" />
-                  Editează
+                  {t("employees.actions.edit")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onClick={() => setDocsOpen(true)}
                 >
                   <FileText className="mr-2 h-4 w-4" />
-                  Documente
+                  {t("employees.actions.documents")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -100,7 +98,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
                   onClick={handleDeleteClick}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Șterge
+                  {t("employees.actions.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -124,7 +122,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
             () => updated,
           );
           setData(getCollection<Employee>(STORAGE_KEYS.employees));
-          toast.success("Angajat actualizat cu succes");
+          toast.success(t("employees.toast.updated"));
         }}
 
       />
@@ -144,7 +142,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
             (e) => e.id === employee.id,
           );
           setData(getCollection<Employee>(STORAGE_KEYS.employees));
-          toast.success("Angajat șters cu succes");
+          toast.success(t("employees.toast.deleted"));
         }}
       />
     </TableRow>
