@@ -40,7 +40,7 @@ import { formatDate } from "@/utils/format";
 import EmployeeDialog from "../components/employee-dialog";
 import { EmployeeExportMenu } from "../components/employee-export-menu";
 import { EmployeeRow } from "../components/employee-row";
-import { getEmployeeDepartmentLabel } from "../utils/department-label";
+import { EmployeeExportMenu } from "../components/employee-export-menu";
 import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
 
 const ALL_DEPARTMENTS = "__all__";

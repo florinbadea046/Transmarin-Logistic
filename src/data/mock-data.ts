@@ -1254,12 +1254,9 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.trips, seedTrips);
   initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
   initCollection(STORAGE_KEYS.fuelRecords, seedFuelRecords);
-  initCollection(STORAGE_KEYS.invoices, []);
-  initCollection(STORAGE_KEYS.leaveRequests, []);
-  initCollection(STORAGE_KEYS.bonuses, seedBonuses);
   initCollection(STORAGE_KEYS.invoices, seedInvoices);
   initCollection(STORAGE_KEYS.leaveRequests, seedLeaveRequests);
-  initCollection(STORAGE_KEYS.bonuses, []);
+  initCollection(STORAGE_KEYS.bonuses, seedBonuses);
 }
 
 export { seedEmployees };
