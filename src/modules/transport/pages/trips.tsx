@@ -18,6 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
 import {
   PlusCircle,
   Play,
@@ -34,6 +35,7 @@ import Papa from "papaparse";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -564,6 +566,7 @@ function buildColumns(
 
 export default function TripsPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth < 768;
   const isTablet = windowWidth >= 768 && windowWidth < 1024;
@@ -828,11 +831,27 @@ export default function TripsPage() {
 
       <Main>
         <Card className="overflow-hidden">
-          <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardHeader className="flex flex-row items-center justify-between gap-2 flex-wrap">
             <CardTitle className="text-base md:text-lg">
               {t("trips.tableTitle")}
             </CardTitle>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <Tabs
+                value="table"
+                onValueChange={(v) => {
+                  if (v === "calendar")
+                    navigate({ to: "/transport/trips-calendar" });
+                }}
+              >
+                <TabsList>
+                  <TabsTrigger value="table">
+                    {t("tripsCalendar.tabs.table")}
+                  </TabsTrigger>
+                  <TabsTrigger value="calendar">
+                    {t("tripsCalendar.tabs.calendar")}
+                  </TabsTrigger>
+                </TabsList>
+              </Tabs>
               <ExportMenu
                 trips={data}
                 orders={orders}
@@ -889,10 +908,10 @@ export default function TripsPage() {
                     return (
                       <div
                         key={trip.id}
-                        className="rounded-lg border p-4 space-y-2 text-sm"
+                        className="rounded-lg border p-3 space-y-2 text-sm"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="font-medium">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="font-medium leading-tight min-w-0 truncate">
                             {order?.clientName ?? trip.orderId}
                           </div>
                           <StatusBadge
@@ -901,49 +920,49 @@ export default function TripsPage() {
                           />
                         </div>
                         {order && (
-                          <div className="text-xs text-muted-foreground">
+                          <div className="text-xs text-muted-foreground truncate">
                             {order.origin} → {order.destination}
                           </div>
                         )}
-                        <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                          <span>
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                          <span className="truncate">
                             {t("trips.mobile.driver")}:{" "}
                             <span className="text-foreground">
                               {driver?.name ?? "—"}
                             </span>
                           </span>
-                          <span>
-                            {t("trips.mobile.departure")}:{" "}
-                            <span className="text-foreground">
-                              {trip.departureDate}
-                            </span>
-                          </span>
-                          <span>
-                            {t("trips.mobile.arrival")}:{" "}
-                            <span className="text-foreground">
-                              {trip.estimatedArrivalDate}
-                            </span>
-                          </span>
-                          <span>
+                          <span className="truncate">
                             {t("trips.mobile.kmLoaded")}:{" "}
                             <span className="text-foreground">
                               {trip.kmLoaded} km
                             </span>
                           </span>
-                          <span>
+                          <span className="truncate">
+                            {t("trips.mobile.departure")}:{" "}
+                            <span className="text-foreground">
+                              {trip.departureDate}
+                            </span>
+                          </span>
+                          <span className="truncate">
                             {t("trips.mobile.kmEmpty")}:{" "}
                             <span className="text-foreground">
                               {trip.kmEmpty} km
                             </span>
                           </span>
-                          <span>
+                          <span className="truncate">
+                            {t("trips.mobile.arrival")}:{" "}
+                            <span className="text-foreground">
+                              {trip.estimatedArrivalDate}
+                            </span>
+                          </span>
+                          <span className="truncate">
                             {t("trips.mobile.fuelCost")}:{" "}
                             <span className="text-foreground">
                               {trip.fuelCost} RON
                             </span>
                           </span>
                         </div>
-                        <div className="flex gap-2 pt-1 flex-wrap">
+                        <div className="flex gap-1.5 pt-1 flex-wrap">
                           <Button
                             size="sm"
                             variant="ghost"
@@ -1089,7 +1108,7 @@ export default function TripsPage() {
       </Main>
 
       <Dialog open={dialogOpen} onOpenChange={handleCloseDialog}>
-        <DialogContent className="w-full max-w-[580px]">
+        <DialogContent className="w-[calc(100vw-1rem)] max-w-[580px] overflow-y-auto max-h-[90dvh]">
           <DialogHeader>
             <DialogTitle>
               {editingTrip ? t("trips.edit") : t("trips.add")}
@@ -1278,7 +1297,7 @@ export default function TripsPage() {
                   </div>
                 </div>
 
-                <div className="grid gap-3 grid-cols-2 sm:grid-cols-[1fr_1fr_1.4fr]">
+                <div className="grid gap-3 grid-cols-1 sm:grid-cols-[1fr_1fr_1.4fr]">
                   <div className="grid gap-1.5 min-w-0">
                     <Label>{t("trips.fields.kmLoaded")}</Label>
                     <FormField
@@ -1349,7 +1368,7 @@ export default function TripsPage() {
                       )}
                     />
                   </div>
-                  <div className="grid gap-1.5 min-w-0 col-span-2 sm:col-span-1">
+                  <div className="grid gap-1.5 min-w-0">
                     <Label>{t("trips.fields.fuelCost")}</Label>
                     <FormField
                       control={form.control}

@@ -503,5 +503,20 @@
       "Nov",
       "Dec"
     ]
+  },
+  "tripsCalendar": {
+    "title": "Calendar Curse",
+    "tabs": {
+      "table": "Tabel",
+      "calendar": "Calendar"
+    },
+    "prevWeek": "Săptămâna anterioară",
+    "nextWeek": "Săptămâna următoare",
+    "redirecting": "Se redirecționează către tabel...",
+    "dayNames": ["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"],
+    "dialog": {
+      "title": "Detalii cursă",
+      "desc": "Informații complete despre cursă"
+    }
   }
 }

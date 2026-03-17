@@ -502,5 +502,20 @@
       "Nov",
       "Dec"
     ]
+  },
+  "tripsCalendar": {
+    "title": "Trips Calendar",
+    "tabs": {
+      "table": "Table",
+      "calendar": "Calendar"
+    },
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "redirecting": "Redirecting to table...",
+    "dayNames": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "dialog": {
+      "title": "Trip Details",
+      "desc": "Full details about this trip"
+    }
   }
 }
