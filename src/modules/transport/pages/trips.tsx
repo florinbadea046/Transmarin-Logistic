@@ -841,6 +841,7 @@ export default function TripsPage() {
                 onValueChange={(v) => {
                   if (v === "calendar")
                     navigate({ to: "/transport/trips-calendar" });
+                  if (v === "map") navigate({ to: "/transport/trips-map" });
                 }}
               >
                 <TabsList>
@@ -849,6 +850,9 @@ export default function TripsPage() {
                   </TabsTrigger>
                   <TabsTrigger value="calendar">
                     {t("tripsCalendar.tabs.calendar")}
+                  </TabsTrigger>
+                  <TabsTrigger value="map">
+                    {t("tripsMap.tabs.map")}
                   </TabsTrigger>
                 </TabsList>
               </Tabs>

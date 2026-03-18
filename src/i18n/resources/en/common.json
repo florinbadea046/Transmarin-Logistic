@@ -517,5 +517,21 @@
       "title": "Trip Details",
       "desc": "Full details about this trip"
     }
+  },
+  "tripsMap": {
+    "title": "Active Trips Map",
+    "tabs": {
+      "map": "Map"
+    },
+    "filterLabel": "Filter by status",
+    "clearFilter": "Clear filter",
+    "popup": {
+      "origin": "Origin",
+      "destination": "Destination",
+      "client": "Client",
+      "driver": "Driver",
+      "truck": "Truck",
+      "arrival": "Est. arrival"
+    }
   }
 }

@@ -375,6 +375,7 @@ export default function TripsCalendarPage() {
                 defaultValue="calendar"
                 onValueChange={(v) => {
                   if (v === "table") navigate({ to: "/transport/trips" });
+                  if (v === "map") navigate({ to: "/transport/trips-map" });
                 }}
               >
                 <TabsList>
@@ -383,6 +384,9 @@ export default function TripsCalendarPage() {
                   </TabsTrigger>
                   <TabsTrigger value="calendar">
                     {t("tripsCalendar.tabs.calendar")}
+                  </TabsTrigger>
+                  <TabsTrigger value="map">
+                    {t("tripsMap.tabs.map")}
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
