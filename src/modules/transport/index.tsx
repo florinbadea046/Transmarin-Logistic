@@ -291,20 +291,47 @@ export default function TransportPage() {
           </Card>
         </div>
 
-        <Card className="mt-6">
-          <CardHeader><CardTitle>{language === "ro" ? "Km parcurși în ultimele 6 luni" : "Km driven in last 6 months"}</CardTitle></CardHeader>
-          <CardContent style={{ height: 300 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="label" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="km" fill="#3b82f6" radius={[5, 5, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        {/* === Km parcurși în ultimele 6 luni === */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>
+                {language === "ro"
+                  ? "Km parcurși în ultimele 6 luni"
+                  : "Distance traveled in the last 6 months"}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="min-w-full table-auto border rounded-md text-sm">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="text-left px-4 py-2 font-semibold text-gray-600 uppercase text-xs">
+                        {language === "ro" ? "Lună" : "Month"}
+                      </th>
+                      <th className="text-right px-4 py-2 font-semibold text-gray-600 uppercase text-xs">
+                        {language === "ro" ? "Kilometri Parcurși" : "Distance (km)"}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {chartData.map((item) => (
+                      <tr
+                        key={item.key}
+                        className="border-t hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-4 py-2 text-gray-800">
+                          {item.label.charAt(0).toUpperCase() + item.label.slice(1)}
+                        </td>
+                        <td className="px-4 py-2 text-right text-gray-700">
+                          {item.km.toLocaleString(language)} km
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
       </Main>
     </>
   );
