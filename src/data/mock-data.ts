@@ -973,6 +973,44 @@ const seedBonuses: Bonus[] = [
   { id: "b12", employeeId: "e3", type: "bonus", amount: 350, date: "2026-02-14", description: "Bonus activitate" },
 ];
 
+<<<<<<< Updated upstream
+=======
+  // Februarie 2026
+  {
+    id: "b8",
+    employeeId: "e1",
+    type: "diurna",
+    amount: 450,
+    date: "2026-02-10",
+    description: "Diurnă cursă Cluj-Constanța (9 zile)",
+  },
+  {
+    id: "b9",
+    employeeId: "e2",
+    type: "diurna",
+    amount: 300,
+    date: "2026-02-15",
+    description: "Diurnă cursă Timișoara-Iași (6 zile)",
+  },
+  {
+    id: "b10",
+    employeeId: "e1",
+    type: "amenda",
+    amount: 200,
+    date: "2026-02-20",
+    description: "Amendă depășire program",
+  },
+  {
+    id: "b11",
+    employeeId: "e3",
+    type: "bonus",
+    amount: 350,
+    date: "2026-02-14",
+    description: "Bonus activitate",
+},
+];
+
+>>>>>>> Stashed changes
 const seedTrips: Trip[] = [
   { id: "tr1", orderId: "o1", driverId: "d1", truckId: "t1", departureDate: "2026-02-20", estimatedArrivalDate: "2026-02-21", kmLoaded: 350, kmEmpty: 50, fuelCost: 820, status: "finalizata" },
   { id: "tr2", orderId: "o2", driverId: "d3", truckId: "t2", departureDate: "2026-02-21", estimatedArrivalDate: "2026-02-22", kmLoaded: 480, kmEmpty: 90, fuelCost: 1140, status: "in_desfasurare" },
@@ -987,6 +1025,15 @@ const seedTrips: Trip[] = [
 const TRIPS_SCHEMA_VERSION = "v3";
 const TRIPS_VERSION_KEY = "transmarin_trips_schema_version";
 
+<<<<<<< Updated upstream
+=======
+
+
+/**
+ * Încarcă datele seed în localStorage (doar dacă cheile nu există deja).
+ * Apelat o singură dată la inițializarea aplicației.
+ */
+>>>>>>> Stashed changes
 export function seedMockData(): void {
   initCollection(STORAGE_KEYS.drivers, seedDrivers);
   initCollection(STORAGE_KEYS.trucks, seedTrucks);
