@@ -812,7 +812,7 @@ function OrderDetailDialog({
                       <span className="text-muted-foreground">
                         {t("orders.costs.trip", { index: i + 1 })}
                       </span>
-                      <span className="tabular-nums">{trip.date}</span>
+                      <span className="tabular-nums">{trip.departureDate}</span>
                       <span className="text-muted-foreground">
                         {t("orders.costs.kmLoaded")}
                       </span>

@@ -41,6 +41,7 @@ import EmployeeDialog from "../components/employee-dialog";
 import { EmployeeExportMenu } from "../components/employee-export-menu";
 import { EmployeeRow } from "../components/employee-row";
 import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
+import { getEmployeeDepartmentLabel } from "../utils/department-label";
 
 const ALL_DEPARTMENTS = "__all__";
 
