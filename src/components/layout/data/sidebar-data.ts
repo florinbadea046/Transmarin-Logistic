@@ -171,6 +171,11 @@ export const sidebarData: SidebarData = {
               url: "/reports/fleet",
               icon: Wrench,
             },
+            {
+              title: "Rapoarte Avansate",
+              url: "/reports/advanced",
+              icon: BarChart3,
+            },
           ],
         },
       ],

@@ -50,6 +50,7 @@ import ReportsPage from "@/modules/reports/index";
 import TransportReportsPage from "@/modules/reports/pages/transport-reports";
 import FinancialReportsPage from "@/modules/reports/pages/financial-reports";
 import FleetReportsPage from "@/modules/reports/pages/fleet-reports";
+import AdvancedReportsPage from "@/modules/reports/pages/reports";
 
 // Settings
 import SettingsPage from "@/pages/settings";
@@ -239,6 +240,12 @@ const fleetReportsRoute = createRoute({
   component: FleetReportsPage,
 });
 
+const advancedReportsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/reports/advanced",
+  component: AdvancedReportsPage,
+});
+
 // ── Settings ─────────────────────────────────────────────
 const settingsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
@@ -311,6 +318,7 @@ const routeTree = rootRoute.addChildren([
     transportReportsRoute,
     financialReportsRoute,
     fleetReportsRoute,
+    advancedReportsRoute,
     // Settings
     settingsRoute,
     settingsAccountRoute,
