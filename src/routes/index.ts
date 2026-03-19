@@ -25,6 +25,7 @@ import TransportPage from "@/modules/transport/index";
 import OrdersPage from "@/modules/transport/pages/orders";
 import TripsPage from "@/modules/transport/pages/trips";
 import TripsCalendarPage from "@/modules/transport/pages/_components/trips-calendar";
+import TripsMapPage from "@/modules/transport/pages/_components/trips-map";
 import DriversPage from "@/modules/transport/pages/drivers";
 
 // Fleet
@@ -124,6 +125,12 @@ const tripsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/transport/trips",
   component: TripsPage,
+});
+
+const tripsMapRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/transport/trips-map",
+  component: TripsMapPage,
 });
 
 const tripsCalendarRoute = createRoute({
@@ -282,6 +289,7 @@ const routeTree = rootRoute.addChildren([
     transportRoute,
     ordersRoute,
     tripsRoute,
+    tripsMapRoute,
     tripsCalendarRoute,
     driversRoute,
     // Fleet

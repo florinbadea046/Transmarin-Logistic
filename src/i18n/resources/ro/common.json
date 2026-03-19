@@ -518,5 +518,21 @@
       "title": "Detalii cursă",
       "desc": "Informații complete despre cursă"
     }
+  },
+  "tripsMap": {
+    "title": "Hartă Curse Active",
+    "tabs": {
+      "map": "Hartă"
+    },
+    "filterLabel": "Filtrare după status",
+    "clearFilter": "Șterge filtrul",
+    "popup": {
+      "origin": "Origine",
+      "destination": "Destinație",
+      "client": "Client",
+      "driver": "Șofer",
+      "truck": "Camion",
+      "arrival": "Sosire est."
+    }
   }
 }
