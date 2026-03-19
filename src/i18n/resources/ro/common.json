@@ -387,6 +387,7 @@
       "fuelCost": "Cost combustibil (RON)",
       "status": "Status"
     },
+<<<<<<< Updated upstream
     "placeholders": {
       "order": "Selectează o comandă",
       "driver": "Selectează șofer",
@@ -534,5 +535,30 @@
       "truck": "Camion",
       "arrival": "Sosire est."
     }
+=======
+    "invoices": {
+  "title": "Facturi",
+  "manage": "Gestiune Facturi",
+  "export": "Export",
+  "exportPdf": "Export PDF",
+  "exportExcel": "Export Excel",
+  "exportCsv": "Export CSV",
+  "toastPdf": "PDF exportat cu succes.",
+  "toastExcel": "Excel exportat cu succes.",
+  "toastCsv": "CSV exportat cu succes.",
+  "fields": {
+    "nr": "Nr. Factură",
+    "client": "Client / Furnizor",
+    "tip": "Tip",
+    "data": "Dată",
+    "subtotal": "Subtotal",
+    "tva": "TVA",
+    "total": "Total",
+    "status": "Status"
+  },
+  "header": "Transmarin Logistic",
+  "subheader": "Lista Facturi"
+}
+>>>>>>> Stashed changes
   }
 }
