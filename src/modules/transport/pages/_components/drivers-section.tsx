@@ -231,7 +231,9 @@ function DriverDialog({
             </Select>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="employee">{t("drivers.fields.employee") || "Angajat HR"}</Label>
+            <Label htmlFor="employee">
+              {t("drivers.fields.employee", { defaultValue: "Angajat HR" })}
+            </Label>
             <Select
               value={form.employeeId || "none"}
               onValueChange={(val) => onFormChange({ employeeId: val === "none" ? "" : val })}
