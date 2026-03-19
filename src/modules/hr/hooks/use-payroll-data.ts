@@ -106,7 +106,7 @@ export function usePayrollData(selectedMonth: string) {
         bonusuri,
         amenzi,
         oreSuplimentare,
-        totalNet: emp.salary + diurna + bonusuri - amenzi,
+        totalNet: emp.salary + diurna + bonusuri + oreSuplimentare - amenzi,
       };
     });
   }, [employees, bonuses, selectedMonth, monthTripsByEmployeeId]);
