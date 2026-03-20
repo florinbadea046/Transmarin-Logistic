@@ -19,6 +19,7 @@ export interface Trip {
   kmLoaded: number;
   kmEmpty: number;
   fuelCost: number;
+  revenue?: number;
   status: "planned" | "in_desfasurare" | "finalizata" | "anulata";
 }
 

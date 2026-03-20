@@ -373,7 +373,8 @@
       "kmLoaded": "Loaded Km",
       "kmEmpty": "Empty Km",
       "fuelCost": "Fuel Cost",
-      "actions": "Actions"
+      "actions": "Actions",
+      "revenue": "Revenue"
     },
     "fields": {
       "order": "Order",
@@ -384,7 +385,8 @@
       "kmLoaded": "Loaded Km",
       "kmEmpty": "Empty Km",
       "fuelCost": "Fuel Cost (RON)",
-      "status": "Status"
+      "status": "Status",
+      "revenue": "Revenue (RON)"
     },
     "placeholders": {
       "order": "Select an order",
@@ -420,7 +422,8 @@
       "arrivalAfterDeparture": "Arrival date must be after departure date",
       "kmLoadedPositive": "Loaded km must be > 0",
       "kmEmptyPositive": "Empty km must be > 0",
-      "fuelCostMin": "Fuel cost must be >= 0"
+      "fuelCostMin": "Fuel cost must be >= 0",
+      "revenueMin": "Revenue must be >= 0"
     },
     "toast": {
       "added": "Trip added successfully!",
@@ -448,7 +451,8 @@
       "arrival": "Est. Arrival",
       "kmLoaded": "Loaded Km",
       "kmEmpty": "Empty Km",
-      "fuelCost": "Fuel Cost"
+      "fuelCost": "Fuel Cost",
+      "revenue": "Revenue"
     },
     "export": {
       "nr": "Trip No.",
@@ -462,7 +466,8 @@
       "kmEmpty": "Empty Km",
       "fuelCost": "Fuel Cost (RON)",
       "status": "Status",
-      "filename": "trips"
+      "filename": "trips",
+      "revenue": "Revenue (RON)"
     }
   },
   "dashboard": {
@@ -533,7 +538,40 @@
       "truck": "Truck",
       "arrival": "Est. arrival"
     }
-    
+  },
+  "costs": {
+    "title": "Costs & Profitability",
+    "filters": {
+      "driver": "Driver",
+      "truck": "Truck",
+      "period": "Period",
+      "allDrivers": "All Drivers",
+      "allTrucks": "All Trucks",
+      "allTime": "All Time",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "last3Months": "Last 3 Months"
+    },
+    "kpi": {
+      "totalFuelCost": "Total Fuel Cost",
+      "costPerKm": "Cost / Km",
+      "avgCostPerTrip": "Avg Cost / Trip"
+    },
+    "chart": {
+      "title": "Monthly Profit",
+      "profit": "Profit",
+      "notEnoughData": "Not enough data to display chart"
+    },
+    "table": {
+      "title": "Trip Details",
+      "trip": "Trip",
+      "driver": "Driver",
+      "truck": "Truck",
+      "date": "Date",
+      "revenue": "Revenue",
+      "fuelCost": "Fuel Cost",
+      "profit": "Profit",
+      "noResults": "No trips found for the selected filters."
+    }
   }
-  
 }

@@ -1,10 +1,3 @@
-// ──────────────────────────────────────────────────────────
-// Configurarea rutelor — TanStack Router
-//
-// Fiecare modul are un grup de rute. Studenții pot adăuga
-// rute noi în fiecare modul fără a modifica acest fișier.
-// ──────────────────────────────────────────────────────────
-
 import {
   createRootRoute,
   createRoute,
@@ -14,13 +7,12 @@ import {
 
 import { AuthenticatedLayout } from "@/components/layout/authenticated-layout";
 
-// Pages
 import DashboardPage from "@/pages/dashboard";
 import LoginPage from "@/pages/login";
 import NotFoundPage from "@/pages/not-found";
 import UnauthorizedPage from "@/pages/unauthorized";
+import CostsPage from "@/pages/costs";
 
-// Transport
 import TransportPage from "@/modules/transport/index";
 import OrdersPage from "@/modules/transport/pages/orders";
 import TripsPage from "@/modules/transport/pages/trips";
@@ -28,36 +20,28 @@ import TripsCalendarPage from "@/modules/transport/pages/_components/trips-calen
 import TripsMapPage from "@/modules/transport/pages/_components/trips-map";
 import DriversPage from "@/modules/transport/pages/drivers";
 
-// Fleet
 import FleetPage from "@/modules/fleet/index";
 import PartsPage from "@/modules/fleet/pages/parts";
 import ServicePage from "@/modules/fleet/pages/service";
 import FuelPage from "@/modules/fleet/pages/fuel";
 
-// Accounting
 import AccountingPage from "@/modules/accounting/index";
 import InvoicesPage from "@/modules/accounting/pages/invoices";
 import SuppliersPage from "@/modules/accounting/pages/suppliers";
 
-// HR
 import HRPage from "@/modules/hr/index";
 import EmployeesPage from "@/modules/hr/pages/employees";
 import LeavesPage from "@/modules/hr/pages/leaves";
 import PayrollPage from "@/modules/hr/pages/payroll";
 
-// Reports
 import ReportsPage from "@/modules/reports/index";
 import TransportReportsPage from "@/modules/reports/pages/transport-reports";
 import FinancialReportsPage from "@/modules/reports/pages/financial-reports";
 import FleetReportsPage from "@/modules/reports/pages/fleet-reports";
 import AdvancedReportsPage from "@/modules/reports/pages/reports";
 
-// Settings
 import SettingsPage from "@/pages/settings";
 
-// ──────────────────────────────────────────────────────────
-// Helper — verifică dacă utilizatorul e autentificat
-// ──────────────────────────────────────────────────────────
 function isAuthenticated(): boolean {
   try {
     const raw = localStorage.getItem("transmarin_auth_user");
@@ -67,16 +51,10 @@ function isAuthenticated(): boolean {
   }
 }
 
-// ──────────────────────────────────────────────────────────
-// Root Route — layout-ul radăcină
-// ──────────────────────────────────────────────────────────
 const rootRoute = createRootRoute({
   notFoundComponent: NotFoundPage,
 });
 
-// ──────────────────────────────────────────────────────────
-// Login (public)
-// ──────────────────────────────────────────────────────────
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/login",
@@ -88,9 +66,6 @@ const loginRoute = createRoute({
   },
 });
 
-// ──────────────────────────────────────────────────────────
-// Authenticated Layout — toate rutele protejate
-// ──────────────────────────────────────────────────────────
 const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
   id: "authenticated",
@@ -102,14 +77,18 @@ const authenticatedRoute = createRoute({
   },
 });
 
-// ── Dashboard ────────────────────────────────────────────
 const dashboardRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/",
   component: DashboardPage,
 });
 
-// ── Transport ────────────────────────────────────────────
+const costsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/costs",
+  component: CostsPage,
+});
+
 const transportRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/transport",
@@ -146,7 +125,6 @@ const driversRoute = createRoute({
   component: DriversPage,
 });
 
-// ── Fleet ────────────────────────────────────────────────
 const fleetRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/fleet",
@@ -171,7 +149,6 @@ const fuelRoute = createRoute({
   component: FuelPage,
 });
 
-// ── Accounting ───────────────────────────────────────────
 const accountingRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/accounting",
@@ -190,7 +167,6 @@ const suppliersRoute = createRoute({
   component: SuppliersPage,
 });
 
-// ── HR ───────────────────────────────────────────────────
 const hrRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr",
@@ -215,7 +191,6 @@ const payrollRoute = createRoute({
   component: PayrollPage,
 });
 
-// ── Reports ──────────────────────────────────────────────
 const reportsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/reports",
@@ -246,7 +221,6 @@ const advancedReportsRoute = createRoute({
   component: AdvancedReportsPage,
 });
 
-// ── Settings ─────────────────────────────────────────────
 const settingsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/settings",
@@ -277,49 +251,40 @@ const settingsDisplayRoute = createRoute({
   component: SettingsPage,
 });
 
-// ── Unauthorized ─────────────────────────────────────────
 const unauthorizedRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/unauthorized",
   component: UnauthorizedPage,
 });
 
-// ──────────────────────────────────────────────────────────
-// Arborele de rute
-// ──────────────────────────────────────────────────────────
 const routeTree = rootRoute.addChildren([
   loginRoute,
   unauthorizedRoute,
   authenticatedRoute.addChildren([
     dashboardRoute,
-    // Transport
+    costsRoute,
     transportRoute,
     ordersRoute,
     tripsRoute,
     tripsMapRoute,
     tripsCalendarRoute,
     driversRoute,
-    // Fleet
     fleetRoute,
     partsRoute,
     serviceRoute,
     fuelRoute,
-    // Accounting
     accountingRoute,
     invoicesRoute,
     suppliersRoute,
-    // HR
     hrRoute,
     employeesRoute,
     leavesRoute,
     payrollRoute,
-    // Reports
     reportsRoute,
     transportReportsRoute,
     financialReportsRoute,
     fleetReportsRoute,
     advancedReportsRoute,
-    // Settings
     settingsRoute,
     settingsAccountRoute,
     settingsAppearanceRoute,
@@ -328,12 +293,8 @@ const routeTree = rootRoute.addChildren([
   ]),
 ]);
 
-// ──────────────────────────────────────────────────────────
-// Router export
-// ──────────────────────────────────────────────────────────
 export const router = createRouter({ routeTree });
 
-// Type-safety pentru TanStack Router
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router;

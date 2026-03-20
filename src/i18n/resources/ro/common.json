@@ -374,7 +374,8 @@
       "kmLoaded": "Km încărcat",
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil",
-      "actions": "Acțiuni"
+      "actions": "Acțiuni",
+      "revenue": "Venit"
     },
     "fields": {
       "order": "Comandă",
@@ -385,7 +386,8 @@
       "kmLoaded": "Km încărcat",
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil (RON)",
-      "status": "Status"
+      "status": "Status",
+      "revenue": "Venit estimat (RON)"
     },
     "placeholders": {
       "order": "Selectează o comandă",
@@ -421,7 +423,8 @@
       "arrivalAfterDeparture": "Data sosire trebuie să fie după data plecare",
       "kmLoadedPositive": "Km încărcat trebuie să fie > 0",
       "kmEmptyPositive": "Km gol trebuie să fie > 0",
-      "fuelCostMin": "Cost combustibil trebuie să fie >= 0"
+      "fuelCostMin": "Cost combustibil trebuie să fie >= 0",
+      "revenueMin": "Venitul trebuie sa fie >= 0"
     },
     "toast": {
       "added": "Cursă adăugată cu succes!",
@@ -449,7 +452,8 @@
       "arrival": "Sosire estimată",
       "kmLoaded": "Km încărcat",
       "kmEmpty": "Km gol",
-      "fuelCost": "Cost combustibil"
+      "fuelCost": "Cost combustibil",
+      "revenue": "Venit"
     },
     "export": {
       "nr": "Nr. cursă",
@@ -463,7 +467,8 @@
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil (RON)",
       "status": "Status",
-      "filename": "curse"
+      "filename": "curse",
+      "revenue": "Venit estimat (RON)"
     }
   },
   "dashboard": {
@@ -557,5 +562,40 @@
     },
     "header": "Transmarin Logistic",
     "subheader": "Lista Facturi"
+  },
+  "costs": {
+    "title": "Costuri & Profitabilitate",
+    "filters": {
+      "driver": "Sofer",
+      "truck": "Camion",
+      "period": "Perioada",
+      "allDrivers": "Toti soferii",
+      "allTrucks": "Toate camioanele",
+      "allTime": "Toata perioada",
+      "thisMonth": "Luna curenta",
+      "lastMonth": "Luna trecuta",
+      "last3Months": "Ultimele 3 luni"
+    },
+    "kpi": {
+      "totalFuelCost": "Cost total combustibil",
+      "costPerKm": "Cost mediu/km",
+      "avgCostPerTrip": "Cost mediu/cursa"
+    },
+    "chart": {
+      "title": "Profit lunar",
+      "profit": "Profit",
+      "notEnoughData": "Date insuficiente pentru grafic"
+    },
+    "table": {
+      "title": "Detalii curse",
+      "trip": "Cursa",
+      "driver": "Sofer",
+      "truck": "Camion",
+      "date": "Data",
+      "revenue": "Venit estimat",
+      "fuelCost": "Cost combustibil",
+      "profit": "Profit",
+      "noResults": "Nu exista curse pentru filtrele selectate."
+    }
   }
 }

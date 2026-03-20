@@ -18,6 +18,7 @@ import {
   Bell,
   Palette,
   Monitor,
+  DollarSign,
 } from "lucide-react";
 import { type SidebarData } from "../types";
 
@@ -43,6 +44,11 @@ export const sidebarData: SidebarData = {
           url: "/",
           icon: LayoutDashboard,
         },
+        {
+          title: "Costs & Profitability",
+          url: "/costs",
+          icon: DollarSign,
+        },
       ],
     },
     {
@@ -53,7 +59,7 @@ export const sidebarData: SidebarData = {
           icon: Truck,
           items: [
             {
-              title: "Prezentare Generală",
+              title: "Prezentare Generala",
               url: "/transport",
               icon: ClipboardList,
             },
@@ -68,7 +74,7 @@ export const sidebarData: SidebarData = {
               icon: Calendar,
             },
             {
-              title: "Șoferi & Camioane",
+              title: "Soferi & Camioane",
               url: "/transport/drivers",
               icon: Users,
             },
@@ -79,7 +85,7 @@ export const sidebarData: SidebarData = {
           icon: Wrench,
           items: [
             {
-              title: "Prezentare Generală",
+              title: "Prezentare Generala",
               url: "/fleet",
               icon: Truck,
             },
@@ -89,7 +95,7 @@ export const sidebarData: SidebarData = {
               icon: Package,
             },
             {
-              title: "Service & Reparații",
+              title: "Service & Reparatii",
               url: "/fleet/service",
               icon: Wrench,
             },
@@ -105,7 +111,7 @@ export const sidebarData: SidebarData = {
           icon: Receipt,
           items: [
             {
-              title: "Prezentare Generală",
+              title: "Prezentare Generala",
               url: "/accounting",
               icon: Receipt,
             },
@@ -126,12 +132,12 @@ export const sidebarData: SidebarData = {
           icon: UserCog,
           items: [
             {
-              title: "Prezentare Generală",
+              title: "Prezentare Generala",
               url: "/hr",
               icon: Users,
             },
             {
-              title: "Angajați",
+              title: "Angajati",
               url: "/hr/employees",
               icon: UserCog,
             },
@@ -181,10 +187,10 @@ export const sidebarData: SidebarData = {
       ],
     },
     {
-      title: "Setări",
+      title: "Setari",
       items: [
         {
-          title: "Setări",
+          title: "Setari",
           icon: Settings,
           items: [
             {
@@ -193,17 +199,17 @@ export const sidebarData: SidebarData = {
               icon: UserCog,
             },
             {
-              title: "Aparență",
+              title: "Aparenta",
               url: "/settings/appearance",
               icon: Palette,
             },
             {
-              title: "Notificări",
+              title: "Notificari",
               url: "/settings/notifications",
               icon: Bell,
             },
             {
-              title: "Afișare",
+              title: "Afisare",
               url: "/settings/display",
               icon: Monitor,
             },
