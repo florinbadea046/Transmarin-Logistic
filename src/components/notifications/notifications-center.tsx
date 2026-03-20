@@ -1,30 +1,20 @@
-// ──────────────────────────────────────────────────────────
 // NotificationsCenter — Bell icon cu badge + dropdown
-// Pe mobile (< 640px) → Sheet din jos
-// Pe desktop → Popover dropdown
-// Generează automat notificări pentru:
-//   • Documente expirate / care expiră în ≤30 zile
-//   • Curse întârziate (estimatedArrivalDate < azi și status in_desfasurare)
-//   • Comenzi neasignate >48h
-// ──────────────────────────────────────────────────────────
+// Pe mobile (< 640px) -> Sheet din jos
+// Pe desktop -> Popover dropdown
 
 import { useEffect, useMemo, useState } from "react";
 import { Bell, Check, CheckCheck, FileWarning, Clock, PackageOpen } from "lucide-react";
 import { formatDistanceToNow, parseISO, differenceInHours } from "date-fns";
 import { ro } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
+  Popover, PopoverContent, PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
+  Sheet, SheetContent, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
@@ -50,13 +40,15 @@ function formatDateRO(dateStr: string): string {
   return new Date(`${dateStr}T00:00:00`).toLocaleDateString("ro-RO");
 }
 
-// ── Generare notificări ────────────────────────────────────
+// ── Generare notificari ────────────────────────────────────
 
-function generateNotifications(): AppNotification[] {
+import type { TFunction } from "i18next";
+
+function generateNotifications(t: TFunction): AppNotification[] {
   const notifications: AppNotification[] = [];
   const now = new Date();
 
-  // 1. Documente șoferi — permis
+  // 1. Documente soferi — permis
   const drivers = getCollection<Driver>(STORAGE_KEYS.drivers);
   for (const driver of drivers) {
     const days = daysUntil(driver.licenseExpiry);
@@ -64,11 +56,12 @@ function generateNotifications(): AppNotification[] {
       notifications.push({
         id: `doc-driver-${driver.id}`,
         type: "document_expiry",
-        title: days <= 0 ? "Permis EXPIRAT" : "Permis expiră curând",
-        message:
-          days <= 0
-            ? `${driver.name} — permisul a expirat pe ${formatDateRO(driver.licenseExpiry)}.`
-            : `${driver.name} — permisul expiră în ${days} zi${days === 1 ? "" : "le"} (${formatDateRO(driver.licenseExpiry)}).`,
+        title: days <= 0
+          ? t("notifications.types.licenseExpired")
+          : t("notifications.types.licenseExpiring"),
+        message: days <= 0
+          ? t("notifications.types.licenseExpiredMsg", { name: driver.name, date: formatDateRO(driver.licenseExpiry) })
+          : t("notifications.types.licenseExpiringMsg", { name: driver.name, days, plural: days === 1 ? "" : "le", date: formatDateRO(driver.licenseExpiry) }),
         createdAt: now.toISOString(),
         read: false,
         entityId: driver.id,
@@ -76,13 +69,13 @@ function generateNotifications(): AppNotification[] {
     }
   }
 
-  // 2. Documente camioane — ITP, RCA, Vignetă
+  // 2. Documente camioane — ITP, RCA, Vigneta
   const trucks = getCollection<Truck>(STORAGE_KEYS.trucks);
   for (const truck of trucks) {
     const checks: { key: string; label: string; date: string }[] = [
       { key: "itp", label: "ITP", date: truck.itpExpiry },
       { key: "rca", label: "RCA", date: truck.rcaExpiry },
-      { key: "vignette", label: "Vignetă", date: truck.vignetteExpiry },
+      { key: "vignette", label: "Vigneta", date: truck.vignetteExpiry },
     ];
     for (const check of checks) {
       const days = daysUntil(check.date);
@@ -90,14 +83,12 @@ function generateNotifications(): AppNotification[] {
         notifications.push({
           id: `doc-truck-${truck.id}-${check.key}`,
           type: "document_expiry",
-          title:
-            days <= 0
-              ? `${check.label} EXPIRAT — ${truck.plateNumber}`
-              : `${check.label} expiră curând — ${truck.plateNumber}`,
-          message:
-            days <= 0
-              ? `${truck.plateNumber}: ${check.label} a expirat pe ${formatDateRO(check.date)}.`
-              : `${truck.plateNumber}: ${check.label} expiră în ${days} zi${days === 1 ? "" : "le"} (${formatDateRO(check.date)}).`,
+          title: days <= 0
+            ? t("notifications.types.docExpired", { label: check.label, plate: truck.plateNumber })
+            : t("notifications.types.docExpiring", { label: check.label, plate: truck.plateNumber }),
+          message: days <= 0
+            ? t("notifications.types.docExpiredMsg", { plate: truck.plateNumber, label: check.label, date: formatDateRO(check.date) })
+            : t("notifications.types.docExpiringMsg", { plate: truck.plateNumber, label: check.label, days, plural: days === 1 ? "" : "le", date: formatDateRO(check.date) }),
           createdAt: now.toISOString(),
           read: false,
           entityId: truck.id,
@@ -106,7 +97,7 @@ function generateNotifications(): AppNotification[] {
     }
   }
 
-  // 3. Curse întârziate
+  // 3. Curse intarziate
   const trips = getCollection<Trip>(STORAGE_KEYS.trips);
   for (const trip of trips) {
     if (
@@ -118,8 +109,13 @@ function generateNotifications(): AppNotification[] {
       notifications.push({
         id: `trip-delayed-${trip.id}`,
         type: "delayed_trip",
-        title: "Cursă întârziată",
-        message: `Cursa ${trip.id} a depășit data estimată de sosire cu ${overdueDays} zi${overdueDays === 1 ? "" : "le"} (${formatDateRO(trip.estimatedArrivalDate)}).`,
+        title: t("notifications.types.delayedTrip"),
+        message: t("notifications.types.delayedTripMsg", {
+          id: trip.id,
+          days: overdueDays,
+          plural: overdueDays === 1 ? "" : "le",
+          date: formatDateRO(trip.estimatedArrivalDate),
+        }),
         createdAt: now.toISOString(),
         read: false,
         entityId: trip.id,
@@ -134,11 +130,18 @@ function generateNotifications(): AppNotification[] {
       const orderDate = parseISO(order.date);
       const hoursElapsed = differenceInHours(now, orderDate);
       if (hoursElapsed > 48) {
+        const days = Math.floor(hoursElapsed / 24);
         notifications.push({
           id: `order-unassigned-${order.id}`,
           type: "unassigned_order",
-          title: "Comandă neasignată",
-          message: `Comanda pentru ${order.clientName} (${order.origin} → ${order.destination}) este neasignată de ${Math.floor(hoursElapsed / 24)} zi${Math.floor(hoursElapsed / 24) === 1 ? "" : "le"}.`,
+          title: t("notifications.types.unassignedOrder"),
+          message: t("notifications.types.unassignedOrderMsg", {
+            client: order.clientName,
+            origin: order.origin,
+            destination: order.destination,
+            days,
+            plural: days === 1 ? "" : "le",
+          }),
           createdAt: now.toISOString(),
           read: false,
           entityId: order.id,
@@ -177,7 +180,7 @@ function NotificationIcon({ type }: { type: AppNotification["type"] }) {
   return <PackageOpen className="h-4 w-4 shrink-0 text-blue-500" />;
 }
 
-// ── Lista notificări (shared între Popover și Sheet) ───────
+// ── Lista notificari ───────────────────────────────────────
 
 function NotificationsList({
   notifications,
@@ -190,15 +193,16 @@ function NotificationsList({
   onMarkAllAsRead: () => void;
   unreadCount: number;
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col">
-      {/* Header — fix, nu scrollează */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 shrink-0">
         <div className="flex items-center gap-2">
-          <span className="font-semibold">Notificări</span>
+          <span className="font-semibold">{t("notifications.title")}</span>
           {unreadCount > 0 && (
             <Badge variant="secondary" className="text-xs">
-              {unreadCount} noi
+              {t("notifications.newBadge", { count: unreadCount })}
             </Badge>
           )}
         </div>
@@ -210,19 +214,18 @@ function NotificationsList({
             onClick={onMarkAllAsRead}
           >
             <CheckCheck className="h-3.5 w-3.5" />
-            <span>Marchează toate ca citite</span>
+            <span>{t("notifications.markAllRead")}</span>
           </Button>
         )}
       </div>
 
       <Separator className="shrink-0" />
 
-      {/* Lista — scrollabilă */}
       <ScrollArea className="h-[320px]">
         {notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
             <Bell className="h-8 w-8 opacity-30" />
-            <p className="text-sm">Nicio notificare</p>
+            <p className="text-sm">{t("notifications.empty")}</p>
           </div>
         ) : (
           <div className="divide-y">
@@ -231,21 +234,14 @@ function NotificationsList({
                 key={notification.id}
                 className={cn(
                   "flex items-start gap-3 px-4 py-3 transition-colors",
-                  !notification.read
-                    ? "bg-muted/50 hover:bg-muted"
-                    : "hover:bg-muted/30",
+                  !notification.read ? "bg-muted/50 hover:bg-muted" : "hover:bg-muted/30",
                 )}
               >
                 <div className="mt-0.5">
                   <NotificationIcon type={notification.type} />
                 </div>
                 <div className="flex-1 space-y-0.5 min-w-0">
-                  <p
-                    className={cn(
-                      "text-sm leading-snug",
-                      !notification.read && "font-medium",
-                    )}
-                  >
+                  <p className={cn("text-sm leading-snug", !notification.read && "font-medium")}>
                     {notification.title}
                   </p>
                   <p className="text-xs text-muted-foreground leading-snug break-words">
@@ -264,7 +260,7 @@ function NotificationsList({
                     size="icon"
                     className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
                     onClick={() => onMarkAsRead(notification.id)}
-                    aria-label="Marchează ca citit"
+                    aria-label={t("notifications.markRead")}
                   >
                     <Check className="h-3.5 w-3.5" />
                   </Button>
@@ -275,12 +271,11 @@ function NotificationsList({
         )}
       </ScrollArea>
 
-      {/* Footer — fix, nu scrollează */}
       {notifications.length > 0 && (
         <>
           <Separator className="shrink-0" />
           <div className="px-4 py-2 text-center text-xs text-muted-foreground shrink-0">
-            {notifications.length} notificări totale
+            {t("notifications.total", { count: notifications.length })}
           </div>
         </>
       )}
@@ -290,19 +285,14 @@ function NotificationsList({
 
 // ── Bell Button ────────────────────────────────────────────
 
-function BellButton({
-  unreadCount,
-  onClick,
-}: {
-  unreadCount: number;
-  onClick?: () => void;
-}) {
+function BellButton({ unreadCount, onClick }: { unreadCount: number; onClick?: () => void }) {
+  const { t } = useTranslation();
   return (
     <Button
       variant="outline"
       size="icon"
       className="relative"
-      aria-label="Notificări"
+      aria-label={t("notifications.title")}
       onClick={onClick}
     >
       <Bell className="h-4 w-4" />
@@ -318,21 +308,21 @@ function BellButton({
   );
 }
 
-// ── Componentă principală ──────────────────────────────────
+// ── Componenta principala ──────────────────────────────────
 
 export function NotificationsCenter() {
+  const { t } = useTranslation();
   const isMobile = useMobile(640);
   const [open, setOpen] = useDialogState(false);
   const [readIds, setReadIds] = useState<Set<string>>(loadReadIds);
 
-  // Regenerăm la fiecare deschidere
   const notifications = useMemo(() => {
-    return generateNotifications().map((n) => ({
+    return generateNotifications(t).map((n) => ({
       ...n,
       read: readIds.has(n.id),
     }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, readIds]);
+  }, [open, readIds, t]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
@@ -340,38 +330,20 @@ export function NotificationsCenter() {
     saveReadIds(readIds);
   }, [readIds]);
 
-  const markAsRead = (id: string) => {
-    setReadIds((prev) => new Set([...prev, id]));
-  };
+  const markAsRead = (id: string) => setReadIds((prev) => new Set([...prev, id]));
+  const markAllAsRead = () => setReadIds(new Set(notifications.map((n) => n.id)));
 
-  const markAllAsRead = () => {
-    setReadIds(new Set(notifications.map((n) => n.id)));
-  };
+  const listProps = { notifications, onMarkAsRead: markAsRead, onMarkAllAsRead: markAllAsRead, unreadCount };
 
-  const listProps = {
-    notifications,
-    onMarkAsRead: markAsRead,
-    onMarkAllAsRead: markAllAsRead,
-    unreadCount,
-  };
-
-  // ── Render — un singur bell button, Popover sau Sheet în funcție de isMobile
   return (
     <>
-      {/* Bell button comun */}
       <BellButton unreadCount={unreadCount} onClick={() => setOpen(true)} />
 
       {/* Mobile: Sheet din jos */}
-      <Sheet
-        open={isMobile && open}
-        onOpenChange={(v) => { if (isMobile) setOpen(v); }}
-      >
-        <SheetContent
-          side="bottom"
-          className="p-0 rounded-t-xl max-h-[85dvh] flex flex-col"
-        >
+      <Sheet open={isMobile && open} onOpenChange={(v) => { if (isMobile) setOpen(v); }}>
+        <SheetContent side="bottom" className="p-0 rounded-t-xl max-h-[85dvh] flex flex-col">
           <SheetHeader className="sr-only">
-            <SheetTitle>Notificări</SheetTitle>
+            <SheetTitle>{t("notifications.title")}</SheetTitle>
           </SheetHeader>
           <div className="flex justify-center pt-3 pb-1 shrink-0">
             <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
@@ -382,11 +354,8 @@ export function NotificationsCenter() {
         </SheetContent>
       </Sheet>
 
-      {/* Desktop: Popover — ancora e un span invizibil lângă bell */}
-      <Popover
-        open={!isMobile && open}
-        onOpenChange={(v) => { if (!isMobile) setOpen(v); }}
-      >
+      {/* Desktop: Popover */}
+      <Popover open={!isMobile && open} onOpenChange={(v) => { if (!isMobile) setOpen(v); }}>
         <PopoverTrigger asChild>
           <span className="absolute" aria-hidden />
         </PopoverTrigger>
