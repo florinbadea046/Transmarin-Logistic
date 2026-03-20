@@ -16,7 +16,7 @@
     "close": "Close",
     "noResults": "No orders found for the current filter.",
     "duplicate": "An identical order already exists (same data).",
-    "confirmDelete": "Are you sure you want to delete the order for {{name}} ({{origin}} → {{destination}}, {{date}})? This action is irreversible.",
+    "confirmDelete": "Are you sure you want to delete the order for {{name}} ({{origin}} - {{destination}}, {{date}})? This action is irreversible.",
     "confirmDeleteFallback": "Are you sure you want to delete this order?",
     "fields": {
       "client": "Client",
@@ -100,7 +100,7 @@
       "confirm": "Import {{count}} row(s)",
       "toastSuccess": "{{count}} order(s) imported successfully.",
       "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
-      "toastAllSkipped": "No orders imported — all rows are duplicates."
+      "toastAllSkipped": "No orders imported - all rows are duplicates."
     }
   },
   "employees": {
@@ -163,7 +163,7 @@
       "description": "Are you sure you want to delete employee {{name}}?"
     },
     "documents": {
-      "title": "Documents — {{name}}"
+      "title": "Documents - {{name}}"
     },
     "toast": {
       "updated": "Employee updated successfully",
@@ -244,7 +244,7 @@
     "toastDeleted": "Truck has been deleted.",
     "confirmDelete": "This action is irreversible. The truck will be permanently deleted and the associated driver will be automatically unassigned.",
     "confirmDeleteTitle": "Are you sure?",
-    "assignTitle": "Assign Driver — {{plateNumber}}",
+    "assignTitle": "Assign Driver - {{plateNumber}}",
     "toastAssigned": "Assignment saved.",
     "toastUnassigned": "Truck has been unassigned.",
     "fields": {
@@ -360,7 +360,7 @@
     "save": "Save Changes",
     "saveNew": "Add Trip",
     "cancel": "Cancel",
-    "noResults": "No trips found. Click \"New Trip\" to add one.",
+    "noResults": "No trips found. Click New Trip to add one.",
     "columns": {
       "nr": "No.",
       "order": "Order",
@@ -478,9 +478,9 @@
       "kmMonthDesc": "loaded + empty from all trips"
     },
     "charts": {
-      "kmPerDay": "Km / day — last 30 days",
+      "kmPerDay": "Km / day - last 30 days",
       "costsVsRevenue": "Costs vs. Revenue",
-      "costsVsRevenueTodo": "TODO: Recharts Chart — costs/revenue",
+      "costsVsRevenueTodo": "TODO: Recharts Chart - costs/revenue",
       "kmTooltip": "Km"
     },
     "alerts": {
@@ -512,7 +512,15 @@
     "prevWeek": "Previous week",
     "nextWeek": "Next week",
     "redirecting": "Redirecting to table...",
-    "dayNames": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "dayNames": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ],
     "dialog": {
       "title": "Trip Details",
       "desc": "Full details about this trip"
@@ -533,7 +541,110 @@
       "truck": "Truck",
       "arrival": "Est. arrival"
     }
-    
+  },
+  "notifications": {
+    "title": "Notifications",
+    "newBadge": "{{count}} new",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications",
+    "total": "{{count}} notifications total",
+    "markRead": "Mark as read",
+    "types": {
+      "licenseExpired": "License EXPIRED",
+      "licenseExpiring": "License expiring soon",
+      "licenseExpiredMsg": "{{name}} — license expired on {{date}}.",
+      "licenseExpiringMsg": "{{name}} — license expires in {{days}} day{{plural}} ({{date}}).",
+      "docExpired": "{{label}} EXPIRED — {{plate}}",
+      "docExpiring": "{{label}} expiring soon — {{plate}}",
+      "docExpiredMsg": "{{plate}}: {{label}} expired on {{date}}.",
+      "docExpiringMsg": "{{plate}}: {{label}} expires in {{days}} day{{plural}} ({{date}}).",
+      "delayedTrip": "Delayed trip",
+      "delayedTripMsg": "Trip {{id}} has exceeded the estimated arrival date by {{days}} day{{plural}} ({{date}}).",
+      "unassignedOrder": "Unassigned order",
+      "unassignedOrderMsg": "Order for {{client}} ({{origin}} - {{destination}}) has been unassigned for {{days}} day{{plural}}."
+    }
+  },
+  "reports": {
+    "title": "Advanced Reports",
+    "selectInterval": "Select interval",
+    "reset": "Reset",
+    "exportPdf": "Export PDF",
+    "exporting": "Generating...",
+    "noData": "No data for the selected interval.",
+    "charts": {
+      "kmPerDriver": "Km per driver",
+      "fuelPerMonth": "Fuel costs per month",
+      "topRoutes": "Top 5 frequent routes",
+      "truckUtilization": "Truck utilization rate"
+    },
+    "pdf": {
+      "title": "Advanced Report - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generated",
+      "allData": "All data",
+      "kmPerDriver": "Km per driver",
+      "fuelPerMonth": "Fuel costs per month",
+      "topRoutes": "Top 5 frequent routes",
+      "truckUtilization": "Truck utilization rate",
+      "driver": "Driver",
+      "totalKm": "Total km",
+      "month": "Month",
+      "cost": "Cost (RON)",
+      "route": "Route",
+      "orderCount": "No. orders",
+      "truck": "Truck",
+      "utilization": "Utilization (%)",
+      "filename": "advanced-report"
+    },
+    "tooltip": {
+      "km": "Total km",
+      "cost": "Cost",
+      "utilization": "Utilization"
+    }
+  },
+  "driverProfile": {
+    "notFound": "Driver not found",
+    "notFoundDesc": "The requested driver does not exist in the database.",
+    "tabs": {
+      "info": "Info",
+      "trips": "Trips",
+      "stats": "Statistics",
+      "docs": "Documents"
+    },
+    "info": {
+      "personal": "Personal details",
+      "status": "Status",
+      "license": "Driver license",
+      "licenseExpiry": "Expires on",
+      "licenseExpired": "EXPIRED",
+      "licenseExpiresIn": "expires in {{days}} days",
+      "truckDocs": "Truck documents",
+      "vignette": "Vignette"
+    },
+    "trips": {
+      "empty": "No trips associated with this driver.",
+      "departure": "Departure",
+      "kmLoaded": "Loaded km",
+      "kmEmpty": "Empty km",
+      "fuelCost": "Fuel"
+    },
+    "stats": {
+      "totalKm": "Total km",
+      "totalTrips": "No. trips",
+      "finishRate": "Completion rate",
+      "totalFuel": "Fuel cost",
+      "kmPerMonth": "Km per month"
+    },
+    "docs": {
+      "license": "Driver license",
+      "licenseCategory": "Category C license",
+      "expiry": "Expires on",
+      "expired": "EXPIRED",
+      "valid": "Valid",
+      "days": "days",
+      "uploadTitle": "Uploaded documents",
+      "uploadHint": "Upload an image or PDF of the driver license",
+      "uploadBtn": "Upload document"
+    }
   }
-  
 }
