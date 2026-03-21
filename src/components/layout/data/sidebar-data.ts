@@ -19,6 +19,7 @@ import {
   Palette,
   Monitor,
   DollarSign,
+  History,
 } from "lucide-react";
 import { type SidebarData } from "../types";
 
@@ -48,6 +49,11 @@ export const sidebarData: SidebarData = {
           title: "Costs & Profitability",
           url: "/costs",
           icon: DollarSign,
+        },
+        {
+          title: "Istoric Activitati",
+          url: "/activity-log",
+          icon: History,
         },
       ],
     },
