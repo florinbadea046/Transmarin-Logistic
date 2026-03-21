@@ -374,7 +374,8 @@
       "kmLoaded": "Km incarcat",
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil",
-      "actions": "Actiuni"
+      "actions": "Actiuni",
+      "revenue": "Venit"
     },
     "fields": {
       "order": "Comanda",
@@ -385,7 +386,8 @@
       "kmLoaded": "Km incarcat",
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil (RON)",
-      "status": "Status"
+      "status": "Status",
+      "revenue": "Venit estimat (RON)"
     },
     "placeholders": {
       "order": "Selecteaza o comanda",
@@ -421,7 +423,8 @@
       "arrivalAfterDeparture": "Data sosire trebuie sa fie dupa data plecare",
       "kmLoadedPositive": "Km incarcat trebuie sa fie > 0",
       "kmEmptyPositive": "Km gol trebuie sa fie > 0",
-      "fuelCostMin": "Cost combustibil trebuie sa fie >= 0"
+      "fuelCostMin": "Cost combustibil trebuie sa fie >= 0",
+      "revenueMin": "Venitul trebuie sa fie >= 0"
     },
     "toast": {
       "added": "Cursa adaugata cu succes!",
@@ -449,7 +452,8 @@
       "arrival": "Sosire estimata",
       "kmLoaded": "Km incarcat",
       "kmEmpty": "Km gol",
-      "fuelCost": "Cost combustibil"
+      "fuelCost": "Cost combustibil",
+      "revenue": "Venit"
     },
     "export": {
       "nr": "Nr. cursa",
@@ -463,7 +467,8 @@
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil (RON)",
       "status": "Status",
-      "filename": "curse"
+      "filename": "curse",
+      "revenue": "Venit estimat (RON)"
     }
   },
   "dashboard": {
@@ -576,10 +581,10 @@
     "types": {
       "licenseExpired": "Permis EXPIRAT",
       "licenseExpiring": "Permis expira curand",
-      "licenseExpiredMsg": "{{name}} — permisul a expirat pe {{date}}.",
-      "licenseExpiringMsg": "{{name}} — permisul expira in {{days}} zi{{plural}} ({{date}}).",
-      "docExpired": "{{label}} EXPIRAT — {{plate}}",
-      "docExpiring": "{{label}} expira curand — {{plate}}",
+      "licenseExpiredMsg": "{{name}} - permisul a expirat pe {{date}}.",
+      "licenseExpiringMsg": "{{name}} - permisul expira in {{days}} zi{{plural}} ({{date}}).",
+      "docExpired": "{{label}} EXPIRAT - {{plate}}",
+      "docExpiring": "{{label}} expira curand - {{plate}}",
       "docExpiredMsg": "{{plate}}: {{label}} a expirat pe {{date}}.",
       "docExpiringMsg": "{{plate}}: {{label}} expira in {{days}} zi{{plural}} ({{date}}).",
       "delayedTrip": "Cursa intarziata",
@@ -624,6 +629,41 @@
       "km": "Total km",
       "cost": "Cost",
       "utilization": "Utilizare"
+    }
+  },
+  "costs": {
+    "title": "Costuri & Profitabilitate",
+    "filters": {
+      "driver": "Sofer",
+      "truck": "Camion",
+      "period": "Perioada",
+      "allDrivers": "Toti soferii",
+      "allTrucks": "Toate camioanele",
+      "allTime": "Toata perioada",
+      "thisMonth": "Luna curenta",
+      "lastMonth": "Luna trecuta",
+      "last3Months": "Ultimele 3 luni"
+    },
+    "kpi": {
+      "totalFuelCost": "Cost total combustibil",
+      "costPerKm": "Cost mediu/km",
+      "avgCostPerTrip": "Cost mediu/cursa"
+    },
+    "chart": {
+      "title": "Profit lunar",
+      "profit": "Profit",
+      "notEnoughData": "Date insuficiente pentru grafic"
+    },
+    "table": {
+      "title": "Detalii curse",
+      "trip": "Cursa",
+      "driver": "Sofer",
+      "truck": "Camion",
+      "date": "Data",
+      "revenue": "Venit estimat",
+      "fuelCost": "Cost combustibil",
+      "profit": "Profit",
+      "noResults": "Nu exista curse pentru filtrele selectate."
     }
   },
   "driverProfile": {

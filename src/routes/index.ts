@@ -1,7 +1,3 @@
-// ──────────────────────────────────────────────────────────
-// Configurarea rutelor — TanStack Router
-// ──────────────────────────────────────────────────────────
-
 import {
   createRootRoute,
   createRoute,
@@ -11,13 +7,12 @@ import {
 
 import { AuthenticatedLayout } from "@/components/layout/authenticated-layout";
 
-// Pages
 import DashboardPage from "@/pages/dashboard";
 import LoginPage from "@/pages/login";
 import NotFoundPage from "@/pages/not-found";
 import UnauthorizedPage from "@/pages/unauthorized";
+import CostsPage from "@/pages/costs";
 
-// Transport
 import TransportPage from "@/modules/transport/index";
 import OrdersPage from "@/modules/transport/pages/orders";
 import TripsPage from "@/modules/transport/pages/trips";
@@ -26,31 +21,26 @@ import TripsMapPage from "@/modules/transport/pages/_components/trips-map";
 import DriversPage from "@/modules/transport/pages/drivers";
 import DriverProfilePage from "@/modules/transport/pages/_components/driver-profile";
 
-// Fleet
 import FleetPage from "@/modules/fleet/index";
 import PartsPage from "@/modules/fleet/pages/parts";
 import ServicePage from "@/modules/fleet/pages/service";
 import FuelPage from "@/modules/fleet/pages/fuel";
 
-// Accounting
 import AccountingPage from "@/modules/accounting/index";
 import InvoicesPage from "@/modules/accounting/pages/invoices";
 import SuppliersPage from "@/modules/accounting/pages/suppliers";
 
-// HR
 import HRPage from "@/modules/hr/index";
 import EmployeesPage from "@/modules/hr/pages/employees";
 import LeavesPage from "@/modules/hr/pages/leaves";
 import PayrollPage from "@/modules/hr/pages/payroll";
 
-// Reports
 import ReportsPage from "@/modules/reports/index";
 import TransportReportsPage from "@/modules/reports/pages/transport-reports";
 import FinancialReportsPage from "@/modules/reports/pages/financial-reports";
 import FleetReportsPage from "@/modules/reports/pages/fleet-reports";
 import AdvancedReportsPage from "@/modules/reports/pages/reports";
 
-// Settings
 import SettingsPage from "@/pages/settings";
 
 function isAuthenticated(): boolean {
@@ -62,7 +52,9 @@ function isAuthenticated(): boolean {
   }
 }
 
-const rootRoute = createRootRoute({ notFoundComponent: NotFoundPage });
+const rootRoute = createRootRoute({
+  notFoundComponent: NotFoundPage,
+});
 
 const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -78,7 +70,17 @@ const authenticatedRoute = createRoute({
   beforeLoad: () => { if (!isAuthenticated()) throw redirect({ to: "/login" }); },
 });
 
-const dashboardRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/", component: DashboardPage });
+const dashboardRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/",
+  component: DashboardPage,
+});
+
+const costsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/costs",
+  component: CostsPage,
+});
 
 // Transport
 const transportRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/transport", component: TransportPage });
@@ -120,31 +122,59 @@ const settingsAppearanceRoute = createRoute({ getParentRoute: () => authenticate
 const settingsNotificationsRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/settings/notifications", component: SettingsPage });
 const settingsDisplayRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/settings/display", component: SettingsPage });
 
-const unauthorizedRoute = createRoute({ getParentRoute: () => rootRoute, path: "/unauthorized", component: UnauthorizedPage });
+const unauthorizedRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/unauthorized",
+  component: UnauthorizedPage,
+});
 
 const routeTree = rootRoute.addChildren([
   loginRoute,
   unauthorizedRoute,
   authenticatedRoute.addChildren([
     dashboardRoute,
+    costsRoute,
     // Transport
-    transportRoute, ordersRoute, tripsRoute, tripsMapRoute, tripsCalendarRoute,
-    driversRoute, driverProfileRoute,
+    transportRoute,
+    ordersRoute,
+    tripsRoute,
+    tripsMapRoute,
+    tripsCalendarRoute,
+    driversRoute,
+    driverProfileRoute,
     // Fleet
-    fleetRoute, partsRoute, serviceRoute, fuelRoute,
+    fleetRoute,
+    partsRoute,
+    serviceRoute,
+    fuelRoute,
     // Accounting
-    accountingRoute, invoicesRoute, suppliersRoute,
+    accountingRoute,
+    invoicesRoute,
+    suppliersRoute,
     // HR
-    hrRoute, employeesRoute, leavesRoute, payrollRoute,
+    hrRoute,
+    employeesRoute,
+    leavesRoute,
+    payrollRoute,
     // Reports
-    reportsRoute, transportReportsRoute, financialReportsRoute, fleetReportsRoute, advancedReportsRoute,
+    reportsRoute,
+    transportReportsRoute,
+    financialReportsRoute,
+    fleetReportsRoute,
+    advancedReportsRoute,
     // Settings
-    settingsRoute, settingsAccountRoute, settingsAppearanceRoute, settingsNotificationsRoute, settingsDisplayRoute,
+    settingsRoute,
+    settingsAccountRoute,
+    settingsAppearanceRoute,
+    settingsNotificationsRoute,
+    settingsDisplayRoute,
   ]),
 ]);
 
 export const router = createRouter({ routeTree });
 
 declare module "@tanstack/react-router" {
-  interface Register { router: typeof router; }
+  interface Register {
+    router: typeof router;
+  }
 }

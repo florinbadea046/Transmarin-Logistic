@@ -140,6 +140,7 @@ type TripFormValues = {
   kmLoaded: number;
   kmEmpty: number;
   fuelCost: number;
+  revenue: number;
   status: "planned" | "in_desfasurare" | "finalizata" | "anulata";
 };
 
@@ -158,6 +159,7 @@ function buildSchema(t: ReturnType<typeof useTranslation>["t"]) {
       kmLoaded: z.number().positive(t("trips.validation.kmLoadedPositive")),
       kmEmpty: z.number().positive(t("trips.validation.kmEmptyPositive")),
       fuelCost: z.number().min(0, t("trips.validation.fuelCostMin")),
+      revenue: z.number().min(0, t("trips.validation.revenueMin")),
       status: z.enum(["planned", "in_desfasurare", "finalizata", "anulata"]),
     })
     .refine(
@@ -196,6 +198,7 @@ function toRows(
       [t("trips.export.kmLoaded")]: trip.kmLoaded,
       [t("trips.export.kmEmpty")]: trip.kmEmpty,
       [t("trips.export.fuelCost")]: trip.fuelCost,
+      [t("trips.export.revenue")]: trip.revenue ?? 0,
       [t("trips.export.status")]: t(`trips.status.${trip.status}`),
     };
   });
@@ -493,7 +496,23 @@ function buildColumns(
         </div>
       ),
       enableSorting: true,
-      size: 150,
+      size: 140,
+    },
+    {
+      accessorKey: "revenue",
+      header: ({ column }) => (
+        <DataTableColumnHeader
+          column={column}
+          title={t("trips.columns.revenue")}
+        />
+      ),
+      cell: ({ row }) => (
+        <div className="tabular-nums text-right text-sm">
+          {((row.getValue("revenue") as number) ?? 0).toLocaleString()} RON
+        </div>
+      ),
+      enableSorting: true,
+      size: 140,
     },
     {
       id: "actions",
@@ -607,6 +626,7 @@ export default function TripsPage() {
         kmLoaded: false,
         kmEmpty: false,
         fuelCost: false,
+        revenue: false,
         estimatedArrivalDate: false,
       });
     } else if (isTablet) {
@@ -614,6 +634,7 @@ export default function TripsPage() {
         truckId: false,
         kmEmpty: false,
         fuelCost: false,
+        revenue: false,
         estimatedArrivalDate: false,
       });
     } else {
@@ -738,6 +759,7 @@ export default function TripsPage() {
       kmLoaded: 0,
       kmEmpty: 0,
       fuelCost: 0,
+      revenue: 0,
       status: "planned",
     },
   });
@@ -753,6 +775,7 @@ export default function TripsPage() {
         kmLoaded: editingTrip.kmLoaded,
         kmEmpty: editingTrip.kmEmpty,
         fuelCost: editingTrip.fuelCost,
+        revenue: editingTrip.revenue ?? 0,
         status: editingTrip.status,
       });
     } else if (dialogOpen && !editingTrip) {
@@ -765,6 +788,7 @@ export default function TripsPage() {
         kmLoaded: 0,
         kmEmpty: 0,
         fuelCost: 0,
+        revenue: 0,
         status: "planned",
       });
     }
@@ -786,6 +810,7 @@ export default function TripsPage() {
           kmLoaded: Number(values.kmLoaded),
           kmEmpty: Number(values.kmEmpty),
           fuelCost: Number(values.fuelCost),
+          revenue: Number(values.revenue),
         };
         updateItem<Trip>(
           STORAGE_KEYS.trips,
@@ -801,6 +826,7 @@ export default function TripsPage() {
           kmLoaded: Number(values.kmLoaded),
           kmEmpty: Number(values.kmEmpty),
           fuelCost: Number(values.fuelCost),
+          revenue: Number(values.revenue),
         };
         addItem<Trip>(STORAGE_KEYS.trips, newTrip);
         updateItem<Order>(
@@ -899,6 +925,7 @@ export default function TripsPage() {
                 kmLoaded: t("trips.columns.kmLoaded"),
                 kmEmpty: t("trips.columns.kmEmpty"),
                 fuelCost: t("trips.columns.fuelCost"),
+                revenue: t("trips.columns.revenue"),
               }}
             />
 
@@ -963,6 +990,12 @@ export default function TripsPage() {
                             {t("trips.mobile.fuelCost")}:{" "}
                             <span className="text-foreground">
                               {trip.fuelCost} RON
+                            </span>
+                          </span>
+                          <span className="truncate">
+                            {t("trips.mobile.revenue")}:{" "}
+                            <span className="text-foreground">
+                              {trip.revenue ?? 0} RON
                             </span>
                           </span>
                         </div>
@@ -1301,7 +1334,7 @@ export default function TripsPage() {
                   </div>
                 </div>
 
-                <div className="grid gap-3 grid-cols-1 sm:grid-cols-[1fr_1fr_1.4fr]">
+                <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
                   <div className="grid gap-1.5 min-w-0">
                     <Label>{t("trips.fields.kmLoaded")}</Label>
                     <FormField
@@ -1377,6 +1410,41 @@ export default function TripsPage() {
                     <FormField
                       control={form.control}
                       name="fuelCost"
+                      render={({ field }) => (
+                        <FormItem className="min-w-0">
+                          <FormControl>
+                            <Input
+                              type="text"
+                              inputMode="decimal"
+                              placeholder={t("trips.placeholders.km")}
+                              className="w-full min-w-0"
+                              value={
+                                field.value === 0 ? "" : String(field.value)
+                              }
+                              onChange={(e) => {
+                                const v = e.target.value.replace(
+                                  /[^0-9.]/g,
+                                  "",
+                                );
+                                field.onChange(
+                                  v === "" ? 0 : parseFloat(v) || 0,
+                                );
+                              }}
+                              onBlur={() => {
+                                if (!field.value) field.onChange(0);
+                              }}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid gap-1.5 min-w-0">
+                    <Label>{t("trips.fields.revenue")}</Label>
+                    <FormField
+                      control={form.control}
+                      name="revenue"
                       render={({ field }) => (
                         <FormItem className="min-w-0">
                           <FormControl>
