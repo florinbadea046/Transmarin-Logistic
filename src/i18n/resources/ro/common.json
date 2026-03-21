@@ -707,8 +707,14 @@
       "valid": "Valabil",
       "days": "zile",
       "uploadTitle": "Documente incarcate",
-      "uploadHint": "Incarca o imagine sau PDF cu permisul de conducere",
-      "uploadBtn": "Incarca document"
+      "uploadHint": "Max 2MB - PDF, JPG, PNG",
+      "uploadBtn": "Incarca document",
+      "uploadTypes": "PDF, JPG, PNG, WEBP - max 2MB",
+      "noDocs": "Nu exista documente incarcate.",
+      "errorType": "Tip fisier invalid. Acceptat: PDF, JPG, PNG, WEBP.",
+      "errorSize": "Fisierul depaseste limita de 2MB.",
+      "view": "Vizualizeaza",
+      "delete": "Sterge document"
     }
   }
 }
