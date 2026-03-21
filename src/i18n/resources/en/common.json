@@ -386,7 +386,8 @@
       "kmEmpty": "Empty Km",
       "fuelCost": "Fuel Cost (RON)",
       "status": "Status",
-      "revenue": "Revenue (RON)"
+      "revenue": "Revenue (RON)",
+      "unscheduled": "Unscheduled (no date yet)"
     },
     "placeholders": {
       "order": "Select an order",
@@ -512,20 +513,14 @@
     "title": "Trips Calendar",
     "tabs": {
       "table": "Table",
-      "calendar": "Calendar"
+      "calendar": "Calendar",
+      "tableShort": "Tabel",
+      "calendarShort": "Cal."
     },
     "prevWeek": "Previous week",
     "nextWeek": "Next week",
     "redirecting": "Redirecting to table...",
-    "dayNames": [
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri",
-      "Sat",
-      "Sun"
-    ],
+    "dayNames": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     "dialog": {
       "title": "Trip Details",
       "desc": "Full details about this trip"
@@ -534,7 +529,8 @@
   "tripsMap": {
     "title": "Active Trips Map",
     "tabs": {
-      "map": "Map"
+      "map": "Map",
+      "mapShort": "Map"
     },
     "filterLabel": "Filter by status",
     "clearFilter": "Clear filter",
@@ -685,6 +681,27 @@
       "uploadTitle": "Uploaded documents",
       "uploadHint": "Upload an image or PDF of the driver license",
       "uploadBtn": "Upload document"
+    }
+  },
+  "tripsDnd": {
+    "title": "Drag & Drop Trips Calendar",
+    "tabs": {
+      "dnd": "DnD Calendar",
+      "dndShort": "DnD"
+    },
+    "today": "Today",
+    "sidebar": {
+      "title": "Unscheduled Trips",
+      "hint": "Drag a trip onto a day to schedule it.",
+      "empty": "All trips are scheduled."
+    },
+    "confirmMove": {
+      "title": "Reschedule Trip",
+      "desc": "Move trip for {{driver}} to {{date}}?",
+      "confirm": "Confirm"
+    },
+    "toast": {
+      "moved": "Trip rescheduled successfully!"
     }
   }
 }

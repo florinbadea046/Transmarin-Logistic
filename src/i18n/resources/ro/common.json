@@ -387,7 +387,8 @@
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil (RON)",
       "status": "Status",
-      "revenue": "Venit estimat (RON)"
+      "revenue": "Venit estimat (RON)",
+      "unscheduled": "Neplanificata (fara data)"
     },
     "placeholders": {
       "order": "Selecteaza o comanda",
@@ -513,20 +514,14 @@
     "title": "Calendar Curse",
     "tabs": {
       "table": "Tabel",
-      "calendar": "Calendar"
+      "calendar": "Calendar",
+      "tableShort": "Tabel",
+      "calendarShort": "Cal."
     },
     "prevWeek": "Saptamana anterioara",
     "nextWeek": "Saptamana urmatoare",
     "redirecting": "Se redirectioneaza catre tabel...",
-    "dayNames": [
-      "Lun",
-      "Mar",
-      "Mie",
-      "Joi",
-      "Vin",
-      "Sam",
-      "Dum"
-    ],
+    "dayNames": ["Lun", "Mar", "Mie", "Joi", "Vin", "Sam", "Dum"],
     "dialog": {
       "title": "Detalii cursa",
       "desc": "Informatii complete despre cursa"
@@ -535,7 +530,8 @@
   "tripsMap": {
     "title": "Harta Curse Active",
     "tabs": {
-      "map": "Harta"
+      "map": "Harta",
+      "mapShort": "Harta"
     },
     "filterLabel": "Filtrare dupa status",
     "clearFilter": "Sterge filtrul",
@@ -709,6 +705,27 @@
       "uploadTitle": "Documente incarcate",
       "uploadHint": "Incarca o imagine sau PDF cu permisul de conducere",
       "uploadBtn": "Incarca document"
+    }
+  },
+  "tripsDnd": {
+    "title": "Calendar Curse Drag & Drop",
+    "tabs": {
+      "dnd": "Calendar DnD",
+      "dndShort": "DnD"
+    },
+    "today": "Azi",
+    "sidebar": {
+      "title": "Curse Neplanificate",
+      "hint": "Trage o cursa pe o zi pentru a o programa.",
+      "empty": "Toate cursele sunt programate."
+    },
+    "confirmMove": {
+      "title": "Reprogrameaza Cursa",
+      "desc": "Muti cursa soferului {{driver}} pe data de {{date}}?",
+      "confirm": "Confirma"
+    },
+    "toast": {
+      "moved": "Cursa reprogramata cu succes!"
     }
   }
 }
