@@ -386,8 +386,7 @@
       "kmEmpty": "Empty Km",
       "fuelCost": "Fuel Cost (RON)",
       "status": "Status",
-      "revenue": "Revenue (RON)",
-      "unscheduled": "Unscheduled (no date yet)"
+      "revenue": "Revenue (RON)"
     },
     "placeholders": {
       "order": "Select an order",
@@ -513,14 +512,20 @@
     "title": "Trips Calendar",
     "tabs": {
       "table": "Table",
-      "calendar": "Calendar",
-      "tableShort": "Tabel",
-      "calendarShort": "Cal."
+      "calendar": "Calendar"
     },
     "prevWeek": "Previous week",
     "nextWeek": "Next week",
     "redirecting": "Redirecting to table...",
-    "dayNames": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "dayNames": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ],
     "dialog": {
       "title": "Trip Details",
       "desc": "Full details about this trip"
@@ -529,8 +534,7 @@
   "tripsMap": {
     "title": "Active Trips Map",
     "tabs": {
-      "map": "Map",
-      "mapShort": "Map"
+      "map": "Map"
     },
     "filterLabel": "Filter by status",
     "clearFilter": "Clear filter",
@@ -689,25 +693,92 @@
       "delete": "Delete document"
     }
   },
-  "tripsDnd": {
-    "title": "Drag & Drop Trips Calendar",
-    "tabs": {
-      "dnd": "DnD Calendar",
-      "dndShort": "DnD"
+  "activityLog": {
+    "title": "Activity Log",
+    "empty": "No activity recorded yet.",
+    "totalEntries": "{{count}} entries",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "before": "Before",
+    "after": "After",
+    "actions": {
+      "create": "Create",
+      "update": "Update",
+      "delete": "Delete"
     },
-    "today": "Today",
-    "sidebar": {
-      "title": "Unscheduled Trips",
-      "hint": "Drag a trip onto a day to schedule it.",
-      "empty": "All trips are scheduled."
+    "entities": {
+      "driver": "Driver",
+      "truck": "Truck",
+      "order": "Order",
+      "trip": "Trip"
     },
-    "confirmMove": {
-      "title": "Reschedule Trip",
-      "desc": "Move trip for {{driver}} to {{date}}?",
-      "confirm": "Confirm"
+    "filters": {
+      "label": "Filter:",
+      "allEntities": "All entities",
+      "allActions": "All actions",
+      "reset": "Reset"
     },
-    "toast": {
-      "moved": "Trip rescheduled successfully!"
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} of {{total}}"
+    },
+    "details": {
+      "driverCreated": "New driver added",
+      "driverUpdated": "Driver updated",
+      "driverDeleted": "Driver deleted",
+      "truckCreated": "New truck added",
+      "truckUpdated": "Truck updated",
+      "truckDeleted": "Truck deleted",
+      "orderCreated": "New order added",
+      "orderUpdated": "Order updated",
+      "orderDeleted": "Order deleted",
+      "tripCreated": "New trip added",
+      "tripUpdated": "Trip updated",
+      "tripDeleted": "Trip deleted"
+    }
+  },
+  "sidebar": {
+    "groups": {
+      "general": "General",
+      "modules": "Modules",
+      "settings": "Settings"
+    },
+    "transport": {
+      "title": "Transport & Dispatch",
+      "overview": "Overview"
+    },
+    "fleet": {
+      "title": "Fleet & Service",
+      "overview": "Overview",
+      "parts": "Parts & Supplies",
+      "service": "Service & Repairs",
+      "fuel": "Fuel"
+    },
+    "accounting": {
+      "title": "Accounting",
+      "overview": "Overview",
+      "suppliers": "Suppliers"
+    },
+    "hr": {
+      "title": "Human Resources",
+      "overview": "Overview",
+      "leaves": "Leave Requests",
+      "payroll": "Payroll"
+    },
+    "reports": {
+      "title": "Reports",
+      "overview": "Reports Dashboard",
+      "transport": "Transport Reports",
+      "financial": "Financial Reports",
+      "fleet": "Fleet Reports"
+    },
+    "settings": {
+      "title": "Settings",
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "notifications": "Notifications",
+      "display": "Display"
     }
   }
 }

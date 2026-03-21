@@ -387,8 +387,7 @@
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil (RON)",
       "status": "Status",
-      "revenue": "Venit estimat (RON)",
-      "unscheduled": "Neplanificata (fara data)"
+      "revenue": "Venit estimat (RON)"
     },
     "placeholders": {
       "order": "Selecteaza o comanda",
@@ -514,14 +513,20 @@
     "title": "Calendar Curse",
     "tabs": {
       "table": "Tabel",
-      "calendar": "Calendar",
-      "tableShort": "Tabel",
-      "calendarShort": "Cal."
+      "calendar": "Calendar"
     },
     "prevWeek": "Saptamana anterioara",
     "nextWeek": "Saptamana urmatoare",
     "redirecting": "Se redirectioneaza catre tabel...",
-    "dayNames": ["Lun", "Mar", "Mie", "Joi", "Vin", "Sam", "Dum"],
+    "dayNames": [
+      "Lun",
+      "Mar",
+      "Mie",
+      "Joi",
+      "Vin",
+      "Sam",
+      "Dum"
+    ],
     "dialog": {
       "title": "Detalii cursa",
       "desc": "Informatii complete despre cursa"
@@ -530,8 +535,7 @@
   "tripsMap": {
     "title": "Harta Curse Active",
     "tabs": {
-      "map": "Harta",
-      "mapShort": "Harta"
+      "map": "Harta"
     },
     "filterLabel": "Filtrare dupa status",
     "clearFilter": "Sterge filtrul",
@@ -713,25 +717,92 @@
       "delete": "Sterge document"
     }
   },
-  "tripsDnd": {
-    "title": "Calendar Curse Drag & Drop",
-    "tabs": {
-      "dnd": "Calendar DnD",
-      "dndShort": "DnD"
+  "activityLog": {
+    "title": "Istoric Activitati",
+    "empty": "Nu exista activitati inregistrate inca.",
+    "totalEntries": "{{count}} intrari",
+    "showDetails": "Afiseaza detalii",
+    "hideDetails": "Ascunde detalii",
+    "before": "Inainte",
+    "after": "Dupa",
+    "actions": {
+      "create": "Creare",
+      "update": "Modificare",
+      "delete": "Stergere"
     },
-    "today": "Azi",
-    "sidebar": {
-      "title": "Curse Neplanificate",
-      "hint": "Trage o cursa pe o zi pentru a o programa.",
-      "empty": "Toate cursele sunt programate."
+    "entities": {
+      "driver": "Sofer",
+      "truck": "Camion",
+      "order": "Comanda",
+      "trip": "Cursa"
     },
-    "confirmMove": {
-      "title": "Reprogrameaza Cursa",
-      "desc": "Muti cursa soferului {{driver}} pe data de {{date}}?",
-      "confirm": "Confirma"
+    "filters": {
+      "label": "Filtrare:",
+      "allEntities": "Toate entitatile",
+      "allActions": "Toate actiunile",
+      "reset": "Reseteaza"
     },
-    "toast": {
-      "moved": "Cursa reprogramata cu succes!"
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Urmator",
+      "pageOf": "Pagina {{page}} din {{total}}"
+    },
+    "details": {
+      "driverCreated": "Sofer nou adaugat",
+      "driverUpdated": "Sofer actualizat",
+      "driverDeleted": "Sofer sters",
+      "truckCreated": "Camion nou adaugat",
+      "truckUpdated": "Camion actualizat",
+      "truckDeleted": "Camion sters",
+      "orderCreated": "Comanda noua adaugata",
+      "orderUpdated": "Comanda actualizata",
+      "orderDeleted": "Comanda stearsa",
+      "tripCreated": "Cursa noua adaugata",
+      "tripUpdated": "Cursa actualizata",
+      "tripDeleted": "Cursa stearsa"
+    }
+  },
+  "sidebar": {
+    "groups": {
+      "general": "General",
+      "modules": "Module",
+      "settings": "Setari"
+    },
+    "transport": {
+      "title": "Transport & Dispecerat",
+      "overview": "Prezentare Generala"
+    },
+    "fleet": {
+      "title": "Parc Auto & Service",
+      "overview": "Prezentare Generala",
+      "parts": "Piese & Consumabile",
+      "service": "Service & Reparatii",
+      "fuel": "Combustibil"
+    },
+    "accounting": {
+      "title": "Contabilitate",
+      "overview": "Prezentare Generala",
+      "suppliers": "Furnizori"
+    },
+    "hr": {
+      "title": "Resurse Umane",
+      "overview": "Prezentare Generala",
+      "leaves": "Concedii",
+      "payroll": "Salarizare"
+    },
+    "reports": {
+      "title": "Rapoarte",
+      "overview": "Dashboard Rapoarte",
+      "transport": "Rapoarte Transport",
+      "financial": "Rapoarte Financiare",
+      "fleet": "Rapoarte Parc Auto"
+    },
+    "settings": {
+      "title": "Setari",
+      "profile": "Profil",
+      "appearance": "Aparenta",
+      "notifications": "Notificari",
+      "display": "Afisare"
     }
   }
 }
