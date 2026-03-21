@@ -19,6 +19,7 @@ import {
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "@tanstack/react-router";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -95,11 +96,13 @@ function DriverMobileCard({
   truck,
   onEdit,
   onDelete,
+  onViewProfile,
 }: {
   driver: Driver;
   truck?: Truck;
   onEdit: () => void;
   onDelete: () => void;
+  onViewProfile: () => void;
 }) {
   const { t } = useTranslation();
 
@@ -113,7 +116,12 @@ function DriverMobileCard({
     <div className="rounded-lg border bg-card p-4 shadow-sm space-y-3">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <p className="font-semibold leading-tight">{driver.name}</p>
+          <button
+            className="font-semibold leading-tight hover:underline text-primary text-left"
+            onClick={onViewProfile}
+          >
+            {driver.name}
+          </button>
           <p className="text-xs text-muted-foreground">{driver.phone}</p>
         </div>
         <div className="flex shrink-0 gap-1">
@@ -295,10 +303,12 @@ export function DriversSection({
   trucks: Truck[];
   onDataChange: () => void;
 }) {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
   const [employees] = React.useState<Employee[]>(() =>
     getCollection<Employee>(STORAGE_KEYS.employees),
   );
-  const { t } = useTranslation();
 
   const DRIVER_STATUS_CLASS: Record<Driver["status"], string> = {
     available: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200",
@@ -324,6 +334,9 @@ export function DriversSection({
     (driver: Driver) => driver.truckId ? trucks.find((t) => t.id === driver.truckId) : undefined,
     [trucks],
   );
+
+  const goToProfile = (driverId: string) =>
+    navigate({ to: "/transport/drivers/$driverId", params: { driverId } });
 
   // ── Validation ──
 
@@ -425,7 +438,12 @@ export function DriversSection({
         const truck = getTruck(row.original);
         return (
           <div className="font-medium">
-            <div>{row.getValue("name")}</div>
+            <button
+              className="hover:underline text-left text-primary"
+              onClick={() => goToProfile(row.original.id)}
+            >
+              {row.getValue("name")}
+            </button>
             {truck && (
               <div className="text-xs text-muted-foreground lg:hidden">{truck.plateNumber}</div>
             )}
@@ -548,6 +566,7 @@ export function DriversSection({
                 truck={getTruck(driver)}
                 onEdit={() => handleOpenEdit(driver)}
                 onDelete={() => setDeleteDriverId(driver.id)}
+                onViewProfile={() => goToProfile(driver.id)}
               />
             )}
           />
