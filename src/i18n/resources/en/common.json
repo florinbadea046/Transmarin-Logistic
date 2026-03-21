@@ -679,8 +679,14 @@
       "valid": "Valid",
       "days": "days",
       "uploadTitle": "Uploaded documents",
-      "uploadHint": "Upload an image or PDF of the driver license",
-      "uploadBtn": "Upload document"
+      "uploadHint": "Max 2MB - PDF, JPG, PNG",
+      "uploadBtn": "Upload document",
+      "uploadTypes": "PDF, JPG, PNG, WEBP - max 2MB",
+      "noDocs": "No documents uploaded yet.",
+      "errorType": "Invalid file type. Accepted: PDF, JPG, PNG, WEBP.",
+      "errorSize": "File exceeds the 2MB limit.",
+      "view": "View",
+      "delete": "Delete document"
     }
   },
   "tripsDnd": {

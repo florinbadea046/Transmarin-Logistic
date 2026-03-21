@@ -9,7 +9,7 @@
 import * as React from "react";
 import { useParams, useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Phone, Truck, User, AlertTriangle, CheckCircle2, Clock, XCircle, BarChart3, FileText, Info } from "lucide-react";
+import { ArrowLeft, Phone, Truck, User, AlertTriangle, CheckCircle2, Clock, XCircle, BarChart3, FileText, Info, Upload, Trash2, Eye, FileImage, File } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ro } from "date-fns/locale";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
@@ -28,6 +28,34 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Driver, Trip, Truck as TruckType, Order } from "@/modules/transport/types";
 import { useMobile } from "@/hooks/use-mobile";
 
+// ── Tipuri documente ───────────────────────────────────────
+
+interface DriverDocument {
+  id: string;
+  name: string;
+  mimeType: string;
+  size: number;
+  uploadedAt: string;
+  data: string; // base64
+}
+
+function getDocStorageKey(driverId: string): string {
+  return `transmarin_driver_docs_${driverId}`;
+}
+
+function loadDocuments(driverId: string): DriverDocument[] {
+  try {
+    const raw = localStorage.getItem(getDocStorageKey(driverId));
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveDocuments(driverId: string, docs: DriverDocument[]): void {
+  localStorage.setItem(getDocStorageKey(driverId), JSON.stringify(docs));
+}
+
 // ── Helpers ────────────────────────────────────────────────
 
 function daysUntil(dateStr: string): number {
@@ -43,6 +71,18 @@ function formatDateRO(dateStr: string): string {
 
 function getInitials(name: string): string {
   return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function getFileIcon(mimeType: string) {
+  if (mimeType.startsWith("image/")) return <FileImage className="h-5 w-5 text-blue-500 shrink-0" />;
+  if (mimeType === "application/pdf") return <FileText className="h-5 w-5 text-red-500 shrink-0" />;
+  return <File className="h-5 w-5 text-gray-500 shrink-0" />;
 }
 
 // ── Status helpers ─────────────────────────────────────────
@@ -266,14 +306,76 @@ function TabStats({ trips, isMobile }: { trips: Trip[]; isMobile: boolean }) {
 
 // ── Tab: Documente ─────────────────────────────────────────
 
+const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+const ACCEPTED_TYPES = ["application/pdf", "image/jpeg", "image/png", "image/webp"];
+
 function TabDocuments({ driver }: { driver: Driver }) {
   const { t } = useTranslation();
   const days = daysUntil(driver.licenseExpiry);
   const expired = days <= 0;
   const expiring = days > 0 && days <= 30;
 
+  const [docs, setDocs] = React.useState<DriverDocument[]>(() => loadDocuments(driver.id));
+  const [error, setError] = React.useState<string | null>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!e.target.files) return;
+    e.target.value = "";
+
+    if (!file) return;
+
+    if (!ACCEPTED_TYPES.includes(file.type)) {
+      setError(t("driverProfile.docs.errorType"));
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      setError(t("driverProfile.docs.errorSize"));
+      return;
+    }
+
+    setError(null);
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const base64 = (reader.result as string).split(",")[1];
+      const newDoc: DriverDocument = {
+        id: `doc-${Date.now()}`,
+        name: file.name,
+        mimeType: file.type,
+        size: file.size,
+        uploadedAt: new Date().toISOString(),
+        data: base64,
+      };
+      const updated = [...docs, newDoc];
+      setDocs(updated);
+      saveDocuments(driver.id, updated);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleDelete = (docId: string) => {
+    const updated = docs.filter((d) => d.id !== docId);
+    setDocs(updated);
+    saveDocuments(driver.id, updated);
+  };
+
+  const handleView = (doc: DriverDocument) => {
+    const dataUrl = `data:${doc.mimeType};base64,${doc.data}`;
+    const win = window.open();
+    if (!win) return;
+    if (doc.mimeType.startsWith("image/")) {
+      win.document.write(`<img src="${dataUrl}" style="max-width:100%;height:auto;" />`);
+    } else {
+      win.document.write(`<iframe src="${dataUrl}" style="width:100%;height:100vh;border:none;"></iframe>`);
+    }
+  };
+
   return (
     <div className="space-y-4">
+      {/* Card permis */}
       <Card>
         <CardHeader><CardTitle className="text-sm">{t("driverProfile.docs.license")}</CardTitle></CardHeader>
         <CardContent>
@@ -304,16 +406,84 @@ function TabDocuments({ driver }: { driver: Driver }) {
         </CardContent>
       </Card>
 
+      {/* Card upload */}
       <Card>
-        <CardHeader><CardTitle className="text-sm">{t("driverProfile.docs.uploadTitle")}</CardTitle></CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-8 text-center text-muted-foreground">
-            <FileText className="h-8 w-8 opacity-40" />
-            <p className="text-sm">{t("driverProfile.docs.uploadHint")}</p>
-            <Button variant="outline" size="sm" disabled>
-              {t("driverProfile.docs.uploadBtn")}
-            </Button>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-sm">{t("driverProfile.docs.uploadTitle")}</CardTitle>
+          <span className="text-xs text-muted-foreground">{t("driverProfile.docs.uploadHint")}</span>
+        </CardHeader>
+        <CardContent className="space-y-4">
+
+          {/* Zona upload */}
+          <div
+            className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-6 text-center text-muted-foreground cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors"
+            onClick={() => inputRef.current?.click()}
+          >
+            <Upload className="h-7 w-7 opacity-50" />
+            <div>
+              <p className="text-sm font-medium text-foreground">{t("driverProfile.docs.uploadBtn")}</p>
+              <p className="text-xs mt-0.5">{t("driverProfile.docs.uploadTypes")}</p>
+            </div>
+            <input
+              ref={inputRef}
+              type="file"
+              accept=".pdf,.jpg,.jpeg,.png,.webp"
+              className="hidden"
+              onChange={handleFileChange}
+            />
           </div>
+
+          {/* Eroare */}
+          {error && (
+            <div className="flex items-center gap-2 rounded-lg border border-red-300 bg-red-50 dark:bg-red-950 px-3 py-2 text-xs text-red-700 dark:text-red-400">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
+              {error}
+            </div>
+          )}
+
+          {/* Lista documente */}
+          {docs.length === 0 ? (
+            <p className="text-center text-xs text-muted-foreground py-2">
+              {t("driverProfile.docs.noDocs")}
+            </p>
+          ) : (
+            <div className="space-y-2">
+              {docs.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="flex items-center gap-3 rounded-lg border bg-muted/20 px-3 py-2"
+                >
+                  {getFileIcon(doc.mimeType)}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{doc.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatFileSize(doc.size)} · {new Date(doc.uploadedAt).toLocaleDateString("ro-RO")}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7"
+                      onClick={() => handleView(doc)}
+                      aria-label={t("driverProfile.docs.view")}
+                    >
+                      <Eye className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 text-red-500 hover:text-red-600"
+                      onClick={() => handleDelete(doc.id)}
+                      aria-label={t("driverProfile.docs.delete")}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
@@ -374,7 +544,6 @@ export default function DriverProfilePage() {
       </Header>
 
       <Main>
-        {/* Hero card */}
         <Card className="mb-6">
           <CardContent className={cn("pt-6", isMobile ? "flex flex-col items-center text-center gap-3" : "flex items-center gap-6")}>
             <DriverAvatar name={driver.name} size="lg" />
@@ -396,7 +565,6 @@ export default function DriverProfilePage() {
           </CardContent>
         </Card>
 
-        {/* Tab-uri */}
         <Tabs defaultValue="info">
           <TabsList className={cn("mb-4", isMobile ? "grid grid-cols-4 w-full h-auto p-1" : "")}>
             {tabs.map((tab) => (
@@ -417,15 +585,12 @@ export default function DriverProfilePage() {
           <TabsContent value="info">
             <TabInfo driver={driver} truck={truck} />
           </TabsContent>
-
           <TabsContent value="trips">
             <TabTrips trips={trips} orders={orders} isMobile={isMobile} />
           </TabsContent>
-
           <TabsContent value="stats">
             <TabStats trips={trips} isMobile={isMobile} />
           </TabsContent>
-
           <TabsContent value="docs">
             <TabDocuments driver={driver} />
           </TabsContent>
