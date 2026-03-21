@@ -263,7 +263,7 @@ function WeekCalendar({
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(7, minmax(0, 1fr))",
-          gap: "4px",
+          gap: "3px",
         }}
       >
         {days.map((day, i) => {
@@ -273,23 +273,23 @@ function WeekCalendar({
           return (
             <div
               key={ymd}
-              className={`min-h-[110px] sm:min-h-[140px] rounded-lg border p-1 sm:p-1.5 flex flex-col min-w-0 overflow-hidden ${isToday ? "border-primary bg-primary/5" : "border-border bg-card"}`}
+              className={`min-h-[90px] sm:min-h-[140px] rounded-lg border p-0.5 sm:p-1.5 flex flex-col min-w-0 overflow-hidden ${isToday ? "border-primary bg-primary/5" : "border-border bg-card"}`}
             >
-              <div className="text-center mb-1">
+              <div className="text-center mb-0.5">
                 <div
-                  className={`text-[9px] sm:text-[11px] uppercase leading-none ${isToday ? "text-primary font-semibold" : "text-muted-foreground"}`}
+                  className={`text-[8px] sm:text-[11px] uppercase leading-none ${isToday ? "text-primary font-semibold" : "text-muted-foreground"}`}
                 >
                   {DAY_NAMES[i]}
                 </div>
                 <div
-                  className={`text-[11px] sm:text-sm font-semibold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center mx-auto mt-0.5 ${isToday ? "bg-primary text-primary-foreground" : ""}`}
+                  className={`text-[10px] sm:text-sm font-semibold rounded-full w-4 h-4 sm:w-6 sm:h-6 flex items-center justify-center mx-auto mt-0.5 ${isToday ? "bg-primary text-primary-foreground" : ""}`}
                 >
                   {day.getDate()}
                 </div>
               </div>
               <div className="flex-1 min-w-0 overflow-hidden">
                 {dayTrips.length === 0 ? (
-                  <div className="text-[9px] text-muted-foreground text-center mt-1">
+                  <div className="text-[8px] text-muted-foreground text-center mt-1">
                     —
                   </div>
                 ) : (
@@ -300,17 +300,17 @@ function WeekCalendar({
                         setSelectedTrip(trip);
                         setDialogOpen(true);
                       }}
-                      className={`w-full text-left rounded border p-0.5 sm:p-1 mb-0.5 hover:opacity-80 transition-opacity ${STATUS_CARD_CLASSES[trip.status]}`}
+                      className={`w-full text-left rounded border p-0.5 mb-0.5 hover:opacity-80 transition-opacity ${STATUS_CARD_CLASSES[trip.status]}`}
                     >
                       <div className="flex items-center gap-0.5 min-w-0">
                         <span
                           className={`h-1.5 w-1.5 rounded-full shrink-0 ${STATUS_DOT_CLASSES[trip.status]}`}
                         />
-                        <span className="text-[9px] sm:text-[11px] font-medium truncate leading-snug block w-full">
+                        <span className="text-[8px] sm:text-[11px] font-medium truncate leading-snug block w-full">
                           {trip.driver?.name?.split(" ")[0] ?? "—"}
                         </span>
                       </div>
-                      <div className="text-[8px] sm:text-[10px] text-muted-foreground truncate leading-snug block">
+                      <div className="text-[7px] sm:text-[10px] text-muted-foreground truncate leading-snug block">
                         {t(`trips.status.${trip.status}`)}
                       </div>
                     </button>
@@ -367,7 +367,7 @@ export default function TripsCalendarPage() {
       <Main>
         <Card>
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="flex items-center justify-between gap-2 flex-wrap mb-4">
               <CardTitle className="text-base md:text-lg">
                 {t("tripsCalendar.title")}
               </CardTitle>
@@ -376,17 +376,42 @@ export default function TripsCalendarPage() {
                 onValueChange={(v) => {
                   if (v === "table") navigate({ to: "/transport/trips" });
                   if (v === "map") navigate({ to: "/transport/trips-map" });
+                  if (v === "dnd")
+                    navigate({ to: "/transport/trips-calendar-dnd" });
                 }}
               >
                 <TabsList>
                   <TabsTrigger value="table">
-                    {t("tripsCalendar.tabs.table")}
+                    <span className="hidden sm:inline">
+                      {t("tripsCalendar.tabs.table")}
+                    </span>
+                    <span className="sm:hidden">
+                      {t("tripsCalendar.tabs.tableShort")}
+                    </span>
                   </TabsTrigger>
                   <TabsTrigger value="calendar">
-                    {t("tripsCalendar.tabs.calendar")}
+                    <span className="hidden sm:inline">
+                      {t("tripsCalendar.tabs.calendar")}
+                    </span>
+                    <span className="sm:hidden">
+                      {t("tripsCalendar.tabs.calendarShort")}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger value="dnd">
+                    <span className="hidden sm:inline">
+                      {t("tripsDnd.tabs.dnd")}
+                    </span>
+                    <span className="sm:hidden">
+                      {t("tripsDnd.tabs.dndShort")}
+                    </span>
                   </TabsTrigger>
                   <TabsTrigger value="map">
-                    {t("tripsMap.tabs.map")}
+                    <span className="hidden sm:inline">
+                      {t("tripsMap.tabs.map")}
+                    </span>
+                    <span className="sm:hidden">
+                      {t("tripsMap.tabs.mapShort")}
+                    </span>
                   </TabsTrigger>
                 </TabsList>
               </Tabs>

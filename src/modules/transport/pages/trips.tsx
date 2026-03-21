@@ -142,6 +142,7 @@ type TripFormValues = {
   fuelCost: number;
   revenue: number;
   status: "planned" | "in_desfasurare" | "finalizata" | "anulata";
+  unscheduled?: boolean;
 };
 
 function buildSchema(t: ReturnType<typeof useTranslation>["t"]) {
@@ -150,12 +151,8 @@ function buildSchema(t: ReturnType<typeof useTranslation>["t"]) {
       orderId: z.string().min(1, t("trips.validation.orderRequired")),
       driverId: z.string().min(1, t("trips.validation.driverRequired")),
       truckId: z.string().min(1, t("trips.validation.truckRequired")),
-      departureDate: z
-        .string()
-        .min(1, t("trips.validation.departureDateRequired")),
-      estimatedArrivalDate: z
-        .string()
-        .min(1, t("trips.validation.arrivalDateRequired")),
+      departureDate: z.string().optional().default(""),
+      estimatedArrivalDate: z.string().optional().default(""),
       kmLoaded: z.number().positive(t("trips.validation.kmLoadedPositive")),
       kmEmpty: z.number().positive(t("trips.validation.kmEmptyPositive")),
       fuelCost: z.number().min(0, t("trips.validation.fuelCostMin")),
@@ -761,6 +758,7 @@ export default function TripsPage() {
       fuelCost: 0,
       revenue: 0,
       status: "planned",
+      unscheduled: false,
     },
   });
 
@@ -770,13 +768,14 @@ export default function TripsPage() {
         orderId: editingTrip.orderId,
         driverId: editingTrip.driverId,
         truckId: editingTrip.truckId,
-        departureDate: editingTrip.departureDate,
-        estimatedArrivalDate: editingTrip.estimatedArrivalDate,
+        departureDate: editingTrip.departureDate ?? "",
+        estimatedArrivalDate: editingTrip.estimatedArrivalDate ?? "",
         kmLoaded: editingTrip.kmLoaded,
         kmEmpty: editingTrip.kmEmpty,
         fuelCost: editingTrip.fuelCost,
         revenue: editingTrip.revenue ?? 0,
         status: editingTrip.status,
+        unscheduled: !editingTrip.departureDate,
       });
     } else if (dialogOpen && !editingTrip) {
       form.reset({
@@ -790,6 +789,7 @@ export default function TripsPage() {
         fuelCost: 0,
         revenue: 0,
         status: "planned",
+        unscheduled: false,
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -868,17 +868,42 @@ export default function TripsPage() {
                   if (v === "calendar")
                     navigate({ to: "/transport/trips-calendar" });
                   if (v === "map") navigate({ to: "/transport/trips-map" });
+                  if (v === "dnd")
+                    navigate({ to: "/transport/trips-calendar-dnd" });
                 }}
               >
                 <TabsList>
                   <TabsTrigger value="table">
-                    {t("tripsCalendar.tabs.table")}
+                    <span className="hidden sm:inline">
+                      {t("tripsCalendar.tabs.table")}
+                    </span>
+                    <span className="sm:hidden">
+                      {t("tripsCalendar.tabs.tableShort")}
+                    </span>
                   </TabsTrigger>
                   <TabsTrigger value="calendar">
-                    {t("tripsCalendar.tabs.calendar")}
+                    <span className="hidden sm:inline">
+                      {t("tripsCalendar.tabs.calendar")}
+                    </span>
+                    <span className="sm:hidden">
+                      {t("tripsCalendar.tabs.calendarShort")}
+                    </span>
+                  </TabsTrigger>
+                  <TabsTrigger value="dnd">
+                    <span className="hidden sm:inline">
+                      {t("tripsDnd.tabs.dnd")}
+                    </span>
+                    <span className="sm:hidden">
+                      {t("tripsDnd.tabs.dndShort")}
+                    </span>
                   </TabsTrigger>
                   <TabsTrigger value="map">
-                    {t("tripsMap.tabs.map")}
+                    <span className="hidden sm:inline">
+                      {t("tripsMap.tabs.map")}
+                    </span>
+                    <span className="sm:hidden">
+                      {t("tripsMap.tabs.mapShort")}
+                    </span>
                   </TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -1293,48 +1318,75 @@ export default function TripsPage() {
                   </div>
                 </div>
 
-                <div className="grid gap-3 sm:grid-cols-2">
-                  <div className="grid gap-1.5 min-w-0">
-                    <Label>{t("trips.fields.departureDate")}</Label>
-                    <FormField
-                      control={form.control}
-                      name="departureDate"
-                      render={({ field }) => (
-                        <FormItem className="min-w-0">
-                          <FormControl>
-                            <Input
-                              type="date"
-                              className="w-full min-w-0"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                  <div className="grid gap-1.5 min-w-0">
-                    <Label>{t("trips.fields.arrivalDate")}</Label>
-                    <FormField
-                      control={form.control}
-                      name="estimatedArrivalDate"
-                      render={({ field }) => (
-                        <FormItem className="min-w-0">
-                          <FormControl>
-                            <Input
-                              type="date"
-                              className="w-full min-w-0"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="unscheduled-check"
+                    checked={form.watch("unscheduled") ?? false}
+                    onChange={(e) => {
+                      form.setValue("unscheduled", e.target.checked);
+                      if (e.target.checked) {
+                        form.setValue("departureDate", "");
+                        form.setValue("estimatedArrivalDate", "");
+                      } else {
+                        form.setValue("departureDate", today);
+                        form.setValue("estimatedArrivalDate", today);
+                      }
+                    }}
+                    className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
+                  />
+                  <Label
+                    htmlFor="unscheduled-check"
+                    className="cursor-pointer text-sm font-normal"
+                  >
+                    {t("trips.fields.unscheduled")}
+                  </Label>
                 </div>
 
-                <div className="grid gap-3 grid-cols-2 sm:grid-cols-4">
+                {!form.watch("unscheduled") && (
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="grid gap-1.5 min-w-0">
+                      <Label>{t("trips.fields.departureDate")}</Label>
+                      <FormField
+                        control={form.control}
+                        name="departureDate"
+                        render={({ field }) => (
+                          <FormItem className="min-w-0">
+                            <FormControl>
+                              <Input
+                                type="date"
+                                className="w-full min-w-0"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                    <div className="grid gap-1.5 min-w-0">
+                      <Label>{t("trips.fields.arrivalDate")}</Label>
+                      <FormField
+                        control={form.control}
+                        name="estimatedArrivalDate"
+                        render={({ field }) => (
+                          <FormItem className="min-w-0">
+                            <FormControl>
+                              <Input
+                                type="date"
+                                className="w-full min-w-0"
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-3">
                   <div className="grid gap-1.5 min-w-0">
                     <Label>{t("trips.fields.kmLoaded")}</Label>
                     <FormField
@@ -1476,7 +1528,6 @@ export default function TripsPage() {
                     />
                   </div>
                 </div>
-
                 {editingTrip && (
                   <div className="grid gap-1.5 min-w-0">
                     <Label>{t("trips.fields.status")}</Label>

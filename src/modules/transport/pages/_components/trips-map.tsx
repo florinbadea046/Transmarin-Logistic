@@ -196,16 +196,43 @@ export default function TripsMapPage() {
                 if (v === "table") navigate({ to: "/transport/trips" });
                 if (v === "calendar")
                   navigate({ to: "/transport/trips-calendar" });
+                if (v === "dnd")
+                  navigate({ to: "/transport/trips-calendar-dnd" });
               }}
             >
               <TabsList>
                 <TabsTrigger value="table">
-                  {t("tripsCalendar.tabs.table")}
+                  <span className="hidden sm:inline">
+                    {t("tripsCalendar.tabs.table")}
+                  </span>
+                  <span className="sm:hidden">
+                    {t("tripsCalendar.tabs.tableShort")}
+                  </span>
                 </TabsTrigger>
                 <TabsTrigger value="calendar">
-                  {t("tripsCalendar.tabs.calendar")}
+                  <span className="hidden sm:inline">
+                    {t("tripsCalendar.tabs.calendar")}
+                  </span>
+                  <span className="sm:hidden">
+                    {t("tripsCalendar.tabs.calendarShort")}
+                  </span>
                 </TabsTrigger>
-                <TabsTrigger value="map">{t("tripsMap.tabs.map")}</TabsTrigger>
+                <TabsTrigger value="dnd">
+                  <span className="hidden sm:inline">
+                    {t("tripsDnd.tabs.dnd")}
+                  </span>
+                  <span className="sm:hidden">
+                    {t("tripsDnd.tabs.dndShort")}
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="map">
+                  <span className="hidden sm:inline">
+                    {t("tripsMap.tabs.map")}
+                  </span>
+                  <span className="sm:hidden">
+                    {t("tripsMap.tabs.mapShort")}
+                  </span>
+                </TabsTrigger>
               </TabsList>
             </Tabs>
           </CardHeader>
