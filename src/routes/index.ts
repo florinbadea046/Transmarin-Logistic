@@ -18,6 +18,7 @@ import TransportPage from "@/modules/transport/index";
 import OrdersPage from "@/modules/transport/pages/orders";
 import TripsPage from "@/modules/transport/pages/trips";
 import TripsCalendarPage from "@/modules/transport/pages/_components/trips-calendar";
+import TripsCalendarDndPage from "@/modules/transport/pages/_components/trips-calendar-dnd";
 import TripsMapPage from "@/modules/transport/pages/_components/trips-map";
 import DriversPage from "@/modules/transport/pages/drivers";
 import DriverProfilePage from "@/modules/transport/pages/_components/driver-profile";
@@ -95,6 +96,7 @@ const ordersRoute = createRoute({ getParentRoute: () => authenticatedRoute, path
 const tripsRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/transport/trips", component: TripsPage });
 const tripsMapRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/transport/trips-map", component: TripsMapPage });
 const tripsCalendarRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/transport/trips-calendar", component: TripsCalendarPage });
+const tripsCalendarDndRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/transport/trips-calendar-dnd", component: TripsCalendarDndPage });
 const driversRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/transport/drivers", component: DriversPage });
 const driverProfileRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/transport/drivers/$driverId", component: DriverProfilePage });
 
@@ -148,6 +150,7 @@ const routeTree = rootRoute.addChildren([
     tripsRoute,
     tripsMapRoute,
     tripsCalendarRoute,
+    tripsCalendarDndRoute,
     driversRoute,
     driverProfileRoute,
     // Fleet
