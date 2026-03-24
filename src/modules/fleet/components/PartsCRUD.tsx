@@ -83,9 +83,20 @@ export function PartsCRUD() {
   const [open, setOpen] = useState(false);
   const [editingPart, setEditingPart] = useState<Part | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+<<<<<<< HEAD
   const [stockFilter, setStockFilter] = useState<"in_stock" | "low_stock" | "out_of_stock" | null>(null);
   const [searchText, setSearchText] = useState("");
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: 10 });
+=======
+  const [stockFilter, setStockFilter] = useState<
+    "in_stock" | "low_stock" | "out_of_stock" | null
+  >(null);
+  const [searchText, setSearchText] = useState("");
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+>>>>>>> 97c816c (fix: properly resolved merge conflicts in PartsCRUD)
 
   const form = useForm<PartFormValues>({
     resolver: zodResolver(partSchema),
@@ -143,12 +154,22 @@ export function PartsCRUD() {
           !part.name.toLowerCase().includes(search) &&
           !part.code.toLowerCase().includes(search) &&
           !part.supplier.toLowerCase().includes(search)
+<<<<<<< HEAD
         ) return false;
+=======
+        )
+          return false;
+>>>>>>> 97c816c (fix: properly resolved merge conflicts in PartsCRUD)
       }
       if (categoryFilter && part.category !== categoryFilter) return false;
       if (stockFilter) {
         const low = isLowStock(part);
+<<<<<<< HEAD
         if (stockFilter === "in_stock" && part.quantity > 0 && !low) return true;
+=======
+        if (stockFilter === "in_stock" && part.quantity > 0 && !low)
+          return true;
+>>>>>>> 97c816c (fix: properly resolved merge conflicts in PartsCRUD)
         if (stockFilter === "low_stock" && low) return true;
         if (stockFilter === "out_of_stock" && part.quantity === 0) return true;
         return false;
@@ -160,6 +181,7 @@ export function PartsCRUD() {
   const columns: ColumnDef<Part>[] = [
     {
       accessorKey: "name",
+<<<<<<< HEAD
       header: ({ column }) => <DataTableColumnHeader column={column} title="Nume" />,
     },
     {
@@ -174,6 +196,31 @@ export function PartsCRUD() {
     {
       accessorKey: "quantity",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Cantitate" />,
+=======
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Nume" />
+      ),
+    },
+    {
+      accessorKey: "code",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Cod" />
+      ),
+    },
+    {
+      accessorKey: "category",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Categorie" />
+      ),
+      cell: ({ row }) =>
+        CATEGORY_LABELS[row.original.category] ?? row.original.category,
+    },
+    {
+      accessorKey: "quantity",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Cantitate" />
+      ),
+>>>>>>> 97c816c (fix: properly resolved merge conflicts in PartsCRUD)
       cell: ({ row }) => (
         <Badge variant={isLowStock(row.original) ? "destructive" : "secondary"}>
           {row.original.quantity} buc.
@@ -182,6 +229,7 @@ export function PartsCRUD() {
     },
     {
       accessorKey: "minStock",
+<<<<<<< HEAD
       header: ({ column }) => <DataTableColumnHeader column={column} title="Stoc minim" />,
     },
     {
@@ -192,15 +240,53 @@ export function PartsCRUD() {
     {
       accessorKey: "supplier",
       header: ({ column }) => <DataTableColumnHeader column={column} title="Furnizor" />,
+=======
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Stoc minim" />
+      ),
+    },
+    {
+      accessorKey: "unitPrice",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Preț unitar" />
+      ),
+      cell: ({ row }) => (
+        <span>{row.original.unitPrice.toLocaleString("ro-RO")} RON</span>
+      ),
+    },
+    {
+      accessorKey: "supplier",
+      header: ({ column }) => (
+        <DataTableColumnHeader column={column} title="Furnizor" />
+      ),
+>>>>>>> 97c816c (fix: properly resolved merge conflicts in PartsCRUD)
     },
     {
       id: "actions",
       header: "Acțiuni",
       cell: ({ row }) => (
         <div className="flex flex-wrap gap-2 justify-center">
+<<<<<<< HEAD
           <Button size="sm" variant="outline" onClick={() => handleOpen(row.original)}>Editează</Button>
           <AllocatePart part={row.original} />
           <Button size="sm" variant="destructive" onClick={() => handleDelete(row.original.id)}>Șterge</Button>
+=======
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => handleOpen(row.original)}
+          >
+            Editează
+          </Button>
+          <AllocatePart part={row.original} />
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={() => handleDelete(row.original.id)}
+          >
+            Șterge
+          </Button>
+>>>>>>> 97c816c (fix: properly resolved merge conflicts in PartsCRUD)
         </div>
       ),
     },
@@ -216,7 +302,14 @@ export function PartsCRUD() {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
+<<<<<<< HEAD
   const categories = useMemo(() => [...new Set(parts.map((p) => p.category))], [parts]);
+=======
+  const categories = useMemo(
+    () => [...new Set(parts.map((p) => p.category))],
+    [parts],
+  );
+>>>>>>> 97c816c (fix: properly resolved merge conflicts in PartsCRUD)
 
   return (
     <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -247,7 +340,13 @@ export function PartsCRUD() {
             <SelectContent>
               <SelectItem value="_ALL_">Toate</SelectItem>
               {categories.map((c) => (
+<<<<<<< HEAD
                 <SelectItem key={c} value={c}>{CATEGORY_LABELS[c] ?? c}</SelectItem>
+=======
+                <SelectItem key={c} value={c}>
+                  {CATEGORY_LABELS[c] ?? c}
+                </SelectItem>
+>>>>>>> 97c816c (fix: properly resolved merge conflicts in PartsCRUD)
               ))}
             </SelectContent>
           </Select>
@@ -270,6 +369,7 @@ export function PartsCRUD() {
           </Select>
         </div>
       </div>
+<<<<<<< HEAD
 
       <div className="rounded-md border overflow-x-auto">
         <Table>
@@ -319,6 +419,65 @@ export function PartsCRUD() {
       </div>
 
       <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
+=======
+
+      <div className="rounded-md border overflow-x-auto">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+
+      <div className="flex items-center justify-between py-2">
+        <DataTablePagination table={table} />
+        <div className="flex items-center space-x-2">
+          <Label htmlFor="page-size-select">Rânduri / pagină</Label>
+          <Select
+            value={pagination.pageSize.toString()}
+            onValueChange={(v) => table.setPageSize(Number(v))}
+          >
+            <SelectTrigger id="page-size-select" className="w-[76px]">
+              <SelectValue placeholder={pagination.pageSize.toString()} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <Dialog
+        open={open}
+        onOpenChange={(v) => {
+          if (!v) handleClose();
+        }}
+      >
+>>>>>>> 97c816c (fix: properly resolved merge conflicts in PartsCRUD)
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{editingPart ? "Editează piesă" : "Adaugă piesă"}</DialogTitle>
