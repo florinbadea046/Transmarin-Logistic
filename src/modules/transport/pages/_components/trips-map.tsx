@@ -197,7 +197,7 @@ export default function TripsMapPage() {
                 if (v === "calendar")
                   navigate({ to: "/transport/trips-calendar" });
                 if (v === "dnd")
-                  navigate({ to: "/transport/trips-calendar" });
+                  navigate({ to: "/transport/trips-calendar-dnd" });
               }}
             >
               <TabsList>
