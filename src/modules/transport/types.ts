@@ -9,7 +9,7 @@ export interface Order {
   origin: string;
   destination: string;
   date: string;
-  status: "pending" | "assigned" | "in_transit" | "delivered" | "cancelled";
+  status: "În așteptare" | "Atribuit" | "În tranzit" | "Livrat" | "Anulat";
   weight?: number; // tone
   notes?: string;
 }
@@ -23,7 +23,7 @@ export interface Trip {
   kmLoaded: number;
   kmEmpty: number;
   fuelCost: number;
-  status: "planned" | "active" | "completed";
+  status: "Planificat" | "Activ" | "Finalizat";
 }
 
 export interface Driver {
@@ -31,7 +31,7 @@ export interface Driver {
   name: string;
   phone: string;
   licenseExpiry: string;
-  status: "available" | "on_trip" | "off_duty";
+  status: "Disponibil" | "În cursă" | "Indisponibil";
 }
 
 export interface Truck {
@@ -41,7 +41,7 @@ export interface Truck {
   model: string;
   year: number;
   mileage: number;
-  status: "available" | "on_trip" | "in_service";
+  status: "Disponibil" | "În cursă" | "În cursă";
   itpExpiry: string;
   rcaExpiry: string;
   vignetteExpiry: string;
