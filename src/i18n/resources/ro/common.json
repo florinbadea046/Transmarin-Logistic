@@ -405,7 +405,8 @@
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil (RON)",
       "status": "Status",
-      "revenue": "Venit estimat (RON)"
+      "revenue": "Venit estimat (RON)",
+      "unscheduled": "Cursa neprogramata (fara data)"
     },
     "placeholders": {
       "order": "Selecteaza o comanda",
@@ -531,7 +532,9 @@
     "title": "Calendar Curse",
     "tabs": {
       "table": "Tabel",
-      "calendar": "Calendar"
+      "tableShort": "Tab",
+      "calendar": "Calendar",
+      "calendarShort": "Cal"
     },
     "prevWeek": "Saptamana anterioara",
     "nextWeek": "Saptamana urmatoare",
@@ -550,10 +553,32 @@
       "desc": "Informatii complete despre cursa"
     }
   },
+  "tripsDnd": {
+    "title": "Calendar Drag & Drop",
+    "today": "Azi",
+    "tabs": {
+      "dnd": "Drag & Drop",
+      "dndShort": "DnD"
+    },
+    "sidebar": {
+      "title": "Curse neprogramate",
+      "hint": "Trage cursele in calendar",
+      "empty": "Nicio cursa neprogramata"
+    },
+    "confirmMove": {
+      "title": "Confirma mutarea",
+      "desc": "Muti cursa {{tripId}} pe {{date}}?",
+      "confirm": "Confirma"
+    },
+    "toast": {
+      "moved": "Cursa mutata cu succes!"
+    }
+  },
   "tripsMap": {
     "title": "Harta Curse Active",
     "tabs": {
-      "map": "Harta"
+      "map": "Harta",
+      "mapShort": "Map"
     },
     "filterLabel": "Filtrare dupa status",
     "clearFilter": "Sterge filtrul",

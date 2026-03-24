@@ -465,7 +465,7 @@ function ImportDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[760px] max-h-[90vh] flex flex-col">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-[760px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t("orders.import.title")}</DialogTitle>
           <DialogDescription className="sr-only">
@@ -745,7 +745,7 @@ function OrderDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[480px]">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-[480px]">
         <DialogHeader>
           <DialogTitle>{t("orders.detail.title")}</DialogTitle>
           <DialogDescription className="sr-only">
@@ -928,7 +928,7 @@ function OrderFormDialog({
       }}
     >
       {triggerButton && <DialogTrigger asChild>{triggerButton}</DialogTrigger>}
-      <DialogContent className="max-w-[640px]">
+      <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription className="sr-only">
