@@ -7,6 +7,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { CalendarDropdown } from "./calendar-dropdown";
 
 type Props = {
   selected: Date | undefined;
@@ -41,8 +42,9 @@ export function ExpiryDatePicker({
           captionLayout="dropdown"
           selected={selected}
           onSelect={onSelect}
-          toYear={new Date().getFullYear() + 20}
+          endMonth={new Date(new Date().getFullYear() + 20, 11)}
           disabled={(date: Date) => date < new Date("1900-01-01")}
+          components={{ Dropdown: CalendarDropdown }}
         />
       </PopoverContent>
     </Popover>

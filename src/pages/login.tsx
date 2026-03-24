@@ -2,7 +2,7 @@
 // Pagina de Login — autentificare simulată cu selectare rol
 // ──────────────────────────────────────────────────────────
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Truck } from "lucide-react";
 import { useAuth, type UserRole } from "@/context/auth-provider";

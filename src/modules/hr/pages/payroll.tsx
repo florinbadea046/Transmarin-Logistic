@@ -30,29 +30,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DataTablePagination } from "@/components/data-table/pagination";
-import { getCollection } from "@/utils/local-storage";
-import { STORAGE_KEYS, EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
-import type { Employee, Bonus } from "@/modules/hr/types";
-import { BonusTableRow, type BonusRow } from "../components/bonus-row";
+import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
+import type { Bonus } from "@/modules/hr/types";
+import { BonusTableRow } from "../components/bonus-row";
 import BonusDialog from "../components/bonus-dialog";
+import { usePayrollData } from "../hooks/use-payroll-data";
+import { BONUS_TYPE_LABELS, MONTH_OPTIONS, currentMonth } from "../payroll/payroll-shared";
 import {
   payrollColumns,
   bonusColumns,
-  MONTH_OPTIONS,
-  currentMonth,
-  BONUS_TYPE_LABELS,
-  type PayrollRow,
 } from "../components/payroll-columns";
 
 export default function PayrollPage() {
-  const [employees, setEmployees] = React.useState<Employee[]>(() =>
-    getCollection<Employee>(STORAGE_KEYS.employees),
-  );
-  const [bonuses, setBonuses] = React.useState<Bonus[]>(() =>
-    getCollection<Bonus>(STORAGE_KEYS.bonuses),
-  );
-
   const [selectedMonth, setSelectedMonth] = React.useState(currentMonth);
+  const { employees, payrollRows, bonusRows, refreshData } =
+    usePayrollData(selectedMonth);
+
   const [payrollDept, setPayrollDept] = React.useState("Toate");
   const [bonusTypeFilter, setBonusTypeFilter] = React.useState("Toate");
   const [addBonusOpen, setAddBonusOpen] = React.useState(false);
@@ -66,45 +59,6 @@ export default function PayrollPage() {
   const [bonusFilters, setBonusFilters] = React.useState<ColumnFiltersState>(
     [],
   );
-
-  const handleRefresh = () => {
-    setEmployees(getCollection<Employee>(STORAGE_KEYS.employees));
-    setBonuses(getCollection<Bonus>(STORAGE_KEYS.bonuses));
-  };
-
-  const payrollRows = React.useMemo<PayrollRow[]>(() => {
-    return employees.map((emp) => {
-      const empBonuses = bonuses.filter(
-        (b) => b.employeeId === emp.id && b.date.startsWith(selectedMonth),
-      );
-      const sum = (type: Bonus["type"]) =>
-        empBonuses.filter((b) => b.type === type).reduce((s, b) => s + b.amount, 0);
-      const diurna = sum("diurna");
-      const bonusuri = sum("bonus");
-      const amenzi = sum("amenda");
-      const oreSuplimentare = sum("ore_suplimentare");
-      return {
-        id: emp.id,
-        name: emp.name,
-        department: emp.department,
-        salary: emp.salary,
-        diurna,
-        bonusuri,
-        amenzi,
-        oreSuplimentare,
-        totalNet: emp.salary + diurna + bonusuri + oreSuplimentare - amenzi,
-      };
-    });
-  }, [employees, bonuses, selectedMonth]);
-
-  const bonusRows = React.useMemo<BonusRow[]>(() => {
-    return bonuses
-      .filter((b) => b.date.startsWith(selectedMonth))
-      .map((b) => ({
-        ...b,
-        employeeName: employees.find((e) => e.id === b.employeeId)?.name ?? "—",
-      }));
-  }, [employees, bonuses, selectedMonth]);
 
   const payrollTable = useReactTable({
     data: payrollRows,
@@ -280,7 +234,7 @@ export default function PayrollPage() {
                         key={row.id}
                         row={row}
                         employees={employees}
-                        onRefresh={handleRefresh}
+                        onRefresh={refreshData}
                       />
                     ))
                   ) : (
@@ -305,7 +259,7 @@ export default function PayrollPage() {
           employees={employees}
           open={addBonusOpen}
           onOpenChange={setAddBonusOpen}
-          onSave={handleRefresh}
+          onSave={refreshData}
         />
       </Main>
     </>

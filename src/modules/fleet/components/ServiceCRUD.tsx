@@ -55,9 +55,13 @@ const createEmptyForm = () => ({
   partsUsed: [] as FormPart[],
 });
 
-export function ServiceCRUD() {
-  const [records, setRecords] = useState<ServiceRecord[]>([]);
-  const [trucks, setTrucks] = useState<Truck[]>([]);
+interface ServiceCRUDProps {
+  records: ServiceRecord[];
+  trucks: Truck[];
+  onRecordsChange: (updated: ServiceRecord[]) => void;
+}
+
+export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDProps) {
   const [parts, setParts] = useState<Part[]>([]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(createEmptyForm());
@@ -68,13 +72,11 @@ export function ServiceCRUD() {
   const [filterTo, setFilterTo] = useState("");
 
   useEffect(() => {
-    setRecords(getCollection<ServiceRecord>(STORAGE_KEYS.serviceRecords));
-    setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
     setParts(getCollection<Part>(STORAGE_KEYS.parts));
   }, []);
 
   const persist = (data: ServiceRecord[]) => {
-    setRecords(data);
+    onRecordsChange(data);
     localStorage.setItem(STORAGE_KEYS.serviceRecords, JSON.stringify(data));
   };
 
