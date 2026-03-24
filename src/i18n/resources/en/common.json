@@ -16,7 +16,7 @@
     "close": "Close",
     "noResults": "No orders found for the current filter.",
     "duplicate": "An identical order already exists (same data).",
-    "confirmDelete": "Are you sure you want to delete the order for {{name}} ({{origin}} → {{destination}}, {{date}})? This action is irreversible.",
+    "confirmDelete": "Are you sure you want to delete the order for {{name}} ({{origin}} - {{destination}}, {{date}})? This action is irreversible.",
     "confirmDeleteFallback": "Are you sure you want to delete this order?",
     "fields": {
       "client": "Client",
@@ -100,7 +100,98 @@
       "confirm": "Import {{count}} row(s)",
       "toastSuccess": "{{count}} order(s) imported successfully.",
       "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
-      "toastAllSkipped": "No orders imported — all rows are duplicates."
+      "toastAllSkipped": "No orders imported - all rows are duplicates."
+    }
+  },
+  "employees": {
+    "title": "Employees",
+    "listTitle": "Employee List",
+    "count_one": "{{count}} employee",
+    "count_other": "{{count}} employees",
+    "empty": "No employees found.",
+    "fields": {
+      "name": "Name",
+      "position": "Position",
+      "department": "Department",
+      "phone": "Phone",
+      "email": "Email",
+      "hireDate": "Hire Date",
+      "salary": "Salary",
+      "salaryExport": "Salary (RON)"
+    },
+    "placeholders": {
+      "search": "Search by name, position or email..."
+    },
+    "filters": {
+      "all": "All"
+    },
+    "departments": {
+      "dispatch": "Dispatch",
+      "transport": "Transport",
+      "service": "Service",
+      "accounting": "Accounting",
+      "administrative": "Administrative"
+    },
+    "actions": {
+      "add": "Add Employee",
+      "edit": "Edit",
+      "delete": "Delete",
+      "documents": "Documents",
+      "save": "Save",
+      "cancel": "Cancel",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV",
+      "menu": "Employee actions"
+    },
+    "dialog": {
+      "addTitle": "Add Employee",
+      "editTitle": "Edit employee"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "positionRequired": "Position is required",
+      "departmentRequired": "Department is required",
+      "phoneInvalid": "Invalid phone",
+      "emailInvalid": "Invalid email",
+      "hireDateRequired": "Hire date is required",
+      "salaryRequired": "Salary is required"
+    },
+    "delete": {
+      "title": "Confirm deletion",
+      "description": "Are you sure you want to delete employee {{name}}?"
+    },
+    "documents": {
+      "title": "Documents - {{name}}"
+    },
+    "toast": {
+      "updated": "Employee updated successfully",
+      "deleted": "Employee deleted successfully",
+      "deleteBlockedActiveTrip": "Employee cannot be deleted: assigned as driver on an active trip.",
+      "deleteBlockedFutureLeave": "Employee cannot be deleted: has approved leave in the future."
+    },
+    "export": {
+      "pdfTitle": "Employee List",
+      "filename": "employees"
+    },
+    "import": {
+      "title": "Import Employees from CSV",
+      "button": "Import CSV",
+      "dropzone": "Drag & drop a CSV file or click to browse",
+      "dropzoneHint": "Accepted columns: Name, Position, Department, Phone, Email, HireDate (yyyy-MM-dd), Salary (RON)",
+      "validCount": "{{count}} valid row(s)",
+      "invalidCount": "{{count}} invalid row(s)",
+      "duplicateCount": "{{count}} duplicate(s)",
+      "errorsCol": "Errors",
+      "errorRequired": "Field {{field}} is required",
+      "errorDate": "Date must be in format yyyy-MM-dd",
+      "errorSalary": "Salary must be a positive number",
+      "duplicate": "Duplicate (name + department)",
+      "confirm": "Import {{count}} row(s)",
+      "toastSuccess": "{{count}} employee(s) imported successfully.",
+      "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
+      "toastAllSkipped": "No employees imported - all rows are duplicates."
     }
   },
   "drivers": {
@@ -171,7 +262,7 @@
     "toastDeleted": "Truck has been deleted.",
     "confirmDelete": "This action is irreversible. The truck will be permanently deleted and the associated driver will be automatically unassigned.",
     "confirmDeleteTitle": "Are you sure?",
-    "assignTitle": "Assign Driver — {{plateNumber}}",
+    "assignTitle": "Assign Driver - {{plateNumber}}",
     "toastAssigned": "Assignment saved.",
     "toastUnassigned": "Truck has been unassigned.",
     "fields": {
@@ -287,7 +378,7 @@
     "save": "Save Changes",
     "saveNew": "Add Trip",
     "cancel": "Cancel",
-    "noResults": "No trips found. Click \"New Trip\" to add one.",
+    "noResults": "No trips found. Click New Trip to add one.",
     "columns": {
       "nr": "No.",
       "order": "Order",
@@ -300,7 +391,8 @@
       "kmLoaded": "Loaded Km",
       "kmEmpty": "Empty Km",
       "fuelCost": "Fuel Cost",
-      "actions": "Actions"
+      "actions": "Actions",
+      "revenue": "Revenue"
     },
     "fields": {
       "order": "Order",
@@ -311,7 +403,9 @@
       "kmLoaded": "Loaded Km",
       "kmEmpty": "Empty Km",
       "fuelCost": "Fuel Cost (RON)",
-      "status": "Status"
+      "status": "Status",
+      "revenue": "Revenue (RON)",
+      "unscheduled": "Unscheduled trip (no date)"
     },
     "placeholders": {
       "order": "Select an order",
@@ -347,7 +441,8 @@
       "arrivalAfterDeparture": "Arrival date must be after departure date",
       "kmLoadedPositive": "Loaded km must be > 0",
       "kmEmptyPositive": "Empty km must be > 0",
-      "fuelCostMin": "Fuel cost must be >= 0"
+      "fuelCostMin": "Fuel cost must be >= 0",
+      "revenueMin": "Revenue must be >= 0"
     },
     "toast": {
       "added": "Trip added successfully!",
@@ -375,7 +470,8 @@
       "arrival": "Est. Arrival",
       "kmLoaded": "Loaded Km",
       "kmEmpty": "Empty Km",
-      "fuelCost": "Fuel Cost"
+      "fuelCost": "Fuel Cost",
+      "revenue": "Revenue"
     },
     "export": {
       "nr": "Trip No.",
@@ -389,7 +485,8 @@
       "kmEmpty": "Empty Km",
       "fuelCost": "Fuel Cost (RON)",
       "status": "Status",
-      "filename": "trips"
+      "filename": "trips",
+      "revenue": "Revenue (RON)"
     }
   },
   "dashboard": {
@@ -405,9 +502,9 @@
       "kmMonthDesc": "loaded + empty from all trips"
     },
     "charts": {
-      "kmPerDay": "Km / day — last 30 days",
+      "kmPerDay": "Km / day - last 30 days",
       "costsVsRevenue": "Costs vs. Revenue",
-      "costsVsRevenueTodo": "TODO: Recharts Chart — costs/revenue",
+      "costsVsRevenueTodo": "TODO: Recharts Chart - costs/revenue",
       "kmTooltip": "Km"
     },
     "alerts": {
@@ -429,5 +526,324 @@
       "Nov",
       "Dec"
     ]
+  },
+  "tripsCalendar": {
+    "title": "Trips Calendar",
+    "tabs": {
+      "table": "Table",
+      "tableShort": "Tab",
+      "calendar": "Calendar",
+      "calendarShort": "Cal"
+    },
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "redirecting": "Redirecting to table...",
+    "dayNames": [
+      "Mon",
+      "Tue",
+      "Wed",
+      "Thu",
+      "Fri",
+      "Sat",
+      "Sun"
+    ],
+    "dialog": {
+      "title": "Trip Details",
+      "desc": "Full details about this trip"
+    }
+  },
+  "tripsDnd": {
+    "title": "Drag & Drop Calendar",
+    "today": "Today",
+    "tabs": {
+      "dnd": "Drag & Drop",
+      "dndShort": "DnD"
+    },
+    "sidebar": {
+      "title": "Unscheduled trips",
+      "hint": "Drag trips to the calendar",
+      "empty": "No unscheduled trips"
+    },
+    "confirmMove": {
+      "title": "Confirm move",
+      "desc": "Move trip {{tripId}} to {{date}}?",
+      "confirm": "Confirm"
+    },
+    "toast": {
+      "moved": "Trip moved successfully!"
+    }
+  },
+  "tripsMap": {
+    "title": "Active Trips Map",
+    "tabs": {
+      "map": "Map",
+      "mapShort": "Map"
+    },
+    "filterLabel": "Filter by status",
+    "clearFilter": "Clear filter",
+    "popup": {
+      "origin": "Origin",
+      "destination": "Destination",
+      "client": "Client",
+      "driver": "Driver",
+      "truck": "Truck",
+      "arrival": "Est. arrival"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "newBadge": "{{count}} new",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications",
+    "total": "{{count}} notifications total",
+    "markRead": "Mark as read",
+    "types": {
+      "licenseExpired": "License EXPIRED",
+      "licenseExpiring": "License expiring soon",
+      "licenseExpiredMsg": "{{name}} - license expired on {{date}}.",
+      "licenseExpiringMsg": "{{name}} - license expires in {{days}} day{{plural}} ({{date}}).",
+      "docExpired": "{{label}} EXPIRED - {{plate}}",
+      "docExpiring": "{{label}} expiring soon - {{plate}}",
+      "docExpiredMsg": "{{plate}}: {{label}} expired on {{date}}.",
+      "docExpiringMsg": "{{plate}}: {{label}} expires in {{days}} day{{plural}} ({{date}}).",
+      "delayedTrip": "Delayed trip",
+      "delayedTripMsg": "Trip {{id}} has exceeded the estimated arrival date by {{days}} day{{plural}} ({{date}}).",
+      "unassignedOrder": "Unassigned order",
+      "unassignedOrderMsg": "Order for {{client}} ({{origin}} - {{destination}}) has been unassigned for {{days}} day{{plural}}."
+    }
+  },
+  "reports": {
+    "title": "Advanced Reports",
+    "selectInterval": "Select interval",
+    "reset": "Reset",
+    "exportPdf": "Export PDF",
+    "exporting": "Generating...",
+    "noData": "No data for the selected interval.",
+    "charts": {
+      "kmPerDriver": "Km per driver",
+      "fuelPerMonth": "Fuel costs per month",
+      "topRoutes": "Top 5 frequent routes",
+      "truckUtilization": "Truck utilization rate"
+    },
+    "pdf": {
+      "title": "Advanced Report - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generated",
+      "allData": "All data",
+      "kmPerDriver": "Km per driver",
+      "fuelPerMonth": "Fuel costs per month",
+      "topRoutes": "Top 5 frequent routes",
+      "truckUtilization": "Truck utilization rate",
+      "driver": "Driver",
+      "totalKm": "Total km",
+      "month": "Month",
+      "cost": "Cost (RON)",
+      "route": "Route",
+      "orderCount": "No. orders",
+      "truck": "Truck",
+      "utilization": "Utilization (%)",
+      "filename": "advanced-report"
+    },
+    "tooltip": {
+      "km": "Total km",
+      "cost": "Cost",
+      "utilization": "Utilization"
+    }
+  },
+  "costs": {
+    "title": "Costs & Profitability",
+    "filters": {
+      "driver": "Driver",
+      "truck": "Truck",
+      "period": "Period",
+      "allDrivers": "All Drivers",
+      "allTrucks": "All Trucks",
+      "allTime": "All Time",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "last3Months": "Last 3 Months"
+    },
+    "kpi": {
+      "totalFuelCost": "Total Fuel Cost",
+      "costPerKm": "Cost / Km",
+      "avgCostPerTrip": "Avg Cost / Trip"
+    },
+    "chart": {
+      "title": "Monthly Profit",
+      "profit": "Profit",
+      "notEnoughData": "Not enough data to display chart"
+    },
+    "table": {
+      "title": "Trip Details",
+      "trip": "Trip",
+      "driver": "Driver",
+      "truck": "Truck",
+      "date": "Date",
+      "revenue": "Revenue",
+      "fuelCost": "Fuel Cost",
+      "profit": "Profit",
+      "noResults": "No trips found for the selected filters."
+    }
+  },
+  "driverProfile": {
+    "notFound": "Driver not found",
+    "notFoundDesc": "The requested driver does not exist in the database.",
+    "tabs": {
+      "info": "Info",
+      "trips": "Trips",
+      "stats": "Statistics",
+      "docs": "Documents"
+    },
+    "info": {
+      "personal": "Personal details",
+      "status": "Status",
+      "license": "Driver license",
+      "licenseExpiry": "Expires on",
+      "licenseExpired": "EXPIRED",
+      "licenseExpiresIn": "expires in {{days}} days",
+      "truckDocs": "Truck documents",
+      "vignette": "Vignette"
+    },
+    "trips": {
+      "empty": "No trips associated with this driver.",
+      "departure": "Departure",
+      "kmLoaded": "Loaded km",
+      "kmEmpty": "Empty km",
+      "fuelCost": "Fuel"
+    },
+    "stats": {
+      "totalKm": "Total km",
+      "totalTrips": "No. trips",
+      "finishRate": "Completion rate",
+      "totalFuel": "Fuel cost",
+      "kmPerMonth": "Km per month"
+    },
+    "docs": {
+      "license": "Driver license",
+      "licenseCategory": "Category C license",
+      "expiry": "Expires on",
+      "expired": "EXPIRED",
+      "valid": "Valid",
+      "days": "days",
+      "uploadTitle": "Uploaded documents",
+      "uploadHint": "Max 2MB - PDF, JPG, PNG",
+      "uploadBtn": "Upload document",
+      "uploadTypes": "PDF, JPG, PNG, WEBP - max 2MB",
+      "noDocs": "No documents uploaded yet.",
+      "errorType": "Invalid file type. Accepted: PDF, JPG, PNG, WEBP.",
+      "errorSize": "File exceeds the 2MB limit.",
+      "view": "View",
+      "delete": "Delete document"
+    }
+  },
+  "activityLog": {
+    "title": "Activity Log",
+    "empty": "No activity recorded yet.",
+    "totalEntries": "{{count}} entries",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "before": "Before",
+    "after": "After",
+    "actions": {
+      "create": "Create",
+      "update": "Update",
+      "delete": "Delete"
+    },
+    "entities": {
+      "driver": "Driver",
+      "truck": "Truck",
+      "order": "Order",
+      "trip": "Trip"
+    },
+    "filters": {
+      "label": "Filter:",
+      "allEntities": "All entities",
+      "allActions": "All actions",
+      "reset": "Reset"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} of {{total}}"
+    },
+    "details": {
+      "driverCreated": "New driver added",
+      "driverUpdated": "Driver updated",
+      "driverDeleted": "Driver deleted",
+      "truckCreated": "New truck added",
+      "truckUpdated": "Truck updated",
+      "truckDeleted": "Truck deleted",
+      "orderCreated": "New order added",
+      "orderUpdated": "Order updated",
+      "orderDeleted": "Order deleted",
+      "tripCreated": "New trip added",
+      "tripUpdated": "Trip updated",
+      "tripDeleted": "Trip deleted"
+    }
+  },
+  "sidebar": {
+    "groups": {
+      "general": "General",
+      "modules": "Modules",
+      "settings": "Settings"
+    },
+    "transport": {
+      "title": "Transport & Dispatch",
+      "overview": "Overview"
+    },
+    "fleet": {
+      "title": "Fleet & Service",
+      "overview": "Overview",
+      "parts": "Parts & Supplies",
+      "service": "Service & Repairs",
+      "fuel": "Fuel"
+    },
+    "accounting": {
+      "title": "Accounting",
+      "overview": "Overview",
+      "suppliers": "Suppliers"
+    },
+    "hr": {
+      "title": "Human Resources",
+      "overview": "Overview",
+      "leaves": "Leave Requests",
+      "payroll": "Payroll"
+    },
+    "reports": {
+      "title": "Reports",
+      "overview": "Reports Dashboard",
+      "transport": "Transport Reports",
+      "financial": "Financial Reports",
+      "fleet": "Fleet Reports"
+    },
+    "settings": {
+      "title": "Settings",
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "notifications": "Notifications",
+      "display": "Display"
+    }
+  },
+  "hrDashboard": {
+    "title": "Human Resources — Summary",
+    "cards": {
+      "totalEmployees": "Total Employees",
+      "totalEmployeesDesc": "active employees in system",
+      "onLeave": "On Leave",
+      "onLeaveDesc": "approved leaves this month",
+      "expiredDocs": "Expired Documents",
+      "expiredDocsDesc": "documents past expiry date",
+      "pendingLeaves": "Pending Requests",
+      "pendingLeavesDesc": "leave requests awaiting approval"
+    },
+    "charts": {
+      "newEmployees": "New employees per month (last 6 months)",
+      "newEmployeesTooltip": "New employees"
+    },
+    "alerts": {
+      "expiredDocs": "Expired documents",
+      "pendingLeaves": "Pending leave requests",
+      "allGood": "No active HR alerts."
+    }
   }
 }

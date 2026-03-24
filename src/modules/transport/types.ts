@@ -19,6 +19,7 @@ export interface Trip {
   kmLoaded: number;
   kmEmpty: number;
   fuelCost: number;
+  revenue?: number;
   status: "planned" | "in_desfasurare" | "finalizata" | "anulata";
 }
 
@@ -29,6 +30,7 @@ export interface Driver {
   licenseExpiry: string;
   status: "available" | "on_trip" | "off_duty";
   truckId?: string;
+  employeeId?: string;
 }
 
 export interface Truck {
