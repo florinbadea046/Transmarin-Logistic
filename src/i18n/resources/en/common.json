@@ -174,6 +174,24 @@
     "export": {
       "pdfTitle": "Employee List",
       "filename": "employees"
+    },
+    "import": {
+      "title": "Import Employees from CSV",
+      "button": "Import CSV",
+      "dropzone": "Drag & drop a CSV file or click to browse",
+      "dropzoneHint": "Accepted columns: Name, Position, Department, Phone, Email, HireDate (yyyy-MM-dd), Salary (RON)",
+      "validCount": "{{count}} valid row(s)",
+      "invalidCount": "{{count}} invalid row(s)",
+      "duplicateCount": "{{count}} duplicate(s)",
+      "errorsCol": "Errors",
+      "errorRequired": "Field {{field}} is required",
+      "errorDate": "Date must be in format yyyy-MM-dd",
+      "errorSalary": "Salary must be a positive number",
+      "duplicate": "Duplicate (name + department)",
+      "confirm": "Import {{count}} row(s)",
+      "toastSuccess": "{{count}} employee(s) imported successfully.",
+      "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
+      "toastAllSkipped": "No employees imported - all rows are duplicates."
     }
   },
   "drivers": {
