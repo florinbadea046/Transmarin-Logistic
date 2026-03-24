@@ -38,6 +38,7 @@ const leaveSchema = z
   .object({
     employeeId: z.string().min(1, "Angajatul este obligatoriu"),
     type: z.enum(["annual", "sick", "unpaid", "other"] as const),
+    status: z.enum(["pending", "approved", "rejected"] as const).optional(),
     startDate: z.string().min(1, "Data de start este obligatorie"),
     endDate: z.string().min(1, "Data de sfârșit este obligatorie"),
     reason: z.string().optional(),
@@ -96,7 +97,7 @@ function DatePickerField({
   onChange: (v: string) => void;
   error?: string;
 }) {
-  const selected = value ? new Date(value) : undefined;
+  const selected = value ? parseISO(value) : undefined;
   return (
     <>
       <Popover>
@@ -119,8 +120,8 @@ function DatePickerField({
             onSelect={(date) =>
               onChange(date ? format(date, "yyyy-MM-dd") : "")
             }
-            fromYear={1000}
-            toYear={3000}
+            startMonth={new Date(1000, 0)}
+            endMonth={new Date(3000, 11)}
             components={{ Dropdown: CalendarDropdown }}
           />
         </PopoverContent>
@@ -152,14 +153,17 @@ export default function LeaveDialog(props: Props) {
     defaultValues: {
       employeeId: leave?.employeeId ?? "",
       type: leave?.type ?? "annual",
+      status: leave?.status ?? "pending",
       startDate: leave?.startDate ?? "",
       endDate: leave?.endDate ?? "",
       reason: leave?.reason ?? "",
     },
   });
 
-  const startDate = useWatch({ control: form.control, name: "startDate" });
-  const endDate = useWatch({ control: form.control, name: "endDate" });
+  const [employeeId, type, status, startDate, endDate] = useWatch({
+    control: form.control,
+    name: ["employeeId", "type", "status", "startDate", "endDate"],
+  });
   const days = calcDays(startDate, endDate);
 
   const handleOpenChange = (val: boolean) => {
@@ -185,6 +189,7 @@ export default function LeaveDialog(props: Props) {
       props.onEdit({
         ...props.leave,
         ...values,
+        status: values.status ?? props.leave.status,
         days,
       });
     } else {
@@ -215,9 +220,8 @@ export default function LeaveDialog(props: Props) {
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
           <div className="space-y-3">
-            {/* Angajat */}
             <Select
-              value={form.watch("employeeId")}
+              value={employeeId}
               onValueChange={(v) =>
                 form.setValue("employeeId", v, { shouldValidate: true })
               }
@@ -239,9 +243,8 @@ export default function LeaveDialog(props: Props) {
               </span>
             )}
 
-            {/* Tip concediu */}
             <Select
-              value={form.watch("type")}
+              value={type}
               onValueChange={(v) =>
                 form.setValue("type", v as LeaveFormValues["type"], {
                   shouldValidate: true,
@@ -252,10 +255,10 @@ export default function LeaveDialog(props: Props) {
                 <SelectValue placeholder="Tip concediu" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="annual">Anual</SelectItem>
+                <SelectItem value="annual">Odihnă</SelectItem>
                 <SelectItem value="sick">Medical</SelectItem>
+                <SelectItem value="other">Personal</SelectItem>
                 <SelectItem value="unpaid">Fără plată</SelectItem>
-                <SelectItem value="other">Altele</SelectItem>
               </SelectContent>
             </Select>
             {form.formState.errors.type && (
@@ -264,7 +267,26 @@ export default function LeaveDialog(props: Props) {
               </span>
             )}
 
-            {/* Data start */}
+            {isEdit && (
+              <Select
+                value={status ?? "pending"}
+                onValueChange={(v) =>
+                  form.setValue("status", v as LeaveFormValues["status"], {
+                    shouldValidate: true,
+                  })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">În așteptare</SelectItem>
+                  <SelectItem value="approved">Aprobat</SelectItem>
+                  <SelectItem value="rejected">Respins</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+
             <DatePickerField
               label="Data de start"
               value={startDate}
@@ -274,7 +296,6 @@ export default function LeaveDialog(props: Props) {
               error={form.formState.errors.startDate?.message}
             />
 
-            {/* Data end */}
             <DatePickerField
               label="Data de sfârșit"
               value={endDate}
@@ -284,14 +305,12 @@ export default function LeaveDialog(props: Props) {
               error={form.formState.errors.endDate?.message}
             />
 
-            {/* Zile calculate automat */}
             {days > 0 && (
               <p className="text-sm text-muted-foreground">
                 Număr zile: <span className="font-medium text-foreground">{days}</span>
               </p>
             )}
 
-            {/* Motiv */}
             <Input
               placeholder="Motiv (opțional)"
               {...form.register("reason")}

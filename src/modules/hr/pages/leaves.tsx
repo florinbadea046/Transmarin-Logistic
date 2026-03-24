@@ -32,19 +32,28 @@ import {
 } from "@/components/ui/table";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { LeaveRequest, Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
 import LeaveDialog from "../components/leave-dialog";
 import { LeaveTableRow } from "../components/leave-row";
+import LeaveCalendar from "./_components/leave-calendar";
+
+const UNKNOWN_EMPLOYEE = "Necunoscut";
 
 // ── Labels ───────────────────────────────────────────────────
 const LEAVE_TYPE_LABELS: Record<LeaveRequest["type"], string> = {
-  annual: "Anual",
+  annual: "Odihnă",
   sick: "Medical",
   unpaid: "Fără plată",
-  other: "Altele",
+  other: "Personal",
 };
 
 const STATUS_LABELS: Record<LeaveRequest["status"], string> = {
@@ -160,7 +169,7 @@ export default function LeavesPage() {
   const toLeaveRow = React.useCallback(
     (lr: LeaveRequest): LeaveRow => ({
       ...lr,
-      employeeName: employeeMap.get(lr.employeeId) ?? lr.employeeId,
+      employeeName: employeeMap.get(lr.employeeId) ?? UNKNOWN_EMPLOYEE,
     }),
     [employeeMap],
   );
@@ -168,6 +177,7 @@ export default function LeavesPage() {
   const [data, setData] = React.useState<LeaveRow[]>(() =>
     getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests).map(toLeaveRow),
   );
+  const [calendarKey, setCalendarKey] = React.useState(0);
 
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "employeeName", desc: false },
@@ -224,6 +234,7 @@ export default function LeavesPage() {
     setData(
       getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests).map(toLeaveRow),
     );
+    setCalendarKey((k) => k + 1);
   }, [toLeaveRow]);
 
   return (
@@ -232,94 +243,110 @@ export default function LeavesPage() {
         <h1 className="text-lg font-semibold">Concedii</h1>
       </Header>
       <Main>
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <CardTitle>Gestiune Concedii</CardTitle>
-              <span className="text-sm text-muted-foreground">
-                {table.getFilteredRowModel().rows.length} cereri
-              </span>
-              <LeaveDialog mode="add" onAdd={refreshData} />
-            </div>
-            <div className="flex flex-wrap gap-2 mt-3">
-              <Input
-                placeholder="Caută după angajat..."
-                value={search}
-                onChange={handleSearch}
-                className="max-w-xs"
-              />
-              <Select value={typeFilter} onValueChange={handleTypeChange}>
-                <SelectTrigger className="w-44">
-                  <SelectValue placeholder="Tip concediu" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Toate">Toate tipurile</SelectItem>
-                  <SelectItem value="annual">Anual</SelectItem>
-                  <SelectItem value="sick">Medical</SelectItem>
-                  <SelectItem value="unpaid">Fără plată</SelectItem>
-                  <SelectItem value="other">Altele</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-44">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Toate">Toate statusurile</SelectItem>
-                  <SelectItem value="pending">În așteptare</SelectItem>
-                  <SelectItem value="approved">Aprobat</SelectItem>
-                  <SelectItem value="rejected">Respins</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
+        <Tabs defaultValue="list">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList>
+              <TabsTrigger value="list">Listă</TabsTrigger>
+              <TabsTrigger value="calendar">Calendar</TabsTrigger>
+            </TabsList>
+            <LeaveDialog mode="add" onAdd={refreshData} />
+          </div>
 
-          <CardContent className="space-y-4">
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <TableHead key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                        </TableHead>
+          <TabsContent value="list">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <CardTitle>Gestiune Concedii</CardTitle>
+                  <span className="text-sm text-muted-foreground">
+                    {table.getFilteredRowModel().rows.length} cereri
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Input
+                    placeholder="Caută după angajat..."
+                    value={search}
+                    onChange={handleSearch}
+                    className="max-w-xs"
+                  />
+                  <Select value={typeFilter} onValueChange={handleTypeChange}>
+                    <SelectTrigger className="w-44">
+                      <SelectValue placeholder="Tip concediu" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Toate">Toate tipurile</SelectItem>
+                      <SelectItem value="annual">Odihnă</SelectItem>
+                      <SelectItem value="sick">Medical</SelectItem>
+                      <SelectItem value="other">Personal</SelectItem>
+                      <SelectItem value="unpaid">Fără plată</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <Select value={statusFilter} onValueChange={handleStatusChange}>
+                    <SelectTrigger className="w-44">
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Toate">Toate statusurile</SelectItem>
+                      <SelectItem value="pending">În așteptare</SelectItem>
+                      <SelectItem value="approved">Aprobat</SelectItem>
+                      <SelectItem value="rejected">Respins</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                          {headerGroup.headers.map((header) => (
+                            <TableHead key={header.id}>
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
+                                  )}
+                            </TableHead>
+                          ))}
+                        </TableRow>
                       ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <LeaveTableRow
-                        key={row.id}
-                        row={row}
-                        setData={setData}
-                        employeeMap={employeeMap}
-                      />
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={table.getVisibleLeafColumns().length}
-                        className="h-24 text-center text-muted-foreground"
-                      >
-                        Nicio cerere de concediu găsită.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows.length ? (
+                        table.getRowModel().rows.map((row) => (
+                          <LeaveTableRow
+                            key={row.id}
+                            row={row}
+                            setData={setData}
+                            employeeMap={employeeMap}
+                            onRefreshCalendar={() => setCalendarKey((k) => k + 1)}
+                          />
+                        ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={table.getVisibleLeafColumns().length}
+                            className="h-24 text-center text-muted-foreground"
+                          >
+                            Nicio cerere de concediu găsită.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
 
-            <DataTablePagination table={table} pageSizes={[5, 10, 20]} />
-          </CardContent>
-        </Card>
+                <DataTablePagination table={table} pageSizes={[5, 10, 20]} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="calendar">
+            <LeaveCalendar key={calendarKey} />
+          </TabsContent>
+        </Tabs>
       </Main>
     </>
   );
