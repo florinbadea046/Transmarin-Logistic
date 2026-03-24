@@ -24,6 +24,8 @@ import { TrucksTable } from "@/modules/fleet/components/TrucksTable";
 import { TrucksCount } from "@/modules/fleet/components/TrucksCount";
 import { LowStockCount } from "@/modules/fleet/components/LowStockCount";
 import { ServiceCount } from "@/modules/fleet/components/ServiceCount";
+import { ServiceCostMonth } from "@/modules/fleet/components/ServiceCostMonth";
+import { FuelCostMonth } from "@/modules/fleet/components/FuelCostMonth";
 
 const topNavLinks = [
   { title: "Piese & Consum.", href: "/fleet/parts", isActive: false },
@@ -53,7 +55,8 @@ export default function FleetPage() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* KPI Cards — B9 */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Card>
             <CardHeader>
               <CardTitle>Camioane în Flotă</CardTitle>
@@ -76,6 +79,22 @@ export default function FleetPage() {
             </CardHeader>
             <CardContent>
               <ServiceCount />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Cost Service Lună</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ServiceCostMonth />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Cost Combustibil Lună</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <FuelCostMonth />
             </CardContent>
           </Card>
         </div>
