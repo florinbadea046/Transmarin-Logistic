@@ -61,12 +61,42 @@ interface ServiceCRUDProps {
   onRecordsChange: (updated: ServiceRecord[]) => void;
 }
 
+// ── Actualizează statusul camionului în localStorage ──────
+function syncTruckStatus(truckId: string, allRecords: ServiceRecord[]) {
+  const trucks = getCollection<Truck>(STORAGE_KEYS.trucks);
+  const today = new Date().toISOString().split("T")[0];
+
+  // Camionul are service activ dacă există cel puțin un record
+  // adăugat recent (în ultimele 30 zile) sau cu nextServiceDate în viitor
+  const hasActiveService = allRecords
+    .filter((r) => r.truckId === truckId)
+    .some((r) => {
+      const isRecent =
+        new Date(r.date) >= new Date(new Date().setDate(new Date().getDate() - 30));
+      const hasUpcoming = r.nextServiceDate
+        ? r.nextServiceDate >= today
+        : false;
+      return isRecent || hasUpcoming;
+    });
+
+  const updatedTrucks = trucks.map((t) => {
+    if (t.id !== truckId) return t;
+    // Nu suprascriem statusul dacă e "on_trip"
+    if (t.status === "on_trip") return t;
+    return {
+      ...t,
+      status: hasActiveService ? "in_service" : "available",
+    } as Truck;
+  });
+
+  localStorage.setItem(STORAGE_KEYS.trucks, JSON.stringify(updatedTrucks));
+}
+
 export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDProps) {
   const [parts, setParts] = useState<Part[]>([]);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(createEmptyForm());
 
-  // filtre export
   const [filterTruckId, setFilterTruckId] = useState("all");
   const [filterFrom, setFilterFrom] = useState("");
   const [filterTo, setFilterTo] = useState("");
@@ -75,9 +105,12 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
     setParts(getCollection<Part>(STORAGE_KEYS.parts));
   }, []);
 
-  const persist = (data: ServiceRecord[]) => {
+  const persist = (data: ServiceRecord[], affectedTruckId?: string) => {
     onRecordsChange(data);
     localStorage.setItem(STORAGE_KEYS.serviceRecords, JSON.stringify(data));
+    if (affectedTruckId) {
+      syncTruckStatus(affectedTruckId, data);
+    }
   };
 
   const getTruckLabel = (id: string) => {
@@ -120,13 +153,16 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
       cost: totalCost,
       nextServiceDate: form.nextServiceDate || undefined,
     };
-    persist([...records, newRecord]);
+    const updated = [...records, newRecord];
+    persist(updated, form.truckId);
     setForm(createEmptyForm());
     setOpen(false);
   };
 
   const handleDelete = (id: string) => {
-    persist(records.filter((r) => r.id !== id));
+    const record = records.find((r) => r.id === id);
+    const updated = records.filter((r) => r.id !== id);
+    persist(updated, record?.truckId);
   };
 
   return (
