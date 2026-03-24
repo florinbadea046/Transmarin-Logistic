@@ -78,7 +78,7 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="name">Nume</Label>
 
@@ -105,7 +105,7 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label htmlFor="phone">Telefon</Label>
 
