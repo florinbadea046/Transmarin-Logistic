@@ -175,6 +175,24 @@
     "export": {
       "pdfTitle": "Lista angajati",
       "filename": "angajati"
+    },
+    "import": {
+      "title": "Import Angajati din CSV",
+      "button": "Import CSV",
+      "dropzone": "Trage un fisier CSV aici sau da click pentru a selecta",
+      "dropzoneHint": "Coloane acceptate: Nume, Functie, Departament, Telefon, Email, Data angajarii (yyyy-MM-dd), Salariu (RON)",
+      "validCount": "{{count}} randuri valide",
+      "invalidCount": "{{count}} randuri invalide",
+      "duplicateCount": "{{count}} duplicate",
+      "errorsCol": "Erori",
+      "errorRequired": "Campul {{field}} este obligatoriu",
+      "errorDate": "Data trebuie sa fie in formatul yyyy-MM-dd",
+      "errorSalary": "Salariul trebuie sa fie un numar pozitiv",
+      "duplicate": "Duplicat (nume + departament)",
+      "confirm": "Importa {{count}} randuri",
+      "toastSuccess": "{{count}} angajat(i) importat(i) cu succes.",
+      "toastPartial": "{{added}} importati, {{skipped}} ignorati (duplicate).",
+      "toastAllSkipped": "Niciun angajat importat - toate randurile sunt duplicate."
     }
   },
   "drivers": {
