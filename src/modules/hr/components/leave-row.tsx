@@ -2,7 +2,7 @@ import * as React from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { flexRender, type Row, type Cell } from "@tanstack/react-table";
 import { MoreVertical, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,12 +20,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { buttonVariants } from "@/components/ui/button";
 import LeaveDialog from "./leave-dialog";
 import { getCollection, removeItem, updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { LeaveRequest } from "@/modules/hr/types";
 import { toast } from "sonner";
+
+const UNKNOWN_EMPLOYEE = "Necunoscut";
 
 type LeaveRow = LeaveRequest & { employeeName: string };
 
@@ -33,26 +34,30 @@ interface LeaveRowProps {
   row: Row<LeaveRow>;
   setData: React.Dispatch<React.SetStateAction<LeaveRow[]>>;
   employeeMap: Map<string, string>;
+  /** Apelat după edit/delete pentru a sincroniza view-ul calendar. */
+  onRefreshCalendar?: () => void;
 }
 
 export const LeaveTableRow: React.FC<LeaveRowProps> = ({
   row,
   setData,
   employeeMap,
+  onRefreshCalendar,
 }) => {
   const leave = row.original;
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
 
-  const refreshData = () => {
+  const refreshData = React.useCallback(() => {
     const updated = getCollection<LeaveRequest>(
       STORAGE_KEYS.leaveRequests,
     ).map((lr) => ({
       ...lr,
-      employeeName: employeeMap.get(lr.employeeId) ?? lr.employeeId,
+      employeeName: employeeMap.get(lr.employeeId) ?? UNKNOWN_EMPLOYEE,
     }));
     setData(updated);
-  };
+    onRefreshCalendar?.();
+  }, [employeeMap, setData, onRefreshCalendar]);
 
   return (
     <TableRow key={row.id}>
