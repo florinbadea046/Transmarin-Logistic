@@ -170,7 +170,7 @@ async function exportPDF(
       y += 5;
       doc.addImage(imgData, "PNG", margin, y, imgW, imgH);
       y += imgH + 10;
-    } catch (e) { console.warn("html2canvas error:", e); }
+    } catch { /* html2canvas render failed — skip chart image */ }
   }
 
   doc.addPage();

@@ -1,0 +1,139 @@
+{
+  "drivers": {
+    "title": "Drivers",
+    "add": "Add Driver",
+    "edit": "Edit Driver",
+    "save": "Save",
+    "cancel": "Cancel",
+    "noResults": "No drivers found for the current filter.",
+    "toastAdded": "Driver has been added.",
+    "toastUpdated": "Driver has been updated.",
+    "toastDeleted": "Driver has been deleted.",
+    "confirmDelete": "This action is irreversible. The driver will be permanently deleted.",
+    "confirmDeleteTitle": "Are you sure?",
+    "fields": {
+      "name": "Full name",
+      "phone": "Phone",
+      "licenseExpiry": "License Expiry",
+      "status": "Status",
+      "truck": "Assigned truck",
+      "employee": "HR Employee"
+    },
+    "placeholders": {
+      "name": "e.g. John Smith",
+      "phone": "07XXXXXXXX",
+      "search": "Search drivers...",
+      "noTruck": "No truck"
+    },
+    "validation": {
+      "nameMin": "Name must be at least 3 characters.",
+      "phoneInvalid": "Invalid phone. Accepted format: 07XXXXXXXX",
+      "licenseExpiryRequired": "License expiry date is required."
+    },
+    "status": {
+      "available": "Available",
+      "on_trip": "On trip",
+      "off_duty": "Off duty"
+    },
+    "actions": {
+      "add": "Add",
+      "edit": "Edit driver",
+      "delete": "Delete driver",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV"
+    },
+    "columns": {
+      "name": "Name",
+      "phone": "Phone",
+      "licenseExpiry": "Lic. Expiry",
+      "status": "Status",
+      "truck": "Truck",
+      "actions": "Actions"
+    },
+    "card": {
+      "status": "Status",
+      "licenseExpiry": "Lic. Expiry",
+      "truck": "Truck"
+    },
+    "export": {
+      "pdfTitle": "Drivers List",
+      "filename": "drivers"
+    },
+    "import": {
+      "title": "Import Drivers from CSV",
+      "button": "Import CSV",
+      "dropzone": "Drag & drop a CSV file or click to browse",
+      "dropzoneHint": "Columns: Name, Phone (07XXXXXXXX), License Expiry (yyyy-MM-dd), Status",
+      "validCount": "{{count}} valid row(s)",
+      "invalidCount": "{{count}} invalid row(s)",
+      "duplicateCount": "{{count}} duplicate(s)",
+      "errorsCol": "Errors",
+      "errorName": "Name must be at least 3 characters",
+      "errorPhone": "Invalid phone (format: 07XXXXXXXX)",
+      "errorDate": "Invalid license expiry date (yyyy-MM-dd)",
+      "duplicate": "Duplicate (name or phone)",
+      "confirm": "Import {{count}} driver(s)",
+      "toastSuccess": "{{count}} driver(s) imported successfully.",
+      "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
+      "toastAllSkipped": "No drivers imported - all rows are duplicates."
+    }
+  },
+  "driverProfile": {
+    "notFound": "Driver not found",
+    "notFoundDesc": "The requested driver does not exist in the database.",
+    "tabs": {
+      "info": "Info",
+      "trips": "Trips",
+      "stats": "Statistics",
+      "docs": "Documents"
+    },
+    "info": {
+      "personal": "Personal details",
+      "status": "Status",
+      "license": "Driver license",
+      "licenseExpiry": "Expires on",
+      "licenseExpired": "EXPIRED",
+      "licenseExpiresIn": "expires in {{days}} days",
+      "truckDocs": "Truck documents",
+      "vignette": "Vignette"
+    },
+    "trips": {
+      "empty": "No trips associated with this driver.",
+      "departure": "Departure",
+      "kmLoaded": "Loaded km",
+      "kmEmpty": "Empty km",
+      "fuelCost": "Fuel"
+    },
+    "stats": {
+      "totalKm": "Total km",
+      "totalTrips": "No. trips",
+      "finishRate": "Completion rate",
+      "totalFuel": "Fuel cost",
+      "kmPerMonth": "Km per month"
+    },
+    "docs": {
+      "license": "Driver license",
+      "licenseCategory": "Category C license",
+      "expiry": "Expires on",
+      "expired": "EXPIRED",
+      "valid": "Valid",
+      "days": "days",
+      "uploadTitle": "Uploaded documents",
+      "uploadHint": "Max 2MB - PDF, JPG, PNG",
+      "uploadBtn": "Upload document",
+      "uploadTypes": "PDF, JPG, PNG, WEBP - max 2MB",
+      "noDocs": "No documents uploaded yet.",
+      "errorType": "Invalid file type. Accepted: PDF, JPG, PNG, WEBP.",
+      "errorSize": "File exceeds the 2MB limit.",
+      "view": "View",
+      "delete": "Delete document"
+    }
+  },
+  "driversPage": {
+    "title": "Drivers & Trucks"
+  }
+}

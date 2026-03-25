@@ -12,8 +12,8 @@ import { Main } from "@/components/layout/main";
 import type { Driver, Truck } from "@/modules/transport/types";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import { daysUntilExpiry } from "./_components/transport-shared";
 import { ExpiryAlerts } from "./_components/transport-shared";
+import { daysUntilExpiry } from "./_components/transport-shared-utils";
 import { DriversSection } from "./_components/drivers-section";
 import { TrucksSection } from "./_components/trucks-section";
 
@@ -27,9 +27,13 @@ export default function DriversPage() {
     setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
   };
 
-  React.useEffect(() => { loadData(); }, []);
+  React.useEffect(() => {
+    loadData();
+  }, []);
 
-  const expiringDrivers = drivers.filter((d) => daysUntilExpiry(d.licenseExpiry) <= 30);
+  const expiringDrivers = drivers.filter(
+    (d) => daysUntilExpiry(d.licenseExpiry) <= 30,
+  );
   const expiringTrucks = trucks.filter(
     (t) =>
       daysUntilExpiry(t.itpExpiry) <= 30 ||
@@ -44,11 +48,22 @@ export default function DriversPage() {
       </Header>
 
       <Main>
-        <ExpiryAlerts expiringDrivers={expiringDrivers} expiringTrucks={expiringTrucks} />
+        <ExpiryAlerts
+          expiringDrivers={expiringDrivers}
+          expiringTrucks={expiringTrucks}
+        />
 
         <div className="space-y-6">
-          <DriversSection drivers={drivers} trucks={trucks} onDataChange={loadData} />
-          <TrucksSection drivers={drivers} trucks={trucks} onDataChange={loadData} />
+          <DriversSection
+            drivers={drivers}
+            trucks={trucks}
+            onDataChange={loadData}
+          />
+          <TrucksSection
+            drivers={drivers}
+            trucks={trucks}
+            onDataChange={loadData}
+          />
         </div>
       </Main>
     </>

@@ -1,17 +1,39 @@
-import { useMemo } from "react";
+import { useMemo, type ElementType } from "react";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  BarChart, Bar, AreaChart, Area, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
 } from "recharts";
-import { TrendingUp, TrendingDown, Wallet, FileWarning, Truck, Users } from "lucide-react";
+import {
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  FileWarning,
+  Truck,
+  Users,
+} from "lucide-react";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Invoice } from "@/modules/accounting/types";
-import type { Order, Trip, Truck as TruckType } from "@/modules/transport/types";
+import type {
+  Order,
+  Trip,
+  Truck as TruckType,
+} from "@/modules/transport/types";
 import type { ServiceRecord, FuelRecord } from "@/modules/fleet/types";
 
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
@@ -26,11 +48,15 @@ const formatCurrency = (n: number) =>
   }).format(n);
 
 function KpiCard({
-  title, value, icon: Icon, color, subtitle,
+  title,
+  value,
+  icon: Icon,
+  color,
+  subtitle,
 }: {
   title: string;
   value: string;
-  icon: React.ElementType;
+  icon: ElementType;
   color: string;
   subtitle?: string;
 }) {
@@ -43,7 +69,9 @@ function KpiCard({
         <div className="min-w-0">
           <p className="text-xs text-muted-foreground truncate">{title}</p>
           <p className="text-xl font-bold leading-tight">{value}</p>
-          {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
+          {subtitle && (
+            <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -59,48 +87,84 @@ function Empty() {
 }
 
 export default function ReportsDashboardPage() {
-  const invoices       = useMemo(() => getCollection<Invoice>(STORAGE_KEYS.invoices), []);
-  const orders         = useMemo(() => getCollection<Order>(STORAGE_KEYS.orders), []);
-  const trips          = useMemo(() => getCollection<Trip>(STORAGE_KEYS.trips), []);
-  const trucks         = useMemo(() => getCollection<TruckType>(STORAGE_KEYS.trucks), []);
-  const serviceRecords = useMemo(() => getCollection<ServiceRecord>(STORAGE_KEYS.serviceRecords), []);
-  const fuelRecords    = useMemo(() => getCollection<FuelRecord>(STORAGE_KEYS.fuelRecords), []);
+  const invoices = useMemo(
+    () => getCollection<Invoice>(STORAGE_KEYS.invoices),
+    [],
+  );
+  const orders = useMemo(() => getCollection<Order>(STORAGE_KEYS.orders), []);
+  const trips = useMemo(() => getCollection<Trip>(STORAGE_KEYS.trips), []);
+  const trucks = useMemo(
+    () => getCollection<TruckType>(STORAGE_KEYS.trucks),
+    [],
+  );
+  const serviceRecords = useMemo(
+    () => getCollection<ServiceRecord>(STORAGE_KEYS.serviceRecords),
+    [],
+  );
+  const fuelRecords = useMemo(
+    () => getCollection<FuelRecord>(STORAGE_KEYS.fuelRecords),
+    [],
+  );
 
   const totalVenituri = useMemo(
-    () => invoices.filter((i) => i.type === "income").reduce((s, i) => s + i.total, 0),
-    [invoices]
+    () =>
+      invoices
+        .filter((i) => i.type === "income")
+        .reduce((s, i) => s + i.total, 0),
+    [invoices],
   );
   const totalCheltuieli = useMemo(
-    () => invoices.filter((i) => i.type === "expense").reduce((s, i) => s + i.total, 0),
-    [invoices]
+    () =>
+      invoices
+        .filter((i) => i.type === "expense")
+        .reduce((s, i) => s + i.total, 0),
+    [invoices],
   );
   const profitabilitate = totalVenituri - totalCheltuieli;
   const nrNeplatite = useMemo(
-    () => invoices.filter((i) => i.status === "overdue" || i.status === "sent").length,
-    [invoices]
+    () =>
+      invoices.filter((i) => i.status === "overdue" || i.status === "sent")
+        .length,
+    [invoices],
   );
 
   const top3Trucks = useMemo(() => {
-    return trucks.map((truck) => {
-      const serviceCost = serviceRecords
-        .filter((r) => r.truckId === truck.id)
-        .reduce((s, r) => s + r.cost, 0);
-      const fuelCost = fuelRecords
-        .filter((r) => r.truckId === truck.id)
-        .reduce((s, r) => s + r.cost, 0);
-      return { ...truck, serviceCost, fuelCost, totalCost: serviceCost + fuelCost };
-    })
+    return trucks
+      .map((truck) => {
+        const serviceCost = serviceRecords
+          .filter((r) => r.truckId === truck.id)
+          .reduce((s, r) => s + r.cost, 0);
+        const fuelCost = fuelRecords
+          .filter((r) => r.truckId === truck.id)
+          .reduce((s, r) => s + r.cost, 0);
+        return {
+          ...truck,
+          serviceCost,
+          fuelCost,
+          totalCost: serviceCost + fuelCost,
+        };
+      })
       .sort((a, b) => b.totalCost - a.totalCost)
       .slice(0, 3);
   }, [trucks, serviceRecords, fuelRecords]);
 
   const top3Clients = useMemo(() => {
-    const map: Record<string, { name: string; venit: number; nrComenzi: number }> = {};
+    const map: Record<
+      string,
+      { name: string; venit: number; nrComenzi: number }
+    > = {};
     orders.forEach((order) => {
       const orderTrips = trips.filter((t) => t.orderId === order.id);
-      const venit = orderTrips.reduce((s, t) => s + t.kmLoaded * TARIF_PER_KM, 0);
+      const venit = orderTrips.reduce(
+        (s, t) => s + t.kmLoaded * TARIF_PER_KM,
+        0,
+      );
       if (!map[order.clientName]) {
-        map[order.clientName] = { name: order.clientName, venit: 0, nrComenzi: 0 };
+        map[order.clientName] = {
+          name: order.clientName,
+          venit: 0,
+          nrComenzi: 0,
+        };
       }
       map[order.clientName].venit += venit;
       map[order.clientName].nrComenzi += 1;
@@ -111,7 +175,10 @@ export default function ReportsDashboardPage() {
   }, [orders, trips]);
 
   const barData = useMemo(() => {
-    const map: Record<string, { luna: string; Venituri: number; Cheltuieli: number }> = {};
+    const map: Record<
+      string,
+      { luna: string; Venituri: number; Cheltuieli: number }
+    > = {};
     invoices.forEach((inv) => {
       const luna = inv.date.substring(0, 7);
       if (!map[luna]) map[luna] = { luna, Venituri: 0, Cheltuieli: 0 };
@@ -124,11 +191,17 @@ export default function ReportsDashboardPage() {
       .map((r) => ({ ...r, luna: r.luna.slice(5) }));
   }, [invoices]);
 
-  const totalFleetFuel    = useMemo(() => fuelRecords.reduce((s, r) => s + r.cost, 0), [fuelRecords]);
-  const totalFleetService = useMemo(() => serviceRecords.reduce((s, r) => s + r.cost, 0), [serviceRecords]);
+  const totalFleetFuel = useMemo(
+    () => fuelRecords.reduce((s, r) => s + r.cost, 0),
+    [fuelRecords],
+  );
+  const totalFleetService = useMemo(
+    () => serviceRecords.reduce((s, r) => s + r.cost, 0),
+    [serviceRecords],
+  );
   const pieData = [
     { name: "Combustibil", value: totalFleetFuel },
-    { name: "Service",     value: totalFleetService },
+    { name: "Service", value: totalFleetService },
   ];
 
   const areaData = useMemo(() => {
@@ -142,15 +215,18 @@ export default function ReportsDashboardPage() {
     return Object.entries(map)
       .sort(([a], [b]) => a.localeCompare(b))
       .slice(-12)
-      .map(([luna, Venituri]) => ({ luna: luna.slice(5), Venituri: Math.round(Venituri) }));
+      .map(([luna, Venituri]) => ({
+        luna: luna.slice(5),
+        Venituri: Math.round(Venituri),
+      }));
   }, [invoices]);
 
   const rankBadge = (i: number) =>
     i === 0
       ? "bg-yellow-500/20 text-yellow-400 border-yellow-500/30 border"
       : i === 1
-      ? "bg-slate-400/20 text-slate-300 border-slate-400/30 border"
-      : "bg-orange-700/20 text-orange-400 border-orange-700/30 border";
+        ? "bg-slate-400/20 text-slate-300 border-slate-400/30 border"
+        : "bg-orange-700/20 text-orange-400 border-orange-700/30 border";
 
   return (
     <>
@@ -159,7 +235,6 @@ export default function ReportsDashboardPage() {
       </Header>
 
       <Main className="space-y-6">
-
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
           <KpiCard
             title="Total Venituri"
@@ -177,7 +252,11 @@ export default function ReportsDashboardPage() {
             title="Profitabilitate"
             value={formatCurrency(profitabilitate)}
             icon={Wallet}
-            color={profitabilitate >= 0 ? "bg-blue-500/10 text-blue-400" : "bg-red-500/10 text-red-400"}
+            color={
+              profitabilitate >= 0
+                ? "bg-blue-500/10 text-blue-400"
+                : "bg-red-500/10 text-red-400"
+            }
             subtitle={
               totalVenituri > 0
                 ? `${((profitabilitate / totalVenituri) * 100).toFixed(1)}% marjă`
@@ -211,15 +290,25 @@ export default function ReportsDashboardPage() {
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 rounded-lg border px-4 py-3"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <Badge className={`${rankBadge(i)} text-xs shrink-0`}>#{i + 1}</Badge>
+                      <Badge className={`${rankBadge(i)} text-xs shrink-0`}>
+                        #{i + 1}
+                      </Badge>
                       <div className="min-w-0">
-                        <p className="font-medium text-sm truncate">{truck.plateNumber}</p>
-                        <p className="text-xs text-muted-foreground">{truck.brand} {truck.model}</p>
+                        <p className="font-medium text-sm truncate">
+                          {truck.plateNumber}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {truck.brand} {truck.model}
+                        </p>
                       </div>
                     </div>
                     <div className="text-right shrink-0 pl-9 sm:pl-0">
-                      <p className="font-bold text-sm">{formatCurrency(truck.totalCost)}</p>
-                      <p className="text-xs text-muted-foreground">{formatCurrency(truck.fuelCost)} combustibil</p>
+                      <p className="font-bold text-sm">
+                        {formatCurrency(truck.totalCost)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatCurrency(truck.fuelCost)} combustibil
+                      </p>
                     </div>
                   </div>
                 ))
@@ -244,11 +333,16 @@ export default function ReportsDashboardPage() {
                     className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 rounded-lg border px-4 py-3"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <Badge className={`${rankBadge(i)} text-xs shrink-0`}>#{i + 1}</Badge>
+                      <Badge className={`${rankBadge(i)} text-xs shrink-0`}>
+                        #{i + 1}
+                      </Badge>
                       <div className="min-w-0">
-                        <p className="font-medium text-sm truncate">{client.name}</p>
+                        <p className="font-medium text-sm truncate">
+                          {client.name}
+                        </p>
                         <p className="text-xs text-muted-foreground">
-                          {client.nrComenzi} {client.nrComenzi === 1 ? "comandă" : "comenzi"}
+                          {client.nrComenzi}{" "}
+                          {client.nrComenzi === 1 ? "comandă" : "comenzi"}
                         </p>
                       </div>
                     </div>
@@ -270,20 +364,39 @@ export default function ReportsDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {barData.length === 0 ? <Empty /> : (
+              {barData.length === 0 ? (
+                <Empty />
+              ) : (
                 <ResponsiveContainer width="100%" height={240}>
-                  <BarChart data={barData} margin={{ top: 4, right: 8, left: 0, bottom: 4 }}>
-                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <BarChart
+                    data={barData}
+                    margin={{ top: 4, right: 8, left: 0, bottom: 4 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      className="stroke-muted"
+                    />
                     <XAxis dataKey="luna" tick={{ fontSize: 11 }} />
-                    <YAxis tick={{ fontSize: 11 }} width={55}
-                      tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                    <YAxis
+                      tick={{ fontSize: 11 }}
+                      width={55}
+                      tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                    />
                     <Tooltip
                       formatter={(val) => [formatCurrency(Number(val))]}
                       labelFormatter={(l) => `Luna ${l}`}
                     />
                     <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
-                    <Bar dataKey="Venituri" fill={COLORS[1]} radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="Cheltuieli" fill={COLORS[3]} radius={[4, 4, 0, 0]} />
+                    <Bar
+                      dataKey="Venituri"
+                      fill={COLORS[1]}
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="Cheltuieli"
+                      fill={COLORS[3]}
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               )}
@@ -297,7 +410,9 @@ export default function ReportsDashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {totalFleetFuel === 0 && totalFleetService === 0 ? <Empty /> : (
+              {totalFleetFuel === 0 && totalFleetService === 0 ? (
+                <Empty />
+              ) : (
                 <ResponsiveContainer width="100%" height={240}>
                   <PieChart>
                     <Pie
@@ -313,11 +428,20 @@ export default function ReportsDashboardPage() {
                       labelLine={false}
                     >
                       {pieData.map((_, i) => (
-                        <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                        <Cell
+                          key={i}
+                          fill={PIE_COLORS[i % PIE_COLORS.length]}
+                        />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(val) => [formatCurrency(Number(val))]} />
-                    <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} verticalAlign="bottom" />
+                    <Tooltip
+                      formatter={(val) => [formatCurrency(Number(val))]}
+                    />
+                    <Legend
+                      iconSize={10}
+                      wrapperStyle={{ fontSize: 12 }}
+                      verticalAlign="bottom"
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               )}
@@ -332,21 +456,49 @@ export default function ReportsDashboardPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {areaData.length === 0 ? <Empty /> : (
+            {areaData.length === 0 ? (
+              <Empty />
+            ) : (
               <ResponsiveContainer width="100%" height={220}>
-                <AreaChart data={areaData} margin={{ top: 4, right: 8, left: 0, bottom: 4 }}>
+                <AreaChart
+                  data={areaData}
+                  margin={{ top: 4, right: 8, left: 0, bottom: 4 }}
+                >
                   <defs>
-                    <linearGradient id="gradVenituri" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={COLORS[1]} stopOpacity={0.3} />
-                      <stop offset="95%" stopColor={COLORS[1]} stopOpacity={0} />
+                    <linearGradient
+                      id="gradVenituri"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop
+                        offset="5%"
+                        stopColor={COLORS[1]}
+                        stopOpacity={0.3}
+                      />
+                      <stop
+                        offset="95%"
+                        stopColor={COLORS[1]}
+                        stopOpacity={0}
+                      />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    className="stroke-muted"
+                  />
                   <XAxis dataKey="luna" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} width={55}
-                    tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                  <YAxis
+                    tick={{ fontSize: 11 }}
+                    width={55}
+                    tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                  />
                   <Tooltip
-                    formatter={(val) => [formatCurrency(Number(val)), "Venituri"]}
+                    formatter={(val) => [
+                      formatCurrency(Number(val)),
+                      "Venituri",
+                    ]}
                     labelFormatter={(l) => `Luna ${l}`}
                   />
                   <Area
@@ -363,7 +515,6 @@ export default function ReportsDashboardPage() {
             )}
           </CardContent>
         </Card>
-
       </Main>
     </>
   );

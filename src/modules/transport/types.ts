@@ -40,7 +40,7 @@ export interface Truck {
   model: string;
   year: number;
   mileage: number;
-  status: "Disponibil" | "În cursă" | "În cursă";
+  status: "available" | "on_trip" | "in_service";
   itpExpiry: string;
   rcaExpiry: string;
   vignetteExpiry: string;

@@ -391,7 +391,7 @@ export default function DashboardPage() {
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{employees.length || 24}</div>
+                  <div className="text-2xl font-bold">{employees.length}</div>
                   <p className="text-xs text-muted-foreground">{t("dashboard.cards.employeesDesc")}</p>
                 </CardContent>
               </Card>
@@ -401,7 +401,7 @@ export default function DashboardPage() {
                   <Receipt className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">45</div>
+                  <div className="text-2xl font-bold">{orders.filter((o) => o.status !== "delivered" && o.status !== "cancelled").length}</div>
                   <p className="text-xs text-muted-foreground">{t("dashboard.cards.invoicesDesc")}</p>
                 </CardContent>
               </Card>

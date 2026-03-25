@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
 import type { Truck } from "@/modules/transport/types";
@@ -6,7 +6,13 @@ import type { ServiceRecord } from "@/modules/fleet/types";
 
 const ALERT_DAYS = 30;
 
-type DocType = "ITP" | "RCA" | "Vignetă" | "Service ITP" | "Service RCA" | "Service Vignetă";
+type DocType =
+  | "ITP"
+  | "RCA"
+  | "Vignetă"
+  | "Service ITP"
+  | "Service RCA"
+  | "Service Vignetă";
 
 interface DocAlert {
   truckId: string;
@@ -23,10 +29,15 @@ function getDaysUntil(dateStr: string): number {
   today.setHours(0, 0, 0, 0);
   const expiry = new Date(dateStr);
   expiry.setHours(0, 0, 0, 0);
-  return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return Math.ceil(
+    (expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  );
 }
 
-function getAlerts(trucks: Truck[], serviceRecords: ServiceRecord[]): DocAlert[] {
+function getAlerts(
+  trucks: Truck[],
+  serviceRecords: ServiceRecord[],
+): DocAlert[] {
   const alerts: DocAlert[] = [];
 
   for (const truck of trucks) {
@@ -61,8 +72,12 @@ function getAlerts(trucks: Truck[], serviceRecords: ServiceRecord[]): DocAlert[]
 
     for (const { type, label } of serviceDocMap) {
       const matchingRecords = serviceRecords
-        .filter((r) => r.truckId === truck.id && r.type === type && r.nextServiceDate)
-        .sort((a, b) => (b.nextServiceDate ?? "").localeCompare(a.nextServiceDate ?? ""));
+        .filter(
+          (r) => r.truckId === truck.id && r.type === type && r.nextServiceDate,
+        )
+        .sort((a, b) =>
+          (b.nextServiceDate ?? "").localeCompare(a.nextServiceDate ?? ""),
+        );
 
       if (matchingRecords.length > 0) {
         const nextDate = matchingRecords[0].nextServiceDate!;
@@ -93,25 +108,27 @@ function AlertRow({ alert }: { alert: DocAlert }) {
   const bgClass = isExpired
     ? "bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800"
     : isUrgent
-    ? "bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800"
-    : "bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800";
+      ? "bg-orange-50 dark:bg-orange-950 border-orange-200 dark:border-orange-800"
+      : "bg-yellow-50 dark:bg-yellow-950 border-yellow-200 dark:border-yellow-800";
 
   const textClass = isExpired
     ? "text-red-700 dark:text-red-300"
     : isUrgent
-    ? "text-orange-700 dark:text-orange-300"
-    : "text-yellow-700 dark:text-yellow-300";
+      ? "text-orange-700 dark:text-orange-300"
+      : "text-yellow-700 dark:text-yellow-300";
 
   const icon = isExpired ? "🔴" : isUrgent ? "🟠" : "🟡";
 
   const daysLabel = isExpired
     ? `Expirat de ${Math.abs(alert.daysUntil)} ${Math.abs(alert.daysUntil) === 1 ? "zi" : "zile"}`
     : alert.daysUntil === 0
-    ? "Expiră azi"
-    : `Expiră în ${alert.daysUntil} ${alert.daysUntil === 1 ? "zi" : "zile"}`;
+      ? "Expiră azi"
+      : `Expiră în ${alert.daysUntil} ${alert.daysUntil === 1 ? "zi" : "zile"}`;
 
   return (
-    <div className={`flex items-center justify-between rounded-lg border px-4 py-3 ${bgClass}`}>
+    <div
+      className={`flex items-center justify-between rounded-lg border px-4 py-3 ${bgClass}`}
+    >
       <div className="flex items-center gap-3">
         <span className="text-lg">{icon}</span>
         <div>
@@ -124,8 +141,12 @@ function AlertRow({ alert }: { alert: DocAlert }) {
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <span className={`text-sm font-medium ${textClass}`}>{alert.docType}</span>
-        <span className="text-xs text-muted-foreground">{alert.expiryDate}</span>
+        <span className={`text-sm font-medium ${textClass}`}>
+          {alert.docType}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          {alert.expiryDate}
+        </span>
         <span className={`text-sm font-bold ${textClass}`}>{daysLabel}</span>
       </div>
     </div>
@@ -133,12 +154,12 @@ function AlertRow({ alert }: { alert: DocAlert }) {
 }
 
 export function DocExpiryAlerts() {
-  const [alerts, setAlerts] = useState<DocAlert[]>([]);
-
-  useEffect(() => {
+  const alerts = useMemo(() => {
     const trucks = getCollection<Truck>(STORAGE_KEYS.trucks);
-    const serviceRecords = getCollection<ServiceRecord>(STORAGE_KEYS.serviceRecords);
-    setAlerts(getAlerts(trucks, serviceRecords));
+    const serviceRecords = getCollection<ServiceRecord>(
+      STORAGE_KEYS.serviceRecords,
+    );
+    return getAlerts(trucks, serviceRecords);
   }, []);
 
   if (alerts.length === 0) return null;
@@ -163,7 +184,10 @@ export function DocExpiryAlerts() {
       </div>
       <div className="space-y-2">
         {alerts.map((alert, i) => (
-          <AlertRow key={`${alert.truckId}-${alert.docType}-${i}`} alert={alert} />
+          <AlertRow
+            key={`${alert.truckId}-${alert.docType}-${i}`}
+            alert={alert}
+          />
         ))}
       </div>
     </div>

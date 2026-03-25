@@ -28,6 +28,10 @@ export default [
       ...tseslint.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
 
+      // TanStack Table hooks are intentionally used in page-level table components.
+      // This rule is noisy in this codebase and produces false positives.
+      "react-hooks/incompatible-library": "off",
+
       "no-unused-vars": "off",
       "@typescript-eslint/no-unused-vars": [
         "warn",

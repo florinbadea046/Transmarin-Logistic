@@ -8,31 +8,19 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useWatch, type UseFormReturn } from "react-hook-form";
-import { z } from "zod";
 import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { CalendarDropdown } from "./calendar-dropdown";
 import { useTranslation } from "react-i18next";
 import { getEmployeeDepartmentLabel } from "../utils/department-label";
-
-export function makeEmployeeSchema(
-  t: ReturnType<typeof useTranslation>["t"],
-) {
-  return z.object({
-    name: z.string().min(2, t("employees.validation.nameRequired")),
-    position: z.string().min(2, t("employees.validation.positionRequired")),
-    department: z.string().min(2, t("employees.validation.departmentRequired")),
-    phone: z.string().min(6, t("employees.validation.phoneInvalid")),
-    email: z.string().email(t("employees.validation.emailInvalid")),
-    hireDate: z.string().min(1, t("employees.validation.hireDateRequired")),
-    salary: z.coerce.number().min(1, t("employees.validation.salaryRequired")),
-  });
-}
-
-export type EmployeeFormValues = z.infer<ReturnType<typeof makeEmployeeSchema>>;
+import type { EmployeeFormValues } from "./employee-form-schema";
 
 interface Props {
   form: UseFormReturn<EmployeeFormValues>;
@@ -40,13 +28,20 @@ interface Props {
   onDateSelect: (date: Date | undefined) => void;
 }
 
-export function EmployeeFormFields({ form, selectedDate, onDateSelect }: Props) {
+export function EmployeeFormFields({
+  form,
+  selectedDate,
+  onDateSelect,
+}: Props) {
   const { t } = useTranslation();
   const department = useWatch({ control: form.control, name: "department" });
 
   return (
     <>
-      <Input placeholder={t("employees.fields.name")} {...form.register("name")} />
+      <Input
+        placeholder={t("employees.fields.name")}
+        {...form.register("name")}
+      />
       {form.formState.errors.name && (
         <span className="text-xs text-red-500">
           {form.formState.errors.name.message}
@@ -86,13 +81,19 @@ export function EmployeeFormFields({ form, selectedDate, onDateSelect }: Props) 
           {form.formState.errors.department.message}
         </span>
       )}
-      <Input placeholder={t("employees.fields.phone")} {...form.register("phone")} />
+      <Input
+        placeholder={t("employees.fields.phone")}
+        {...form.register("phone")}
+      />
       {form.formState.errors.phone && (
         <span className="text-xs text-red-500">
           {form.formState.errors.phone.message}
         </span>
       )}
-      <Input placeholder={t("employees.fields.email")} {...form.register("email")} />
+      <Input
+        placeholder={t("employees.fields.email")}
+        {...form.register("email")}
+      />
       {form.formState.errors.email && (
         <span className="text-xs text-red-500">
           {form.formState.errors.email.message}
@@ -105,7 +106,11 @@ export function EmployeeFormFields({ form, selectedDate, onDateSelect }: Props) 
             data-empty={!selectedDate}
             className="w-full justify-start text-start font-normal data-[empty=true]:text-muted-foreground"
           >
-              {selectedDate ? format(selectedDate, "MMM d, yyyy") : <span>{t("employees.fields.hireDate")}</span>}
+            {selectedDate ? (
+              format(selectedDate, "MMM d, yyyy")
+            ) : (
+              <span>{t("employees.fields.hireDate")}</span>
+            )}
             <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
           </Button>
         </PopoverTrigger>
@@ -118,7 +123,9 @@ export function EmployeeFormFields({ form, selectedDate, onDateSelect }: Props) 
               onDateSelect(date);
               form.setValue("hireDate", date ? format(date, "yyyy-MM-dd") : "");
             }}
-            disabled={(date: Date) => date > new Date() || date < new Date("1900-01-01")}
+            disabled={(date: Date) =>
+              date > new Date() || date < new Date("1900-01-01")
+            }
             components={{ Dropdown: CalendarDropdown }}
           />
         </PopoverContent>

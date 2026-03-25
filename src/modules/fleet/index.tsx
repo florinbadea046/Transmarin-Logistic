@@ -1,18 +1,5 @@
 // ──────────────────────────────────────────────────────────
 // MODUL: Parc Auto & Service — Pagina principală
-//
-// Acest modul conține:
-//   - /fleet              → Prezentare generală parc auto
-//   - /fleet/parts        → Inventar piese & consumabile
-//   - /fleet/service      → Programări service & istoric reparații
-//   - /fleet/fuel         → Evidență combustibil vs. rulaj
-//
-// TODO pentru studenți:
-//   1. Inventar piese cu stoc minim și alertă
-//   2. Alocare piese per camion
-//   3. Istoric reparații per camion
-//   4. Grafic consum combustibil vs km
-//   5. Alerte automate ITP, RCA, vignetă
 // ──────────────────────────────────────────────────────────
 
 import { Header } from "@/components/layout/header";
@@ -20,6 +7,7 @@ import { Main } from "@/components/layout/main";
 import { TopNav } from "@/components/layout/top-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocation } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { TrucksTable } from "@/modules/fleet/components/TrucksTable";
 import { TrucksCount } from "@/modules/fleet/components/TrucksCount";
 import { LowStockCount } from "@/modules/fleet/components/LowStockCount";
@@ -28,14 +16,16 @@ import { ServiceCostMonth } from "@/modules/fleet/components/ServiceCostMonth";
 import { FuelCostMonth } from "@/modules/fleet/components/FuelCostMonth";
 import { DocExpiryAlerts } from "@/modules/fleet/components/DocExpiryAlerts";
 
-const topNavLinks = [
-  { title: "Piese & Consum.", href: "/fleet/parts", isActive: false },
-  { title: "Service", href: "/fleet/service", isActive: false },
-  { title: "Combustibil", href: "/fleet/fuel", isActive: false },
-];
-
 export default function FleetPage() {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
+
+  const topNavLinks = [
+    { title: t("fleet.nav.parts"), href: "/fleet/parts", isActive: false },
+    { title: t("fleet.nav.service"), href: "/fleet/service", isActive: false },
+    { title: t("fleet.nav.fuel"), href: "/fleet/fuel", isActive: false },
+  ];
+
   const links = topNavLinks.map((link) => ({
     ...link,
     isActive:
@@ -50,66 +40,38 @@ export default function FleetPage() {
       </Header>
       <Main>
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Parc Auto & Service</h1>
-          <p className="text-muted-foreground">
-            Gestionează flotă, piese, service și combustibil.
-          </p>
+          <h1 className="text-2xl font-bold">{t("fleet.title")}</h1>
+          <p className="text-muted-foreground">{t("fleet.subtitle")}</p>
         </div>
 
-        {/* KPI Cards — B9 */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <Card>
-            <CardHeader>
-              <CardTitle>Camioane în Flotă</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <TrucksCount />
-            </CardContent>
+            <CardHeader><CardTitle>{t("fleet.trucksInFleet")}</CardTitle></CardHeader>
+            <CardContent><TrucksCount /></CardContent>
           </Card>
           <Card>
-            <CardHeader>
-              <CardTitle>Piese sub Stoc Minim</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <LowStockCount />
-            </CardContent>
+            <CardHeader><CardTitle>{t("fleet.lowStock")}</CardTitle></CardHeader>
+            <CardContent><LowStockCount /></CardContent>
           </Card>
           <Card>
-            <CardHeader>
-              <CardTitle>Service Programat</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ServiceCount />
-            </CardContent>
+            <CardHeader><CardTitle>{t("fleet.scheduledService")}</CardTitle></CardHeader>
+            <CardContent><ServiceCount /></CardContent>
           </Card>
           <Card>
-            <CardHeader>
-              <CardTitle>Cost Service Lună</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ServiceCostMonth />
-            </CardContent>
+            <CardHeader><CardTitle>{t("fleet.serviceCostMonth")}</CardTitle></CardHeader>
+            <CardContent><ServiceCostMonth /></CardContent>
           </Card>
           <Card>
-            <CardHeader>
-              <CardTitle>Cost Combustibil Lună</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FuelCostMonth />
-            </CardContent>
+            <CardHeader><CardTitle>{t("fleet.fuelCostMonth")}</CardTitle></CardHeader>
+            <CardContent><FuelCostMonth /></CardContent>
           </Card>
         </div>
 
-        {/* Alerte ITP / RCA / Vignetă — B11 */}
         <DocExpiryAlerts />
 
         <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Parc Auto</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TrucksTable />
-          </CardContent>
+          <CardHeader><CardTitle>{t("fleet.truckList")}</CardTitle></CardHeader>
+          <CardContent><TrucksTable /></CardContent>
         </Card>
       </Main>
     </>

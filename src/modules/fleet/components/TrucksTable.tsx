@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
@@ -26,13 +27,14 @@ import {
 // ── DateCell ──────────────────────────────────────────────
 
 const DateCell = ({ date }: { date: string }) => {
+  const { t } = useTranslation();
   const status = getDateStatus(date);
 
   if (status === "expired") {
     return (
       <span className="text-red-600 font-semibold">
         {date} <span aria-hidden="true">⚠️</span>
-        <span className="sr-only">Expirat</span>
+        <span className="sr-only">{t("fleet.trucks.expired")}</span>
       </span>
     );
   }
@@ -41,7 +43,7 @@ const DateCell = ({ date }: { date: string }) => {
     return (
       <span className="text-amber-500 font-semibold">
         {date} <span aria-hidden="true">⚠️</span>
-        <span className="sr-only">Expiră curând</span>
+        <span className="sr-only">{t("fleet.trucks.expiresSoon")}</span>
       </span>
     );
   }
@@ -59,6 +61,7 @@ function getDaysRemaining(dateStr: string): number {
 }
 
 function ExpiryBadge({ dateStr, label }: { dateStr: string; label: string }) {
+  const { t } = useTranslation();
   const days = getDaysRemaining(dateStr);
   const status = days < 0 ? "red" : days <= 30 ? "yellow" : "green";
 
@@ -76,8 +79,8 @@ function ExpiryBadge({ dateStr, label }: { dateStr: string; label: string }) {
       <Badge variant="outline" className={colorClass}>
         {icon} {dateStr}{" "}
         {days < 0
-          ? `(expirat de ${Math.abs(days)} zile)`
-          : `(${days} zile rămase)`}
+          ? t("fleet.trucks.expiredDaysAgo", { days: Math.abs(days) })
+          : t("fleet.trucks.daysRemaining", { days })}
       </Badge>
     </div>
   );
@@ -94,6 +97,7 @@ function VehicleDialog({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { t } = useTranslation();
   if (!truck) return null;
 
   const { label, variant } = STATUS_CONFIG[truck.status];
@@ -111,21 +115,21 @@ function VehicleDialog({
           {/* Date tehnice */}
           <div>
             <h3 className="text-sm font-semibold mb-2 text-muted-foreground uppercase tracking-wide">
-              Date tehnice
+              {t("fleet.trucks.technicalData")}
             </h3>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div>
-                <span className="text-muted-foreground">An fabricație:</span>
+                <span className="text-muted-foreground">{t("fleet.trucks.year")}:</span>
                 <span className="ml-2 font-medium">{truck.year}</span>
               </div>
               <div>
-                <span className="text-muted-foreground">Kilometraj:</span>
+                <span className="text-muted-foreground">{t("fleet.trucks.mileage")}:</span>
                 <span className="ml-2 font-medium">
                   {truck.mileage.toLocaleString("ro-RO")} km
                 </span>
               </div>
               <div className="col-span-2">
-                <span className="text-muted-foreground">Status:</span>
+                <span className="text-muted-foreground">{t("fleet.trucks.status")}:</span>
                 <Badge variant={variant} className="ml-2">
                   {label}
                 </Badge>
@@ -136,12 +140,12 @@ function VehicleDialog({
           {/* Semaforizare */}
           <div>
             <h3 className="text-sm font-semibold mb-2 text-muted-foreground uppercase tracking-wide">
-              Documente
+              {t("fleet.trucks.documents")}
             </h3>
             <div className="space-y-2">
               <ExpiryBadge dateStr={truck.itpExpiry} label="ITP" />
               <ExpiryBadge dateStr={truck.rcaExpiry} label="RCA" />
-              <ExpiryBadge dateStr={truck.vignetteExpiry} label="Vignetă" />
+              <ExpiryBadge dateStr={truck.vignetteExpiry} label={t("fleet.trucks.vignette")} />
             </div>
           </div>
         </div>
@@ -153,6 +157,7 @@ function VehicleDialog({
 // ── TrucksTable ───────────────────────────────────────────
 
 export function TrucksTable() {
+  const { t } = useTranslation();
   const [trucks] = useState<Truck[]>(() =>
     getCollection<Truck>(STORAGE_KEYS.trucks)
   );
@@ -167,7 +172,7 @@ export function TrucksTable() {
   if (trucks.length === 0) {
     return (
       <p className="text-muted-foreground text-center py-10">
-        Nu există camioane înregistrate.
+        {t("fleet.trucks.noTrucks")}
       </p>
     );
   }
@@ -178,14 +183,14 @@ export function TrucksTable() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Nr. înmatriculare</TableHead>
-              <TableHead>Marcă / Model</TableHead>
-              <TableHead>An</TableHead>
-              <TableHead>Km</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t("fleet.trucks.columnPlate")}</TableHead>
+              <TableHead>{t("fleet.trucks.columnBrandModel")}</TableHead>
+              <TableHead>{t("fleet.trucks.columnYear")}</TableHead>
+              <TableHead>{t("fleet.trucks.columnKm")}</TableHead>
+              <TableHead>{t("fleet.trucks.columnStatus")}</TableHead>
               <TableHead>ITP</TableHead>
               <TableHead>RCA</TableHead>
-              <TableHead>Vignetă</TableHead>
+              <TableHead>{t("fleet.trucks.vignette")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

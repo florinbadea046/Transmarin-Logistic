@@ -1,0 +1,89 @@
+{
+  "invoices": {
+    "title": "Invoices",
+    "cardTitle": "Manage Invoices",
+    "header": "Transmarin Logistic",
+    "noResults": "No invoices found.",
+    "columns": {
+      "nr": "Invoice No.",
+      "clientSupplier": "Client / Supplier",
+      "type": "Type",
+      "date": "Date",
+      "dueDate": "Due Date",
+      "subtotal": "Subtotal",
+      "vat": "VAT (19%)",
+      "total": "Total",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "typeLabels": {
+      "income": "Income",
+      "expense": "Expense"
+    },
+    "statusLabels": {
+      "plătită": "Paid",
+      "neplatită": "Unpaid",
+      "parțial": "Partial",
+      "anulată": "Cancelled"
+    },
+    "export": {
+      "export": "Export",
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "csv": "Export CSV",
+      "pdfSuccess": "PDF exported successfully.",
+      "excelSuccess": "Excel exported successfully.",
+      "csvSuccess": "CSV exported successfully.",
+      "invoiceList": "Invoices List"
+    },
+    "selection": {
+      "count": "{{count}} selected"
+    },
+    "filters": {
+      "searchPlaceholder": "Search by number, client, type...",
+      "allTypes": "All types",
+      "allStatuses": "All statuses"
+    },
+    "form": {
+      "editTitle": "Edit Invoice",
+      "addTitle": "New Invoice",
+      "type": "Type",
+      "invoiceNrAuto": "Invoice No. (auto)",
+      "date": "Date",
+      "dueDate": "Due Date",
+      "clientSupplier": "Client / Supplier",
+      "status": "Status",
+      "items": "Invoice Lines",
+      "addLine": "Add line",
+      "itemNumber": "Line #{{number}}",
+      "description": "Description",
+      "descriptionPlaceholder": "Product / service description...",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "lineTotal": "Line Total"
+    },
+    "totals": {
+      "subtotal": "Subtotal",
+      "vat": "VAT (19%)",
+      "total": "TOTAL"
+    },
+    "actions": {
+      "add": "Add Invoice",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "saveChanges": "Save Changes",
+      "addInvoice": "Add Invoice",
+      "markPaid": "Mark Paid",
+      "deselect": "Deselect",
+      "selectAll": "Select all"
+    },
+    "deleteDialog": {
+      "title": "Delete Invoice",
+      "description": "Are you sure you want to delete this invoice? This action cannot be undone."
+    },
+    "pagination": {
+      "showing": "Showing {{filtered}} of {{total}} invoices"
+    }
+  }
+}
