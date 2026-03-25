@@ -234,7 +234,11 @@
       "edit": "Edit driver",
       "delete": "Delete driver",
       "cancel": "Cancel",
-      "confirm": "Delete"
+      "confirm": "Delete",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV"
     },
     "columns": {
       "name": "Name",
@@ -248,6 +252,28 @@
       "status": "Status",
       "licenseExpiry": "Lic. Expiry",
       "truck": "Truck"
+    },
+    "export": {
+      "pdfTitle": "Drivers List",
+      "filename": "drivers"
+    },
+    "import": {
+      "title": "Import Drivers from CSV",
+      "button": "Import CSV",
+      "dropzone": "Drag & drop a CSV file or click to browse",
+      "dropzoneHint": "Columns: Name, Phone (07XXXXXXXX), License Expiry (yyyy-MM-dd), Status",
+      "validCount": "{{count}} valid row(s)",
+      "invalidCount": "{{count}} invalid row(s)",
+      "duplicateCount": "{{count}} duplicate(s)",
+      "errorsCol": "Errors",
+      "errorName": "Name must be at least 3 characters",
+      "errorPhone": "Invalid phone (format: 07XXXXXXXX)",
+      "errorDate": "Invalid license expiry date (yyyy-MM-dd)",
+      "duplicate": "Duplicate (name or phone)",
+      "confirm": "Import {{count}} driver(s)",
+      "toastSuccess": "{{count}} driver(s) imported successfully.",
+      "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
+      "toastAllSkipped": "No drivers imported - all rows are duplicates."
     }
   },
   "trucks": {
@@ -308,7 +334,11 @@
       "assign": "Assign driver",
       "cancel": "Cancel",
       "confirm": "Delete",
-      "save": "Save"
+      "save": "Save",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV"
     },
     "columns": {
       "plateNumber": "Truck",
@@ -331,7 +361,34 @@
       "selectDriver": "Select driver",
       "hasTrack": " (has truck)"
     },
-    "deleteDisabledTooltip": "Cannot delete a truck that is on a trip"
+    "deleteDisabledTooltip": "Cannot delete a truck that is on a trip",
+    "export": {
+      "pdfTitle": "Trucks List",
+      "filename": "trucks"
+    },
+    "import": {
+      "title": "Import Trucks from CSV",
+      "button": "Import CSV",
+      "dropzone": "Drag & drop a CSV file or click to browse",
+      "dropzoneHint": "Columns: Plate (XX-NN-XXX), Brand, Model, Year, Mileage, ITP (yyyy-MM-dd), RCA (yyyy-MM-dd), Vignette (yyyy-MM-dd)",
+      "validCount": "{{count}} valid row(s)",
+      "invalidCount": "{{count}} invalid row(s)",
+      "duplicateCount": "{{count}} duplicate(s)",
+      "errorsCol": "Errors",
+      "errorPlate": "Invalid plate number (e.g. CT-01-TML)",
+      "errorBrand": "Invalid brand (min 2 characters)",
+      "errorModel": "Model is required",
+      "errorYear": "Invalid year (1990 - current year)",
+      "errorMileage": "Invalid mileage",
+      "errorItp": "Invalid ITP date (yyyy-MM-dd)",
+      "errorRca": "Invalid RCA date (yyyy-MM-dd)",
+      "errorVignette": "Invalid Vignette date (yyyy-MM-dd)",
+      "duplicate": "Duplicate (plate number)",
+      "confirm": "Import {{count}} truck(s)",
+      "toastSuccess": "{{count}} truck(s) imported successfully.",
+      "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
+      "toastAllSkipped": "No trucks imported - all rows are duplicates."
+    }
   },
   "expiry": {
     "alerts": {
