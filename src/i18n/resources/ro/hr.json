@@ -1,0 +1,122 @@
+{
+  "hr": {
+    "title": "Resurse Umane",
+    "subtitle": "Angajati, concedii, salarizare si documente.",
+    "totalEmployees": "Total Angajati",
+    "totalEmployeesDesc": "Numar total de angajati in sistem",
+    "onLeave": "In Concediu",
+    "onLeaveDesc": "Cereri aprobate in luna curenta",
+    "expiredDocs": "Documente Expirate",
+    "expiredDocsDesc": "Documente depasite ca valabilitate",
+    "totalBonuses": "Total bonusuri (luna)",
+    "totalBonusesDesc": "Bonusuri − amenzi",
+    "chartDept": "Angajati per Departament",
+    "chartBonuses": "Bonusuri vs Amenzi (ultimele 6 luni)",
+    "chartBonusLabel": "Bonusuri",
+    "chartFinesLabel": "Amenzi",
+    "nav": {
+      "employees": "Angajati",
+      "leaves": "Concedii",
+      "payroll": "Salarizare"
+    },
+    "documentAlerts": {
+      "title": "Alerte Documente",
+      "empty": "Niciun document expirat sau care expira in urmatoarele 30 de zile.",
+      "columns": {
+        "employee": "Angajat",
+        "type": "Tip document",
+        "name": "Denumire",
+        "expiryDate": "Data expirare",
+        "status": "Status"
+      },
+      "types": {
+        "license": "Permis",
+        "tachograph": "Tahograf",
+        "adr": "ADR",
+        "medical": "Medical"
+      },
+      "expired": "Expirat",
+      "expiresToday": "Expira azi",
+      "daysLeft": "{{count}} zile"
+    }
+  },
+  "leaves": {
+    "title": "Concedii",
+    "manage": "Gestiune Concedii",
+    "requests": "{{count}} cereri",
+    "searchPlaceholder": "Cauta dupa angajat...",
+    "noResults": "Nicio cerere de concediu gasita.",
+    "tabs": {
+      "list": "Lista",
+      "calendar": "Calendar"
+    },
+    "columns": {
+      "employee": "Angajat",
+      "type": "Tip concediu",
+      "period": "Perioada",
+      "days": "Zile",
+      "daysValue": "{{count}} zile",
+      "status": "Status",
+      "reason": "Motiv",
+      "noReason": "—"
+    },
+    "types": {
+      "annual": "Odihna",
+      "sick": "Medical",
+      "unpaid": "Fara plata",
+      "other": "Personal"
+    },
+    "status": {
+      "pending": "In asteptare",
+      "approved": "Aprobat",
+      "rejected": "Respins",
+      "unknown": "Necunoscut"
+    },
+    "filters": {
+      "allTypes": "Toate tipurile",
+      "allStatuses": "Toate statusurile",
+      "type": "Tip concediu",
+      "status": "Status"
+    },
+    "actions": {
+      "add": "Adauga concediu"
+    },
+    "dialog": {
+      "addTitle": "Adauga concediu",
+      "editTitle": "Editare concediu"
+    },
+    "placeholders": {
+      "selectEmployee": "Selecteaza angajat",
+      "leaveType": "Tip concediu"
+    },
+    "validation": {
+      "employeeRequired": "Angajatul este obligatoriu",
+      "startDateRequired": "Data de start este obligatorie",
+      "endDateRequired": "Data de sfarsit este obligatorie",
+      "endDateAfterStart": "Data de sfarsit trebuie sa fie >= data de start"
+    },
+    "toast": {
+      "overlap": "Exista deja un concediu care se suprapune cu aceasta perioada."
+    }
+  },
+  "documentAlerts": {
+    "title": "Alerte Documente",
+    "empty": "Niciun document expirat sau care expira in urmatoarele 30 de zile.",
+    "columns": {
+      "employee": "Angajat",
+      "type": "Tip document",
+      "name": "Denumire",
+      "expiryDate": "Data expirare",
+      "status": "Status"
+    },
+    "types": {
+      "license": "Permis",
+      "tachograph": "Tahograf",
+      "adr": "ADR",
+      "medical": "Medical"
+    },
+    "expired": "Expirat",
+    "expiresToday": "Expira azi",
+    "daysLeft": "{{count}} zile"
+  }
+}

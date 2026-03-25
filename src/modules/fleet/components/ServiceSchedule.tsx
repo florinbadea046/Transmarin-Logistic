@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -28,13 +29,6 @@ interface ServiceScheduleProps {
   trucks: Truck[];
 }
 
-const TYPE_LABELS: Record<ServiceRecord["type"], string> = {
-  revision: "Revizie",
-  repair: "Reparație",
-  itp: "ITP",
-  other: "Altele",
-};
-
 const SOON_THRESHOLD_DAYS = 30;
 
 function getDaysUntil(dateStr: string): number {
@@ -42,10 +36,15 @@ function getDaysUntil(dateStr: string): number {
   today.setHours(0, 0, 0, 0);
   const target = new Date(dateStr);
   target.setHours(0, 0, 0, 0);
-  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  return Math.ceil(
+    (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+  );
 }
 
-function getStatus(nextServiceDate: string | null): { status: ServiceStatus; daysUntil: number | null } {
+function getStatus(nextServiceDate: string | null): {
+  status: ServiceStatus;
+  daysUntil: number | null;
+} {
   if (!nextServiceDate) return { status: "no_date", daysUntil: null };
   const days = getDaysUntil(nextServiceDate);
   if (days < 0) return { status: "overdue", daysUntil: days };
@@ -54,11 +53,15 @@ function getStatus(nextServiceDate: string | null): { status: ServiceStatus; day
 }
 
 export function ServiceSchedule({ records, trucks }: ServiceScheduleProps) {
-  const [rows, setRows] = useState<TruckServiceRow[]>([]);
-  const [overdueCount, setOverdueCount] = useState(0);
-  const [soonCount, setSoonCount] = useState(0);
+  const { t } = useTranslation();
+  const rows = useMemo(() => {
+    const typeLabels: Record<ServiceRecord["type"], string> = {
+      revision: t("fleet.service.typeRevision"),
+      repair: t("fleet.service.typeRepair"),
+      itp: t("fleet.service.typeItp"),
+      other: t("fleet.service.typeOther"),
+    };
 
-  useEffect(() => {
     const built: TruckServiceRow[] = trucks.map((truck) => {
       const truckRecords = records
         .filter((r) => r.truckId === truck.id)
@@ -72,46 +75,70 @@ export function ServiceSchedule({ records, trucks }: ServiceScheduleProps) {
         truck,
         lastServiceDate: latest?.date ?? null,
         nextServiceDate,
-        lastServiceType: latest ? TYPE_LABELS[latest.type] : null,
+        lastServiceType: latest ? typeLabels[latest.type] : null,
         status,
         daysUntil,
       };
     });
 
-    const order: Record<ServiceStatus, number> = { overdue: 0, soon: 1, ok: 2, no_date: 3 };
+    const order: Record<ServiceStatus, number> = {
+      overdue: 0,
+      soon: 1,
+      ok: 2,
+      no_date: 3,
+    };
     built.sort((a, b) => order[a.status] - order[b.status]);
 
-    setRows(built);
-    setOverdueCount(built.filter((r) => r.status === "overdue").length);
-    setSoonCount(built.filter((r) => r.status === "soon").length);
-  }, [records, trucks]);
+    return built;
+  }, [records, t, trucks]);
+
+  const overdueCount = rows.filter((r) => r.status === "overdue").length;
+  const soonCount = rows.filter((r) => r.status === "soon").length;
 
   const statusBadge = (row: TruckServiceRow) => {
     switch (row.status) {
       case "overdue":
-        return <Badge className="bg-white text-red-600 border border-red-600">⚠ Restant</Badge>;
+        return (
+          <Badge className="bg-white dark:bg-gray-900 text-red-600 border border-red-600">
+            {t("fleet.service.statusOverdue")}
+          </Badge>
+        );
       case "soon":
-        return <Badge className="bg-white text-yellow-600 border border-yellow-600">În curând</Badge>;
+        return (
+          <Badge className="bg-white dark:bg-gray-900 text-yellow-600 border border-yellow-600">
+            {t("fleet.service.statusSoon")}
+          </Badge>
+        );
       case "ok":
-        return <Badge className="bg-white text-green-600 border border-green-600">OK</Badge>;
+        return (
+          <Badge className="bg-white dark:bg-gray-900 text-green-600 border border-green-600">
+            {t("fleet.service.statusOk")}
+          </Badge>
+        );
       case "no_date":
-        return <Badge variant="outline">Neprogramat</Badge>;
+        return (
+          <Badge variant="outline">
+            {t("fleet.service.statusUnscheduled")}
+          </Badge>
+        );
     }
   };
 
   const daysLabel = (row: TruckServiceRow) => {
     if (row.daysUntil === null) return "—";
-    if (row.daysUntil < 0) return `${Math.abs(row.daysUntil)} zile întârziere`;
-    if (row.daysUntil === 0) return "Azi";
-    return `${row.daysUntil} zile`;
+    if (row.daysUntil < 0)
+      return t("fleet.service.daysOverdue", { count: Math.abs(row.daysUntil) });
+    if (row.daysUntil === 0) return t("fleet.service.today");
+    return t("fleet.service.daysRemaining", { count: row.daysUntil });
   };
 
   const textClass = (status: ServiceStatus) =>
-    status === "overdue" || status === "soon" ? "text-black" : "text-white";
+    status === "overdue" || status === "soon"
+      ? "text-black dark:text-white"
+      : "text-white";
 
   return (
     <div className="flex flex-col gap-4">
-
       {(overdueCount > 0 || soonCount > 0) && (
         <div className="flex flex-wrap gap-3">
           {overdueCount > 0 && (
@@ -119,9 +146,11 @@ export function ServiceSchedule({ records, trucks }: ServiceScheduleProps) {
               <span className="text-2xl">🚨</span>
               <div>
                 <p className="font-bold text-red-700 dark:text-red-300 text-sm">
-                  {overdueCount} {overdueCount === 1 ? "vehicul cu service restant" : "vehicule cu service restant"}
+                  {t("fleet.service.overdueAlert", { count: overdueCount })}
                 </p>
-                <p className="text-red-500 dark:text-red-400 text-xs">Programează service imediat</p>
+                <p className="text-red-500 dark:text-red-400 text-xs">
+                  {t("fleet.service.scheduleImmediately")}
+                </p>
               </div>
             </div>
           )}
@@ -130,9 +159,11 @@ export function ServiceSchedule({ records, trucks }: ServiceScheduleProps) {
               <span className="text-2xl">⚠️</span>
               <div>
                 <p className="font-bold text-yellow-700 dark:text-yellow-300 text-sm">
-                  {soonCount} {soonCount === 1 ? "vehicul cu service în următoarele 30 zile" : "vehicule cu service în următoarele 30 zile"}
+                  {t("fleet.service.soonAlert", { count: soonCount })}
                 </p>
-                <p className="text-yellow-600 dark:text-yellow-400 text-xs">Planifică din timp</p>
+                <p className="text-yellow-600 dark:text-yellow-400 text-xs">
+                  {t("fleet.service.planAhead")}
+                </p>
               </div>
             </div>
           )}
@@ -141,19 +172,19 @@ export function ServiceSchedule({ records, trucks }: ServiceScheduleProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Programare Service Vehicule</CardTitle>
+          <CardTitle>{t("fleet.service.scheduleTitle")}</CardTitle>
         </CardHeader>
         <CardContent className="p-0 pt-2">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Vehicul</TableHead>
-                  <TableHead>Ultimul service</TableHead>
-                  <TableHead>Tip</TableHead>
-                  <TableHead>Următor service</TableHead>
-                  <TableHead>Zile rămase</TableHead>
-                  <TableHead>Status</TableHead>
+                  <TableHead>{t("fleet.service.vehicle")}</TableHead>
+                  <TableHead>{t("fleet.service.lastService")}</TableHead>
+                  <TableHead>{t("fleet.service.type")}</TableHead>
+                  <TableHead>{t("fleet.service.nextService")}</TableHead>
+                  <TableHead>{t("fleet.service.daysLeft")}</TableHead>
+                  <TableHead>{t("fleet.service.status")}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -168,19 +199,36 @@ export function ServiceSchedule({ records, trucks }: ServiceScheduleProps) {
                           : ""
                     }
                   >
-                    <TableCell className={`font-semibold ${textClass(row.status)}`}>
+                    <TableCell
+                      className={`font-semibold ${textClass(row.status)}`}
+                    >
                       {row.truck.plateNumber}
-                      <span className={`font-normal ml-1 text-xs ${row.status === "overdue" || row.status === "soon"
-                          ? "text-black/60"
-                          : "text-muted-foreground"
-                        }`}>
+                      <span
+                        className={`font-normal ml-1 text-xs ${
+                          row.status === "overdue" || row.status === "soon"
+                            ? "text-black/60 dark:text-white/60"
+                            : "text-muted-foreground"
+                        }`}
+                      >
                         {row.truck.brand} {row.truck.model}
                       </span>
                     </TableCell>
-                    <TableCell className={textClass(row.status)}>{row.lastServiceDate ?? "—"}</TableCell>
-                    <TableCell className={textClass(row.status)}>{row.lastServiceType ?? "—"}</TableCell>
-                    <TableCell className={`font-medium ${textClass(row.status)}`}>{row.nextServiceDate ?? "—"}</TableCell>
-                    <TableCell className={`font-semibold ${textClass(row.status)}`}>{daysLabel(row)}</TableCell>
+                    <TableCell className={textClass(row.status)}>
+                      {row.lastServiceDate ?? "—"}
+                    </TableCell>
+                    <TableCell className={textClass(row.status)}>
+                      {row.lastServiceType ?? "—"}
+                    </TableCell>
+                    <TableCell
+                      className={`font-medium ${textClass(row.status)}`}
+                    >
+                      {row.nextServiceDate ?? "—"}
+                    </TableCell>
+                    <TableCell
+                      className={`font-semibold ${textClass(row.status)}`}
+                    >
+                      {daysLabel(row)}
+                    </TableCell>
                     <TableCell>{statusBadge(row)}</TableCell>
                   </TableRow>
                 ))}

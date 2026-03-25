@@ -32,23 +32,26 @@ import { addItem, generateId, getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { LeaveRequest, Employee } from "@/modules/hr/types";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 // ── Schema ──────────────────────────────────────────────────
-const leaveSchema = z
-  .object({
-    employeeId: z.string().min(1, "Angajatul este obligatoriu"),
-    type: z.enum(["annual", "sick", "unpaid", "other"] as const),
-    status: z.enum(["pending", "approved", "rejected"] as const).optional(),
-    startDate: z.string().min(1, "Data de start este obligatorie"),
-    endDate: z.string().min(1, "Data de sfârșit este obligatorie"),
-    reason: z.string().optional(),
-  })
-  .refine((d) => d.endDate >= d.startDate, {
-    message: "Data de sfârșit trebuie să fie ≥ data de start",
-    path: ["endDate"],
-  });
+function makeLeaveSchema(t: (key: string) => string) {
+  return z
+    .object({
+      employeeId: z.string().min(1, t("leaves.validation.employeeRequired")),
+      type: z.enum(["annual", "sick", "unpaid", "other"] as const),
+      status: z.enum(["pending", "approved", "rejected"] as const).optional(),
+      startDate: z.string().min(1, t("leaves.validation.startDateRequired")),
+      endDate: z.string().min(1, t("leaves.validation.endDateRequired")),
+      reason: z.string().optional(),
+    })
+    .refine((d) => d.endDate >= d.startDate, {
+      message: t("leaves.validation.endDateAfterStart"),
+      path: ["endDate"],
+    });
+}
 
-type LeaveFormValues = z.infer<typeof leaveSchema>;
+type LeaveFormValues = z.infer<ReturnType<typeof makeLeaveSchema>>;
 
 // ── Props ────────────────────────────────────────────────────
 type Props =
@@ -133,6 +136,7 @@ function DatePickerField({
 
 // ── Dialog ───────────────────────────────────────────────────
 export default function LeaveDialog(props: Props) {
+  const { t } = useTranslation();
   const isEdit = props.mode === "edit";
   const leave = isEdit ? props.leave : undefined;
   const externalOpen = isEdit ? props.open : undefined;
@@ -147,6 +151,8 @@ export default function LeaveDialog(props: Props) {
     () => getCollection<Employee>(STORAGE_KEYS.employees),
     [],
   );
+
+  const leaveSchema = React.useMemo(() => makeLeaveSchema(t), [t]);
 
   const form = useForm<LeaveFormValues>({
     resolver: zodResolver(leaveSchema) as Resolver<LeaveFormValues>,
@@ -179,9 +185,7 @@ export default function LeaveDialog(props: Props) {
       leave?.id,
     );
     if (overlap) {
-      toast.error(
-        "Există deja un concediu care se suprapune cu această perioadă.",
-      );
+      toast.error(t("leaves.toast.overlap"));
       return;
     }
 
@@ -209,13 +213,15 @@ export default function LeaveDialog(props: Props) {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       {showTrigger && (
         <DialogTrigger asChild>
-          <Button variant="default">Adaugă concediu</Button>
+          <Button variant="default">{t("leaves.actions.add")}</Button>
         </DialogTrigger>
       )}
       <DialogContent className="max-w-md overflow-y-auto max-h-[90dvh]">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Editare concediu" : "Adaugă concediu"}
+            {isEdit
+              ? t("leaves.dialog.editTitle")
+              : t("leaves.dialog.addTitle")}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)}>
@@ -227,7 +233,9 @@ export default function LeaveDialog(props: Props) {
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Selectează angajat" />
+                <SelectValue
+                  placeholder={t("leaves.placeholders.selectEmployee")}
+                />
               </SelectTrigger>
               <SelectContent>
                 {employees.map((e) => (
@@ -252,13 +260,17 @@ export default function LeaveDialog(props: Props) {
               }
             >
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Tip concediu" />
+                <SelectValue placeholder={t("leaves.placeholders.leaveType")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="annual">Odihnă</SelectItem>
-                <SelectItem value="sick">Medical</SelectItem>
-                <SelectItem value="other">Personal</SelectItem>
-                <SelectItem value="unpaid">Fără plată</SelectItem>
+                <SelectItem value="annual">
+                  {t("leaves.types.annual")}
+                </SelectItem>
+                <SelectItem value="sick">{t("leaves.types.sick")}</SelectItem>
+                <SelectItem value="other">{t("leaves.types.other")}</SelectItem>
+                <SelectItem value="unpaid">
+                  {t("leaves.types.unpaid")}
+                </SelectItem>
               </SelectContent>
             </Select>
             {form.formState.errors.type && (
@@ -307,7 +319,8 @@ export default function LeaveDialog(props: Props) {
 
             {days > 0 && (
               <p className="text-sm text-muted-foreground">
-                Număr zile: <span className="font-medium text-foreground">{days}</span>
+                Număr zile:{" "}
+                <span className="font-medium text-foreground">{days}</span>
               </p>
             )}
 

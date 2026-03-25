@@ -1,0 +1,62 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "cards": {
+      "activeOrders": "Active Orders",
+      "activeOrdersDesc": "pending + assigned + in transit",
+      "employees": "Employees",
+      "employeesDesc": "21 active",
+      "invoices": "Invoices This Month",
+      "invoicesDesc": "8 unpaid",
+      "kmMonth": "Km This Month",
+      "kmMonthDesc": "loaded + empty from all trips"
+    },
+    "charts": {
+      "kmPerDay": "Km / day - last 30 days",
+      "costsVsRevenue": "Costs vs. Revenue",
+      "costsVsRevenueTodo": "Costs vs revenue chart will be available soon.",
+      "kmTooltip": "Km"
+    },
+    "alerts": {
+      "title": "ITP / RCA / Vignette Alerts (<30 days)",
+      "expired": "EXPIRED",
+      "expiresIn": "expires in {{days}} days"
+    },
+    "months": [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec"
+    ]
+  },
+  "hrDashboard": {
+    "title": "Human Resources — Summary",
+    "cards": {
+      "totalEmployees": "Total Employees",
+      "totalEmployeesDesc": "active employees in system",
+      "onLeave": "On Leave",
+      "onLeaveDesc": "approved leaves this month",
+      "expiredDocs": "Expired Documents",
+      "expiredDocsDesc": "documents past expiry date",
+      "pendingLeaves": "Pending Requests",
+      "pendingLeavesDesc": "leave requests awaiting approval"
+    },
+    "charts": {
+      "newEmployees": "New employees per month (last 6 months)",
+      "newEmployeesTooltip": "New employees"
+    },
+    "alerts": {
+      "expiredDocs": "Expired documents",
+      "pendingLeaves": "Pending leave requests",
+      "allGood": "No active HR alerts."
+    }
+  }
+}

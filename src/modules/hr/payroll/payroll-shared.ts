@@ -1,5 +1,13 @@
 import type { Bonus } from "@/modules/hr/types";
 
+export const BONUS_TYPE_KEYS: Record<Bonus["type"], string> = {
+  diurna: "hr.payroll.typeDiurna",
+  bonus: "hr.payroll.typeBonus",
+  amenda: "hr.payroll.typeFine",
+  ore_suplimentare: "hr.payroll.typeOvertime",
+};
+
+/** @deprecated Use BONUS_TYPE_KEYS with t() instead */
 export const BONUS_TYPE_LABELS: Record<Bonus["type"], string> = {
   diurna: "Diurnă",
   bonus: "Bonus",

@@ -1,20 +1,27 @@
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { Employee } from '@/modules/hr/types';
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import type { Employee } from "@/modules/hr/types";
+import { useTranslation } from "react-i18next";
 
-const WATCHED_TYPES = ['license', 'tachograph', 'adr', 'medical'] as const;
+const WATCHED_TYPES = ["license", "tachograph", "adr", "medical"] as const;
 
-const TYPE_LABELS: Record<(typeof WATCHED_TYPES)[number], string> = {
-  license: 'Permis conducere',
-  tachograph: 'Tahograf',
-  adr: 'ADR',
-  medical: 'Aviz medical',
-};
+type WatchedDocType = (typeof WATCHED_TYPES)[number];
+
+function isWatchedDocType(value: string): value is WatchedDocType {
+  return (WATCHED_TYPES as readonly string[]).includes(value);
+}
 
 interface AlertRow {
   employeeName: string;
-  docType: (typeof WATCHED_TYPES)[number];
+  docType: WatchedDocType;
   docName: string;
   expiryDate: string;
   daysLeft: number;
@@ -25,19 +32,24 @@ interface Props {
 }
 
 export function DocumentAlerts({ employees }: Props) {
-  const today = new Date().toISOString().slice(0, 10);
+  const { t } = useTranslation();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
   const rows: AlertRow[] = [];
 
   for (const emp of employees) {
     for (const doc of emp.documents) {
-      if (!WATCHED_TYPES.includes(doc.type as any)) continue;
+      if (!isWatchedDocType(doc.type)) continue;
       if (!doc.expiryDate) continue;
       const expiryDate = new Date(doc.expiryDate);
-      const daysLeft = Math.ceil((expiryDate.getTime() - new Date(today).getTime()) / 8640000);
+      expiryDate.setHours(0, 0, 0, 0);
+      const daysLeft = Math.ceil(
+        (expiryDate.getTime() - today.getTime()) / 86400000,
+      );
       rows.push({
         employeeName: emp.name,
-        docType: doc.type as (typeof WATCHED_TYPES)[number],
+        docType: doc.type,
         docName: doc.name,
         expiryDate: doc.expiryDate,
         daysLeft,
@@ -51,7 +63,7 @@ export function DocumentAlerts({ employees }: Props) {
     <Card className="mt-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          Alerte Documente
+          {t("hr.documentAlerts.title")}
           {rows.length > 0 && (
             <Badge variant="destructive" className="text-xs">
               {rows.length}
@@ -61,31 +73,50 @@ export function DocumentAlerts({ employees }: Props) {
       </CardHeader>
       <CardContent>
         {rows.length === 0 ? (
-          <p className="px-4 py-8 text-center text-sm text-muted-foreground">Niciun document expirat sau care expiră în 30 de zile.</p>
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+            {t("hr.documentAlerts.empty")}
+          </p>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Angajat</TableHead>
-                <TableHead>Tip document</TableHead>
-                <TableHead>Denumire</TableHead>
-                <TableHead>Data expirare</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t("hr.documentAlerts.columns.employee")}</TableHead>
+                <TableHead>{t("hr.documentAlerts.columns.type")}</TableHead>
+                <TableHead>{t("hr.documentAlerts.columns.name")}</TableHead>
+                <TableHead>
+                  {t("hr.documentAlerts.columns.expiryDate")}
+                </TableHead>
+                <TableHead>{t("hr.documentAlerts.columns.status")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((row, i) => (
-                <TableRow key={i}>
-                  <TableCell className="font-medium">{row.employeeName}</TableCell>
-                  <TableCell>{TYPE_LABELS[row.docType]}</TableCell>
-                  <TableCell>{row.docName || '—'}</TableCell>
+              {rows.map((row) => (
+                <TableRow
+                  key={`${row.employeeName}-${row.docType}-${row.expiryDate}`}
+                >
+                  <TableCell className="font-medium">
+                    {row.employeeName}
+                  </TableCell>
+                  <TableCell>
+                    {t(`hr.documentAlerts.types.${row.docType}`)}
+                  </TableCell>
+                  <TableCell>{row.docName || "—"}</TableCell>
                   <TableCell>{row.expiryDate}</TableCell>
                   <TableCell>
                     {row.daysLeft < 0 ? (
-                      <Badge variant="destructive">Expirat</Badge>
+                      <Badge variant="destructive">
+                        {t("hr.documentAlerts.expired")}
+                      </Badge>
                     ) : (
-                      <Badge variant="outline" className="border-yellow-500 text-yellow-600 bg-yellow-50 dark:bg-yellow-950 dark:text-yellow-400">
-                        {row.daysLeft === 0 ? 'Expiră azi' : `${row.daysLeft} zile`}
+                      <Badge
+                        variant="outline"
+                        className="border-yellow-500 text-yellow-600 bg-yellow-50 dark:bg-yellow-950 dark:text-yellow-400"
+                      >
+                        {row.daysLeft === 0
+                          ? t("hr.documentAlerts.expiresToday")
+                          : t("hr.documentAlerts.daysLeft", {
+                              count: row.daysLeft,
+                            })}
                       </Badge>
                     )}
                   </TableCell>

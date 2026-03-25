@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 import { toast } from "sonner";
 import jsPDF from "jspdf";
@@ -97,13 +98,6 @@ const statusColor: Record<InvoiceStatus, string> = {
   anulată:   "bg-gray-500/20 text-gray-400 border-gray-500/30",
 };
 
-const statusLabels: Record<InvoiceStatus, string> = {
-  plătită: "Plătită",
-  neplatită: "Neplătită",
-  parțial: "Parțial",
-  anulată: "Anulată",
-};
-
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const generateNr = (tip: InvoiceType) => {
   const prefix = tip === "venit" ? "FACT" : "CHELT";
@@ -164,45 +158,38 @@ const initialMock: Invoice[] = [
 // ── Export helpers ────────────────────────────────────────────────────────────
 
 type ExportRow = {
-  "Nr. Factură": string
-  "Client / Furnizor": string
-  Tip: string
-  Dată: string
-  Subtotal: string
-  TVA: string
-  Total: string
-  Status: string
+  [key: string]: string
 }
 
-function getExportRows(invoices: Invoice[]): ExportRow[] {
+function getExportRows(invoices: Invoice[], t: (key: string) => string): ExportRow[] {
   return invoices.map((inv) => {
     const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii)
 
     return {
-      "Nr. Factură": inv.nr,
-      "Client / Furnizor": inv.clientFurnizor,
-      Tip: inv.tip === "venit" ? "Venit" : "Cheltuială",
-      Dată: inv.data,
-      Subtotal: totalFaraTVA.toFixed(2),
-      TVA: tva.toFixed(2),
-      Total: total.toFixed(2),
-      Status: statusLabels[inv.status],
+      [t("invoices.columns.nr")]: inv.nr,
+      [t("invoices.columns.clientSupplier")]: inv.clientFurnizor,
+      [t("invoices.columns.type")]: inv.tip === "venit" ? t("invoices.typeLabels.income") : t("invoices.typeLabels.expense"),
+      [t("invoices.columns.date")]: inv.data,
+      [t("invoices.columns.subtotal")]: totalFaraTVA.toFixed(2),
+      [t("invoices.columns.vat")]: tva.toFixed(2),
+      [t("invoices.columns.total")]: total.toFixed(2),
+      [t("invoices.columns.status")]: t(`invoices.statusLabels.${inv.status}`),
     }
   })
 }
 
-function exportPDF(invoices: Invoice[]) {
+function exportPDF(invoices: Invoice[], t: (key: string) => string) {
   const doc = new jsPDF()
 
   doc.setFontSize(16)
-  doc.text("Transmarin Logistic", 14, 16)
+  doc.text(t("invoices.header"), 14, 16)
 
   doc.setFontSize(11)
-  doc.text(`Lista Facturi [${new Date().toLocaleDateString("ro-RO")}]`, 14, 24)
+  doc.text(`${t("invoices.export.invoiceList")} [${new Date().toLocaleDateString("ro-RO")}]`, 14, 24)
 
-  const rows = getExportRows(invoices)
+  const rows = getExportRows(invoices, t)
 
-  const cols = Object.keys(rows[0] ?? {}) as (keyof ExportRow)[]
+  const cols = Object.keys(rows[0] ?? {})
 
   autoTable(doc, {
     head: [cols],
@@ -215,20 +202,20 @@ function exportPDF(invoices: Invoice[]) {
   doc.save("facturi.pdf")
 }
 
-function exportExcel(invoices: Invoice[]) {
-  const rows = getExportRows(invoices)
+function exportExcel(invoices: Invoice[], t: (key: string) => string) {
+  const rows = getExportRows(invoices, t)
 
   const ws = XLSX.utils.json_to_sheet(rows)
 
   const wb = XLSX.utils.book_new()
 
-  XLSX.utils.book_append_sheet(wb, ws, "Facturi")
+  XLSX.utils.book_append_sheet(wb, ws, t("invoices.title"))
 
   XLSX.writeFile(wb, "facturi.xlsx")
 }
 
-function exportCSV(invoices: Invoice[]) {
-  const rows = getExportRows(invoices)
+function exportCSV(invoices: Invoice[], t: (key: string) => string) {
+  const rows = getExportRows(invoices, t)
 
   const csv = Papa.unparse(rows)
 
@@ -256,7 +243,7 @@ function ExportMenu({
   selectedIds: Set<string>;
   filteredInvoices: Invoice[];
 }) {
-  
+  const { t } = useTranslation();
 
   // Dacă există selecție → exportă doar selecția; altfel → toate cele filtrate
   const toExport = selectedIds.size > 0
@@ -264,8 +251,8 @@ function ExportMenu({
     : filteredInvoices;
 
   const label = selectedIds.size > 0
-    ? `Export (${selectedIds.size})`
-    : "Export";
+    ? `${t("invoices.export.export")} (${selectedIds.size})`
+    : t("invoices.export.export");
 
   return (
     <DropdownMenu>
@@ -279,28 +266,28 @@ function ExportMenu({
         {selectedIds.size > 0 && (
           <>
             <div className="px-2 py-1 text-xs text-muted-foreground font-medium">
-              {selectedIds.size} factură(i) selectată(e)
+              {t("invoices.selection.count", { count: selectedIds.size })}
             </div>
             <DropdownMenuSeparator />
           </>
         )}
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => { exportPDF(toExport); toast.success("PDF exportat cu succes."); }}
+          onClick={() => { exportPDF(toExport, t); toast.success(t("invoices.export.pdfSuccess")); }}
         >
-          {"Export PDF"}
+          {t("invoices.export.pdf")}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => { exportExcel(toExport); toast.success("Excel exportat cu succes."); }}
+          onClick={() => { exportExcel(toExport, t); toast.success(t("invoices.export.excelSuccess")); }}
         >
-          {"Export Excel"}
+          {t("invoices.export.excel")}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => { exportCSV(toExport); toast.success("CSV exportat cu succes."); }}
+          onClick={() => { exportCSV(toExport, t); toast.success(t("invoices.export.csvSuccess")); }}
         >
-          {"Export CSV"}
+          {t("invoices.export.csv")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -318,6 +305,7 @@ function InvoiceCard({
   selected: boolean;
   onSelect: (id: string, checked: boolean) => void;
 }) {
+  const { t } = useTranslation();
   const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii);
   const overdue = inv.status !== "plătită" && inv.status !== "anulată" && inv.scadenta
     ? new Date(inv.scadenta) < new Date()
@@ -337,43 +325,43 @@ function InvoiceCard({
           </div>
         </div>
         <Badge className={`border ${statusColor[inv.status]} shrink-0`}>
-          {statusLabels[inv.status]}
+          {t(`invoices.statusLabels.${inv.status}`)}
         </Badge>
       </div>
       <div className="flex gap-2 flex-wrap">
         <Badge variant="outline" className={inv.tip === "venit" ? "border-blue-500/30 text-blue-400" : "border-orange-500/30 text-orange-400"}>
-          {inv.tip === "venit" ? "Venit" : "Cheltuială"}
+          {inv.tip === "venit" ? t("invoices.typeLabels.income") : t("invoices.typeLabels.expense")}
         </Badge>
-        <span className="text-xs text-muted-foreground">Dată: {inv.data}</span>
+        <span className="text-xs text-muted-foreground">{t("invoices.columns.date")}: {inv.data}</span>
         <span className={`text-xs ${overdue ? "text-red-400 font-semibold" : "text-muted-foreground"}`}>
-          Scadență: {inv.scadenta}
+          {t("invoices.columns.dueDate")}: {inv.scadenta}
         </span>
       </div>
       <div className="grid grid-cols-3 gap-2 text-sm border-t pt-2">
         <div>
-          <p className="text-xs text-muted-foreground">Fără TVA</p>
+          <p className="text-xs text-muted-foreground">{t("invoices.columns.subtotal")}</p>
           <p className="font-medium">{formatCurrency(totalFaraTVA)}</p>
         </div>
         <div>
-          <p className="text-xs text-muted-foreground">TVA</p>
+          <p className="text-xs text-muted-foreground">{t("invoices.columns.vat")}</p>
           <p className="font-medium">{formatCurrency(tva)}</p>
         </div>
         <div>
-          <p className="text-xs text-muted-foreground">Total</p>
+          <p className="text-xs text-muted-foreground">{t("invoices.columns.total")}</p>
           <p className="font-bold">{formatCurrency(total)}</p>
         </div>
       </div>
       <div className="flex justify-end gap-2 border-t pt-2 flex-wrap">
         {(inv.status === "neplatită" || inv.status === "parțial") && (
           <Button size="sm" variant="ghost" className="text-green-400 hover:text-green-300" onClick={() => onMarkPaid(inv.id)}>
-            <CheckCircle className="w-4 h-4 mr-1" /> Mark as Paid
+            <CheckCircle className="w-4 h-4 mr-1" /> {t("invoices.actions.markPaid")}
           </Button>
         )}
         <Button size="sm" variant="ghost" onClick={() => onEdit(inv)}>
-          <Pencil className="w-4 h-4 mr-1" /> Editează
+          <Pencil className="w-4 h-4 mr-1" /> {t("invoices.actions.edit")}
         </Button>
         <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300" disabled={inv.status === "plătită"} onClick={() => onDelete(inv.id)}>
-          <Trash2 className="w-4 h-4 mr-1" /> Șterge
+          <Trash2 className="w-4 h-4 mr-1" /> {t("invoices.actions.delete")}
         </Button>
       </div>
     </div>
@@ -382,7 +370,8 @@ function InvoiceCard({
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function InvoicesPage() {
- 
+  const { t } = useTranslation();
+
   const [invoices, setInvoices] = useState<Invoice[]>(initialMock);
   const [tipFilter, setTipFilter] = useState("toate");
   const [statusFilter, setStatusFilter] = useState("toate");
@@ -468,17 +457,17 @@ export default function InvoicesPage() {
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold">{"Facturi"}</h1>
+        <h1 className="text-lg font-semibold">{t("invoices.title")}</h1>
       </Header>
 
       <Main>
         <Card>
           <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <CardTitle>{"Gestiune Facturi"}</CardTitle>
+            <CardTitle>{t("invoices.cardTitle")}</CardTitle>
             <div className="flex gap-2 flex-wrap justify-end">
               <ExportMenu invoices={invoices} selectedIds={selectedIds} filteredInvoices={filtered} />
               <Button size="sm" onClick={openNew} className="w-full sm:w-auto">
-                <Plus className="w-4 h-4 mr-1" /> Factură Nouă
+                <Plus className="w-4 h-4 mr-1" /> {t("invoices.actions.add")}
               </Button>
             </div>
           </CardHeader>
@@ -487,25 +476,25 @@ export default function InvoicesPage() {
             <div className="flex flex-col gap-3 mb-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input className="pl-9" placeholder="Caută după număr, client, tip..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                <Input className="pl-9" placeholder={t("invoices.filters.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Select value={tipFilter} onValueChange={setTipFilter}>
-                  <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Toate tipurile" /></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder={t("invoices.filters.allTypes")} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="toate">Toate tipurile</SelectItem>
-                    <SelectItem value="venit">Venit</SelectItem>
-                    <SelectItem value="cheltuială">Cheltuială</SelectItem>
+                    <SelectItem value="toate">{t("invoices.filters.allTypes")}</SelectItem>
+                    <SelectItem value="venit">{t("invoices.typeLabels.income")}</SelectItem>
+                    <SelectItem value="cheltuială">{t("invoices.typeLabels.expense")}</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Toate statusurile" /></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder={t("invoices.filters.allStatuses")} /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="toate">Toate statusurile</SelectItem>
-                    <SelectItem value="plătită">Plătită</SelectItem>
-                    <SelectItem value="neplatită">Neplătită</SelectItem>
-                    <SelectItem value="parțial">Parțial</SelectItem>
-                    <SelectItem value="anulată">Anulată</SelectItem>
+                    <SelectItem value="toate">{t("invoices.filters.allStatuses")}</SelectItem>
+                    <SelectItem value="plătită">{t("invoices.statusLabels.plătită")}</SelectItem>
+                    <SelectItem value="neplatită">{t("invoices.statusLabels.neplatită")}</SelectItem>
+                    <SelectItem value="parțial">{t("invoices.statusLabels.parțial")}</SelectItem>
+                    <SelectItem value="anulată">{t("invoices.statusLabels.anulată")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -515,10 +504,10 @@ export default function InvoicesPage() {
             {someFilteredSelected && (
               <div className="flex items-center justify-between rounded-md border border-blue-500/30 bg-blue-500/10 px-3 py-2 mb-3 text-sm">
                 <span className="text-blue-400 font-medium">
-                  {selectedIds.size} factură(i) selectată(e)
+                  {t("invoices.selection.count", { count: selectedIds.size })}
                 </span>
                 <Button size="sm" variant="ghost" className="h-7 text-muted-foreground hover:text-white" onClick={clearSelection}>
-                  <X className="w-3 h-3 mr-1" /> Deselectează
+                  <X className="w-3 h-3 mr-1" /> {t("invoices.actions.deselect")}
                 </Button>
               </div>
             )}
@@ -526,7 +515,7 @@ export default function InvoicesPage() {
             {/* Mobile */}
             <div className="flex flex-col gap-3 md:hidden">
               {filtered.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">Nu există facturi pentru filtrele selectate.</p>
+                <p className="text-center text-muted-foreground py-8">{t("invoices.noResults")}</p>
               ) : (
                 filtered.map((inv) => (
                   <InvoiceCard
@@ -552,26 +541,26 @@ export default function InvoicesPage() {
                         checked={allFilteredSelected}
                         data-state={someFilteredSelected && !allFilteredSelected ? "indeterminate" : undefined}
                         onCheckedChange={(checked) => toggleSelectAll(!!checked)}
-                        aria-label="Selectează toate"
+                        aria-label={t("invoices.actions.selectAll")}
                       />
                     </TableHead>
-                    <TableHead>Nr. Factură</TableHead>
-                    <TableHead>Tip</TableHead>
-                    <TableHead>Dată</TableHead>
-                    <TableHead>Scadență</TableHead>
-                    <TableHead>Client / Furnizor</TableHead>
-                    <TableHead className="text-right">Fără TVA</TableHead>
-                    <TableHead className="text-right">TVA</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Acțiuni</TableHead>
+                    <TableHead>{t("invoices.columns.nr")}</TableHead>
+                    <TableHead>{t("invoices.columns.type")}</TableHead>
+                    <TableHead>{t("invoices.columns.date")}</TableHead>
+                    <TableHead>{t("invoices.columns.dueDate")}</TableHead>
+                    <TableHead>{t("invoices.columns.clientSupplier")}</TableHead>
+                    <TableHead className="text-right">{t("invoices.columns.subtotal")}</TableHead>
+                    <TableHead className="text-right">{t("invoices.columns.vat")}</TableHead>
+                    <TableHead className="text-right">{t("invoices.columns.total")}</TableHead>
+                    <TableHead>{t("invoices.columns.status")}</TableHead>
+                    <TableHead className="text-right">{t("invoices.columns.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={11} className="text-center text-muted-foreground py-8">
-                        Nu există facturi pentru filtrele selectate.
+                        {t("invoices.noResults")}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -599,7 +588,7 @@ export default function InvoicesPage() {
                           <TableCell className="font-medium">{inv.nr}</TableCell>
                           <TableCell>
                             <Badge variant="outline" className={inv.tip === "venit" ? "border-blue-500/30 text-blue-400" : "border-orange-500/30 text-orange-400"}>
-                              {inv.tip === "venit" ? "Venit" : "Cheltuială"}
+                              {inv.tip === "venit" ? t("invoices.typeLabels.income") : t("invoices.typeLabels.expense")}
                             </Badge>
                           </TableCell>
                           <TableCell>{inv.data}</TableCell>
@@ -609,12 +598,12 @@ export default function InvoicesPage() {
                           <TableCell className="text-right">{formatCurrency(tva)}</TableCell>
                           <TableCell className="text-right font-semibold">{formatCurrency(total)}</TableCell>
                           <TableCell>
-                            <Badge className={`border ${statusColor[inv.status]}`}>{statusLabels[inv.status]}</Badge>
+                            <Badge className={`border ${statusColor[inv.status]}`}>{t(`invoices.statusLabels.${inv.status}`)}</Badge>
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-2">
                               {(inv.status === "neplatită" || inv.status === "parțial") && (
-                                <Button size="icon" variant="ghost" className="text-green-400 hover:text-green-300" title="Mark as Paid" onClick={() => handleMarkPaid(inv.id)}>
+                                <Button size="icon" variant="ghost" className="text-green-400 hover:text-green-300" title={t("invoices.actions.markPaid")} onClick={() => handleMarkPaid(inv.id)}>
                                   <CheckCircle className="w-4 h-4" />
                                 </Button>
                               )}
@@ -635,7 +624,7 @@ export default function InvoicesPage() {
             </div>
 
             <div className="flex justify-end mt-4 text-sm text-muted-foreground">
-              {filtered.length} factură(i) afișată(e) din {invoices.length} total
+              {t("invoices.pagination.showing", { filtered: filtered.length, total: invoices.length })}
             </div>
           </CardContent>
         </Card>
@@ -645,47 +634,47 @@ export default function InvoicesPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editId ? "Editare Factură" : "Factură Nouă"}</DialogTitle>
+            <DialogTitle>{editId ? t("invoices.form.editTitle") : t("invoices.form.addTitle")}</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
             <div className="space-y-1">
-              <Label>Tip</Label>
+              <Label>{t("invoices.form.type")}</Label>
               <Select value={form.tip} onValueChange={(v) => setForm((prev) => ({ ...prev, tip: v as InvoiceType, nr: editId ? prev.nr : generateNr(v as InvoiceType) }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="venit">Venit</SelectItem>
-                  <SelectItem value="cheltuială">Cheltuială</SelectItem>
+                  <SelectItem value="venit">{t("invoices.typeLabels.income")}</SelectItem>
+                  <SelectItem value="cheltuială">{t("invoices.typeLabels.expense")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-1">
-              <Label>Nr. Factură (auto)</Label>
+              <Label>{t("invoices.form.invoiceNrAuto")}</Label>
               <Input value={form.nr} readOnly className="bg-muted" />
             </div>
             <div className="space-y-1">
-              <Label>Dată</Label>
+              <Label>{t("invoices.form.date")}</Label>
               <Input type="date" value={form.data} onChange={(e) => setForm((prev) => ({ ...prev, data: e.target.value }))} />
             </div>
             <div className="space-y-1">
-              <Label>Scadență</Label>
+              <Label>{t("invoices.form.dueDate")}</Label>
               <Input type="date" value={form.scadenta} onChange={(e) => setForm((prev) => ({ ...prev, scadenta: e.target.value }))} />
             </div>
             <div className="space-y-1 col-span-1 sm:col-span-2">
-              <Label>Client / Furnizor</Label>
+              <Label>{t("invoices.form.clientSupplier")}</Label>
               <Select value={form.clientFurnizor} onValueChange={(v) => setForm((prev) => ({ ...prev, clientFurnizor: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>{FURNIZORI.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
               </Select>
             </div>
             <div className="space-y-1 col-span-1 sm:col-span-2">
-              <Label>Status</Label>
+              <Label>{t("invoices.form.status")}</Label>
               <Select value={form.status} onValueChange={(v) => setForm((prev) => ({ ...prev, status: v as InvoiceStatus }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="neplatită">Neplătită</SelectItem>
-                  <SelectItem value="parțial">Parțial</SelectItem>
-                  <SelectItem value="plătită">Plătită</SelectItem>
-                  <SelectItem value="anulată">Anulată</SelectItem>
+                  <SelectItem value="neplatită">{t("invoices.statusLabels.neplatită")}</SelectItem>
+                  <SelectItem value="parțial">{t("invoices.statusLabels.parțial")}</SelectItem>
+                  <SelectItem value="plătită">{t("invoices.statusLabels.plătită")}</SelectItem>
+                  <SelectItem value="anulată">{t("invoices.statusLabels.anulată")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -693,33 +682,33 @@ export default function InvoicesPage() {
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-base">Articole</Label>
-              <Button size="sm" variant="outline" onClick={addLine}><Plus className="w-3 h-3 mr-1" /> Adaugă rând</Button>
+              <Label className="text-base">{t("invoices.form.items")}</Label>
+              <Button size="sm" variant="outline" onClick={addLine}><Plus className="w-3 h-3 mr-1" /> {t("invoices.form.addLine")}</Button>
             </div>
             <div className="flex flex-col gap-3 sm:hidden">
               {form.linii.map((linie, idx) => (
                 <div key={linie.id} className="rounded-md border p-3 space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Articol #{idx + 1}</span>
+                    <span className="text-xs text-muted-foreground">{t("invoices.form.itemNumber", { number: idx + 1 })}</span>
                     <Button size="icon" variant="ghost" className="text-red-400 hover:text-red-300 h-6 w-6" disabled={form.linii.length === 1} onClick={() => removeLine(idx)}>
                       <Trash2 className="w-3 h-3" />
                     </Button>
                   </div>
                   <div className="space-y-1">
-                    <Label className="text-xs">Descriere</Label>
-                    <Input value={linie.descriere} placeholder="Descriere serviciu/produs" onChange={(e) => updateLine(idx, "descriere", e.target.value)} />
+                    <Label className="text-xs">{t("invoices.form.description")}</Label>
+                    <Input value={linie.descriere} placeholder={t("invoices.form.descriptionPlaceholder")} onChange={(e) => updateLine(idx, "descriere", e.target.value)} />
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
-                      <Label className="text-xs">Cantitate</Label>
+                      <Label className="text-xs">{t("invoices.form.quantity")}</Label>
                       <Input type="number" min={1} value={linie.cantitate} onChange={(e) => updateLine(idx, "cantitate", Number(e.target.value))} />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Preț unitar</Label>
+                      <Label className="text-xs">{t("invoices.form.unitPrice")}</Label>
                       <Input type="number" min={0} value={linie.pretUnitar} onChange={(e) => updateLine(idx, "pretUnitar", Number(e.target.value))} />
                     </div>
                   </div>
-                  <div className="flex justify-end text-sm font-semibold">Total: {formatCurrency(linie.cantitate * linie.pretUnitar)}</div>
+                  <div className="flex justify-end text-sm font-semibold">{t("invoices.columns.total")}: {formatCurrency(linie.cantitate * linie.pretUnitar)}</div>
                 </div>
               ))}
             </div>
@@ -727,17 +716,17 @@ export default function InvoicesPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Descriere</TableHead>
-                    <TableHead className="w-24">Cantitate</TableHead>
-                    <TableHead className="w-32">Preț unitar</TableHead>
-                    <TableHead className="w-32 text-right">Total rând</TableHead>
+                    <TableHead>{t("invoices.form.description")}</TableHead>
+                    <TableHead className="w-24">{t("invoices.form.quantity")}</TableHead>
+                    <TableHead className="w-32">{t("invoices.form.unitPrice")}</TableHead>
+                    <TableHead className="w-32 text-right">{t("invoices.form.lineTotal")}</TableHead>
                     <TableHead className="w-10"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {form.linii.map((linie, idx) => (
                     <TableRow key={linie.id}>
-                      <TableCell><Input value={linie.descriere} placeholder="Descriere serviciu/produs" onChange={(e) => updateLine(idx, "descriere", e.target.value)} /></TableCell>
+                      <TableCell><Input value={linie.descriere} placeholder={t("invoices.form.descriptionPlaceholder")} onChange={(e) => updateLine(idx, "descriere", e.target.value)} /></TableCell>
                       <TableCell><Input type="number" min={1} value={linie.cantitate} onChange={(e) => updateLine(idx, "cantitate", Number(e.target.value))} /></TableCell>
                       <TableCell><Input type="number" min={0} value={linie.pretUnitar} onChange={(e) => updateLine(idx, "pretUnitar", Number(e.target.value))} /></TableCell>
                       <TableCell className="text-right font-medium">{formatCurrency(linie.cantitate * linie.pretUnitar)}</TableCell>
@@ -753,23 +742,23 @@ export default function InvoicesPage() {
             </div>
             <div className="flex flex-col items-end gap-1 text-sm pr-2">
               <div className="flex gap-4 sm:gap-8">
-                <span className="text-muted-foreground">Total fără TVA:</span>
+                <span className="text-muted-foreground">{t("invoices.totals.subtotal")}:</span>
                 <span className="font-medium w-28 sm:w-32 text-right">{formatCurrency(totals.totalFaraTVA)}</span>
               </div>
               <div className="flex gap-4 sm:gap-8">
-                <span className="text-muted-foreground">TVA (19%):</span>
+                <span className="text-muted-foreground">{t("invoices.totals.vat")}:</span>
                 <span className="font-medium w-28 sm:w-32 text-right">{formatCurrency(totals.tva)}</span>
               </div>
               <div className="flex gap-4 sm:gap-8 text-base">
-                <span className="font-semibold">Total:</span>
+                <span className="font-semibold">{t("invoices.totals.total")}:</span>
                 <span className="font-bold w-28 sm:w-32 text-right">{formatCurrency(totals.total)}</span>
               </div>
             </div>
           </div>
 
           <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setDialogOpen(false)}>Anulează</Button>
-            <Button className="w-full sm:w-auto" onClick={handleSave}>{editId ? "Salvează modificările" : "Adaugă factura"}</Button>
+            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setDialogOpen(false)}>{t("invoices.actions.cancel")}</Button>
+            <Button className="w-full sm:w-auto" onClick={handleSave}>{editId ? t("invoices.actions.saveChanges") : t("invoices.actions.addInvoice")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -778,12 +767,12 @@ export default function InvoicesPage() {
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmare ștergere</AlertDialogTitle>
-            <AlertDialogDescription>Ești sigur că vrei să ștergi această factură? Acțiunea nu poate fi anulată.</AlertDialogDescription>
+            <AlertDialogTitle>{t("invoices.deleteDialog.title")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("invoices.deleteDialog.description")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
-            <AlertDialogCancel className="w-full sm:w-auto">Anulează</AlertDialogCancel>
-            <AlertDialogAction className="w-full sm:w-auto bg-red-600 hover:bg-red-700" onClick={handleDelete}>Șterge</AlertDialogAction>
+            <AlertDialogCancel className="w-full sm:w-auto">{t("invoices.actions.cancel")}</AlertDialogCancel>
+            <AlertDialogAction className="w-full sm:w-auto bg-red-600 hover:bg-red-700" onClick={handleDelete}>{t("invoices.actions.delete")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

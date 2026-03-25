@@ -1,0 +1,37 @@
+{
+  "costs": {
+    "title": "Costs & Profitability",
+    "filters": {
+      "driver": "Driver",
+      "truck": "Truck",
+      "period": "Period",
+      "allDrivers": "All Drivers",
+      "allTrucks": "All Trucks",
+      "allTime": "All Time",
+      "thisMonth": "This Month",
+      "lastMonth": "Last Month",
+      "last3Months": "Last 3 Months"
+    },
+    "kpi": {
+      "totalFuelCost": "Total Fuel Cost",
+      "costPerKm": "Cost / Km",
+      "avgCostPerTrip": "Avg Cost / Trip"
+    },
+    "chart": {
+      "title": "Monthly Profit",
+      "profit": "Profit",
+      "notEnoughData": "Not enough data to display chart"
+    },
+    "table": {
+      "title": "Trip Details",
+      "trip": "Trip",
+      "driver": "Driver",
+      "truck": "Truck",
+      "date": "Date",
+      "revenue": "Revenue",
+      "fuelCost": "Fuel Cost",
+      "profit": "Profit",
+      "noResults": "No trips found for the selected filters."
+    }
+  }
+}

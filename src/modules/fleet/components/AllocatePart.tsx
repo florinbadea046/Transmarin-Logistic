@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,21 +20,19 @@ import type { Part } from "@/modules/fleet/types";
 import type { Truck } from "@/modules/transport/types";
 import { allocatePartToTruck } from "@/modules/fleet/utils/allocationUtils";
 import { getCollection } from "@/utils/local-storage";
-
-
+import { useTranslation } from "react-i18next";
 
 interface Props {
   part: Part;
 }
 
 export function AllocatePart({ part }: Props) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [trucks, setTrucks] = useState<Truck[]>([]);
+  const [trucks] = useState<Truck[]>(() =>
+    getCollection<Truck>(STORAGE_KEYS.trucks),
+  );
   const [selectedTruckId, setSelectedTruckId] = useState<string>("");
-
-  useEffect(() => {
-    setTrucks(getCollection<Truck>(STORAGE_KEYS.trucks));
-  }, []);
 
   const handleAllocate = () => {
     if (!selectedTruckId) return;
@@ -48,20 +46,24 @@ export function AllocatePart({ part }: Props) {
   return (
     <>
       <Button size="sm" variant="outline" onClick={() => setOpen(true)}>
-        Alocă
+        {t("fleet.allocatePart.button")}
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Alocă „{part.name}" la camion</DialogTitle>
+            <DialogTitle>
+              {t("fleet.allocatePart.dialogTitle", { partName: part.name })}
+            </DialogTitle>
           </DialogHeader>
 
           <div className="py-4 space-y-3">
-            <Label>Selectează camionul</Label>
+            <Label>{t("fleet.allocatePart.labelTruck")}</Label>
             <Select value={selectedTruckId} onValueChange={setSelectedTruckId}>
               <SelectTrigger>
-                <SelectValue placeholder="Alege un camion..." />
+                <SelectValue
+                  placeholder={t("fleet.allocatePart.selectTruck")}
+                />
               </SelectTrigger>
               <SelectContent>
                 {trucks.map((truck) => (
@@ -74,9 +76,11 @@ export function AllocatePart({ part }: Props) {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Anulează</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              {t("fleet.allocatePart.cancel")}
+            </Button>
             <Button onClick={handleAllocate} disabled={!selectedTruckId}>
-              Alocă
+              {t("fleet.allocatePart.confirm")}
             </Button>
           </DialogFooter>
         </DialogContent>

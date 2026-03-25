@@ -66,7 +66,7 @@ function AuditEntryCard({ entry, isMobile, t }: {
 }) {
   const [expanded, setExpanded] = React.useState(false);
   const action = ACTION_CONFIG[entry.action];
-  const hasDetails = entry.oldValue || entry.newValue || entry.details;
+  const _hasDetails = entry.oldValue || entry.newValue || entry.details;
 
   const formattedTime = (() => {
     try {

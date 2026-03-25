@@ -1,18 +1,5 @@
 // ──────────────────────────────────────────────────────────
 // MODUL: Contabilitate Simplificată — Pagina principală
-//
-// Acest modul conține:
-// - Ruta: /accounting              — dashboard principal (overview financiar)
-// - Ruta: /accounting/invoices     — listă facturi (venituri/cheltuieli)
-// - Ruta: /accounting/suppliers    — furnizori (parteneri de business)
-//
-// TODO pentru studenți:
-// - D7: Implementați KPI cards pentru:
-//       • total venituri luna curentă
-//       • total cheltuieli luna curentă
-//       • sold (venituri - cheltuieli)
-//       • număr facturi neplătite
-// - D8: Implementați un BarChart cu venituri vs cheltuieli pe ultimele 6 luni
 // ──────────────────────────────────────────────────────────
 
 import { useMemo } from "react";
@@ -21,39 +8,26 @@ import { Main } from "@/components/layout/main";
 import { TopNav } from "@/components/layout/top-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocation } from "@tanstack/react-router";
+import { useTranslation } from "react-i18next";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { getCollection } from "@/utils/local-storage";
 import { formatCurrency } from "@/utils/format";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Invoice } from "@/modules/accounting/types";
 
-// ──────────────────────────────────────────────────────────
-// Helpers
-// ──────────────────────────────────────────────────────────
-const MONTH_NAMES = ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-/** Parsare stabilă a datelor ISO "YYYY-MM-DD" fără probleme de timezone */
 function parseDate(dateStr: string): { year: number; month: number } {
   const [yearStr, monthStr] = dateStr.split("-");
-  return {
-    year: Number(yearStr),
-    month: Number(monthStr) - 1, // 0-indexed ca getMonth()
-  };
+  return { year: Number(yearStr), month: Number(monthStr) - 1 };
 }
 
-// ──────────────────────────────────────────────────────────
-// Nav
-// ──────────────────────────────────────────────────────────
-const topNavLinks = [
-  { title: "Facturi", href: "/accounting/invoices", isActive: false },
-  { title: "Furnizori", href: "/accounting/suppliers", isActive: false },
-];
-
-// ──────────────────────────────────────────────────────────
-// Componenta principală
-// ──────────────────────────────────────────────────────────
 export default function AccountingPage() {
+  const { t } = useTranslation();
   const { pathname } = useLocation();
+
+  const topNavLinks = [
+    { title: t("accounting.nav.invoices"), href: "/accounting/invoices", isActive: false },
+    { title: t("accounting.nav.suppliers"), href: "/accounting/suppliers", isActive: false },
+  ];
 
   const links = topNavLinks.map((link) => ({
     ...link,
@@ -66,7 +40,6 @@ export default function AccountingPage() {
   const currentMonth = now.getMonth();
   const currentYear = now.getFullYear();
 
-  // ── D7: KPI-uri pentru luna curentă ──
   const kpi = useMemo(() => {
     let venitLuna = 0;
     let cheltuieliLuna = 0;
@@ -86,22 +59,18 @@ export default function AccountingPage() {
       }
     });
 
-    return {
-      venitLuna,
-      cheltuieliLuna,
-      sold: venitLuna - cheltuieliLuna,
-      facturiNeplatite,
-    };
+    return { venitLuna, cheltuieliLuna, sold: venitLuna - cheltuieliLuna, facturiNeplatite };
   }, [invoices, currentMonth, currentYear]);
 
-  // ── D8: Venituri vs cheltuieli pe ultimele 6 luni ──
+  const months = t("dashboard.months", { returnObjects: true }) as string[];
+
   const chartData = useMemo(() => {
-    const months = Array.from({ length: 6 }, (_, i) => {
+    const buckets = Array.from({ length: 6 }, (_, i) => {
       const d = new Date(currentYear, currentMonth - 5 + i, 1);
       return {
         month: d.getMonth(),
         year: d.getFullYear(),
-        label: MONTH_NAMES[d.getMonth()],
+        label: months[d.getMonth()] ?? d.toLocaleString("ro-RO", { month: "short" }),
         venituri: 0,
         cheltuieli: 0,
       };
@@ -109,18 +78,18 @@ export default function AccountingPage() {
 
     invoices.forEach((inv) => {
       const { year, month } = parseDate(inv.date);
-      const bucket = months.find((b) => b.month === month && b.year === year);
+      const bucket = buckets.find((b) => b.month === month && b.year === year);
       if (!bucket) return;
       if (inv.type === "income") bucket.venituri += inv.total;
       else bucket.cheltuieli += inv.total;
     });
 
-    return months.map(({ label, venituri, cheltuieli }) => ({
+    return buckets.map(({ label, venituri, cheltuieli }) => ({
       label,
-      Venituri: Math.round(venituri),
-      Cheltuieli: Math.round(cheltuieli),
+      [t("accounting.chartRevenue")]: Math.round(venituri),
+      [t("accounting.chartExpenses")]: Math.round(cheltuieli),
     }));
-  }, [invoices, currentMonth, currentYear]);
+  }, [invoices, currentMonth, currentYear, months, t]);
 
   return (
     <>
@@ -129,42 +98,38 @@ export default function AccountingPage() {
       </Header>
       <Main>
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Contabilitate Simplificată</h1>
-          <p className="text-muted-foreground">Facturi, furnizori, sold și cash flow.</p>
+          <h1 className="text-2xl font-bold">{t("accounting.title")}</h1>
+          <p className="text-muted-foreground">{t("accounting.subtitle")}</p>
         </div>
 
-        {/* ── D7: KPI Cards ── */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-medium text-muted-foreground">Venituri luna curentă</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("accounting.revenueMonth")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-green-600">{formatCurrency(kpi.venitLuna)}</p>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-medium text-muted-foreground">Cheltuieli luna curentă</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("accounting.expensesMonth")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-red-500">{formatCurrency(kpi.cheltuieliLuna)}</p>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-medium text-muted-foreground">Sold (Venituri − Cheltuieli)</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("accounting.balance")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className={`text-2xl font-bold ${kpi.sold >= 0 ? "text-green-600" : "text-red-500"}`}>{formatCurrency(kpi.sold)}</p>
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-medium text-muted-foreground">Facturi neplatite</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t("accounting.unpaidInvoices")}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-orange-500">{kpi.facturiNeplatite}</p>
@@ -172,14 +137,13 @@ export default function AccountingPage() {
           </Card>
         </div>
 
-        {/* ── D8: BarChart Venituri vs Cheltuieli ── */}
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle>Venituri vs Cheltuieli — ultimele 6 luni</CardTitle>
+            <CardTitle>{t("accounting.chartTitle")}</CardTitle>
           </CardHeader>
           <CardContent>
             {invoices.length === 0 ? (
-              <div className="flex h-64 items-center justify-center text-muted-foreground">Nu există facturi înregistrate.</div>
+              <div className="flex h-64 items-center justify-center text-muted-foreground">{t("accounting.noInvoices")}</div>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
@@ -187,16 +151,13 @@ export default function AccountingPage() {
                   <XAxis dataKey="label" />
                   <YAxis
                     tickFormatter={(v) =>
-                      new Intl.NumberFormat("ro-RO", {
-                        notation: "compact",
-                        compactDisplay: "short",
-                      }).format(v)
+                      new Intl.NumberFormat("ro-RO", { notation: "compact", compactDisplay: "short" }).format(v)
                     }
                   />
                   <Tooltip formatter={(value) => (typeof value === "number" ? formatCurrency(value) : String(value ?? ""))} />
                   <Legend />
-                  <Bar dataKey="Venituri" fill="#16a34a" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="Cheltuieli" fill="#dc2626" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey={t("accounting.chartRevenue")} fill="#16a34a" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey={t("accounting.chartExpenses")} fill="#dc2626" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}

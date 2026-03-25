@@ -1,154 +1,106 @@
 // ──────────────────────────────────────────────────────────
 // MODUL: Transport & Dispecerat — Pagina principală
-//
-// Acest modul conține:
-//   - /transport           → Lista comenzi + dashboard operațional
-//   - /transport/orders    → Gestiune comenzi (import CSV/Excel)
-//   - /transport/trips     → Planificare curse zilnice
-//   - /transport/drivers   → Asociere șofer ↔ camion
-//
-// TODO pentru studenți:
-//   1. Implementați tabelul cu comenzi (TanStack Table)
-//   2. Import comenzi din CSV/Excel (Papaparse / xlsx)
-//   3. Planificare curse zilnice cu drag & drop sau formular
-//   4. Dashboard operațional cu KPI-uri ✅ COMPLETAT
-//   5. Calcul cost per cursă (km gol vs încărcat)
 // ──────────────────────────────────────────────────────────
+
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { TopNav } from "@/components/layout/top-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useEffect, useState } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { Button } from "@/components/ui/button";
+import { useTranslation } from "react-i18next";
+import { getCollection } from "@/utils/local-storage";
+import { STORAGE_KEYS } from "@/data/mock-data";
+import type { Order, Driver, Truck } from "@/modules/transport/types";
 
-const STORAGE_KEYS = {
-  ORDERS: "STORAGE_ORDERS",
-  TRIPS: "STORAGE_TRIPS",
-  DRIVERS: "STORAGE_DRIVERS",
-  TRUCKS: "STORAGE_TRUCKS",
+type RawTrip = {
+  id: string; orderId: string; driverId: string; truckId: string;
+  date?: string; departureDate?: string;
+  kmLoaded: number; kmEmpty: number; fuelCost: number; status: string;
+  loadedKm?: number; emptyKm?: number;
 };
 
-const topNavLinks = [
-  { title: "Comenzi", href: "/transport/orders", isActive: false },
-  { title: "Curse", href: "/transport/trips", isActive: false },
-  { title: "Șoferi & Camioane", href: "/transport/drivers", isActive: false },
-];
-
 export default function TransportPage() {
+  const { t } = useTranslation();
+
+  const topNavLinks = [
+    { title: t("transportOverview.nav.orders"), href: "/transport/orders", isActive: false },
+    { title: t("transportOverview.nav.trips"), href: "/transport/trips", isActive: false },
+    { title: t("transportOverview.nav.drivers"), href: "/transport/drivers", isActive: false },
+  ];
+
   const links = topNavLinks.map((link) => ({
     ...link,
     isActive: link.href === "/transport/orders",
   }));
 
-  const [language, setLanguage] = useState<"ro" | "en">("ro");
-
-  const [activeOrders, setActiveOrders] = useState<number>(0);
-  const [todayTrips, setTodayTrips] = useState<number>(0);
-  const [monthlyKm, setMonthlyKm] = useState<number>(0);
-  const [availableDrivers, setAvailableDrivers] = useState<number>(0);
-  const [chartData, setChartData] = useState<any[]>([]);
-  const [expiringDrivers, setExpiringDrivers] = useState<any[]>([]);
-  const [expiringTrucks, setExpiringTrucks] = useState<any[]>([]);
-
-  const t = (key: string) => {
-    const texts: Record<string, Record<"ro" | "en", string>> = {
-      title: { ro: "Transport & Dispecerat", en: "Transport & Dispatch" },
-      subtitle: {
-        ro: "Gestionează comenzile, cursele și asocierea șofer-camion.",
-        en: "Manage orders, daily trips and driver-truck assignments.",
-      },
-      kpi_orders: { ro: "Comenzi Active", en: "Active Orders" },
-      kpi_trips: { ro: "Curse Azi", en: "Trips Today" },
-      kpi_km: { ro: "Km Total Lună", en: "Total Km (Month)" },
-      kpi_drivers: { ro: "Șoferi Disponibili", en: "Available Drivers" },
-      kpi_label_orders: {
-        ro: "Comenzi în desfășurare",
-        en: "Ongoing orders",
-      },
-      kpi_label_trips: {
-        ro: "Livrări programate azi",
-        en: "Deliveries today",
-      },
-      expired_docs: {
-        ro: "Documente expirate / care expiră în ≤ 30 zile",
-        en: "Expired / expiring documents within ≤ 30 days",
-      },
-      expired_drivers: { ro: "Șoferi", en: "Drivers" },
-      expired_trucks: { ro: "Camioane", en: "Trucks" },
-    };
-    return texts[key]?.[language] || key;
-  };
+  const [activeOrders, setActiveOrders] = useState(0);
+  const [todayTrips, setTodayTrips] = useState(0);
+  const [monthlyKm, setMonthlyKm] = useState(0);
+  const [availableDrivers, setAvailableDrivers] = useState(0);
+  const [chartData, setChartData] = useState<{ label: string; km: number; key: string }[]>([]);
+  const [expiringDrivers, setExpiringDrivers] = useState<Driver[]>([]);
+  const [expiringTrucks, setExpiringTrucks] = useState<Truck[]>([]);
 
   useEffect(() => {
     const calculateKPIs = () => {
       try {
-        const orders = JSON.parse(localStorage.getItem(STORAGE_KEYS.ORDERS) || "[]");
-        const trips = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRIPS) || "[]");
-        const drivers = JSON.parse(localStorage.getItem(STORAGE_KEYS.DRIVERS) || "[]");
+        const orders = getCollection<Order>(STORAGE_KEYS.orders);
+        const trips = getCollection<RawTrip>(STORAGE_KEYS.trips);
+        const drivers = getCollection<Driver>(STORAGE_KEYS.drivers);
 
         const activeCount = orders.filter(
-          (o: any) =>
-            o.status === "active" || o.status === "in_progress" || o.status === "pending"
+          (o) => o.status === "pending" || o.status === "assigned" || o.status === "in_transit"
         ).length;
         setActiveOrders(activeCount);
 
         const today = new Date().toISOString().split("T")[0];
-        const todayCount = trips.filter((t: any) => {
-          const date = new Date(t.date).toISOString().split("T")[0];
-          return date === today;
+        const todayCount = trips.filter((trip) => {
+          const d = trip.departureDate || trip.date || "";
+          return d.slice(0, 10) === today;
         }).length;
         setTodayTrips(todayCount);
 
         const currentMonth = new Date().getMonth();
         const currentYear = new Date().getFullYear();
         const totalKm = trips
-          .filter((t: any) => {
-            const d = new Date(t.date);
+          .filter((trip) => {
+            const d = new Date(trip.departureDate || trip.date || "");
             return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
           })
-          .reduce((total: number, t: any) => {
-            const loaded = parseFloat(t.loadedKm || 0);
-            const empty = parseFloat(t.emptyKm || 0);
+          .reduce((total, trip) => {
+            const loaded = trip.kmLoaded || trip.loadedKm || 0;
+            const empty = trip.kmEmpty || trip.emptyKm || 0;
             return total + loaded + empty;
           }, 0);
         setMonthlyKm(Math.round(totalKm));
 
         const availableCount = drivers.filter(
-          (d: any) => d.status === "available" || d.available === true
+          (d) => d.status === "available"
         ).length;
         setAvailableDrivers(availableCount);
-      } catch (err) {
-        console.error(err);
+      } catch {
+        // silently ignore localStorage parse errors
       }
     };
 
     const calculateLast6MonthsKm = () => {
-      const trips = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRIPS) || "[]");
+      const trips = getCollection<RawTrip>(STORAGE_KEYS.trips);
       const now = new Date();
       const months = [...Array(6)].map((_, i) => {
         const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
         return {
-          label: d.toLocaleString(language === "ro" ? "ro-RO" : "en-US", { month: "short" }),
+          label: d.toLocaleString("ro-RO", { month: "short" }),
           km: 0,
           key: `${d.getFullYear()}-${d.getMonth()}`,
         };
       });
-      trips.forEach((t: any) => {
-        const d = new Date(t.date);
+      trips.forEach((trip) => {
+        const d = new Date(trip.departureDate || trip.date || "");
         const key = `${d.getFullYear()}-${d.getMonth()}`;
         const m = months.find((m) => m.key === key);
         if (m) {
-          const loaded = parseFloat(t.loadedKm || 0);
-          const empty = parseFloat(t.emptyKm || 0);
+          const loaded = trip.kmLoaded || trip.loadedKm || 0;
+          const empty = trip.kmEmpty || trip.emptyKm || 0;
           m.km += loaded + empty;
         }
       });
@@ -160,25 +112,24 @@ export default function TransportPage() {
       const in30Days = new Date();
       in30Days.setDate(today.getDate() + 30);
 
-      const drivers = JSON.parse(localStorage.getItem(STORAGE_KEYS.DRIVERS) || "[]");
-      const trucks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRUCKS) || "[]");
+      const drivers = getCollection<Driver>(STORAGE_KEYS.drivers);
+      const trucks = getCollection<Truck>(STORAGE_KEYS.trucks);
 
-      const expD = drivers.filter((d: any) => {
-        if (!d.licenseExpiry) return false;
-        const exp = new Date(d.licenseExpiry);
-        return exp <= in30Days;
-      });
-      const expT = trucks.filter((t: any) => {
-        const fields = ["itpExpiry", "rcaExpiry", "vignetteExpiry"];
-        return fields.some((f) => {
-          if (!t[f]) return false;
-          const exp = new Date(t[f]);
-          return exp <= in30Days;
-        });
-      });
-
-      setExpiringDrivers(expD);
-      setExpiringTrucks(expT);
+      setExpiringDrivers(
+        drivers.filter((d) => {
+          if (!d.licenseExpiry) return false;
+          return new Date(d.licenseExpiry) <= in30Days;
+        })
+      );
+      setExpiringTrucks(
+        trucks.filter((truck) => {
+          const fields = [truck.itpExpiry, truck.rcaExpiry, truck.vignetteExpiry];
+          return fields.some((f) => {
+            if (!f) return false;
+            return new Date(f) <= in30Days;
+          });
+        })
+      );
     };
 
     calculateKPIs();
@@ -187,7 +138,7 @@ export default function TransportPage() {
 
     const interval = setInterval(calculateKPIs, 30000);
     return () => clearInterval(interval);
-  }, [language]);
+  }, []);
 
   return (
     <>
@@ -195,39 +146,27 @@ export default function TransportPage() {
         <TopNav links={links} />
       </Header>
       <Main>
-        <div className="flex justify-end mb-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setLanguage(language === "ro" ? "en" : "ro")}
-          >
-            {language === "ro" ? "EN" : "RO"}
-          </Button>
-        </div>
-
         <div className="mb-4">
-          <h1 className="text-2xl font-bold">{t("title")}</h1>
-          <p className="text-muted-foreground">{t("subtitle")}</p>
+          <h1 className="text-2xl font-bold">{t("transportOverview.title")}</h1>
+          <p className="text-muted-foreground">{t("transportOverview.subtitle")}</p>
         </div>
 
         {(expiringDrivers.length > 0 || expiringTrucks.length > 0) && (
-          <Card className="mb-6 border-l-4 border-red-500 shadow-sm">
+          <Card className="mb-6 border-l-4 border-red-500 dark:border-red-700 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-base font-semibold text-red-700">
-                ⚠️ {t("expired_docs")}
+              <CardTitle className="text-base font-semibold text-red-700 dark:text-red-400">
+                {t("transportOverview.expiredDocs")}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-sm text-red-700">
+            <CardContent className="space-y-3 text-sm text-red-700 dark:text-red-400">
               {expiringDrivers.length > 0 && (
                 <div>
-                  <h3 className="font-semibold">{t("expired_drivers")}</h3>
+                  <h3 className="font-semibold">{t("transportOverview.expiredDrivers")}</h3>
                   <ul className="list-disc ml-5">
                     {expiringDrivers.map((d) => (
                       <li key={d.id}>
-                        {d.name} — {language === "ro" ? "expiră la" : "expires on"}{" "}
-                        {new Date(d.licenseExpiry).toLocaleDateString(
-                          language === "ro" ? "ro-RO" : "en-US"
-                        )}
+                        {d.name} — {t("transportOverview.expiresOn")}{" "}
+                        {new Date(d.licenseExpiry).toLocaleDateString("ro-RO")}
                       </li>
                     ))}
                   </ul>
@@ -235,17 +174,14 @@ export default function TransportPage() {
               )}
               {expiringTrucks.length > 0 && (
                 <div>
-                  <h3 className="font-semibold">{t("expired_trucks")}</h3>
+                  <h3 className="font-semibold">{t("transportOverview.expiredTrucks")}</h3>
                   <ul className="list-disc ml-5">
-                    {expiringTrucks.map((t) => {
-                      const exp = t.itpExpiry || t.rcaExpiry || t.vignetteExpiry;
+                    {expiringTrucks.map((truck) => {
+                      const exp = truck.itpExpiry || truck.rcaExpiry || truck.vignetteExpiry;
                       return (
-                        <li key={t.id}>
-                          {t.plate} —{" "}
-                          {language === "ro" ? "expiră la" : "expires on"}{" "}
-                          {new Date(exp).toLocaleDateString(
-                            language === "ro" ? "ro-RO" : "en-US"
-                          )}
+                        <li key={truck.id}>
+                          {truck.plateNumber} — {t("transportOverview.expiresOn")}{" "}
+                          {exp ? new Date(exp).toLocaleDateString("ro-RO") : "—"}
                         </li>
                       );
                     })}
@@ -258,80 +194,68 @@ export default function TransportPage() {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <Card>
-            <CardHeader><CardTitle>{t("kpi_orders")}</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("transportOverview.kpiOrders")}</CardTitle></CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">{activeOrders}</p>
-              <p className="text-sm text-muted-foreground">{t("kpi_label_orders")}</p>
+              <p className="text-sm text-muted-foreground">{t("transportOverview.kpiLabelOrders")}</p>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle>{t("kpi_trips")}</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("transportOverview.kpiTrips")}</CardTitle></CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">{todayTrips}</p>
-              <p className="text-sm text-muted-foreground">{t("kpi_label_trips")}</p>
+              <p className="text-sm text-muted-foreground">{t("transportOverview.kpiLabelTrips")}</p>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle>{t("kpi_km")}</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("transportOverview.kpiKm")}</CardTitle></CardHeader>
             <CardContent>
-              <p className="text-3xl font-bold">{monthlyKm.toLocaleString(language)}</p>
-              <p className="text-sm text-muted-foreground">
-                {language === "ro" ? "Luna curentă" : "Current month"}
-              </p>
+              <p className="text-3xl font-bold">{monthlyKm.toLocaleString("ro-RO")}</p>
+              <p className="text-sm text-muted-foreground">{t("transportOverview.kpiCurrentMonth")}</p>
             </CardContent>
           </Card>
           <Card>
-            <CardHeader><CardTitle>{t("kpi_drivers")}</CardTitle></CardHeader>
+            <CardHeader><CardTitle>{t("transportOverview.kpiDrivers")}</CardTitle></CardHeader>
             <CardContent>
               <p className="text-3xl font-bold">{availableDrivers}</p>
-              <p className="text-sm text-muted-foreground">
-                {language === "ro" ? "Disponibili" : "Available"}
-              </p>
+              <p className="text-sm text-muted-foreground">{t("transportOverview.kpiAvailable")}</p>
             </CardContent>
           </Card>
         </div>
 
-        {/* === Km parcurși în ultimele 6 luni === */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>
-                {language === "ro"
-                  ? "Km parcurși în ultimele 6 luni"
-                  : "Distance traveled in the last 6 months"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
-                <table className="min-w-full table-auto border rounded-md text-sm">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="text-left px-4 py-2 font-semibold text-gray-600 uppercase text-xs">
-                        {language === "ro" ? "Lună" : "Month"}
-                      </th>
-                      <th className="text-right px-4 py-2 font-semibold text-gray-600 uppercase text-xs">
-                        {language === "ro" ? "Kilometri Parcurși" : "Distance (km)"}
-                      </th>
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle>{t("transportOverview.chartTitle")}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="min-w-full table-auto border rounded-md text-sm">
+                <thead className="bg-muted/50">
+                  <tr>
+                    <th className="text-left px-4 py-2 font-semibold text-muted-foreground uppercase text-xs">
+                      {t("transportOverview.chartMonth")}
+                    </th>
+                    <th className="text-right px-4 py-2 font-semibold text-muted-foreground uppercase text-xs">
+                      {t("transportOverview.chartKm")}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {chartData.map((item) => (
+                    <tr key={item.key} className="border-t hover:bg-muted/30 transition-colors">
+                      <td className="px-4 py-2">
+                        {item.label.charAt(0).toUpperCase() + item.label.slice(1)}
+                      </td>
+                      <td className="px-4 py-2 text-right text-muted-foreground">
+                        {item.km.toLocaleString("ro-RO")} km
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {chartData.map((item) => (
-                      <tr
-                        key={item.key}
-                        className="border-t hover:bg-gray-50 transition-colors"
-                      >
-                        <td className="px-4 py-2 text-gray-800">
-                          {item.label.charAt(0).toUpperCase() + item.label.slice(1)}
-                        </td>
-                        <td className="px-4 py-2 text-right text-gray-700">
-                          {item.km.toLocaleString(language)} km
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </CardContent>
+        </Card>
       </Main>
     </>
   );

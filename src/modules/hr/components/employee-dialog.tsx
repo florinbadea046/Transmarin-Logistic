@@ -13,11 +13,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Employee } from "@/modules/hr/types";
 import { addItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { EmployeeFormFields } from "./employee-form-fields";
 import {
-  EmployeeFormFields,
   makeEmployeeSchema,
   type EmployeeFormValues,
-} from "./employee-form-fields";
+} from "./employee-form-schema";
 import { useTranslation } from "react-i18next";
 
 type Props =
@@ -105,7 +105,9 @@ export default function EmployeeDialog(props: Props) {
       <DialogContent className="max-w-lg overflow-y-auto max-h-[90dvh]">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? t("employees.dialog.editTitle") : t("employees.dialog.addTitle")}
+            {isEdit
+              ? t("employees.dialog.editTitle")
+              : t("employees.dialog.addTitle")}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)}>

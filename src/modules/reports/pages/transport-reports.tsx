@@ -64,10 +64,6 @@ function stripDiacritics(str: string): string {
     .replace(/[țŢţŤ]/g, (c) => (c.toLowerCase() === "t" || c === "t") ? "t" : "T");
 }
 
-function padTwo(n: number): string {
-  return n < 10 ? "0" + n : String(n);
-}
-
 // ── Filtrare date ──────────────────────────────────────────
 
 function filterTrips(
@@ -231,7 +227,7 @@ async function exportPDF(
       y += 5;
       doc.addImage(imgData, "PNG", margin, y, imgW, imgH);
       y += imgH + 10;
-    } catch (e) { console.warn("html2canvas error:", e); }
+    } catch { /* html2canvas render failed — skip chart image */ }
   }
 
   // Tabele date

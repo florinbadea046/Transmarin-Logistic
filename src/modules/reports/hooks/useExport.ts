@@ -18,6 +18,7 @@ export interface ExportOptions {
   title: string;
   columns: ExportColumn[];
   rows: Record<string, unknown>[];
+  companyName?: string;
 }
 
 // ← ADĂUGAT: înlocuiește diacriticele românești cu echivalente compatibile PDF
@@ -41,12 +42,12 @@ function normalizeDiacritics(text: string): string {
 
 export function useExport() {
   // ── PDF ──
-  function exportPDF({ filename, title, columns, rows }: ExportOptions) {
+  function exportPDF({ filename, title, columns, rows, companyName = "Transmarin Logistic SRL" }: ExportOptions) {
     const doc = new jsPDF();
 
     doc.setFontSize(16);
     doc.setFont("helvetica", "bold");
-    doc.text("Transmarin Logistic SRL", 14, 15);
+    doc.text(companyName, 14, 15);
 
     doc.setFontSize(12);
     doc.setFont("helvetica", "normal");
@@ -71,9 +72,9 @@ export function useExport() {
   }
 
   // ── Excel ──
-  function exportExcel({ filename, title, columns, rows }: ExportOptions) {
+  function exportExcel({ filename, title, columns, rows, companyName = "Transmarin Logistic SRL" }: ExportOptions) {
     const wsData = [
-      ["Transmarin Logistic SRL"],
+      [companyName],
       [title],
       [`Generat: ${new Date().toLocaleDateString("ro-RO")}`],
       [],

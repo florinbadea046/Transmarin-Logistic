@@ -25,19 +25,7 @@ import { DataTableToolbar } from "@/components/data-table/toolbar";
 
 import type { Driver, Truck } from "@/modules/transport/types";
 import { useMobile } from "@/hooks/use-mobile";
-
-// ── Helpers ────────────────────────────────────────────────
-
-export function daysUntilExpiry(dateStr: string): number {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const expiry = new Date(`${dateStr}T00:00:00`);
-  return Math.ceil((expiry.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-}
-
-export function formatDate(dateStr: string): string {
-  return new Date(`${dateStr}T00:00:00`).toLocaleDateString("ro-RO");
-}
+import { daysUntilExpiry, formatDate } from "./transport-shared-utils";
 
 // ── Componente mici ────────────────────────────────────────
 
@@ -45,7 +33,11 @@ export function formatDate(dateStr: string): string {
 export function ExpiryCell({ dateStr }: { dateStr: string }) {
   const days = daysUntilExpiry(dateStr);
   return (
-    <span className={days <= 30 ? "font-semibold text-yellow-700 dark:text-yellow-400" : ""}>
+    <span
+      className={
+        days <= 30 ? "font-semibold text-yellow-700 dark:text-yellow-400" : ""
+      }
+    >
       {formatDate(dateStr)}
       {days <= 30 && <AlertTriangle className="ml-1 inline h-3.5 w-3.5" />}
     </span>
@@ -53,7 +45,13 @@ export function ExpiryCell({ dateStr }: { dateStr: string }) {
 }
 
 /** Rând label + valoare pentru card-urile mobile */
-export function CardRow({ label, children }: { label: string; children: React.ReactNode }) {
+export function CardRow({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="flex items-center justify-between gap-2 text-sm">
       <span className="shrink-0 text-muted-foreground">{label}</span>
@@ -82,7 +80,11 @@ export function EntityTable<TData>({
   columns: ColumnDef<TData>[];
   searchPlaceholder: string;
   searchKey: string;
-  filterConfig: { columnId: string; title: string; options: { value: string; label: string }[] }[];
+  filterConfig: {
+    columnId: string;
+    title: string;
+    options: { value: string; label: string }[];
+  }[];
   columnVisibilityClass?: Record<string, string>;
   emptyText: string;
   renderMobileCard?: (row: TData) => React.ReactNode;
@@ -108,7 +110,9 @@ export function EntityTable<TData>({
               </React.Fragment>
             ))
           ) : (
-            <p className="py-10 text-center text-sm text-muted-foreground">{emptyText}</p>
+            <p className="py-10 text-center text-sm text-muted-foreground">
+              {emptyText}
+            </p>
           )}
         </div>
       ) : (
@@ -124,7 +128,10 @@ export function EntityTable<TData>({
                     >
                       {header.isPlaceholder
                         ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -139,7 +146,10 @@ export function EntityTable<TData>({
                         key={cell.id}
                         className={columnVisibilityClass?.[cell.column.id]}
                       >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
                       </TableCell>
                     ))}
                   </TableRow>
@@ -219,21 +229,27 @@ export function ExpiryAlerts({
                         <span>
                           {itpDays <= 0
                             ? t("expiry.alerts.itpExpired")
-                            : t("expiry.alerts.itpExpires", { date: formatDate(truck.itpExpiry) })}{" "}
+                            : t("expiry.alerts.itpExpires", {
+                                date: formatDate(truck.itpExpiry),
+                              })}{" "}
                         </span>
                       )}
                       {rcaDays <= 30 && (
                         <span>
                           {rcaDays <= 0
                             ? t("expiry.alerts.rcaExpired")
-                            : t("expiry.alerts.rcaExpires", { date: formatDate(truck.rcaExpiry) })}{" "}
+                            : t("expiry.alerts.rcaExpires", {
+                                date: formatDate(truck.rcaExpiry),
+                              })}{" "}
                         </span>
                       )}
                       {vigDays <= 30 && (
                         <span>
                           {vigDays <= 0
                             ? t("expiry.alerts.vignetteExpired")
-                            : t("expiry.alerts.vignetteExpires", { date: formatDate(truck.vignetteExpiry) })}
+                            : t("expiry.alerts.vignetteExpires", {
+                                date: formatDate(truck.vignetteExpiry),
+                              })}
                         </span>
                       )}
                     </li>
