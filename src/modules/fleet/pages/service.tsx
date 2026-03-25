@@ -1,31 +1,43 @@
+import { useState, useEffect } from "react";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ServiceCRUD } from "@/modules/fleet/components/ServiceCRUD";
+import { ServiceSchedule } from "@/modules/fleet/components/ServiceSchedule";
+import { getCollection } from "@/utils/local-storage";
+import { STORAGE_KEYS } from "@/data/mock-data";
+import type { ServiceRecord } from "@/modules/fleet/types";
+import type { Truck } from "@/modules/transport/types";
 
 export default function ServicePage() {
+  const [records, setRecords] = useState<ServiceRecord[]>(() =>
+    getCollection<ServiceRecord>(STORAGE_KEYS.serviceRecords)
+  );
+  const [trucks] = useState<Truck[]>(() =>
+    getCollection<Truck>(STORAGE_KEYS.trucks)
+  );
+
+  const handleRecordsChange = (updated: ServiceRecord[]) => {
+    setRecords(updated);
+  };
+
   return (
     <>
       <Header>
         <h1 className="text-lg font-semibold">Service & Reparații</h1>
       </Header>
       <Main>
-        <Card>
-          <CardHeader>
-            <CardTitle>Istoric Service</CardTitle>
-          </CardHeader>
-          <CardContent className="flex h-96 items-center justify-center text-muted-foreground">
-            <div className="text-center space-y-2">
-              <p className="text-lg font-medium">TODO: Implementați aici</p>
-              <ul className="text-sm text-left list-disc pl-4 space-y-1">
-                <li>Tabel cu istoricul reparațiilor per camion</li>
-                <li>Formular programare service nouă</li>
-                <li>Selectare piese consumate din inventar</li>
-                <li>Calcul cost total reparație</li>
-                <li>Data următorului service programat</li>
-              </ul>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="flex flex-col gap-6">
+          <ServiceSchedule records={records} trucks={trucks} />
+          <Card>
+            <CardHeader>
+              <CardTitle>Istoric Service</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0 pt-4">
+              <ServiceCRUD records={records} trucks={trucks} onRecordsChange={handleRecordsChange} />
+            </CardContent>
+          </Card>
+        </div>
       </Main>
     </>
   );

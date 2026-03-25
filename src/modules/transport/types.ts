@@ -1,16 +1,11 @@
-// ──────────────────────────────────────────────────────────
-// Tipuri de date pentru modulul Transport & Dispecerat
-// Studenții vor extinde aceste tipuri pe măsură ce dezvoltă modulul.
-// ──────────────────────────────────────────────────────────
-
 export interface Order {
   id: string;
   clientName: string;
   origin: string;
   destination: string;
   date: string;
-  status: "În așteptare" | "Atribuit" | "În tranzit" | "Livrat" | "Anulat";
-  weight?: number; // tone
+  status: "pending" | "assigned" | "in_transit" | "delivered" | "cancelled";
+  weight?: number;
   notes?: string;
 }
 
@@ -19,11 +14,13 @@ export interface Trip {
   orderId: string;
   driverId: string;
   truckId: string;
-  date: string;
+  departureDate: string;
+  estimatedArrivalDate: string;
   kmLoaded: number;
   kmEmpty: number;
   fuelCost: number;
-  status: "Planificat" | "Activ" | "Finalizat";
+  revenue?: number;
+  status: "planned" | "in_desfasurare" | "finalizata" | "anulata";
 }
 
 export interface Driver {
@@ -31,7 +28,9 @@ export interface Driver {
   name: string;
   phone: string;
   licenseExpiry: string;
-  status: "Disponibil" | "În cursă" | "Indisponibil";
+  status: "available" | "on_trip" | "off_duty";
+  truckId?: string;
+  employeeId?: string;
 }
 
 export interface Truck {

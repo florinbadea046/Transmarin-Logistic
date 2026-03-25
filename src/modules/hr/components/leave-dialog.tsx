@@ -1,0 +1,332 @@
+import * as React from "react";
+import { format, differenceInCalendarDays, parseISO } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { useForm, useWatch, type Resolver } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { CalendarDropdown } from "./calendar-dropdown";
+import { addItem, generateId, getCollection } from "@/utils/local-storage";
+import { STORAGE_KEYS } from "@/data/mock-data";
+import type { LeaveRequest, Employee } from "@/modules/hr/types";
+import { toast } from "sonner";
+
+// ── Schema ──────────────────────────────────────────────────
+const leaveSchema = z
+  .object({
+    employeeId: z.string().min(1, "Angajatul este obligatoriu"),
+    type: z.enum(["annual", "sick", "unpaid", "other"] as const),
+    status: z.enum(["pending", "approved", "rejected"] as const).optional(),
+    startDate: z.string().min(1, "Data de start este obligatorie"),
+    endDate: z.string().min(1, "Data de sfârșit este obligatorie"),
+    reason: z.string().optional(),
+  })
+  .refine((d) => d.endDate >= d.startDate, {
+    message: "Data de sfârșit trebuie să fie ≥ data de start",
+    path: ["endDate"],
+  });
+
+type LeaveFormValues = z.infer<typeof leaveSchema>;
+
+// ── Props ────────────────────────────────────────────────────
+type Props =
+  | { mode: "add"; onAdd: () => void }
+  | {
+      mode: "edit";
+      leave: LeaveRequest;
+      onEdit: (leave: LeaveRequest) => void;
+      open?: boolean;
+      onOpenChange?: (v: boolean) => void;
+    };
+
+// ── Helper: calculate calendar days ─────────────────────────
+function calcDays(start: string, end: string): number {
+  if (!start || !end || end < start) return 0;
+  return differenceInCalendarDays(parseISO(end), parseISO(start)) + 1;
+}
+
+// ── Helper: check overlap ────────────────────────────────────
+function hasOverlap(
+  employeeId: string,
+  startDate: string,
+  endDate: string,
+  excludeId?: string,
+): boolean {
+  const existing = getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests);
+  return existing.some(
+    (lr) =>
+      lr.id !== excludeId &&
+      lr.employeeId === employeeId &&
+      lr.status !== "rejected" &&
+      lr.startDate <= endDate &&
+      lr.endDate >= startDate,
+  );
+}
+
+// ── DatePicker ───────────────────────────────────────────────
+function DatePickerField({
+  label,
+  value,
+  onChange,
+  error,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  error?: string;
+}) {
+  const selected = value ? parseISO(value) : undefined;
+  return (
+    <>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            data-empty={!value}
+            className="w-full justify-start text-start font-normal data-[empty=true]:text-muted-foreground"
+          >
+            {selected ? format(selected, "d MMM yyyy") : <span>{label}</span>}
+            <CalendarIcon className="ms-auto h-4 w-4 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            captionLayout="dropdown"
+            selected={selected}
+            onSelect={(date) =>
+              onChange(date ? format(date, "yyyy-MM-dd") : "")
+            }
+            startMonth={new Date(1000, 0)}
+            endMonth={new Date(3000, 11)}
+            components={{ Dropdown: CalendarDropdown }}
+          />
+        </PopoverContent>
+      </Popover>
+      {error && <span className="text-xs text-red-500">{error}</span>}
+    </>
+  );
+}
+
+// ── Dialog ───────────────────────────────────────────────────
+export default function LeaveDialog(props: Props) {
+  const isEdit = props.mode === "edit";
+  const leave = isEdit ? props.leave : undefined;
+  const externalOpen = isEdit ? props.open : undefined;
+  const externalOnOpenChange = isEdit ? props.onOpenChange : undefined;
+
+  const [internalOpen, setInternalOpen] = React.useState(false);
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnOpenChange ?? setInternalOpen;
+  const showTrigger = externalOpen === undefined;
+
+  const employees = React.useMemo(
+    () => getCollection<Employee>(STORAGE_KEYS.employees),
+    [],
+  );
+
+  const form = useForm<LeaveFormValues>({
+    resolver: zodResolver(leaveSchema) as Resolver<LeaveFormValues>,
+    defaultValues: {
+      employeeId: leave?.employeeId ?? "",
+      type: leave?.type ?? "annual",
+      status: leave?.status ?? "pending",
+      startDate: leave?.startDate ?? "",
+      endDate: leave?.endDate ?? "",
+      reason: leave?.reason ?? "",
+    },
+  });
+
+  const [employeeId, type, status, startDate, endDate] = useWatch({
+    control: form.control,
+    name: ["employeeId", "type", "status", "startDate", "endDate"],
+  });
+  const days = calcDays(startDate, endDate);
+
+  const handleOpenChange = (val: boolean) => {
+    setOpen(val);
+    if (!val && !isEdit) form.reset();
+  };
+
+  const handleSubmit = (values: LeaveFormValues) => {
+    const overlap = hasOverlap(
+      values.employeeId,
+      values.startDate,
+      values.endDate,
+      leave?.id,
+    );
+    if (overlap) {
+      toast.error(
+        "Există deja un concediu care se suprapune cu această perioadă.",
+      );
+      return;
+    }
+
+    if (props.mode === "edit") {
+      props.onEdit({
+        ...props.leave,
+        ...values,
+        status: values.status ?? props.leave.status,
+        days,
+      });
+    } else {
+      addItem<LeaveRequest>(STORAGE_KEYS.leaveRequests, {
+        ...values,
+        id: generateId(),
+        days,
+        status: "pending",
+      });
+      props.onAdd();
+      form.reset();
+    }
+    setOpen(false);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      {showTrigger && (
+        <DialogTrigger asChild>
+          <Button variant="default">Adaugă concediu</Button>
+        </DialogTrigger>
+      )}
+      <DialogContent className="max-w-md overflow-y-auto max-h-[90dvh]">
+        <DialogHeader>
+          <DialogTitle>
+            {isEdit ? "Editare concediu" : "Adaugă concediu"}
+          </DialogTitle>
+        </DialogHeader>
+        <form onSubmit={form.handleSubmit(handleSubmit)}>
+          <div className="space-y-3">
+            <Select
+              value={employeeId}
+              onValueChange={(v) =>
+                form.setValue("employeeId", v, { shouldValidate: true })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Selectează angajat" />
+              </SelectTrigger>
+              <SelectContent>
+                {employees.map((e) => (
+                  <SelectItem key={e.id} value={e.id}>
+                    {e.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {form.formState.errors.employeeId && (
+              <span className="text-xs text-red-500">
+                {form.formState.errors.employeeId.message}
+              </span>
+            )}
+
+            <Select
+              value={type}
+              onValueChange={(v) =>
+                form.setValue("type", v as LeaveFormValues["type"], {
+                  shouldValidate: true,
+                })
+              }
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Tip concediu" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="annual">Odihnă</SelectItem>
+                <SelectItem value="sick">Medical</SelectItem>
+                <SelectItem value="other">Personal</SelectItem>
+                <SelectItem value="unpaid">Fără plată</SelectItem>
+              </SelectContent>
+            </Select>
+            {form.formState.errors.type && (
+              <span className="text-xs text-red-500">
+                {form.formState.errors.type.message}
+              </span>
+            )}
+
+            {isEdit && (
+              <Select
+                value={status ?? "pending"}
+                onValueChange={(v) =>
+                  form.setValue("status", v as LeaveFormValues["status"], {
+                    shouldValidate: true,
+                  })
+                }
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">În așteptare</SelectItem>
+                  <SelectItem value="approved">Aprobat</SelectItem>
+                  <SelectItem value="rejected">Respins</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+
+            <DatePickerField
+              label="Data de start"
+              value={startDate}
+              onChange={(v) =>
+                form.setValue("startDate", v, { shouldValidate: true })
+              }
+              error={form.formState.errors.startDate?.message}
+            />
+
+            <DatePickerField
+              label="Data de sfârșit"
+              value={endDate}
+              onChange={(v) =>
+                form.setValue("endDate", v, { shouldValidate: true })
+              }
+              error={form.formState.errors.endDate?.message}
+            />
+
+            {days > 0 && (
+              <p className="text-sm text-muted-foreground">
+                Număr zile: <span className="font-medium text-foreground">{days}</span>
+              </p>
+            )}
+
+            <Input
+              placeholder="Motiv (opțional)"
+              {...form.register("reason")}
+            />
+          </div>
+
+          <div className="flex gap-2 justify-end pt-4">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                Anulează
+              </Button>
+            </DialogClose>
+            <Button type="submit">Salvează</Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

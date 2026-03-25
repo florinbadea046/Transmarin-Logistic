@@ -4,10 +4,11 @@
 // ──────────────────────────────────────────────────────────
 
 import { initCollection } from "@/utils/local-storage";
-import type { Driver, Truck, Order } from "@/modules/transport/types";
-import type { Part } from "@/modules/fleet/types";
-import type { Employee } from "@/modules/hr/types";
+import type { Driver, Truck, Order, Trip } from "@/modules/transport/types";
+import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
+import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
+import { Bonus } from "../modules/hr/types";
 
 // Chei localStorage — toate modulele folosesc aceste chei
 export const STORAGE_KEYS = {
@@ -27,6 +28,10 @@ export const STORAGE_KEYS = {
   employees: "transmarin_employees",
   leaveRequests: "transmarin_leave_requests",
   bonuses: "transmarin_bonuses",
+  // Notifications
+  notifications: "transmarin_notifications",
+  // Activity Log
+  auditLog: "transmarin_audit_log",
 } as const;
 
 // ──────────────────────────────────────────────────────────
@@ -65,7 +70,7 @@ const seedTrucks: Truck[] = [
     model: "FH16",
     year: 2021,
     mileage: 320000,
-    status: "available",
+    status: "Disponibil",
     itpExpiry: "2026-09-01",
     rcaExpiry: "2026-12-01",
     vignetteExpiry: "2026-06-30",
@@ -77,7 +82,7 @@ const seedTrucks: Truck[] = [
     model: "TGX",
     year: 2020,
     mileage: 410000,
-    status: "on_trip",
+    status: "În cursă",
     itpExpiry: "2026-07-15",
     rcaExpiry: "2027-01-15",
     vignetteExpiry: "2026-08-31",
@@ -89,19 +94,20 @@ const seedTrucks: Truck[] = [
     model: "Actros",
     year: 2022,
     mileage: 180000,
-    status: "in_service",
+    status: "Disponibil",
     itpExpiry: "2027-02-28",
     rcaExpiry: "2027-03-01",
     vignetteExpiry: "2026-12-31",
   },
 ];
 
+// ✅ ORDERS — listă mai mare pentru test paginare (10/20/50) + filtre
 const seedOrders: Order[] = [
   {
     id: "o1",
     clientName: "SC Logistica SRL",
-    origin: "Constanța",
-    destination: "București",
+    origin: "Constanta",
+    destination: "Bucuresti",
     date: "2026-02-20",
     status: "delivered",
     weight: 18,
@@ -109,8 +115,8 @@ const seedOrders: Order[] = [
   {
     id: "o2",
     clientName: "Trans Europa SA",
-    origin: "Timișoara",
-    destination: "Constanța",
+    origin: "Timisoara",
+    destination: "Constanta",
     date: "2026-02-21",
     status: "in_transit",
     weight: 22,
@@ -119,10 +125,253 @@ const seedOrders: Order[] = [
     id: "o3",
     clientName: "Cargo Plus SRL",
     origin: "Cluj-Napoca",
-    destination: "Brăila",
+    destination: "Braila",
     date: "2026-02-22",
     status: "pending",
     weight: 15,
+  },
+  {
+    id: "o4",
+    clientName: "Danube Freight SRL",
+    origin: "Galati",
+    destination: "Iasi",
+    date: "2026-02-23",
+    status: "assigned",
+    weight: 12,
+  },
+  {
+    id: "o5",
+    clientName: "BlueRoad Logistics",
+    origin: "Brasov",
+    destination: "Sibiu",
+    date: "2026-02-24",
+    status: "pending",
+    weight: 9,
+  },
+  {
+    id: "o6",
+    clientName: "Carpathia Transport",
+    origin: "Sibiu",
+    destination: "Brasov",
+    date: "2026-02-25",
+    status: "in_transit",
+    weight: 14,
+  },
+  {
+    id: "o7",
+    clientName: "Atlas Cargo SA",
+    origin: "Bucuresti",
+    destination: "Ploiesti",
+    date: "2026-02-26",
+    status: "delivered",
+    weight: 7,
+  },
+  {
+    id: "o8",
+    clientName: "PortLine SRL",
+    origin: "Constanta",
+    destination: "Craiova",
+    date: "2026-02-27",
+    status: "assigned",
+    weight: 20,
+  },
+  {
+    id: "o9",
+    clientName: "EuroHaul SRL",
+    origin: "Craiova",
+    destination: "Timisoara",
+    date: "2026-02-28",
+    status: "in_transit",
+    weight: 16,
+  },
+  {
+    id: "o10",
+    clientName: "Nordic Routes",
+    origin: "Oradea",
+    destination: "Cluj-Napoca",
+    date: "2026-03-01",
+    status: "pending",
+    weight: 10,
+  },
+  {
+    id: "o11",
+    clientName: "FastTrack SRL",
+    origin: "Arad",
+    destination: "Deva",
+    date: "2026-03-02",
+    status: "delivered",
+    weight: 6,
+  },
+  {
+    id: "o12",
+    clientName: "Balkan Cargo SA",
+    origin: "Deva",
+    destination: "Bucuresti",
+    date: "2026-03-03",
+    status: "cancelled",
+    weight: 11,
+  },
+  {
+    id: "o13",
+    clientName: "TransMarin Partners",
+    origin: "Pitesti",
+    destination: "Constanta",
+    date: "2026-03-04",
+    status: "assigned",
+    weight: 13,
+  },
+  {
+    id: "o14",
+    clientName: "GreenWay Logistics",
+    origin: "Buzau",
+    destination: "Galati",
+    date: "2026-03-05",
+    status: "pending",
+    weight: 8,
+  },
+  {
+    id: "o15",
+    clientName: "Delta Freight",
+    origin: "Tulcea",
+    destination: "Constanta",
+    date: "2026-03-06",
+    status: "in_transit",
+    weight: 17,
+  },
+  {
+    id: "o16",
+    clientName: "SteelMove SRL",
+    origin: "Hunedoara",
+    destination: "Targu Mures",
+    date: "2026-03-07",
+    status: "assigned",
+    weight: 24,
+  },
+  {
+    id: "o17",
+    clientName: "CityLink Transport",
+    origin: "Targu Mures",
+    destination: "Cluj-Napoca",
+    date: "2026-03-08",
+    status: "delivered",
+    weight: 5,
+  },
+  {
+    id: "o18",
+    clientName: "OceanBridge SRL",
+    origin: "Constanta",
+    destination: "Bucuresti",
+    date: "2026-03-09",
+    status: "in_transit",
+    weight: 19,
+  },
+  {
+    id: "o19",
+    clientName: "Rapid Haulage",
+    origin: "Bucuresti",
+    destination: "Brasov",
+    date: "2026-03-10",
+    status: "pending",
+    weight: 9,
+  },
+  {
+    id: "o20",
+    clientName: "WestLine Cargo",
+    origin: "Timisoara",
+    destination: "Oradea",
+    date: "2026-03-11",
+    status: "assigned",
+    weight: 15,
+  },
+  {
+    id: "o21",
+    clientName: "Central Freight",
+    origin: "Cluj-Napoca",
+    destination: "Satu Mare",
+    date: "2026-03-12",
+    status: "delivered",
+    weight: 12,
+  },
+  {
+    id: "o22",
+    clientName: "IronRoute SA",
+    origin: "Resita",
+    destination: "Arad",
+    date: "2026-03-13",
+    status: "cancelled",
+    weight: 10,
+  },
+  {
+    id: "o23",
+    clientName: "Skyline Logistics",
+    origin: "Iasi",
+    destination: "Bacau",
+    date: "2026-03-14",
+    status: "pending",
+    weight: 7,
+  },
+  {
+    id: "o24",
+    clientName: "RoadRunner SRL",
+    origin: "Bacau",
+    destination: "Botosani",
+    date: "2026-03-15",
+    status: "in_transit",
+    weight: 11,
+  },
+  {
+    id: "o25",
+    clientName: "CargoHub SRL",
+    origin: "Botosani",
+    destination: "Suceava",
+    date: "2026-03-16",
+    status: "assigned",
+    weight: 14,
+  },
+  {
+    id: "o26",
+    clientName: "TransValea",
+    origin: "Suceava",
+    destination: "Iasi",
+    date: "2026-03-17",
+    status: "delivered",
+    weight: 6,
+  },
+  {
+    id: "o27",
+    clientName: "HarborLine",
+    origin: "Constanta",
+    destination: "Galati",
+    date: "2026-03-18",
+    status: "pending",
+    weight: 21,
+  },
+  {
+    id: "o28",
+    clientName: "Mountain Freight",
+    origin: "Brasov",
+    destination: "Bucuresti",
+    date: "2026-03-19",
+    status: "in_transit",
+    weight: 13,
+  },
+  {
+    id: "o29",
+    clientName: "EastWest Cargo",
+    origin: "Bucuresti",
+    destination: "Iasi",
+    date: "2026-03-20",
+    status: "assigned",
+    weight: 16,
+  },
+  {
+    id: "o30",
+    clientName: "Danube Express",
+    origin: "Galati",
+    destination: "Braila",
+    date: "2026-03-21",
+    status: "delivered",
+    weight: 4,
   },
 ];
 
@@ -131,6 +380,7 @@ const seedParts: Part[] = [
     id: "p1",
     name: "Filtru ulei",
     category: "Filtre",
+    code: "FU-001",
     quantity: 25,
     unitPrice: 45,
     supplier: "Auto Parts SRL",
@@ -140,6 +390,7 @@ const seedParts: Part[] = [
     id: "p2",
     name: "Plăcuțe frână",
     category: "Frâne",
+    code: "PF-001",
     quantity: 8,
     unitPrice: 320,
     supplier: "Brake Systems SA",
@@ -149,6 +400,7 @@ const seedParts: Part[] = [
     id: "p3",
     name: "Curea distribuție",
     category: "Motor",
+    code: "CD-001",
     quantity: 3,
     unitPrice: 580,
     supplier: "Auto Parts SRL",
@@ -166,7 +418,44 @@ const seedEmployees: Employee[] = [
     email: "gheorghe@transmarin.ro",
     hireDate: "2019-03-01",
     salary: 5500,
-    documents: [],
+    documents: [
+      {
+        id: "doc1",
+        type: "license",
+        name: "Permis categoria C",
+        expiryDate: "2027-03-15",
+      },
+      {
+        id: "doc2",
+        type: "tachograph",
+        name: "Card tahograf",
+        expiryDate: "2026-04-01",
+      },
+      {
+        id: "doc3",
+        type: "adr",
+        name: "Certificat ADR",
+        expiryDate: "2026-03-05",
+      },
+      {
+        id: "doc4",
+        type: "medical",
+        name: "Fișă medicală",
+        expiryDate: "2026-02-15",
+      },
+      {
+        id: "doc5",
+        type: "contract",
+        name: "Contract de muncă",
+        expiryDate: undefined,
+      },
+      {
+        id: "doc6",
+        type: "other",
+        name: "Aviz psihologic",
+        expiryDate: "2026-12-01",
+      },
+    ],
   },
   {
     id: "e2",
@@ -183,11 +472,44 @@ const seedEmployees: Employee[] = [
     id: "e3",
     name: "Ana Radu",
     position: "Dispecer",
-    department: "Operațiuni",
+    department: "Dispecerat",
     phone: "0722000001",
     email: "ana@transmarin.ro",
     hireDate: "2021-01-10",
     salary: 4800,
+    documents: [],
+  },
+  {
+    id: "e4",
+    name: "Andrei Stoica",
+    position: "Mecanic",
+    department: "Service",
+    phone: "0721000003",
+    email: "andrei@transmarin.ro",
+    hireDate: "2022-05-20",
+    salary: 5300,
+    documents: [],
+  },
+  {
+    id: "e5",
+    name: "Maria Popescu",
+    position: "Contabil",
+    department: "Contabilitate",
+    phone: "0723000001",
+    email: "maria@transmarin.ro",
+    hireDate: "2023-02-01",
+    salary: 5000,
+    documents: [],
+  },
+  {
+    id: "e6",
+    name: "Ioana Ionescu",
+    position: "Manager",
+    department: "Administrativ",
+    phone: "0724000001",
+    email: "ioana@transmarin.ro",
+    hireDate: "2024-01-15",
+    salary: 6000,
     documents: [],
   },
 ];
@@ -211,23 +533,297 @@ const seedSuppliers: Supplier[] = [
     email: "office@brakesystems.ro",
     bankAccount: "RO49BBBB1B31007593840000",
   },
+  {
+    id: "s3",
+    name: "Electro Auto SA",
+    cui: "RO99887766",
+    address: "Calea Aradului 45, Timișoara",
+    phone: "0256400400",
+    email: "contact@electroauto.ro",
+    bankAccount: "RO49DDDD1B31007593840000",
+  },
+  {
+    id: "s4",
+    name: "Fleet Service SRL",
+    cui: "RO55667788",
+    address: "Str. Traian 7, Brașov",
+    phone: "0268400500",
+    email: "office@fleetservice.ro",
+    bankAccount: "RO49EEEE1B31007593840000",
+  },
+  {
+    id: "s5",
+    name: "Gearbox Solutions SRL",
+    cui: "RO44332211",
+    address: "Bd. Republicii 12, Ploiești",
+    phone: "0244400600",
+    email: "info@gearbox.ro",
+    bankAccount: "RO49FFFF1B31007593840000",
+  },
+  {
+    id: "s6",
+    name: "Hydraulic Parts SA",
+    cui: "RO66778899",
+    address: "Str. Fabricii 3, Cluj-Napoca",
+    phone: "0264400700",
+    email: "contact@hydraulic.ro",
+    bankAccount: "RO49GGGG1B31007593840000",
+  },
+  {
+    id: "s7",
+    name: "Industrial Motors SRL",
+    cui: "RO22114455",
+    address: "Str. Depozitelor 22, Iași",
+    phone: "0232400800",
+    email: "sales@industrialmotors.ro",
+    bankAccount: "RO49HHHH1B31007593840000",
+  },
+  {
+    id: "s8",
+    name: "Logistic Components SA",
+    cui: "RO33445566",
+    address: "Str. Energiei 9, Sibiu",
+    phone: "0269400900",
+    email: "office@logisticcomponents.ro",
+    bankAccount: "RO49IIII1B31007593840000",
+  },
+  {
+    id: "s9",
+    name: "Marine Supplies SRL",
+    cui: "RO77889900",
+    address: "Str. Portului 77, Constanța",
+    phone: "0241500101",
+    email: "contact@marinesupplies.ro",
+    bankAccount: "RO49JJJJ1B31007593840000",
+  },
+  {
+    id: "s10",
+    name: "Oil & Filters SRL",
+    cui: "RO55443322",
+    address: "Bd. Metalurgiei 14, București",
+    phone: "0212000201",
+    email: "office@oilfilters.ro",
+    bankAccount: "RO49KKKK1B31007593840000",
+  },
+  {
+    id: "s11",
+    name: "Power Drive SA",
+    cui: "RO66554433",
+    address: "Str. Uzinei 5, Oradea",
+    phone: "0259401100",
+    email: "contact@powerdrive.ro",
+    bankAccount: "RO49LLLL1B31007593840000",
+  },
+  {
+    id: "s12",
+    name: "Quick Service SRL",
+    cui: "RO88776655",
+    address: "Str. Libertății 11, Craiova",
+    phone: "0251401200",
+    email: "office@quickservice.ro",
+    bankAccount: "RO49MMMM1B31007593840000",
+  },
+  {
+    id: "s13",
+    name: "Truck Systems SRL",
+    cui: "RO99001122",
+    address: "Bd. Constructorilor 8, Arad",
+    phone: "0257401300",
+    email: "contact@trucksystems.ro",
+    bankAccount: "RO49NNNN1B31007593840000",
+  },
+  {
+    id: "s14",
+    name: "Universal Auto SA",
+    cui: "RO10293847",
+    address: "Str. Republicii 2, Bacău",
+    phone: "0234401400",
+    email: "office@universalauto.ro",
+    bankAccount: "RO49OOOO1B31007593840000",
+  },
 ];
 
-// ──────────────────────────────────────────────────────────
-// Helper: generează dată ISO relativă la azi
-// ex: relativeDate(0, 5)  → ziua 5 a lunii curente
-//     relativeDate(-1, 15) → ziua 15 a lunii trecute
-// ──────────────────────────────────────────────────────────
+const seedLeaveRequests: LeaveRequest[] = [
+  {
+    id: "lr1",
+    employeeId: "e1",
+    type: "annual",
+    startDate: "2026-03-10",
+    endDate: "2026-03-21",
+    days: 10,
+    status: "approved",
+    reason: "Vacanță de primăvară",
+  },
+  {
+    id: "lr2",
+    employeeId: "e2",
+    type: "sick",
+    startDate: "2026-02-17",
+    endDate: "2026-02-21",
+    days: 5,
+    status: "approved",
+    reason: "Răceală",
+  },
+  {
+    id: "lr3",
+    employeeId: "e3",
+    type: "annual",
+    startDate: "2026-04-01",
+    endDate: "2026-04-05",
+    days: 5,
+    status: "pending",
+    reason: "Concediu personal",
+  },
+  {
+    id: "lr4",
+    employeeId: "e1",
+    type: "unpaid",
+    startDate: "2026-01-13",
+    endDate: "2026-01-14",
+    days: 2,
+    status: "rejected",
+    reason: "Treburi personale",
+  },
+  {
+    id: "lr5",
+    employeeId: "e2",
+    type: "other",
+    startDate: "2026-04-20",
+    endDate: "2026-04-20",
+    days: 1,
+    status: "pending",
+    reason: "Eveniment familial",
+  },
+  {
+    id: "lr6",
+    employeeId: "e4",
+    type: "annual",
+    startDate: "2026-03-20",
+    endDate: "2026-03-28",
+    days: 9,
+    status: "approved",
+    reason: "Concediu anual",
+  },
+];
+
+const seedServiceRecords: ServiceRecord[] = [
+  {
+    id: "sr1",
+    truckId: "t1",
+    date: "2026-02-15",
+    type: "revision",
+    description: "Schimb ulei motor + filtru ulei + filtru aer",
+    cost: 485,
+    partsUsed: [{ partId: "p1", quantity: 2 }],
+    mileageAtService: 315000,
+    nextServiceDate: "2026-08-15",
+  },
+  {
+    id: "sr2",
+    truckId: "t2",
+    date: "2026-01-10",
+    type: "repair",
+    description: "Înlocuire plăcuțe frână față + spate",
+    cost: 640,
+    partsUsed: [{ partId: "p2", quantity: 2 }],
+    mileageAtService: 405000,
+    nextServiceDate: "2026-07-10",
+  },
+  {
+    id: "sr3",
+    truckId: "t3",
+    date: "2026-03-01",
+    type: "itp",
+    description: "Inspecție tehnică periodică + curea distribuție",
+    cost: 580,
+    partsUsed: [{ partId: "p3", quantity: 1 }],
+    mileageAtService: 178000,
+    nextServiceDate: "2027-03-01",
+  },
+];
+
+const seedFuelRecords: FuelRecord[] = [
+  {
+    id: "f1",
+    truckId: "t1",
+    date: "2026-01-10",
+    liters: 420,
+    cost: 2940,
+    mileage: 310000,
+  },
+  {
+    id: "f2",
+    truckId: "t1",
+    date: "2026-02-05",
+    liters: 390,
+    cost: 2730,
+    mileage: 313500,
+  },
+  {
+    id: "f3",
+    truckId: "t1",
+    date: "2026-03-01",
+    liters: 410,
+    cost: 2870,
+    mileage: 317000,
+  },
+  {
+    id: "f4",
+    truckId: "t2",
+    date: "2026-01-12",
+    liters: 450,
+    cost: 3150,
+    mileage: 400000,
+  },
+  {
+    id: "f5",
+    truckId: "t2",
+    date: "2026-02-08",
+    liters: 480,
+    cost: 3360,
+    mileage: 403800,
+  },
+  {
+    id: "f6",
+    truckId: "t2",
+    date: "2026-03-03",
+    liters: 460,
+    cost: 3220,
+    mileage: 407500,
+  },
+  {
+    id: "f7",
+    truckId: "t3",
+    date: "2026-01-15",
+    liters: 380,
+    cost: 2660,
+    mileage: 174000,
+  },
+  {
+    id: "f8",
+    truckId: "t3",
+    date: "2026-02-10",
+    liters: 400,
+    cost: 2800,
+    mileage: 177200,
+  },
+  {
+    id: "f9",
+    truckId: "t3",
+    date: "2026-03-05",
+    liters: 390,
+    cost: 2730,
+    mileage: 180500,
+  },
+];
+
 function relativeDate(monthOffset: number, day: number): string {
-  const d = new Date();
-  d.setDate(1); // evităm overflow de lună
-  d.setMonth(d.getMonth() + monthOffset);
-  d.setDate(day);
-  return d.toISOString().slice(0, 10);
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() + monthOffset, day);
+  return d.toISOString().split("T")[0];
 }
 
 const seedInvoices: Invoice[] = [
-  // Luna curentă — venit
   {
     id: "inv1",
     type: "income",
@@ -241,7 +837,6 @@ const seedInvoices: Invoice[] = [
     total: 5950,
     status: "paid",
   },
-  // Luna curentă — cheltuială
   {
     id: "inv2",
     type: "expense",
@@ -256,7 +851,6 @@ const seedInvoices: Invoice[] = [
     total: 2856,
     status: "sent",
   },
-  // Luna trecută — venit overdue
   {
     id: "inv3",
     type: "income",
@@ -270,7 +864,6 @@ const seedInvoices: Invoice[] = [
     total: 9520,
     status: "overdue",
   },
-  // Luna trecută — cheltuială
   {
     id: "inv4",
     type: "expense",
@@ -285,7 +878,6 @@ const seedInvoices: Invoice[] = [
     total: 1523,
     status: "paid",
   },
-  // Acum 2 luni — venit
   {
     id: "inv5",
     type: "income",
@@ -299,7 +891,6 @@ const seedInvoices: Invoice[] = [
     total: 7140,
     status: "paid",
   },
-  // Acum 2 luni — cheltuială
   {
     id: "inv6",
     type: "expense",
@@ -314,7 +905,6 @@ const seedInvoices: Invoice[] = [
     total: 535,
     status: "paid",
   },
-  // Acum 3 luni — venit
   {
     id: "inv7",
     type: "income",
@@ -328,7 +918,6 @@ const seedInvoices: Invoice[] = [
     total: 8330,
     status: "paid",
   },
-  // Acum 4 luni — venit
   {
     id: "inv8",
     type: "income",
@@ -342,7 +931,6 @@ const seedInvoices: Invoice[] = [
     total: 14280,
     status: "paid",
   },
-  // Acum 5 luni — venit
   {
     id: "inv9",
     type: "income",
@@ -356,7 +944,6 @@ const seedInvoices: Invoice[] = [
     total: 10710,
     status: "paid",
   },
-  // Acum 5 luni — cheltuială
   {
     id: "inv10",
     type: "expense",
@@ -373,10 +960,35 @@ const seedInvoices: Invoice[] = [
   },
 ];
 
-/**
- * Încarcă datele seed în localStorage (doar dacă cheile nu există deja).
- * Apelat o singură dată la inițializarea aplicației.
- */
+const seedBonuses: Bonus[] = [
+  { id: "b1", employeeId: "e1", type: "diurna", amount: 350, date: "2026-03-01", description: "Diurnă cursă Constanța-București (7 zile)" },
+  { id: "b2", employeeId: "e1", type: "bonus", amount: 500, date: "2026-03-05", description: "Bonus performanță Q1" },
+  { id: "b3", employeeId: "e2", type: "diurna", amount: 200, date: "2026-03-03", description: "Diurnă cursă Timișoara-Constanța (4 zile)" },
+  { id: "b4", employeeId: "e2", type: "amenda", amount: 150, date: "2026-03-06", description: "Amendă întârziere livrare" },
+  { id: "b5", employeeId: "e3", type: "ore_suplimentare", amount: 300, date: "2026-03-02", description: "Ore suplimentare dispecerat" },
+  { id: "b6", employeeId: "e4", type: "bonus", amount: 400, date: "2026-03-04", description: "Bonus reparații complexe" },
+  { id: "b7", employeeId: "e5", type: "ore_suplimentare", amount: 250, date: "2026-03-01", description: "Ore suplimentare bilanț lunar" },
+  { id: "b8", employeeId: "e6", type: "bonus", amount: 600, date: "2026-03-10", description: "Bonus management excelent" },
+  { id: "b9", employeeId: "e1", type: "diurna", amount: 450, date: "2026-02-10", description: "Diurnă cursă Cluj-Constanța (9 zile)" },
+  { id: "b10", employeeId: "e2", type: "diurna", amount: 300, date: "2026-02-15", description: "Diurnă cursă Timișoara-Iași (6 zile)" },
+  { id: "b11", employeeId: "e1", type: "amenda", amount: 200, date: "2026-02-20", description: "Amendă depășire program" },
+  { id: "b12", employeeId: "e3", type: "bonus", amount: 350, date: "2026-02-14", description: "Bonus activitate" },
+];
+
+const seedTrips: Trip[] = [
+  { id: "tr1", orderId: "o1", driverId: "d1", truckId: "t1", departureDate: "2026-02-20", estimatedArrivalDate: "2026-02-21", kmLoaded: 350, kmEmpty: 50, fuelCost: 820, status: "finalizata" },
+  { id: "tr2", orderId: "o2", driverId: "d3", truckId: "t2", departureDate: "2026-02-21", estimatedArrivalDate: "2026-02-22", kmLoaded: 480, kmEmpty: 90, fuelCost: 1140, status: "in_desfasurare" },
+  { id: "tr3", orderId: "o4", driverId: "d2", truckId: "t1", departureDate: "2026-02-23", estimatedArrivalDate: "2026-02-24", kmLoaded: 210, kmEmpty: 30, fuelCost: 510, status: "planned" },
+  { id: "tr4", orderId: "o6", driverId: "d1", truckId: "t2", departureDate: "2026-02-25", estimatedArrivalDate: "2026-02-25", kmLoaded: 145, kmEmpty: 20, fuelCost: 370, status: "in_desfasurare" },
+  { id: "tr5", orderId: "o7", driverId: "d2", truckId: "t1", departureDate: "2026-02-26", estimatedArrivalDate: "2026-02-26", kmLoaded: 125, kmEmpty: 15, fuelCost: 290, status: "finalizata" },
+  { id: "tr6", orderId: "o9", driverId: "d3", truckId: "t2", departureDate: "2026-02-28", estimatedArrivalDate: "2026-03-01", kmLoaded: 390, kmEmpty: 70, fuelCost: 930, status: "anulata" },
+  { id: "tr7", orderId: "o11", driverId: "d1", truckId: "t1", departureDate: "2026-03-02", estimatedArrivalDate: "2026-03-02", kmLoaded: 95, kmEmpty: 10, fuelCost: 220, status: "finalizata" },
+  { id: "tr8", orderId: "o8", driverId: "d2", truckId: "t2", departureDate: "2026-03-05", estimatedArrivalDate: "2026-03-06", kmLoaded: 430, kmEmpty: 80, fuelCost: 1020, status: "planned" },
+];
+
+const TRIPS_SCHEMA_VERSION = "v3";
+const TRIPS_VERSION_KEY = "transmarin_trips_schema_version";
+
 export function seedMockData(): void {
   initCollection(STORAGE_KEYS.drivers, seedDrivers);
   initCollection(STORAGE_KEYS.trucks, seedTrucks);
@@ -384,10 +996,17 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.parts, seedParts);
   initCollection(STORAGE_KEYS.employees, seedEmployees);
   initCollection(STORAGE_KEYS.suppliers, seedSuppliers);
-  initCollection(STORAGE_KEYS.trips, []);
-  initCollection(STORAGE_KEYS.serviceRecords, []);
-  initCollection(STORAGE_KEYS.fuelRecords, []);
+  if (localStorage.getItem(TRIPS_VERSION_KEY) !== TRIPS_SCHEMA_VERSION) {
+    localStorage.removeItem(STORAGE_KEYS.trips);
+    localStorage.setItem(TRIPS_VERSION_KEY, TRIPS_SCHEMA_VERSION);
+  }
+  initCollection(STORAGE_KEYS.trips, seedTrips);
+  initCollection(STORAGE_KEYS.serviceRecords, seedServiceRecords);
+  initCollection(STORAGE_KEYS.fuelRecords, seedFuelRecords);
   initCollection(STORAGE_KEYS.invoices, seedInvoices);
-  initCollection(STORAGE_KEYS.leaveRequests, []);
-  initCollection(STORAGE_KEYS.bonuses, []);
+  initCollection(STORAGE_KEYS.leaveRequests, seedLeaveRequests);
+  initCollection(STORAGE_KEYS.bonuses, seedBonuses);
 }
+
+export { seedEmployees };
+export const EMPLOYEE_DEPARTMENTS = ["Dispecerat", "Transport", "Service", "Contabilitate", "Administrativ"] as const;
