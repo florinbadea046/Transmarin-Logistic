@@ -8,21 +8,21 @@
   "orders": {
     "title": "Comenzi",
     "manage": "Gestiune Comenzi",
-    "add": "Adaugă comandă",
-    "edit": "Editează comandă",
-    "delete": "Șterge comanda",
-    "save": "Salvează",
-    "cancel": "Anulează",
-    "close": "Închide",
-    "noResults": "Nu există comenzi pentru filtrul curent.",
-    "duplicate": "Există deja o comandă identică (aceleași date).",
-    "confirmDelete": "Ești sigur că vrei să ștergi comanda pentru {{name}} ({{origin}} → {{destination}}, {{date}})? Această acțiune este ireversibilă.",
-    "confirmDeleteFallback": "Ești sigur că vrei să ștergi această comandă?",
+    "add": "Adauga comanda",
+    "edit": "Editeaza comanda",
+    "delete": "Sterge comanda",
+    "save": "Salveaza",
+    "cancel": "Anuleaza",
+    "close": "Inchide",
+    "noResults": "Nu exista comenzi pentru filtrul curent.",
+    "duplicate": "Exista deja o comanda identica (aceleasi date).",
+    "confirmDelete": "Esti sigur ca vrei sa stergi comanda pentru {{name}} ({{origin}} - {{destination}}, {{date}})? Aceasta actiune este ireversibila.",
+    "confirmDeleteFallback": "Esti sigur ca vrei sa stergi aceasta comanda?",
     "fields": {
       "client": "Client",
       "origin": "Origine",
-      "destination": "Destinație",
-      "date": "Dată",
+      "destination": "Destinatie",
+      "date": "Data",
       "status": "Status",
       "weight": "Greutate (t)",
       "notes": "Note",
@@ -30,34 +30,34 @@
     },
     "placeholders": {
       "client": "Ex: SC Transmarin SRL",
-      "origin": "Ex: Brașov",
-      "destination": "Ex: Constanța",
+      "origin": "Ex: Brasov",
+      "destination": "Ex: Constanta",
       "weight": "Ex: 12.5",
-      "notes": "Detalii extra (opțional)",
-      "selectDate": "Selectează data",
-      "search": "Caută comenzi...",
+      "notes": "Detalii extra (optional)",
+      "selectDate": "Selecteaza data",
+      "search": "Cauta comenzi...",
       "filterOrigin": "Origine...",
-      "filterDest": "Destinație..."
+      "filterDest": "Destinatie..."
     },
     "validation": {
       "clientRequired": "Clientul este obligatoriu",
       "originRequired": "Originea este obligatorie",
-      "destinationRequired": "Destinația este obligatorie",
+      "destinationRequired": "Destinatia este obligatorie",
       "dateRequired": "Data este obligatorie",
       "weightRequired": "Greutatea este obligatorie",
-      "weightPositive": "Greutatea trebuie să fie > 0"
+      "weightPositive": "Greutatea trebuie sa fie > 0"
     },
     "status": {
-      "pending": "În așteptare",
-      "assigned": "Asignată",
-      "in_transit": "În tranzit",
-      "delivered": "Livrată",
-      "cancelled": "Anulată"
+      "pending": "In asteptare",
+      "assigned": "Asignata",
+      "in_transit": "In tranzit",
+      "delivered": "Livrata",
+      "cancelled": "Anulata"
     },
     "actions": {
       "details": "Detalii",
-      "edit": "Editează",
-      "delete": "Șterge",
+      "edit": "Editeaza",
+      "delete": "Sterge",
       "export": "Export",
       "exportPdf": "Export PDF",
       "exportExcel": "Export Excel",
@@ -65,14 +65,14 @@
       "reset": "Resetare filtre"
     },
     "filters": {
-      "from": "De la dată",
-      "to": "Până la dată"
+      "from": "De la data",
+      "to": "Pana la data"
     },
     "costs": {
       "title": "Costuri curse asociate",
-      "noTrips": "Nu există curse asociate acestei comenzi.",
+      "noTrips": "Nu exista curse asociate acestei comenzi.",
       "trip": "Cursa {{index}}",
-      "kmLoaded": "Km încărcați",
+      "kmLoaded": "Km incarcati",
       "kmEmpty": "Km goi",
       "fuelCost": "Cost combustibil",
       "costPerKm": "Cost/km",
@@ -80,48 +80,48 @@
       "totalCostPerKm": "Cost/km total"
     },
     "detail": {
-      "route": "Rută",
-      "date": "Dată",
+      "route": "Ruta",
+      "date": "Data",
       "status": "Status",
       "weight": "Greutate",
       "notes": "Note",
-      "title": "Detaliu comandă"
+      "title": "Detaliu comanda"
     },
     "import": {
       "title": "Import Comenzi din CSV",
       "button": "Import",
-      "dropzone": "Trage un fișier CSV aici sau dă click pentru a selecta",
+      "dropzone": "Trage un fisier CSV aici sau da click pentru a selecta",
       "dropzoneHint": "Coloane acceptate: Client, Origine/Origin, Destinatie/Destination, Data/Date (yyyy-MM-dd), Greutate (t)/Weight (t), Status, Note/Notes",
-      "validCount": "{{count}} rând(uri) valide",
-      "invalidCount": "{{count}} rând(uri) invalide",
+      "validCount": "{{count}} rand(uri) valide",
+      "invalidCount": "{{count}} rand(uri) invalide",
       "errorsCol": "Erori",
-      "invalidDate": "Data trebuie să fie în formatul yyyy-MM-dd",
-      "reupload": "Încarcă alt fișier",
-      "confirm": "Importă {{count}} rând(uri)",
-      "toastSuccess": "{{count}} comandă(zi) importată(e) cu succes.",
+      "invalidDate": "Data trebuie sa fie in formatul yyyy-MM-dd",
+      "reupload": "Incarca alt fisier",
+      "confirm": "Importa {{count}} rand(uri)",
+      "toastSuccess": "{{count}} comanda(zi) importata(e) cu succes.",
       "toastPartial": "{{added}} importate, {{skipped}} ignorate (duplicate).",
-      "toastAllSkipped": "Nicio comandă importată — toate rândurile sunt duplicate."
+      "toastAllSkipped": "Nicio comanda importata - toate randurile sunt duplicate."
     }
   },
   "employees": {
-    "title": "Angajați",
-    "listTitle": "Lista Angajați",
+    "title": "Angajati",
+    "listTitle": "Lista Angajati",
     "count_one": "{{count}} angajat",
-    "count_few": "{{count}} angajați",
-    "count_other": "{{count}} angajați",
-    "empty": "Niciun angajat găsit.",
+    "count_few": "{{count}} angajati",
+    "count_other": "{{count}} angajati",
+    "empty": "Niciun angajat gasit.",
     "fields": {
       "name": "Nume",
-      "position": "Funcție",
+      "position": "Functie",
       "department": "Departament",
       "phone": "Telefon",
       "email": "Email",
-      "hireDate": "Data angajării",
+      "hireDate": "Data angajarii",
       "salary": "Salariu",
       "salaryExport": "Salariu (RON)"
     },
     "placeholders": {
-      "search": "Caută după nume, funcție sau email..."
+      "search": "Cauta dupa nume, functie sau email..."
     },
     "filters": {
       "all": "Toate"
@@ -134,79 +134,79 @@
       "administrative": "Administrativ"
     },
     "actions": {
-      "add": "Adaugă angajat",
-      "edit": "Editează",
-      "delete": "Șterge",
+      "add": "Adauga angajat",
+      "edit": "Editeaza",
+      "delete": "Sterge",
       "documents": "Documente",
-      "save": "Salvează",
-      "cancel": "Anulează",
+      "save": "Salveaza",
+      "cancel": "Anuleaza",
       "export": "Export",
       "exportPdf": "Export PDF",
       "exportExcel": "Export Excel",
       "exportCsv": "Export CSV",
-      "menu": "Acțiuni angajat"
+      "menu": "Actiuni angajat"
     },
     "dialog": {
-      "addTitle": "Adaugă angajat",
+      "addTitle": "Adauga angajat",
       "editTitle": "Editare angajat"
     },
     "validation": {
       "nameRequired": "Numele este obligatoriu",
-      "positionRequired": "Funcția este obligatorie",
+      "positionRequired": "Functia este obligatorie",
       "departmentRequired": "Departamentul este obligatoriu",
       "phoneInvalid": "Telefon invalid",
       "emailInvalid": "Email invalid",
-      "hireDateRequired": "Data angajării este obligatorie",
+      "hireDateRequired": "Data angajarii este obligatorie",
       "salaryRequired": "Salariul este obligatoriu"
     },
     "delete": {
-      "title": "Confirmă ștergerea",
-      "description": "Sigur doriți să ștergeți angajatul {{name}}?"
+      "title": "Confirma stergerea",
+      "description": "Sigur doriti sa stergeti angajatul {{name}}?"
     },
     "documents": {
-      "title": "Documente — {{name}}"
+      "title": "Documente - {{name}}"
     },
     "toast": {
       "updated": "Angajat actualizat cu succes",
-      "deleted": "Angajat șters cu succes",
-      "deleteBlockedActiveTrip": "Angajatul nu poate fi șters: este șofer pe o cursă activă.",
-      "deleteBlockedFutureLeave": "Angajatul nu poate fi șters: are concediu aprobat în viitor."
+      "deleted": "Angajat sters cu succes",
+      "deleteBlockedActiveTrip": "Angajatul nu poate fi sters: este sofer pe o cursa activa.",
+      "deleteBlockedFutureLeave": "Angajatul nu poate fi sters: are concediu aprobat in viitor."
     },
     "export": {
-      "pdfTitle": "Lista angajați",
+      "pdfTitle": "Lista angajati",
       "filename": "angajati"
     },
     "import": {
-      "title": "Import Angajați din CSV",
+      "title": "Import Angajati din CSV",
       "button": "Import CSV",
-      "dropzone": "Trage un fișier CSV aici sau dă click pentru a selecta",
-      "dropzoneHint": "Coloane acceptate: Name, Position, Department, Phone, Email, HireDate (yyyy-MM-dd), Salary (RON)",
-      "validCount": "{{count}} rând(uri) valide",
-      "invalidCount": "{{count}} rând(uri) invalide",
+      "dropzone": "Trage un fisier CSV aici sau da click pentru a selecta",
+      "dropzoneHint": "Coloane acceptate: Nume, Functie, Departament, Telefon, Email, Data angajarii (yyyy-MM-dd), Salariu (RON)",
+      "validCount": "{{count}} randuri valide",
+      "invalidCount": "{{count}} randuri invalide",
       "duplicateCount": "{{count}} duplicate",
       "errorsCol": "Erori",
-      "errorRequired": "Câmpul {{field}} este obligatoriu",
-      "errorDate": "Data trebuie să fie în formatul yyyy-MM-dd",
-      "errorSalary": "Salariul trebuie să fie un număr pozitiv",
+      "errorRequired": "Campul {{field}} este obligatoriu",
+      "errorDate": "Data trebuie sa fie in formatul yyyy-MM-dd",
+      "errorSalary": "Salariul trebuie sa fie un numar pozitiv",
       "duplicate": "Duplicat (nume + departament)",
-      "confirm": "Importă {{count}} rând(uri)",
-      "toastSuccess": "{{count}} angajat(ți) importat(ți) cu succes.",
-      "toastPartial": "{{added}} importați, {{skipped}} ignorați (duplicate).",
-      "toastAllSkipped": "Niciun angajat importat — toate rândurile sunt duplicate."
+      "confirm": "Importa {{count}} randuri",
+      "toastSuccess": "{{count}} angajat(i) importat(i) cu succes.",
+      "toastPartial": "{{added}} importati, {{skipped}} ignorati (duplicate).",
+      "toastAllSkipped": "Niciun angajat importat - toate randurile sunt duplicate."
     }
   },
   "drivers": {
-    "title": "Șoferi",
-    "add": "Adaugă Șofer",
-    "edit": "Editează Șofer",
-    "save": "Salvează",
-    "cancel": "Anulează",
-    "noResults": "Nu există șoferi pentru filtrul curent.",
-    "toastAdded": "Șoferul a fost adăugat.",
-    "toastUpdated": "Șoferul a fost actualizat.",
-    "toastDeleted": "Șoferul a fost șters.",
-    "confirmDelete": "Această acțiune este ireversibilă. Șoferul va fi șters definitiv.",
-    "confirmDeleteTitle": "Ești sigur?",
+    "title": "Soferi",
+    "add": "Adauga Sofer",
+    "edit": "Editeaza Sofer",
+    "save": "Salveaza",
+    "cancel": "Anuleaza",
+    "noResults": "Nu exista soferi pentru filtrul curent.",
+    "toastAdded": "Soferul a fost adaugat.",
+    "toastUpdated": "Soferul a fost actualizat.",
+    "toastDeleted": "Soferul a fost sters.",
+    "confirmDelete": "Aceasta actiune este ireversibila. Soferul va fi sters definitiv.",
+    "confirmDeleteTitle": "Esti sigur?",
     "fields": {
       "name": "Nume complet",
       "phone": "Telefon",
@@ -217,25 +217,25 @@
     "placeholders": {
       "name": "ex. Ion Popescu",
       "phone": "07XXXXXXXX",
-      "search": "Caută șoferi...",
-      "noTruck": "Fără camion"
+      "search": "Cauta soferi...",
+      "noTruck": "Fara camion"
     },
     "validation": {
-      "nameMin": "Numele trebuie să aibă minim 3 caractere.",
+      "nameMin": "Numele trebuie sa aiba minim 3 caractere.",
       "phoneInvalid": "Telefon invalid. Format acceptat: 07XXXXXXXX",
-      "licenseExpiryRequired": "Data expirării permisului este obligatorie."
+      "licenseExpiryRequired": "Data expirarii permisului este obligatorie."
     },
     "status": {
       "available": "Disponibil",
-      "on_trip": "În cursă",
+      "on_trip": "In cursa",
       "off_duty": "Liber"
     },
     "actions": {
-      "add": "Adaugă",
-      "edit": "Editează șofer",
-      "delete": "Șterge șofer",
-      "cancel": "Anulează",
-      "confirm": "Șterge"
+      "add": "Adauga",
+      "edit": "Editeaza sofer",
+      "delete": "Sterge sofer",
+      "cancel": "Anuleaza",
+      "confirm": "Sterge"
     },
     "columns": {
       "name": "Nume",
@@ -243,7 +243,7 @@
       "licenseExpiry": "Exp. Permis",
       "status": "Status",
       "truck": "Camion",
-      "actions": "Acțiuni"
+      "actions": "Actiuni"
     },
     "card": {
       "status": "Status",
@@ -253,29 +253,29 @@
   },
   "trucks": {
     "title": "Camioane",
-    "add": "Adaugă Camion",
-    "edit": "Editează Camion",
-    "save": "Salvează",
-    "cancel": "Anulează",
-    "noResults": "Nu există camioane pentru filtrul curent.",
-    "toastAdded": "Camionul a fost adăugat.",
+    "add": "Adauga Camion",
+    "edit": "Editeaza Camion",
+    "save": "Salveaza",
+    "cancel": "Anuleaza",
+    "noResults": "Nu exista camioane pentru filtrul curent.",
+    "toastAdded": "Camionul a fost adaugat.",
     "toastUpdated": "Camionul a fost actualizat.",
-    "toastDeleted": "Camionul a fost șters.",
-    "confirmDelete": "Această acțiune este ireversibilă. Camionul va fi șters definitiv, iar șoferul asociat va fi dezasociat automat.",
-    "confirmDeleteTitle": "Ești sigur?",
-    "assignTitle": "Asociere Șofer — {{plateNumber}}",
-    "toastAssigned": "Asocierea a fost salvată.",
+    "toastDeleted": "Camionul a fost sters.",
+    "confirmDelete": "Aceasta actiune este ireversibila. Camionul va fi sters definitiv, iar soferul asociat va fi dezasociat automat.",
+    "confirmDeleteTitle": "Esti sigur?",
+    "assignTitle": "Asociere Sofer - {{plateNumber}}",
+    "toastAssigned": "Asocierea a fost salvata.",
     "toastUnassigned": "Camionul a fost dezasociat.",
     "fields": {
-      "plateNumber": "Număr înmatriculare",
-      "brand": "Marcă",
+      "plateNumber": "Numar inmatriculare",
+      "brand": "Marca",
       "model": "Model",
-      "year": "An fabricație",
+      "year": "An fabricatie",
       "mileage": "Kilometraj",
       "status": "Status",
       "itpExpiry": "Expirare ITP",
       "rcaExpiry": "Expirare RCA",
-      "vignetteExpiry": "Expirare Vignetă"
+      "vignetteExpiry": "Expirare Vigneta"
     },
     "placeholders": {
       "plateNumber": "ex. CT-01-TML",
@@ -283,231 +283,234 @@
       "model": "ex. FH16",
       "year": "ex. 2021",
       "mileage": "ex. 320000",
-      "search": "Caută camioane...",
-      "noDriver": "Fără șofer",
-      "selectDriver": "Fără șofer"
+      "search": "Cauta camioane...",
+      "noDriver": "Fara sofer",
+      "selectDriver": "Fara sofer"
     },
     "validation": {
       "plateNumberInvalid": "Format invalid. Exemplu: CT-01-TML",
-      "brandMin": "Marca trebuie să aibă minim 2 caractere.",
+      "brandMin": "Marca trebuie sa aiba minim 2 caractere.",
       "modelRequired": "Modelul este obligatoriu.",
-      "yearRange": "Anul trebuie să fie între 1990 și {{max}}.",
-      "mileagePositive": "Kilometrajul trebuie să fie un număr pozitiv.",
-      "itpExpiryRequired": "Data expirării ITP este obligatorie.",
-      "rcaExpiryRequired": "Data expirării RCA este obligatorie.",
-      "vignetteExpiryRequired": "Data expirării vignetei este obligatorie."
+      "yearRange": "Anul trebuie sa fie intre 1990 si {{max}}.",
+      "mileagePositive": "Kilometrajul trebuie sa fie un numar pozitiv.",
+      "itpExpiryRequired": "Data expirarii ITP este obligatorie.",
+      "rcaExpiryRequired": "Data expirarii RCA este obligatorie.",
+      "vignetteExpiryRequired": "Data expirarii vignetei este obligatorie."
     },
     "status": {
       "available": "Disponibil",
-      "on_trip": "În cursă",
-      "in_service": "În service"
+      "on_trip": "In cursa",
+      "in_service": "In service"
     },
     "actions": {
-      "add": "Adaugă",
-      "edit": "Editează camion",
-      "delete": "Șterge camion",
-      "assign": "Asociere șofer",
-      "cancel": "Anulează",
-      "confirm": "Șterge",
-      "save": "Salvează"
+      "add": "Adauga",
+      "edit": "Editeaza camion",
+      "delete": "Sterge camion",
+      "assign": "Asociere sofer",
+      "cancel": "Anuleaza",
+      "confirm": "Sterge",
+      "save": "Salveaza"
     },
     "columns": {
       "plateNumber": "Camion",
       "status": "Status",
       "itpExpiry": "ITP",
       "rcaExpiry": "RCA",
-      "vignetteExpiry": "Vignetă",
-      "driver": "Șofer",
-      "actions": "Acțiuni"
+      "vignetteExpiry": "Vigneta",
+      "driver": "Sofer",
+      "actions": "Actiuni"
     },
     "card": {
       "status": "Status",
-      "driver": "Șofer",
+      "driver": "Sofer",
       "mileage": "Km",
       "itp": "ITP",
       "rca": "RCA",
-      "vignette": "Vignetă"
+      "vignette": "Vigneta"
     },
     "assign": {
-      "selectDriver": "Selectează șofer",
+      "selectDriver": "Selecteaza sofer",
       "hasTrack": " (are camion)"
     },
-    "deleteDisabledTooltip": "Nu poți șterge un camion aflat în cursă"
+    "deleteDisabledTooltip": "Nu poti sterge un camion aflat in cursa"
   },
   "expiry": {
     "alerts": {
-      "driversTitle": "Permise de conducere expirate sau care expiră curând:",
-      "trucksTitle": "Documente camion expirate sau care expiră curând:",
+      "driversTitle": "Permise de conducere expirate sau care expira curand:",
+      "trucksTitle": "Documente camion expirate sau care expira curand:",
       "expired": "permis EXPIRAT",
-      "expiresIn": "expiră în {{days}} zi{{plural}} ({{date}})",
+      "expiresIn": "expira in {{days}} zi{{plural}} ({{date}})",
       "itpExpired": "ITP EXPIRAT",
-      "itpExpires": "ITP expiră {{date}}",
+      "itpExpires": "ITP expira {{date}}",
       "rcaExpired": "RCA EXPIRAT",
-      "rcaExpires": "RCA expiră {{date}}",
-      "vignetteExpired": "Vignetă EXPIRATĂ",
-      "vignetteExpires": "Vignetă expiră {{date}}"
+      "rcaExpires": "RCA expira {{date}}",
+      "vignetteExpired": "Vigneta EXPIRATA",
+      "vignetteExpires": "Vigneta expira {{date}}"
     }
   },
   "driversPage": {
-    "title": "Șoferi & Camioane"
+    "title": "Soferi & Camioane"
   },
   "language": {
-    "label": "Limbă",
-    "ro": "Română",
-    "en": "Engleză"
+    "label": "Limba",
+    "ro": "Romana",
+    "en": "Engleza"
   },
   "table": {
-    "asc": "Ordine Crescătoare",
-    "desc": "Ordine Descrescătoare",
+    "asc": "Ordine Crescatoare",
+    "desc": "Ordine Descrescatoare",
     "hide": "Ascunde",
     "view": "Vizualizare",
     "toggleColumns": "Coloane vizibile",
     "reset": "Resetare",
     "selected": "selectate",
     "noResults": "Niciun rezultat.",
-    "search": "Caută...",
-    "clearFilters": "Șterge filtre",
-    "rowsPerPage": "Rânduri pe pagină",
+    "search": "Cauta...",
+    "clearFilters": "Sterge filtre",
+    "rowsPerPage": "Randuri pe pagina",
     "pageOf": "Pagina {{page}} din {{total}}"
   },
   "trips": {
     "title": "Curse Zilnice",
     "tableTitle": "Tabel Curse",
-    "add": "Cursă nouă",
+    "add": "Cursa noua",
     "addShort": "Nou",
-    "edit": "Editează cursă",
-    "save": "Salvează modificările",
-    "saveNew": "Adaugă cursă",
-    "cancel": "Anulează",
-    "noResults": "Nu există curse. Apasă „Cursă nouă\" pentru a adăuga.",
+    "edit": "Editeaza cursa",
+    "save": "Salveaza modificarile",
+    "saveNew": "Adauga cursa",
+    "cancel": "Anuleaza",
+    "noResults": "Nu exista curse. Apasa Cursa noua pentru a adauga.",
     "columns": {
       "nr": "Nr.",
-      "order": "Comandă",
-      "route": "Rută",
-      "driver": "Șofer",
+      "order": "Comanda",
+      "route": "Ruta",
+      "driver": "Sofer",
       "truck": "Camion",
       "status": "Status",
       "departureDate": "Data plecare",
-      "arrivalDate": "Sosire estimată",
-      "kmLoaded": "Km încărcat",
+      "arrivalDate": "Sosire estimata",
+      "kmLoaded": "Km incarcat",
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil",
-      "actions": "Acțiuni"
+      "actions": "Actiuni",
+      "revenue": "Venit"
     },
     "fields": {
-      "order": "Comandă",
-      "driver": "Șofer",
+      "order": "Comanda",
+      "driver": "Sofer",
       "truck": "Camion",
       "departureDate": "Data plecare",
-      "arrivalDate": "Sosire estimată",
-      "kmLoaded": "Km încărcat",
+      "arrivalDate": "Sosire estimata",
+      "kmLoaded": "Km incarcat",
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil (RON)",
       "status": "Status",
-      "revenue": "Venit estimat (RON)",
-      "unscheduled": "Cursă neprogramată (fără dată)"
+      "revenue": "Venit estimat (RON)"
     },
     "placeholders": {
-      "order": "Selectează o comandă",
-      "driver": "Selectează șofer",
-      "truck": "Selectează camion",
-      "status": "Selectează status",
-      "search": "Caută curse...",
+      "order": "Selecteaza o comanda",
+      "driver": "Selecteaza sofer",
+      "truck": "Selecteaza camion",
+      "status": "Selecteaza status",
+      "search": "Cauta curse...",
       "km": "0"
     },
     "status": {
-      "planned": "Planificată",
-      "in_desfasurare": "În desfășurare",
-      "finalizata": "Finalizată",
-      "anulata": "Anulată"
+      "planned": "Planificata",
+      "in_desfasurare": "In desfasurare",
+      "finalizata": "Finalizata",
+      "anulata": "Anulata"
     },
     "actions": {
-      "edit": "Editează",
-      "delete": "Șterge",
-      "start": "Pornește",
-      "cancel": "Anulează",
-      "finish": "Finalizează",
+      "edit": "Editeaza",
+      "delete": "Sterge",
+      "start": "Porneste",
+      "cancel": "Anuleaza",
+      "finish": "Finalizeaza",
       "export": "Export",
       "exportPdf": "Export PDF",
       "exportExcel": "Export Excel",
       "exportCsv": "Export CSV"
     },
     "validation": {
-      "orderRequired": "Selectează o comandă",
-      "driverRequired": "Selectează un șofer",
-      "truckRequired": "Selectează un camion",
+      "orderRequired": "Selecteaza o comanda",
+      "driverRequired": "Selecteaza un sofer",
+      "truckRequired": "Selecteaza un camion",
       "departureDateRequired": "Data plecare este obligatorie",
-      "arrivalDateRequired": "Data sosire estimată este obligatorie",
-      "arrivalAfterDeparture": "Data sosire trebuie să fie după data plecare",
-      "kmLoadedPositive": "Km încărcat trebuie să fie > 0",
-      "kmEmptyPositive": "Km gol trebuie să fie > 0",
-      "fuelCostMin": "Cost combustibil trebuie să fie >= 0"
+      "arrivalDateRequired": "Data sosire estimata este obligatorie",
+      "arrivalAfterDeparture": "Data sosire trebuie sa fie dupa data plecare",
+      "kmLoadedPositive": "Km incarcat trebuie sa fie > 0",
+      "kmEmptyPositive": "Km gol trebuie sa fie > 0",
+      "fuelCostMin": "Cost combustibil trebuie sa fie >= 0",
+      "revenueMin": "Venitul trebuie sa fie >= 0"
     },
     "toast": {
-      "added": "Cursă adăugată cu succes!",
-      "updated": "Cursă actualizată cu succes!",
-      "deleted": "Cursă ștearsă.",
-      "started": "Cursă pornită!",
-      "finished": "Cursă finalizată!",
-      "cancelled": "Cursă anulată.",
-      "error": "A apărut o eroare. Încearcă din nou."
+      "added": "Cursa adaugata cu succes!",
+      "updated": "Cursa actualizata cu succes!",
+      "deleted": "Cursa stearsa.",
+      "started": "Cursa pornita!",
+      "finished": "Cursa finalizata!",
+      "cancelled": "Cursa anulata.",
+      "error": "A aparut o eroare. Incearca din nou."
     },
     "dialog": {
-      "addDesc": "Completează detaliile pentru o cursă nouă.",
-      "editDesc": "Modifică detaliile cursei existente."
+      "addDesc": "Completeaza detaliile pentru o cursa noua.",
+      "editDesc": "Modifica detaliile cursei existente."
     },
     "delete": {
-      "title": "Șterge cursă",
-      "desc": "Ești sigur că vrei să ștergi cursa pentru comanda #{{orderId}}? Această acțiune nu poate fi anulată.",
-      "descFallback": "Ești sigur că vrei să ștergi această cursă?",
-      "confirm": "Șterge",
-      "disabledTooltip": "Nu se poate șterge o cursă în desfășurare"
+      "title": "Sterge cursa",
+      "desc": "Esti sigur ca vrei sa stergi cursa pentru comanda #{{orderId}}? Aceasta actiune nu poate fi anulata.",
+      "descFallback": "Esti sigur ca vrei sa stergi aceasta cursa?",
+      "confirm": "Sterge",
+      "disabledTooltip": "Nu se poate sterge o cursa in desfasurare"
     },
     "mobile": {
-      "driver": "Șofer",
+      "driver": "Sofer",
       "departure": "Data plecare",
-      "arrival": "Sosire estimată",
-      "kmLoaded": "Km încărcat",
+      "arrival": "Sosire estimata",
+      "kmLoaded": "Km incarcat",
       "kmEmpty": "Km gol",
-      "fuelCost": "Cost combustibil"
+      "fuelCost": "Cost combustibil",
+      "revenue": "Venit"
     },
     "export": {
-      "nr": "Nr. cursă",
-      "order": "Comandă",
-      "driver": "Șofer",
+      "nr": "Nr. cursa",
+      "order": "Comanda",
+      "driver": "Sofer",
       "truck": "Camion",
-      "route": "Rută",
+      "route": "Ruta",
       "departure": "Data plecare",
-      "arrival": "Data sosire estimată",
-      "kmLoaded": "Km încărcat",
+      "arrival": "Data sosire estimata",
+      "kmLoaded": "Km incarcat",
       "kmEmpty": "Km gol",
       "fuelCost": "Cost combustibil (RON)",
       "status": "Status",
-      "filename": "curse"
+      "filename": "curse",
+      "revenue": "Venit estimat (RON)"
     }
   },
   "dashboard": {
     "title": "Dashboard",
     "cards": {
       "activeOrders": "Comenzi Active",
-      "activeOrdersDesc": "pending + assigned + în tranzit",
-      "employees": "Angajați",
+      "activeOrdersDesc": "pending + assigned + in tranzit",
+      "employees": "Angajati",
       "employeesDesc": "21 activi",
       "invoices": "Facturi Luna",
       "invoicesDesc": "8 neachitate",
       "kmMonth": "Km Luna Aceasta",
-      "kmMonthDesc": "încărcat + gol din toate cursele"
+      "kmMonthDesc": "incarcat + gol din toate cursele"
     },
     "charts": {
-      "kmPerDay": "Km / zi — ultimele 30 zile",
+      "kmPerDay": "Km / zi - ultimele 30 zile",
       "costsVsRevenue": "Costuri vs. Venituri",
-      "costsVsRevenueTodo": "TODO: Grafic Recharts — costuri/venituri",
+      "costsVsRevenueTodo": "TODO: Grafic Recharts - costuri/venituri",
       "kmTooltip": "Km"
     },
     "alerts": {
-      "title": "Alerte ITP / RCA / Rovinietă (<30 zile)",
+      "title": "Alerte ITP / RCA / Rovinieta (<30 zile)",
       "expired": "EXPIRAT",
-      "expiresIn": "expiră în {{days}} zile"
+      "expiresIn": "expira in {{days}} zile"
     },
     "months": [
       "Ian",
@@ -528,106 +531,113 @@
     "title": "Calendar Curse",
     "tabs": {
       "table": "Tabel",
-      "tableShort": "Tab",
-      "calendar": "Calendar",
-      "calendarShort": "Cal"
+      "calendar": "Calendar"
     },
-    "prevWeek": "Săptămâna anterioară",
-    "nextWeek": "Săptămâna următoare",
-    "redirecting": "Se redirecționează către tabel...",
-    "dayNames": ["Lun", "Mar", "Mie", "Joi", "Vin", "Sâm", "Dum"],
+    "prevWeek": "Saptamana anterioara",
+    "nextWeek": "Saptamana urmatoare",
+    "redirecting": "Se redirectioneaza catre tabel...",
+    "dayNames": [
+      "Lun",
+      "Mar",
+      "Mie",
+      "Joi",
+      "Vin",
+      "Sam",
+      "Dum"
+    ],
     "dialog": {
-      "title": "Detalii cursă",
-      "desc": "Informații complete despre cursă"
-    }
-  },
-  "tripsDnd": {
-    "title": "Calendar Drag & Drop",
-    "today": "Azi",
-    "tabs": {
-      "dnd": "Drag & Drop",
-      "dndShort": "DnD"
-    },
-    "sidebar": {
-      "title": "Curse neprogramate",
-      "hint": "Trage cursele în calendar",
-      "empty": "Nu există curse neprogramate"
-    },
-    "confirmMove": {
-      "title": "Confirmă mutarea",
-      "desc": "Muți cursa {{tripId}} pe {{date}}?",
-      "confirm": "Confirmă"
-    },
-    "toast": {
-      "moved": "Cursa a fost mutată cu succes!"
+      "title": "Detalii cursa",
+      "desc": "Informatii complete despre cursa"
     }
   },
   "tripsMap": {
-    "title": "Hartă Curse Active",
+    "title": "Harta Curse Active",
     "tabs": {
-      "map": "Hartă",
-      "mapShort": "Hartă"
+      "map": "Harta"
     },
-    "filterLabel": "Filtrare după status",
-    "clearFilter": "Șterge filtrul",
+    "filterLabel": "Filtrare dupa status",
+    "clearFilter": "Sterge filtrul",
     "popup": {
       "origin": "Origine",
-      "destination": "Destinație",
+      "destination": "Destinatie",
       "client": "Client",
-      "driver": "Șofer",
+      "driver": "Sofer",
       "truck": "Camion",
       "arrival": "Sosire est."
     }
   },
+  "invoices": {
+    "title": "Facturi",
+    "manage": "Gestiune Facturi",
+    "export": "Export",
+    "exportPdf": "Export PDF",
+    "exportExcel": "Export Excel",
+    "exportCsv": "Export CSV",
+    "toastPdf": "PDF exportat cu succes.",
+    "toastExcel": "Excel exportat cu succes.",
+    "toastCsv": "CSV exportat cu succes.",
+    "fields": {
+      "nr": "Nr. Factura",
+      "client": "Client / Furnizor",
+      "tip": "Tip",
+      "data": "Data",
+      "subtotal": "Subtotal",
+      "tva": "TVA",
+      "total": "Total",
+      "status": "Status"
+    },
+    "header": "Transmarin Logistic",
+    "subheader": "Lista Facturi"
+  },
   "notifications": {
-    "title": "Notificări",
+    "title": "Notificari",
     "newBadge": "{{count}} noi",
-    "markAllRead": "Marchează toate ca citite",
+    "markAllRead": "Marcheaza toate ca citite",
     "empty": "Nicio notificare",
-    "total": "{{count}} notificări total",
-    "markRead": "Marchează ca citit",
+    "total": "{{count}} notificari totale",
+    "markRead": "Marcheaza ca citit",
     "types": {
       "licenseExpired": "Permis EXPIRAT",
-      "licenseExpiring": "Permis expiră curând",
-      "licenseExpiredMsg": "{{name}} — permis expirat pe {{date}}.",
-      "licenseExpiringMsg": "{{name}} — permis expiră în {{days}} zi{{plural}} ({{date}}).",
-      "docExpired": "{{label}} EXPIRAT — {{plate}}",
-      "docExpiring": "{{label}} expiră curând — {{plate}}",
-      "docExpiredMsg": "{{plate}}: {{label}} expirat pe {{date}}.",
-      "docExpiringMsg": "{{plate}}: {{label}} expiră în {{days}} zi{{plural}} ({{date}}).",
-      "delayedTrip": "Cursă întârziată",
-      "delayedTripMsg": "Cursa {{id}} a depășit data estimată de sosire cu {{days}} zi{{plural}} ({{date}}).",
-      "unassignedOrder": "Comandă neasignată",
-      "unassignedOrderMsg": "Comanda pentru {{client}} ({{origin}} — {{destination}}) este neasignată de {{days}} zi{{plural}}."
+      "licenseExpiring": "Permis expira curand",
+      "licenseExpiredMsg": "{{name}} - permisul a expirat pe {{date}}.",
+      "licenseExpiringMsg": "{{name}} - permisul expira in {{days}} zi{{plural}} ({{date}}).",
+      "docExpired": "{{label}} EXPIRAT - {{plate}}",
+      "docExpiring": "{{label}} expira curand - {{plate}}",
+      "docExpiredMsg": "{{plate}}: {{label}} a expirat pe {{date}}.",
+      "docExpiringMsg": "{{plate}}: {{label}} expira in {{days}} zi{{plural}} ({{date}}).",
+      "delayedTrip": "Cursa intarziata",
+      "delayedTripMsg": "Cursa {{id}} a depasit data estimata de sosire cu {{days}} zi{{plural}} ({{date}}).",
+      "unassignedOrder": "Comanda neasignata",
+      "unassignedOrderMsg": "Comanda pentru {{client}} ({{origin}} - {{destination}}) este neasignata de {{days}} zi{{plural}}."
     }
   },
   "reports": {
     "title": "Rapoarte Avansate",
-    "selectInterval": "Selectează intervalul",
-    "reset": "Resetare",
+    "selectInterval": "Selecteaza interval",
+    "reset": "Reseteaza",
     "exportPdf": "Export PDF",
-    "exporting": "Se generează...",
-    "noData": "Nu există date pentru intervalul selectat.",
+    "exporting": "Se genereaza...",
+    "noData": "Nu exista date pentru intervalul selectat.",
     "charts": {
-      "kmPerDriver": "Km per șofer",
-      "fuelPerMonth": "Costuri combustibil pe lună",
+      "kmPerDriver": "Km per sofer",
+      "fuelPerMonth": "Costuri combustibil pe luna",
       "topRoutes": "Top 5 rute frecvente",
-      "truckUtilization": "Rata de utilizare camioane"
+      "truckUtilization": "Rata utilizare camioane"
     },
     "pdf": {
-      "title": "Raport Avansat — Transmarin Logistic",
+      "title": "Raport Avansat - Transmarin Logistic",
       "interval": "Interval",
       "generated": "Generat",
       "allData": "Toate datele",
-      "kmPerDriver": "Km per șofer",
-      "fuelPerMonth": "Costuri combustibil pe lună",
+      "kmPerDriver": "Km per sofer",
+      "fuelPerMonth": "Costuri combustibil pe luna",
       "topRoutes": "Top 5 rute frecvente",
-      "truckUtilization": "Rata de utilizare camioane",
-      "driver": "Șofer",
+      "truckUtilization": "Rata utilizare camioane",
+      "driver": "Sofer",
       "totalKm": "Total km",
-      "month": "Lună",
+      "month": "Luna",
       "cost": "Cost (RON)",
-      "route": "Rută",
+      "route": "Ruta",
       "orderCount": "Nr. comenzi",
       "truck": "Camion",
       "utilization": "Utilizare (%)",
@@ -642,41 +652,41 @@
   "costs": {
     "title": "Costuri & Profitabilitate",
     "filters": {
-      "driver": "Șofer",
+      "driver": "Sofer",
       "truck": "Camion",
-      "period": "Perioadă",
-      "allDrivers": "Toți șoferii",
+      "period": "Perioada",
+      "allDrivers": "Toti soferii",
       "allTrucks": "Toate camioanele",
-      "allTime": "Tot timpul",
-      "thisMonth": "Luna aceasta",
-      "lastMonth": "Luna trecută",
+      "allTime": "Toata perioada",
+      "thisMonth": "Luna curenta",
+      "lastMonth": "Luna trecuta",
       "last3Months": "Ultimele 3 luni"
     },
     "kpi": {
       "totalFuelCost": "Cost total combustibil",
-      "costPerKm": "Cost / Km",
-      "avgCostPerTrip": "Cost mediu / Cursă"
+      "costPerKm": "Cost mediu/km",
+      "avgCostPerTrip": "Cost mediu/cursa"
     },
     "chart": {
       "title": "Profit lunar",
       "profit": "Profit",
-      "notEnoughData": "Date insuficiente pentru afișarea graficului"
+      "notEnoughData": "Date insuficiente pentru grafic"
     },
     "table": {
       "title": "Detalii curse",
-      "trip": "Cursă",
-      "driver": "Șofer",
+      "trip": "Cursa",
+      "driver": "Sofer",
       "truck": "Camion",
-      "date": "Dată",
-      "revenue": "Venit",
+      "date": "Data",
+      "revenue": "Venit estimat",
       "fuelCost": "Cost combustibil",
       "profit": "Profit",
-      "noResults": "Nu s-au găsit curse pentru filtrele selectate."
+      "noResults": "Nu exista curse pentru filtrele selectate."
     }
   },
   "driverProfile": {
-    "notFound": "Șofer negăsit",
-    "notFoundDesc": "Șoferul solicitat nu există în baza de date.",
+    "notFound": "Sofer negasit",
+    "notFoundDesc": "Soferul cautat nu exista in baza de date.",
     "tabs": {
       "info": "Info",
       "trips": "Curse",
@@ -687,115 +697,115 @@
       "personal": "Date personale",
       "status": "Status",
       "license": "Permis de conducere",
-      "licenseExpiry": "Expiră pe",
+      "licenseExpiry": "Expira la",
       "licenseExpired": "EXPIRAT",
-      "licenseExpiresIn": "expiră în {{days}} zile",
+      "licenseExpiresIn": "expira in {{days}} zile",
       "truckDocs": "Documente camion",
-      "vignette": "Rovinietă"
+      "vignette": "Vigneta"
     },
     "trips": {
-      "empty": "Nu există curse asociate acestui șofer.",
+      "empty": "Nu exista curse asociate acestui sofer.",
       "departure": "Plecare",
-      "kmLoaded": "Km încărcat",
+      "kmLoaded": "Km incarcat",
       "kmEmpty": "Km gol",
       "fuelCost": "Combustibil"
     },
     "stats": {
       "totalKm": "Total km",
       "totalTrips": "Nr. curse",
-      "finishRate": "Rată finalizare",
+      "finishRate": "Rata finalizare",
       "totalFuel": "Cost combustibil",
-      "kmPerMonth": "Km pe lună"
+      "kmPerMonth": "Km per luna"
     },
     "docs": {
-      "license": "Permis de conducere",
+      "license": "Permis conducere",
       "licenseCategory": "Permis categoria C",
-      "expiry": "Expiră pe",
+      "expiry": "Expira la",
       "expired": "EXPIRAT",
       "valid": "Valabil",
       "days": "zile",
-      "uploadTitle": "Documente încărcate",
-      "uploadHint": "Max 2MB — PDF, JPG, PNG",
-      "uploadBtn": "Încarcă document",
-      "uploadTypes": "PDF, JPG, PNG, WEBP — max 2MB",
-      "noDocs": "Niciun document încărcat încă.",
-      "errorType": "Tip fișier invalid. Acceptate: PDF, JPG, PNG, WEBP.",
-      "errorSize": "Fișierul depășește limita de 2MB.",
-      "view": "Vizualizează",
-      "delete": "Șterge document"
+      "uploadTitle": "Documente incarcate",
+      "uploadHint": "Max 2MB - PDF, JPG, PNG",
+      "uploadBtn": "Incarca document",
+      "uploadTypes": "PDF, JPG, PNG, WEBP - max 2MB",
+      "noDocs": "Nu exista documente incarcate.",
+      "errorType": "Tip fisier invalid. Acceptat: PDF, JPG, PNG, WEBP.",
+      "errorSize": "Fisierul depaseste limita de 2MB.",
+      "view": "Vizualizeaza",
+      "delete": "Sterge document"
     }
   },
   "activityLog": {
-    "title": "Jurnal Activitate",
-    "empty": "Nicio activitate înregistrată.",
-    "totalEntries": "{{count}} înregistrări",
-    "showDetails": "Arată detalii",
+    "title": "Istoric Activitati",
+    "empty": "Nu exista activitati inregistrate inca.",
+    "totalEntries": "{{count}} intrari",
+    "showDetails": "Afiseaza detalii",
     "hideDetails": "Ascunde detalii",
-    "before": "Înainte",
-    "after": "După",
+    "before": "Inainte",
+    "after": "Dupa",
     "actions": {
       "create": "Creare",
-      "update": "Actualizare",
-      "delete": "Ștergere"
+      "update": "Modificare",
+      "delete": "Stergere"
     },
     "entities": {
-      "driver": "Șofer",
+      "driver": "Sofer",
       "truck": "Camion",
-      "order": "Comandă",
-      "trip": "Cursă"
+      "order": "Comanda",
+      "trip": "Cursa"
     },
     "filters": {
       "label": "Filtrare:",
-      "allEntities": "Toate entitățile",
-      "allActions": "Toate acțiunile",
-      "reset": "Resetare"
+      "allEntities": "Toate entitatile",
+      "allActions": "Toate actiunile",
+      "reset": "Reseteaza"
     },
     "pagination": {
-      "prev": "Anterioară",
-      "next": "Următoare",
+      "prev": "Anterior",
+      "next": "Urmator",
       "pageOf": "Pagina {{page}} din {{total}}"
     },
     "details": {
-      "driverCreated": "Șofer nou adăugat",
-      "driverUpdated": "Șofer actualizat",
-      "driverDeleted": "Șofer șters",
-      "truckCreated": "Camion nou adăugat",
+      "driverCreated": "Sofer nou adaugat",
+      "driverUpdated": "Sofer actualizat",
+      "driverDeleted": "Sofer sters",
+      "truckCreated": "Camion nou adaugat",
       "truckUpdated": "Camion actualizat",
-      "truckDeleted": "Camion șters",
-      "orderCreated": "Comandă nouă adăugată",
-      "orderUpdated": "Comandă actualizată",
-      "orderDeleted": "Comandă ștearsă",
-      "tripCreated": "Cursă nouă adăugată",
-      "tripUpdated": "Cursă actualizată",
-      "tripDeleted": "Cursă ștearsă"
+      "truckDeleted": "Camion sters",
+      "orderCreated": "Comanda noua adaugata",
+      "orderUpdated": "Comanda actualizata",
+      "orderDeleted": "Comanda stearsa",
+      "tripCreated": "Cursa noua adaugata",
+      "tripUpdated": "Cursa actualizata",
+      "tripDeleted": "Cursa stearsa"
     }
   },
   "sidebar": {
     "groups": {
       "general": "General",
       "modules": "Module",
-      "settings": "Setări"
+      "settings": "Setari"
     },
     "transport": {
       "title": "Transport & Dispecerat",
-      "overview": "Prezentare generală"
+      "overview": "Prezentare Generala"
     },
     "fleet": {
-      "title": "Flotă & Service",
-      "overview": "Prezentare generală",
+      "title": "Parc Auto & Service",
+      "overview": "Prezentare Generala",
       "parts": "Piese & Consumabile",
-      "service": "Service & Reparații",
+      "service": "Service & Reparatii",
       "fuel": "Combustibil"
     },
     "accounting": {
       "title": "Contabilitate",
-      "overview": "Prezentare generală",
+      "overview": "Prezentare Generala",
       "suppliers": "Furnizori"
     },
     "hr": {
       "title": "Resurse Umane",
-      "overview": "Prezentare generală",
-      "leaves": "Cereri Concediu",
+      "overview": "Prezentare Generala",
+      "leaves": "Concedii",
       "payroll": "Salarizare"
     },
     "reports": {
@@ -803,36 +813,77 @@
       "overview": "Dashboard Rapoarte",
       "transport": "Rapoarte Transport",
       "financial": "Rapoarte Financiare",
-      "fleet": "Rapoarte Flotă"
+      "fleet": "Rapoarte Parc Auto"
     },
     "settings": {
-      "title": "Setări",
+      "title": "Setari",
       "profile": "Profil",
-      "appearance": "Aspect",
-      "notifications": "Notificări",
-      "display": "Afișare"
+      "appearance": "Aparenta",
+      "notifications": "Notificari",
+      "display": "Afisare"
     }
   },
   "hrDashboard": {
     "title": "Resurse Umane — Sumar",
     "cards": {
-      "totalEmployees": "Total Angajați",
-      "totalEmployeesDesc": "angajați activi în sistem",
-      "onLeave": "În Concediu",
-      "onLeaveDesc": "concedii aprobate luna aceasta",
+      "totalEmployees": "Total Angajati",
+      "totalEmployeesDesc": "angajati activi in sistem",
+      "onLeave": "In Concediu",
+      "onLeaveDesc": "concedii aprobate luna curenta",
       "expiredDocs": "Documente Expirate",
-      "expiredDocsDesc": "documente cu data depășită",
-      "pendingLeaves": "Cereri în Așteptare",
-      "pendingLeavesDesc": "cereri de concediu de aprobat"
+      "expiredDocsDesc": "documente cu data expirare depasita",
+      "pendingLeaves": "Cereri in Asteptare",
+      "pendingLeavesDesc": "cereri de concediu neaprobate"
     },
     "charts": {
-      "newEmployees": "Angajați noi pe lună (ultimele 6 luni)",
-      "newEmployeesTooltip": "Angajați noi"
+      "newEmployees": "Angajati noi per luna (ultimele 6 luni)",
+      "newEmployeesTooltip": "Angajati noi"
     },
     "alerts": {
       "expiredDocs": "Documente expirate",
-      "pendingLeaves": "Cereri de concediu în așteptare",
-      "allGood": "Nicio alertă HR activă."
+      "pendingLeaves": "Cereri de concediu neaprobate",
+      "allGood": "Nu exista alerte HR active."
+    }
+  },
+  "transportReports": {
+    "title": "Rapoarte Transport",
+    "subtitle": "Analiza curse, soferi si costuri combustibil",
+    "exportPdf": "Export PDF",
+    "exporting": "Se genereaza...",
+    "noData": "Nu exista date pentru filtrele selectate.",
+    "filters": {
+      "selectInterval": "Selecteaza interval",
+      "allDrivers": "Toti soferii",
+      "allTrucks": "Toate camioanele",
+      "reset": "Reseteaza filtre",
+      "tripCount": "{{count}} curse"
+    },
+    "kpi": {
+      "totalKm": "Total km",
+      "avgCostPerTrip": "Cost mediu/cursa",
+      "completedTrips": "Curse finalizate",
+      "totalFuel": "Cost combustibil"
+    },
+    "charts": {
+      "kmPerDriver": "Km per sofer",
+      "fuelPerMonth": "Cost combustibil per luna",
+      "topRoutes": "Top 5 rute frecvente",
+      "truckUtil": "Rata utilizare camioane"
+    },
+    "pdf": {
+      "title": "Raport Transport - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generat",
+      "allData": "Toate datele",
+      "driver": "Sofer",
+      "totalKm": "Total km",
+      "month": "Luna",
+      "cost": "Cost (RON)",
+      "route": "Ruta",
+      "tripCount": "Nr. curse",
+      "truck": "Camion",
+      "utilization": "Utilizare (%)",
+      "filename": "raport-transport"
     }
   }
 }
