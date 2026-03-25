@@ -9,26 +9,36 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Invoice } from "@/modules/accounting/types";
 
-function DatePicker({ date, onSelect, placeholder }: {
-  date: Date | undefined;
-  onSelect: (d: Date | undefined) => void;
-  placeholder: string;
-}) {
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("ro-RO", {
+    style: "currency",
+    currency: "RON",
+  }).format(value);
+};
+
+const invoiceStatusLabel = (status: string) => {
+  switch (status) {
+    case "paid":
+      return "Plătită";
+    case "pending":
+      return "În așteptare";
+    default:
+      return status;
+  }
+};
+
+function DatePicker({ date, onSelect, placeholder }: { date: Date | undefined; onSelect: (d: Date | undefined) => void; placeholder: string }) {
   const [open, setOpen] = useState(false);
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}
-        >
+        <Button variant="outline" className={cn("w-full justify-start text-left font-normal", !date && "text-muted-foreground")}>
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? format(date, "yyyy-MM-dd") : placeholder}
         </Button>
@@ -37,7 +47,10 @@ function DatePicker({ date, onSelect, placeholder }: {
         <Calendar
           mode="single"
           selected={date}
-          onSelect={(d) => { onSelect(d); setOpen(false); }}
+          onSelect={(d) => {
+            onSelect(d);
+            setOpen(false);
+          }}
           initialFocus
         />
       </PopoverContent>
@@ -47,8 +60,8 @@ function DatePicker({ date, onSelect, placeholder }: {
 
 export default function FinancialReportsPage() {
   const [invoices, setInvoices] = useState<Invoice[]>([]);
-  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [startDate, setStartDate] = useState<Date | undefined>();
+  const [endDate, setEndDate] = useState<Date | undefined>();
 
   useEffect(() => {
     setInvoices(getCollection<Invoice>(STORAGE_KEYS.invoices));
@@ -57,6 +70,7 @@ export default function FinancialReportsPage() {
   const filtered = useMemo(() => {
     const startStr = startDate ? format(startDate, "yyyy-MM-dd") : "";
     const endStr = endDate ? format(endDate, "yyyy-MM-dd") : "";
+
     return invoices.filter((inv) => {
       if (startStr && inv.date < startStr) return false;
       if (endStr && inv.date > endStr) return false;
@@ -64,27 +78,36 @@ export default function FinancialReportsPage() {
     });
   }, [invoices, startDate, endDate]);
 
-  const totalVenituri = useMemo(() =>
-    filtered.filter(i => i.type === "income").reduce((sum, i) => sum + i.total, 0),
-    [filtered]
-  );
+  const totalVenituri = useMemo(() => filtered.filter((i) => i.type === "income").reduce((sum, i) => sum + i.total, 0), [filtered]);
 
-  const totalCheltuieli = useMemo(() =>
-    filtered.filter(i => i.type === "expense").reduce((sum, i) => sum + i.total, 0),
-    [filtered]
-  );
+  const totalCheltuieli = useMemo(() => filtered.filter((i) => i.type === "expense").reduce((sum, i) => sum + i.total, 0), [filtered]);
 
   const balanta = totalVenituri - totalCheltuieli;
 
   const breakdown = useMemo(() => {
-    const map: Record<string, { luna: string; venituri: number; cheltuieli: number; nrFacturi: number }> = {};
+    const map: Record<
+      string,
+      {
+        luna: string;
+        venituri: number;
+        cheltuieli: number;
+        nrFacturi: number;
+      }
+    > = {};
+
     filtered.forEach((inv) => {
       const luna = inv.date.substring(0, 7);
-      if (!map[luna]) map[luna] = { luna, venituri: 0, cheltuieli: 0, nrFacturi: 0 };
+
+      if (!map[luna]) {
+        map[luna] = { luna, venituri: 0, cheltuieli: 0, nrFacturi: 0 };
+      }
+
       if (inv.type === "income") map[luna].venituri += inv.total;
       else map[luna].cheltuieli += inv.total;
+
       map[luna].nrFacturi++;
     });
+
     return Object.values(map).sort((a, b) => b.luna.localeCompare(a.luna));
   }, [filtered]);
 
@@ -93,7 +116,9 @@ export default function FinancialReportsPage() {
       <Header>
         <h1 className="text-lg font-semibold">Rapoarte Financiare</h1>
       </Header>
+
       <Main className="space-y-4">
+        {/* FILTRE */}
         <Card>
           <CardHeader>
             <CardTitle>Filtre</CardTitle>
@@ -110,33 +135,35 @@ export default function FinancialReportsPage() {
           </CardContent>
         </Card>
 
+        {/* KPI */}
         <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm text-muted-foreground">Total Venituri</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-green-500">{totalVenituri.toFixed(2)} RON</p>
+              <p className="text-2xl font-bold text-green-500">{formatCurrency(totalVenituri)}</p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm text-muted-foreground">Total Cheltuieli</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-bold text-red-500">{totalCheltuieli.toFixed(2)} RON</p>
+              <p className="text-2xl font-bold text-red-500">{formatCurrency(totalCheltuieli)}</p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm text-muted-foreground">Balanță</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className={`text-2xl font-bold ${balanta >= 0 ? "text-green-500" : "text-red-500"}`}>
-                {balanta.toFixed(2)} RON
-              </p>
+              <p className={`text-2xl font-bold ${balanta >= 0 ? "text-green-500" : "text-red-500"}`}>{formatCurrency(balanta)}</p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm text-muted-foreground">Nr. Facturi</CardTitle>
@@ -147,11 +174,14 @@ export default function FinancialReportsPage() {
           </Card>
         </div>
 
+        {/* BREAKDOWN + TABEL */}
         <Card>
           <CardHeader>
             <CardTitle>Breakdown pe luni</CardTitle>
           </CardHeader>
+
           <CardContent>
+            {/* Desktop */}
             <div className="hidden md:block rounded-lg border overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -173,13 +203,11 @@ export default function FinancialReportsPage() {
                   ) : (
                     breakdown.map((row) => (
                       <TableRow key={row.luna}>
-                        <TableCell className="font-medium">{row.luna}</TableCell>
-                        <TableCell className="text-right tabular-nums text-green-500">{row.venituri.toFixed(2)} RON</TableCell>
-                        <TableCell className="text-right tabular-nums text-red-500">{row.cheltuieli.toFixed(2)} RON</TableCell>
-                        <TableCell className={`text-right tabular-nums font-medium ${row.venituri - row.cheltuieli >= 0 ? "text-green-500" : "text-red-500"}`}>
-                          {(row.venituri - row.cheltuieli).toFixed(2)} RON
-                        </TableCell>
-                        <TableCell className="text-right tabular-nums">{row.nrFacturi}</TableCell>
+                        <TableCell>{row.luna}</TableCell>
+                        <TableCell className="text-right text-green-500">{formatCurrency(row.venituri)}</TableCell>
+                        <TableCell className="text-right text-red-500">{formatCurrency(row.cheltuieli)}</TableCell>
+                        <TableCell className="text-right font-medium">{formatCurrency(row.venituri - row.cheltuieli)}</TableCell>
+                        <TableCell className="text-right">{row.nrFacturi}</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -187,28 +215,43 @@ export default function FinancialReportsPage() {
               </Table>
             </div>
 
-            <div className="md:hidden space-y-3">
-              {breakdown.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">Niciun rezultat</p>
-              ) : (
-                breakdown.map((row) => (
-                  <div key={row.luna} className="rounded-lg border p-4 space-y-2 text-sm">
-                    <div className="font-medium text-base">{row.luna}</div>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 pt-2 border-t">
-                      <span className="text-muted-foreground">Venituri</span>
-                      <span className="tabular-nums text-green-500">{row.venituri.toFixed(2)} RON</span>
-                      <span className="text-muted-foreground">Cheltuieli</span>
-                      <span className="tabular-nums text-red-500">{row.cheltuieli.toFixed(2)} RON</span>
-                      <span className="text-muted-foreground">Balanță</span>
-                      <span className={`tabular-nums font-medium ${row.venituri - row.cheltuieli >= 0 ? "text-green-500" : "text-red-500"}`}>
-                        {(row.venituri - row.cheltuieli).toFixed(2)} RON
-                      </span>
-                      <span className="text-muted-foreground">Nr. Facturi</span>
-                      <span className="tabular-nums">{row.nrFacturi}</span>
-                    </div>
-                  </div>
-                ))
-              )}
+            {/* Mobile */}
+            <div className="md:hidden space-y-3 mt-4">
+              {breakdown.map((row) => (
+                <div key={row.luna} className="border rounded-lg p-4">
+                  <div className="font-medium">{row.luna}</div>
+                  <div>Venituri: {formatCurrency(row.venituri)}</div>
+                  <div>Cheltuieli: {formatCurrency(row.cheltuieli)}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* FACTURI */}
+            <div className="mt-6">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nr. Factură</TableHead>
+                    <TableHead>Tip</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Dată</TableHead>
+                    <TableHead>Total</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {invoices.map((inv) => (
+                    <TableRow key={inv.id}>
+                      <TableCell>{inv.number}</TableCell>
+                      <TableCell>{inv.type === "income" ? "Venit" : "Cheltuială"}</TableCell>
+                      <TableCell>{inv.clientName}</TableCell>
+                      <TableCell>{inv.date}</TableCell>
+                      <TableCell>{formatCurrency(inv.total)}</TableCell>
+                      <TableCell>{invoiceStatusLabel(inv.status)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           </CardContent>
         </Card>

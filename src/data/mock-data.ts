@@ -70,7 +70,7 @@ const seedTrucks: Truck[] = [
     model: "FH16",
     year: 2021,
     mileage: 320000,
-    status: "available",
+    status: "Disponibil",
     itpExpiry: "2026-09-01",
     rcaExpiry: "2026-12-01",
     vignetteExpiry: "2026-06-30",
@@ -82,7 +82,7 @@ const seedTrucks: Truck[] = [
     model: "TGX",
     year: 2020,
     mileage: 410000,
-    status: "on_trip",
+    status: "În cursă",
     itpExpiry: "2026-07-15",
     rcaExpiry: "2027-01-15",
     vignetteExpiry: "2026-08-31",
@@ -94,7 +94,7 @@ const seedTrucks: Truck[] = [
     model: "Actros",
     year: 2022,
     mileage: 180000,
-    status: "in_service",
+    status: "Disponibil",
     itpExpiry: "2027-02-28",
     rcaExpiry: "2027-03-01",
     vignetteExpiry: "2026-12-31",
@@ -1009,10 +1009,4 @@ export function seedMockData(): void {
 }
 
 export { seedEmployees };
-export const EMPLOYEE_DEPARTMENTS = [
-  "Dispecerat",
-  "Transport",
-  "Service",
-  "Contabilitate",
-  "Administrativ",
-] as const;
+export const EMPLOYEE_DEPARTMENTS = ["Dispecerat", "Transport", "Service", "Contabilitate", "Administrativ"] as const;
