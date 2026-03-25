@@ -26,6 +26,7 @@ import { LowStockCount } from "@/modules/fleet/components/LowStockCount";
 import { ServiceCount } from "@/modules/fleet/components/ServiceCount";
 import { ServiceCostMonth } from "@/modules/fleet/components/ServiceCostMonth";
 import { FuelCostMonth } from "@/modules/fleet/components/FuelCostMonth";
+import { DocExpiryAlerts } from "@/modules/fleet/components/DocExpiryAlerts";
 
 const topNavLinks = [
   { title: "Piese & Consum.", href: "/fleet/parts", isActive: false },
@@ -98,6 +99,9 @@ export default function FleetPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Alerte ITP / RCA / Vignetă — B11 */}
+        <DocExpiryAlerts />
 
         <Card className="mt-6">
           <CardHeader>
