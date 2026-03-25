@@ -26,6 +26,7 @@ import {
   XCircle,
   Pencil,
   Trash2,
+  MapPin,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -282,6 +283,7 @@ function buildColumns(
   onEdit: (trip: Trip) => void,
   onDelete: (trip: Trip) => void,
   t: ReturnType<typeof useTranslation>["t"],
+  navigate: ReturnType<typeof useNavigate>,
 ): ColumnDef<Trip>[] {
   return [
     {
@@ -572,6 +574,20 @@ function buildColumns(
                 <CheckCircle className="h-3 w-3 text-green-600" />
               </button>
             )}
+            {trip.status === "in_desfasurare" && (
+              <button
+                title={t("trips.actions.liveTrack")}
+                onClick={() =>
+                  navigate({
+                    to: "/transport/trip-tracker/$tripId",
+                    params: { tripId: trip.id },
+                  })
+                }
+                className="h-6 w-6 flex items-center justify-center rounded-md border border-amber-300 bg-transparent hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+              >
+                <MapPin className="h-3 w-3 text-amber-500" />
+              </button>
+            )}
           </div>
         );
       },
@@ -712,6 +728,7 @@ export default function TripsPage() {
         handleEdit,
         handleDeleteRequest,
         t,
+        navigate,
       ),
     [
       orders,
@@ -722,6 +739,7 @@ export default function TripsPage() {
       handleEdit,
       handleDeleteRequest,
       t,
+      navigate,
     ],
   );
 
@@ -1098,6 +1116,22 @@ export default function TripsPage() {
                             >
                               <CheckCircle className="mr-1 h-3 w-3" />
                               {t("trips.actions.finish")}
+                            </Button>
+                          )}
+                          {trip.status === "in_desfasurare" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2 text-xs text-amber-600 border-amber-400"
+                              onClick={() =>
+                                navigate({
+                                  to: "/transport/trip-tracker/$tripId",
+                                  params: { tripId: trip.id },
+                                })
+                              }
+                            >
+                              <MapPin className="mr-1 h-3 w-3" />
+                              {t("trips.actions.liveTrack")}
                             </Button>
                           )}
                         </div>
