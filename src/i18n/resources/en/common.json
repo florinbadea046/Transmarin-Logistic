@@ -404,8 +404,7 @@
       "kmEmpty": "Empty Km",
       "fuelCost": "Fuel Cost (RON)",
       "status": "Status",
-      "revenue": "Revenue (RON)",
-      "unscheduled": "Unscheduled trip (no date)"
+      "revenue": "Revenue (RON)"
     },
     "placeholders": {
       "order": "Select an order",
@@ -531,9 +530,7 @@
     "title": "Trips Calendar",
     "tabs": {
       "table": "Table",
-      "tableShort": "Tab",
-      "calendar": "Calendar",
-      "calendarShort": "Cal"
+      "calendar": "Calendar"
     },
     "prevWeek": "Previous week",
     "nextWeek": "Next week",
@@ -552,32 +549,10 @@
       "desc": "Full details about this trip"
     }
   },
-  "tripsDnd": {
-    "title": "Drag & Drop Calendar",
-    "today": "Today",
-    "tabs": {
-      "dnd": "Drag & Drop",
-      "dndShort": "DnD"
-    },
-    "sidebar": {
-      "title": "Unscheduled trips",
-      "hint": "Drag trips to the calendar",
-      "empty": "No unscheduled trips"
-    },
-    "confirmMove": {
-      "title": "Confirm move",
-      "desc": "Move trip {{tripId}} to {{date}}?",
-      "confirm": "Confirm"
-    },
-    "toast": {
-      "moved": "Trip moved successfully!"
-    }
-  },
   "tripsMap": {
     "title": "Active Trips Map",
     "tabs": {
-      "map": "Map",
-      "mapShort": "Map"
+      "map": "Map"
     },
     "filterLabel": "Filter by status",
     "clearFilter": "Clear filter",
@@ -844,6 +819,47 @@
       "expiredDocs": "Expired documents",
       "pendingLeaves": "Pending leave requests",
       "allGood": "No active HR alerts."
+    }
+  },
+  "transportReports": {
+    "title": "Transport Reports",
+    "subtitle": "Analysis of trips, drivers and fuel costs",
+    "exportPdf": "Export PDF",
+    "exporting": "Generating...",
+    "noData": "No data for the selected filters.",
+    "filters": {
+      "selectInterval": "Select interval",
+      "allDrivers": "All drivers",
+      "allTrucks": "All trucks",
+      "reset": "Reset filters",
+      "tripCount": "{{count}} trips"
+    },
+    "kpi": {
+      "totalKm": "Total km",
+      "avgCostPerTrip": "Avg cost/trip",
+      "completedTrips": "Completed trips",
+      "totalFuel": "Fuel cost"
+    },
+    "charts": {
+      "kmPerDriver": "Km per driver",
+      "fuelPerMonth": "Fuel cost per month",
+      "topRoutes": "Top 5 frequent routes",
+      "truckUtil": "Truck utilization rate"
+    },
+    "pdf": {
+      "title": "Transport Report - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generated",
+      "allData": "All data",
+      "driver": "Driver",
+      "totalKm": "Total km",
+      "month": "Month",
+      "cost": "Cost (RON)",
+      "route": "Route",
+      "tripCount": "No. trips",
+      "truck": "Truck",
+      "utilization": "Utilization (%)",
+      "filename": "transport-report"
     }
   }
 }
