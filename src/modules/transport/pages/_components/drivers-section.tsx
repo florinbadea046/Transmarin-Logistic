@@ -1,4 +1,4 @@
-// drivers-section.tsx cu useAuditLog integrat
+// drivers-section.tsx cu useAuditLog + Export PDF/Excel/CSV + Import CSV
 
 import * as React from "react";
 import {
@@ -7,10 +7,14 @@ import {
   getSortedRowModel, type SortingState, type ColumnFiltersState,
   type VisibilityState, useReactTable,
 } from "@tanstack/react-table";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, Upload, Download, X, AlertTriangle, CheckCircle2, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "@tanstack/react-router";
+import Papa from "papaparse";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,11 +26,18 @@ import {
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 
 import type { Driver, Truck } from "@/modules/transport/types";
@@ -35,35 +46,295 @@ import { addItem, generateId, getCollection, removeItem, updateItem } from "@/ut
 import { STORAGE_KEYS } from "@/data/mock-data";
 import useDialogState from "@/hooks/use-dialog-state";
 import { useAuditLog } from "@/hooks/use-audit-log";
+import { useMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 import { CardRow, EntityTable, ExpiryCell } from "./transport-shared";
 
-interface DriverFormData {
-  name: string;
-  phone: string;
-  licenseExpiry: string;
-  status: Driver["status"];
-  truckId: string;
-  employeeId?: string;
+// ── Helpers PDF ────────────────────────────────────────────
+
+function stripD(s: unknown): string {
+  return String(s ?? "")
+    .replace(/[ăĂ]/g, (c) => c === "a" ? "a" : "A")
+    .replace(/[âÂ]/g, (c) => c === "a" ? "a" : "A")
+    .replace(/[îÎ]/g, (c) => c === "i" ? "i" : "I")
+    .replace(/[șşŞ]/g, () => "s")
+    .replace(/[ȘŠ]/g, () => "S")
+    .replace(/[țţŢ]/g, () => "t")
+    .replace(/[ȚŤ]/g, () => "T");
 }
 
-interface DriverFormErrors {
-  name?: string;
-  phone?: string;
-  licenseExpiry?: string;
+// ── Export Soferi ──────────────────────────────────────────
+
+function exportDriversPDF(drivers: Driver[], trucks: Truck[], t: (k: string) => string) {
+  const doc = new jsPDF();
+  doc.setFontSize(14);
+  doc.text(stripD(t("drivers.export.pdfTitle")), 14, 16);
+  autoTable(doc, {
+    head: [[
+      t("drivers.columns.name"), t("drivers.columns.phone"),
+      t("drivers.columns.licenseExpiry"), t("drivers.columns.status"), t("drivers.columns.truck"),
+    ].map(stripD)],
+    body: drivers.map((d) => {
+      const truck = trucks.find((tr) => tr.id === d.truckId);
+      return [d.name, d.phone, d.licenseExpiry, t(`drivers.status.${d.status}`), truck?.plateNumber ?? "—"].map(stripD);
+    }),
+    startY: 22, styles: { fontSize: 8 }, headStyles: { fillColor: [30, 30, 30] },
+  });
+  doc.save(`${t("drivers.export.filename")}.pdf`);
 }
+
+function exportDriversExcel(drivers: Driver[], trucks: Truck[], t: (k: string) => string) {
+  const rows = drivers.map((d) => {
+    const truck = trucks.find((tr) => tr.id === d.truckId);
+    return {
+      [t("drivers.columns.name")]: d.name,
+      [t("drivers.columns.phone")]: d.phone,
+      [t("drivers.columns.licenseExpiry")]: d.licenseExpiry,
+      [t("drivers.columns.status")]: t(`drivers.status.${d.status}`),
+      [t("drivers.columns.truck")]: truck?.plateNumber ?? "—",
+    };
+  });
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Soferi");
+  XLSX.writeFile(wb, `${t("drivers.export.filename")}.xlsx`);
+}
+
+function exportDriversCSV(drivers: Driver[], trucks: Truck[], t: (k: string) => string) {
+  const rows = drivers.map((d) => {
+    const truck = trucks.find((tr) => tr.id === d.truckId);
+    return {
+      [t("drivers.columns.name")]: d.name,
+      [t("drivers.columns.phone")]: d.phone,
+      [t("drivers.columns.licenseExpiry")]: d.licenseExpiry,
+      [t("drivers.columns.status")]: t(`drivers.status.${d.status}`),
+      [t("drivers.columns.truck")]: truck?.plateNumber ?? "—",
+    };
+  });
+  const csv = Papa.unparse(rows);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = `${t("drivers.export.filename")}.csv`; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Import Soferi ──────────────────────────────────────────
 
 const PHONE_RO_REGEX = /^07[0-9]{8}$/;
+
+const DRIVER_COL_MAP: Record<string, string> = {
+  "nume": "name", "name": "name",
+  "telefon": "phone", "phone": "phone",
+  "expirare permis": "licenseExpiry", "licenseexpiry": "licenseExpiry", "license expiry": "licenseExpiry",
+  "data expirare permis": "licenseExpiry",
+  "status": "status",
+};
+
+interface DriverParsedRow {
+  mapped: Partial<Driver>;
+  errors: string[];
+  isDuplicate: boolean;
+  rowIndex: number;
+}
+
+function parseDriverRows(
+  raw: Record<string, string>[],
+  existing: Driver[],
+  t: (k: string) => string,
+): DriverParsedRow[] {
+  return raw.map((row, i) => {
+    const errors: string[] = [];
+    const mapped: Partial<Driver> = {};
+
+    for (const [col, val] of Object.entries(row)) {
+      const key = DRIVER_COL_MAP[col.trim().toLowerCase()];
+      if (key) (mapped as Record<string, unknown>)[key] = val.trim();
+    }
+
+    if (!mapped.name || mapped.name.trim().length < 3)
+      errors.push(t("drivers.import.errorName"));
+    if (!mapped.phone || !PHONE_RO_REGEX.test(mapped.phone.trim()))
+      errors.push(t("drivers.import.errorPhone"));
+    if (!mapped.licenseExpiry || !/^\d{4}-\d{2}-\d{2}$/.test(mapped.licenseExpiry))
+      errors.push(t("drivers.import.errorDate"));
+
+    const isDuplicate = existing.some(
+      (e) => e.name.toLowerCase() === (mapped.name ?? "").toLowerCase() ||
+             e.phone === (mapped.phone ?? ""),
+    );
+
+    return { mapped, errors, isDuplicate, rowIndex: i + 1 };
+  });
+}
+
+function DriverImportDialog({
+  open, onOpenChange, onImported, isMobile,
+}: {
+  open: boolean; onOpenChange: (v: boolean) => void; onImported: () => void; isMobile: boolean;
+}) {
+  const { t } = useTranslation();
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [rows, setRows] = React.useState<DriverParsedRow[]>([]);
+  const [fileName, setFileName] = React.useState("");
+  const existing = React.useMemo(() => getCollection<Driver>(STORAGE_KEYS.drivers), [open]);
+
+  const validRows = rows.filter((r) => r.errors.length === 0 && !r.isDuplicate);
+  const invalidRows = rows.filter((r) => r.errors.length > 0);
+  const duplicateRows = rows.filter((r) => r.errors.length === 0 && r.isDuplicate);
+
+  const handleFile = (file: File) => {
+    setFileName(file.name);
+    Papa.parse(file, {
+      header: true, skipEmptyLines: true,
+      complete: (res) => setRows(parseDriverRows(res.data as Record<string, string>[], existing, t)),
+    });
+  };
+
+  const handleConfirm = () => {
+    let added = 0;
+    for (const row of validRows) {
+      addItem<Driver>(STORAGE_KEYS.drivers, {
+        id: generateId(),
+        name: row.mapped.name ?? "",
+        phone: row.mapped.phone ?? "",
+        licenseExpiry: row.mapped.licenseExpiry ?? "",
+        status: (row.mapped.status as Driver["status"]) ?? "available",
+        documents: [],
+      } as Driver);
+      added++;
+    }
+    const skipped = duplicateRows.length;
+    if (added > 0 && skipped > 0) toast.success(t("drivers.import.toastPartial", { added, skipped }));
+    else if (added > 0) toast.success(t("drivers.import.toastSuccess", { count: added }));
+    else toast.info(t("drivers.import.toastAllSkipped"));
+    onImported(); onOpenChange(false); setRows([]); setFileName("");
+  };
+
+  const reset = () => { setRows([]); setFileName(""); };
+
+  return (
+    <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>
+      <DialogContent className={cn("flex flex-col gap-4", isMobile ? "max-w-[calc(100vw-2rem)] p-4" : "max-w-2xl")}>
+        <DialogHeader>
+          <DialogTitle>{t("drivers.import.title")}</DialogTitle>
+        </DialogHeader>
+
+        {rows.length === 0 ? (
+          <div
+            className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors text-muted-foreground"
+            onClick={() => inputRef.current?.click()}
+            onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f?.name.endsWith(".csv")) handleFile(f); }}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            <Upload className="h-8 w-8 opacity-40" />
+            <div>
+              <p className="text-sm font-medium text-foreground">{t("drivers.import.dropzone")}</p>
+              <p className="text-xs mt-1">{t("drivers.import.dropzoneHint")}</p>
+            </div>
+            <input ref={inputRef} type="file" accept=".csv" className="hidden"
+              onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ""; }} />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/30 px-3 py-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="text-sm truncate">{fileName}</span>
+              </div>
+              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={reset}>
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+
+            <div className={cn("grid gap-2", isMobile ? "grid-cols-1" : "grid-cols-3")}>
+              <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 dark:bg-green-950 px-3 py-2">
+                <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                <span className="text-sm">{t("drivers.import.validCount", { count: validRows.length })}</span>
+              </div>
+              <div className={cn("flex items-center gap-2 rounded-lg border px-3 py-2",
+                invalidRows.length > 0 ? "border-red-200 bg-red-50 dark:bg-red-950" : "border-muted bg-muted/30")}>
+                <AlertTriangle className={cn("h-4 w-4 shrink-0", invalidRows.length > 0 ? "text-red-600" : "text-muted-foreground")} />
+                <span className="text-sm">{t("drivers.import.invalidCount", { count: invalidRows.length })}</span>
+              </div>
+              <div className={cn("flex items-center gap-2 rounded-lg border px-3 py-2",
+                duplicateRows.length > 0 ? "border-yellow-200 bg-yellow-50 dark:bg-yellow-950" : "border-muted bg-muted/30")}>
+                <AlertTriangle className={cn("h-4 w-4 shrink-0", duplicateRows.length > 0 ? "text-yellow-600" : "text-muted-foreground")} />
+                <span className="text-sm">{t("drivers.import.duplicateCount", { count: duplicateRows.length })}</span>
+              </div>
+            </div>
+
+            <ScrollArea className="h-[200px] rounded-lg border">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-8">#</TableHead>
+                      <TableHead className="min-w-[140px]">{t("drivers.columns.name")}</TableHead>
+                      <TableHead className="min-w-[120px] hidden sm:table-cell">{t("drivers.columns.phone")}</TableHead>
+                      <TableHead className="min-w-[200px]">{t("drivers.import.errorsCol")}</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {rows.map((row) => (
+                      <TableRow key={row.rowIndex} className={cn(
+                        row.errors.length > 0 ? "bg-red-50 dark:bg-red-950/30" :
+                        row.isDuplicate ? "bg-yellow-50 dark:bg-yellow-950/30" : "",
+                      )}>
+                        <TableCell className="text-xs text-muted-foreground">{row.rowIndex}</TableCell>
+                        <TableCell className="text-sm font-medium whitespace-nowrap">{row.mapped.name ?? "—"}</TableCell>
+                        <TableCell className="hidden sm:table-cell text-sm whitespace-nowrap">{row.mapped.phone ?? "—"}</TableCell>
+                        <TableCell className="text-xs whitespace-nowrap">
+                          {row.errors.length > 0
+                            ? <span className="text-red-600">{row.errors.join(", ")}</span>
+                            : row.isDuplicate
+                            ? <span className="text-yellow-600">{t("drivers.import.duplicate")}</span>
+                            : <span className="text-green-600">✓</span>}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+
+        <DialogFooter className={cn(isMobile && "flex-col gap-2")}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} className={cn(isMobile && "w-full")}>
+            {t("drivers.cancel")}
+          </Button>
+          {rows.length > 0 && validRows.length > 0 && (
+            <Button onClick={handleConfirm} className={cn(isMobile && "w-full")}>
+              {t("drivers.import.confirm", { count: validRows.length })}
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// ── Types formular ─────────────────────────────────────────
+
+interface DriverFormData {
+  name: string; phone: string; licenseExpiry: string;
+  status: Driver["status"]; truckId: string; employeeId?: string;
+}
+interface DriverFormErrors { name?: string; phone?: string; licenseExpiry?: string; }
 
 const EMPTY_FORM: DriverFormData = {
   name: "", phone: "", licenseExpiry: "", status: "available", truckId: "", employeeId: "",
 };
 
+// ── Mobile Card ────────────────────────────────────────────
+
 function DriverMobileCard({ driver, truck, onEdit, onDelete, onViewProfile }: {
   driver: Driver; truck?: Truck; onEdit: () => void; onDelete: () => void; onViewProfile: () => void;
 }) {
   const { t } = useTranslation();
-  const DRIVER_STATUS_CLASS: Record<Driver["status"], string> = {
+  const STATUS_CLASS: Record<Driver["status"], string> = {
     available: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200",
     on_trip: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200",
     off_duty: "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400",
@@ -72,9 +343,7 @@ function DriverMobileCard({ driver, truck, onEdit, onDelete, onViewProfile }: {
     <div className="rounded-lg border bg-card p-4 shadow-sm space-y-3">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <button className="font-semibold leading-tight hover:underline text-primary text-left" onClick={onViewProfile}>
-            {driver.name}
-          </button>
+          <button className="font-semibold leading-tight hover:underline text-primary text-left" onClick={onViewProfile}>{driver.name}</button>
           <p className="text-xs text-muted-foreground">{driver.phone}</p>
         </div>
         <div className="flex shrink-0 gap-1">
@@ -84,7 +353,7 @@ function DriverMobileCard({ driver, truck, onEdit, onDelete, onViewProfile }: {
       </div>
       <div className="space-y-1.5">
         <CardRow label={t("drivers.card.status")}>
-          <Badge variant="outline" className={DRIVER_STATUS_CLASS[driver.status]}>{t(`drivers.status.${driver.status}`)}</Badge>
+          <Badge variant="outline" className={STATUS_CLASS[driver.status]}>{t(`drivers.status.${driver.status}`)}</Badge>
         </CardRow>
         <CardRow label={t("drivers.card.licenseExpiry")}><ExpiryCell dateStr={driver.licenseExpiry} /></CardRow>
         <CardRow label={t("drivers.card.truck")}>
@@ -94,6 +363,8 @@ function DriverMobileCard({ driver, truck, onEdit, onDelete, onViewProfile }: {
     </div>
   );
 }
+
+// ── Dialog CRUD ────────────────────────────────────────────
 
 function DriverDialog({ open, onOpenChange, editingDriver, form, errors, trucks, employees, onFormChange, onSubmit }: {
   open: boolean; onOpenChange: (open: boolean) => void; editingDriver: Driver | null;
@@ -164,16 +435,20 @@ function DriverDialog({ open, onOpenChange, editingDriver, form, errors, trucks,
   );
 }
 
+// ── DriversSection ─────────────────────────────────────────
+
 export function DriversSection({ drivers, trucks, onDataChange }: {
   drivers: Driver[]; trucks: Truck[]; onDataChange: () => void;
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { log } = useAuditLog();
+  const isMobile = useMobile(640);
 
   const [employees] = React.useState<Employee[]>(() => getCollection<Employee>(STORAGE_KEYS.employees));
+  const [importOpen, setImportOpen] = React.useState(false);
 
-  const DRIVER_STATUS_CLASS: Record<Driver["status"], string> = {
+  const STATUS_CLASS: Record<Driver["status"], string> = {
     available: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200",
     on_trip: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200",
     off_duty: "bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400",
@@ -193,7 +468,7 @@ export function DriversSection({ drivers, trucks, onDataChange }: {
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
 
   const getTruck = React.useCallback(
-    (driver: Driver) => driver.truckId ? trucks.find((t) => t.id === driver.truckId) : undefined,
+    (driver: Driver) => driver.truckId ? trucks.find((tr) => tr.id === driver.truckId) : undefined,
     [trucks],
   );
 
@@ -213,73 +488,38 @@ export function DriversSection({ drivers, trucks, onDataChange }: {
   const handleOpenEdit = (driver: Driver) => {
     setEditingDriver(driver);
     setForm({ name: driver.name, phone: driver.phone, licenseExpiry: driver.licenseExpiry, status: driver.status, truckId: driver.truckId ?? "", employeeId: driver.employeeId ?? "" });
-    setErrors({});
-    setDialogOpen(true);
+    setErrors({}); setDialogOpen(true);
   };
 
   const handleSubmit = () => {
     const errs = validateDriverForm(form);
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-
     const newTruckId = form.truckId || undefined;
     if (newTruckId) {
       updateItem<Driver>(STORAGE_KEYS.drivers, (d) => d.truckId === newTruckId && d.id !== (editingDriver?.id ?? ""), (d) => ({ ...d, truckId: undefined }));
     }
     const newEmployeeId = form.employeeId || undefined;
-
     if (editingDriver) {
-      const oldDriver = { ...editingDriver };
-      updateItem<Driver>(
-        STORAGE_KEYS.drivers,
-        (d) => d.id === editingDriver.id,
-        (d) => ({ ...d, name: form.name.trim(), phone: form.phone.trim(), licenseExpiry: form.licenseExpiry, status: form.status, truckId: newTruckId, employeeId: newEmployeeId }),
-      );
-      log({
-        action: "update",
-        entity: "driver",
-        entityId: editingDriver.id,
-        entityLabel: form.name.trim(),
-        detailKey: "activityLog.details.driverUpdated",
-        oldValue: { name: oldDriver.name, phone: oldDriver.phone, status: oldDriver.status, licenseExpiry: oldDriver.licenseExpiry },
-        newValue: { name: form.name.trim(), phone: form.phone.trim(), status: form.status, licenseExpiry: form.licenseExpiry },
-      });
+      const old = { ...editingDriver };
+      updateItem<Driver>(STORAGE_KEYS.drivers, (d) => d.id === editingDriver.id, (d) => ({ ...d, name: form.name.trim(), phone: form.phone.trim(), licenseExpiry: form.licenseExpiry, status: form.status, truckId: newTruckId, employeeId: newEmployeeId }));
+      log({ action: "update", entity: "driver", entityId: editingDriver.id, entityLabel: form.name.trim(), detailKey: "activityLog.details.driverUpdated", oldValue: { name: old.name, phone: old.phone, status: old.status }, newValue: { name: form.name.trim(), phone: form.phone.trim(), status: form.status } });
       toast.success(t("drivers.toastUpdated"));
     } else {
       const newId = generateId();
       addItem<Driver>(STORAGE_KEYS.drivers, { id: newId, name: form.name.trim(), phone: form.phone.trim(), licenseExpiry: form.licenseExpiry, status: form.status, truckId: newTruckId, employeeId: newEmployeeId });
-      log({
-        action: "create",
-        entity: "driver",
-        entityId: newId,
-        entityLabel: form.name.trim(),
-        detailKey: "activityLog.details.driverCreated",
-        detailParams: { phone: form.phone.trim() },
-        newValue: { name: form.name.trim(), phone: form.phone.trim(), status: form.status, licenseExpiry: form.licenseExpiry },
-      });
+      log({ action: "create", entity: "driver", entityId: newId, entityLabel: form.name.trim(), detailKey: "activityLog.details.driverCreated", detailParams: { phone: form.phone.trim() } });
       toast.success(t("drivers.toastAdded"));
     }
-    setDialogOpen(false);
-    onDataChange();
+    setDialogOpen(false); onDataChange();
   };
 
   const handleDelete = () => {
     if (!deleteDriverId) return;
     const driver = drivers.find((d) => d.id === deleteDriverId);
     removeItem<Driver>(STORAGE_KEYS.drivers, (d) => d.id === deleteDriverId);
-    if (driver) {
-      log({
-        action: "delete",
-        entity: "driver",
-        entityId: deleteDriverId,
-        entityLabel: driver.name,
-        detailKey: "activityLog.details.driverDeleted",
-        detailParams: { phone: driver.phone },
-        oldValue: { name: driver.name, phone: driver.phone, status: driver.status },
-      });
-    }
+    if (driver) log({ action: "delete", entity: "driver", entityId: deleteDriverId, entityLabel: driver.name, detailKey: "activityLog.details.driverDeleted", detailParams: { phone: driver.phone } });
     toast.success(t("drivers.toastDeleted"));
-    setDeleteDriverId(null);
-    onDataChange();
+    setDeleteDriverId(null); onDataChange();
   };
 
   const columns: ColumnDef<Driver>[] = React.useMemo(() => [
@@ -290,9 +530,7 @@ export function DriversSection({ drivers, trucks, onDataChange }: {
         const truck = getTruck(row.original);
         return (
           <div className="font-medium">
-            <button className="hover:underline text-left text-primary" onClick={() => goToProfile(row.original.id)}>
-              {row.getValue("name")}
-            </button>
+            <button className="hover:underline text-left text-primary" onClick={() => goToProfile(row.original.id)}>{row.getValue("name")}</button>
             {truck && <div className="text-xs text-muted-foreground lg:hidden">{truck.plateNumber}</div>}
           </div>
         );
@@ -314,20 +552,14 @@ export function DriversSection({ drivers, trucks, onDataChange }: {
       header: ({ column }) => <DataTableColumnHeader column={column} title={t("drivers.columns.status")} />,
       cell: ({ row }) => {
         const status = row.getValue("status") as Driver["status"];
-        return <Badge variant="outline" className={`whitespace-nowrap ${DRIVER_STATUS_CLASS[status]}`}>{t(`drivers.status.${status}`)}</Badge>;
+        return <Badge variant="outline" className={`whitespace-nowrap ${STATUS_CLASS[status]}`}>{t(`drivers.status.${status}`)}</Badge>;
       },
-      filterFn: (row, id, value) => {
-        const selected = value as string[] | undefined;
-        return !selected || selected.length === 0 || selected.includes(row.getValue(id));
-      },
+      filterFn: (row, id, value) => { const s = value as string[] | undefined; return !s || s.length === 0 || s.includes(row.getValue(id)); },
     },
     {
       accessorKey: "truckId",
       header: ({ column }) => <DataTableColumnHeader column={column} title={t("drivers.columns.truck")} />,
-      cell: ({ row }) => {
-        const truck = getTruck(row.original);
-        return <div className="text-sm text-muted-foreground">{truck ? truck.plateNumber : "—"}</div>;
-      },
+      cell: ({ row }) => { const truck = getTruck(row.original); return <div className="text-sm text-muted-foreground">{truck ? truck.plateNumber : "—"}</div>; },
       enableSorting: false,
     },
     {
@@ -339,8 +571,7 @@ export function DriversSection({ drivers, trucks, onDataChange }: {
           <Button variant="ghost" size="icon" onClick={() => setDeleteDriverId(row.original.id)} aria-label={t("drivers.actions.delete")} className="text-red-500 hover:text-red-600"><Trash2 className="h-4 w-4" /></Button>
         </div>
       ),
-      enableSorting: false,
-      enableHiding: false,
+      enableSorting: false, enableHiding: false,
     },
   ], [trucks, t]);
 
@@ -357,12 +588,34 @@ export function DriversSection({ drivers, trucks, onDataChange }: {
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
           <CardTitle>{t("drivers.title")}</CardTitle>
-          <Button onClick={handleOpenAdd} size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            {t("drivers.actions.add")}
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* Export */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size={isMobile ? "icon" : "sm"} title={t("drivers.actions.export")}>
+                  <Download className="h-3.5 w-3.5" />
+                  {!isMobile && <span className="ml-1.5">{t("drivers.actions.export")}</span>}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => exportDriversPDF(drivers, trucks, t)}>{t("drivers.actions.exportPdf")}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportDriversExcel(drivers, trucks, t)}>{t("drivers.actions.exportExcel")}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportDriversCSV(drivers, trucks, t)}>{t("drivers.actions.exportCsv")}</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            {/* Import */}
+            <Button variant="outline" size={isMobile ? "icon" : "sm"} onClick={() => setImportOpen(true)} title={t("drivers.import.button")}>
+              <Upload className="h-3.5 w-3.5" />
+              {!isMobile && <span className="ml-1.5">{t("drivers.import.button")}</span>}
+            </Button>
+            {/* Add */}
+            <Button onClick={handleOpenAdd} size="sm">
+              <Plus className={cn("h-4 w-4", !isMobile && "mr-2")} />
+              {!isMobile && t("drivers.actions.add")}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <EntityTable
@@ -383,6 +636,8 @@ export function DriversSection({ drivers, trucks, onDataChange }: {
       <DriverDialog open={dialogOpen} onOpenChange={setDialogOpen} editingDriver={editingDriver}
         form={form} errors={errors} trucks={trucks} employees={employees}
         onFormChange={(patch) => setForm((f) => ({ ...f, ...patch }))} onSubmit={handleSubmit} />
+
+      <DriverImportDialog open={importOpen} onOpenChange={setImportOpen} onImported={onDataChange} isMobile={isMobile} />
 
       <AlertDialog open={!!deleteDriverId} onOpenChange={(open) => !open && setDeleteDriverId(null)}>
         <AlertDialogContent>
