@@ -110,7 +110,12 @@
       "confirm": "Import {{count}} truck(s)",
       "toastSuccess": "{{count}} truck(s) imported successfully.",
       "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
-      "toastAllSkipped": "No trucks imported - all rows are duplicates."
+      "toastAllSkipped": "No trucks imported - all rows are duplicates.",
+      "rowValid": "Valid",
+      "noValidRows": "No valid rows",
+      "legendValid": "Valid",
+      "legendInvalid": "Invalid",
+      "legendDuplicate": "Duplicate"
     }
   },
   "expiry": {
