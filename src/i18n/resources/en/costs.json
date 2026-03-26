@@ -10,17 +10,17 @@
       "allTime": "All Time",
       "thisMonth": "This Month",
       "lastMonth": "Last Month",
-      "last3Months": "Last 3 Months"
+      "last3Months": "Last 3 Months",
+      "reset": "Reset filters"
     },
     "kpi": {
       "totalFuelCost": "Total Fuel Cost",
       "costPerKm": "Cost / Km",
-      "avgCostPerTrip": "Avg Cost / Trip"
+      "totalProfit": "Total Profit"
     },
     "chart": {
-      "title": "Monthly Profit",
-      "profit": "Profit",
-      "notEnoughData": "Not enough data to display chart"
+      "title": "Monthly Profit – Last 6 Months",
+      "profit": "Profit"
     },
     "table": {
       "title": "Trip Details",
