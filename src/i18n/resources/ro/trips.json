@@ -64,7 +64,8 @@
       "export": "Export",
       "exportPdf": "Export PDF",
       "exportExcel": "Export Excel",
-      "exportCsv": "Export CSV"
+      "exportCsv": "Export CSV",
+      "liveTrack": "Urmărire Live"
     },
     "validation": {
       "orderRequired": "Selecteaza o comanda",
@@ -134,15 +135,7 @@
     "prevWeek": "Saptamana anterioara",
     "nextWeek": "Saptamana urmatoare",
     "redirecting": "Se redirectioneaza catre tabel...",
-    "dayNames": [
-      "Lun",
-      "Mar",
-      "Mie",
-      "Joi",
-      "Vin",
-      "Sam",
-      "Dum"
-    ],
+    "dayNames": ["Lun", "Mar", "Mie", "Joi", "Vin", "Sam", "Dum"],
     "dialog": {
       "title": "Detalii cursa",
       "desc": "Informatii complete despre cursa"
@@ -185,5 +178,17 @@
     "toast": {
       "moved": "Cursa a fost mutata cu succes."
     }
+  },
+  "tripTracker": {
+    "title": "Urmărire GPS Live",
+    "backToTrips": "Înapoi la curse",
+    "progress": "Progres",
+    "stopTracking": "Oprește urmărirea",
+    "arrived": "A ajuns la destinație",
+    "stopped": "Urmărire oprită",
+    "details": "Detalii cursă",
+    "notFound": "Cursa nu a fost găsită.",
+    "unknownRoute": "Rută necunoscută",
+    "noCoordsMessage": "Coordonatele rutei nu sunt disponibile pentru această cursă."
   }
 }

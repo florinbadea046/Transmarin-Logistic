@@ -26,6 +26,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import type { Trip, Driver, Truck } from "@/modules/transport/types";
@@ -37,6 +38,15 @@ export default function CostsPage() {
   const [filterDriver, setFilterDriver] = React.useState<string>("all");
   const [filterTruck, setFilterTruck] = React.useState<string>("all");
   const [filterPeriod, setFilterPeriod] = React.useState<string>("all");
+
+  const isFiltered =
+    filterDriver !== "all" || filterTruck !== "all" || filterPeriod !== "all";
+
+  const resetFilters = () => {
+    setFilterDriver("all");
+    setFilterTruck("all");
+    setFilterPeriod("all");
+  };
 
   const trips = getCollection<Trip>(STORAGE_KEYS.trips);
   const drivers = getCollection<Driver>(STORAGE_KEYS.drivers);
@@ -81,26 +91,42 @@ export default function CostsPage() {
     0,
   );
   const costPerKm = totalKm > 0 ? totalFuelCost / totalKm : 0;
-  const avgCostPerTrip =
-    filtered.length > 0 ? totalFuelCost / filtered.length : 0;
+  const totalProfit = filtered.reduce(
+    (s, tr) => s + ((tr.revenue ?? 0) - (tr.fuelCost ?? 0)),
+    0,
+  );
+
+  // Build monthly map for ALL trips (for the last-6-months chart, unaffected by filters)
+  const last6MonthsKeys: string[] = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    last6MonthsKeys.push(
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+    );
+  }
 
   const monthlyMap: Record<string, { revenue: number; fuelCost: number }> = {};
+  for (const key of last6MonthsKeys) {
+    monthlyMap[key] = { revenue: 0, fuelCost: 0 };
+  }
   for (const trip of filtered) {
     const d = new Date(trip.departureDate);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    if (!monthlyMap[key]) monthlyMap[key] = { revenue: 0, fuelCost: 0 };
-    monthlyMap[key].revenue += trip.revenue ?? 0;
-    monthlyMap[key].fuelCost += trip.fuelCost ?? 0;
+    if (monthlyMap[key]) {
+      monthlyMap[key].revenue += trip.revenue ?? 0;
+      monthlyMap[key].fuelCost += trip.fuelCost ?? 0;
+    }
   }
 
-  const chartData = Object.entries(monthlyMap)
-    .sort(([a], [b]) => a.localeCompare(b))
-    .map(([month, vals]) => ({
-      month,
+  const chartData = last6MonthsKeys.map((key) => {
+    const vals = monthlyMap[key];
+    return {
+      month: key,
       profit: vals.revenue - vals.fuelCost,
       revenue: vals.revenue,
       fuelCost: vals.fuelCost,
-    }));
+    };
+  });
 
   return (
     <>
@@ -161,6 +187,12 @@ export default function CostsPage() {
               </SelectItem>
             </SelectContent>
           </Select>
+
+          {isFiltered && (
+            <Button variant="ghost" size="sm" onClick={resetFilters}>
+              {t("costs.filters.reset")}
+            </Button>
+          )}
         </div>
 
         <div className="mb-6 grid gap-4 sm:grid-cols-3">
@@ -191,12 +223,14 @@ export default function CostsPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                {t("costs.kpi.avgCostPerTrip")}
+                {t("costs.kpi.totalProfit")}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {avgCostPerTrip.toFixed(0)} RON
+              <div
+                className={`text-2xl font-bold ${totalProfit >= 0 ? "text-green-600" : "text-red-600"}`}
+              >
+                {totalProfit.toLocaleString()} RON
               </div>
             </CardContent>
           </Card>
@@ -207,28 +241,22 @@ export default function CostsPage() {
             <CardTitle>{t("costs.chart.title")}</CardTitle>
           </CardHeader>
           <CardContent>
-            {chartData.length < 2 ? (
-              <div className="flex h-[260px] items-center justify-center text-sm text-muted-foreground">
-                {t("costs.chart.notEnoughData")}
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={260}>
-                <AreaChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Area
-                    type="monotone"
-                    dataKey="profit"
-                    name={t("costs.chart.profit")}
-                    stroke="#22c55e"
-                    fill="#bbf7d0"
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            )}
+            <ResponsiveContainer width="100%" height={260}>
+              <AreaChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="month" />
+                <YAxis />
+                <Tooltip />
+                <Area
+                  type="monotone"
+                  dataKey="profit"
+                  name={t("costs.chart.profit")}
+                  stroke="#22c55e"
+                  fill="#bbf7d0"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 

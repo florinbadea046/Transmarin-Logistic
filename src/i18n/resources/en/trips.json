@@ -64,7 +64,8 @@
       "export": "Export",
       "exportPdf": "Export PDF",
       "exportExcel": "Export Excel",
-      "exportCsv": "Export CSV"
+      "exportCsv": "Export CSV",
+      "liveTrack": "Live Track"
     },
     "validation": {
       "orderRequired": "Select an order",
@@ -134,15 +135,7 @@
     "prevWeek": "Previous week",
     "nextWeek": "Next week",
     "redirecting": "Redirecting to table...",
-    "dayNames": [
-      "Mon",
-      "Tue",
-      "Wed",
-      "Thu",
-      "Fri",
-      "Sat",
-      "Sun"
-    ],
+    "dayNames": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     "dialog": {
       "title": "Trip Details",
       "desc": "Full details about this trip"
@@ -185,5 +178,17 @@
     "toast": {
       "moved": "Trip moved successfully."
     }
+  },
+  "tripTracker": {
+    "title": "Live GPS Tracking",
+    "backToTrips": "Back to trips",
+    "progress": "Progress",
+    "stopTracking": "Stop tracking",
+    "arrived": "Arrived at destination",
+    "stopped": "Tracking stopped",
+    "details": "Trip details",
+    "notFound": "Trip not found.",
+    "unknownRoute": "Unknown route",
+    "noCoordsMessage": "Route coordinates not available for this trip."
   }
 }

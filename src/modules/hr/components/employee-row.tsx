@@ -1,7 +1,7 @@
 import * as React from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { flexRender, type Row, type Cell } from "@tanstack/react-table";
-import { MoreVertical, Pencil, Trash2, FileText } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, FileText, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,6 +13,7 @@ import {
 import EmployeeDialog from "./employee-dialog";
 import ConfirmDeleteDialog from "./confirm-delete-dialog";
 import { EmployeeDocumentsDialog } from "./employee-documents-dialog";
+import { EmployeeProfileDialog, EmployeeStatsDialog } from "./employee-profile-dialog";
 import { getCollection, updateItem, removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
@@ -31,6 +32,8 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [docsOpen, setDocsOpen] = React.useState(false);
+  const [profileOpen, setProfileOpen] = React.useState(false);
+  const [statsOpen, setStatsOpen] = React.useState(false);
 
   const handleDeleteClick = () => {
     const trips = getCollection<Trip>(STORAGE_KEYS.trips);
@@ -64,7 +67,16 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
   return (
     <TableRow key={row.id}>
       {row.getVisibleCells().map((cell: Cell<Employee, unknown>) =>
-        cell.column.id === "actions" ? (
+        cell.column.id === "name" ? (
+          <TableCell key={cell.id}>
+            <button
+              className="font-medium text-foreground hover:underline hover:text-primary transition-colors text-left whitespace-nowrap"
+              onClick={() => setProfileOpen(true)}
+            >
+              {employee.name}
+            </button>
+          </TableCell>
+        ) : cell.column.id === "actions" ? (
           <TableCell key={cell.id} className="text-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -92,6 +104,13 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
                   <FileText className="mr-2 h-4 w-4" />
                   {t("employees.actions.documents")}
                 </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setStatsOpen(true)}
+                >
+                  <BarChart2 className="mr-2 h-4 w-4" />
+                  Statistici
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   variant="destructive"
@@ -111,6 +130,19 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
         ),
       )}
 
+      {statsOpen && (
+        <EmployeeStatsDialog
+          employee={employee}
+          open={statsOpen}
+          onOpenChange={setStatsOpen}
+        />
+      )}
+      <EmployeeProfileDialog
+        employee={employee}
+        open={profileOpen}
+        onOpenChange={setProfileOpen}
+        onUpdate={(updated) => setData((prev) => prev.map((e) => e.id === updated.id ? updated : e))}
+      />
       <EmployeeDialog
         mode="edit"
         employee={employee}

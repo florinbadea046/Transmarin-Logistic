@@ -10,17 +10,17 @@
       "allTime": "Toata perioada",
       "thisMonth": "Luna curenta",
       "lastMonth": "Luna trecuta",
-      "last3Months": "Ultimele 3 luni"
+      "last3Months": "Ultimele 3 luni",
+      "reset": "Resetează filtrele"
     },
     "kpi": {
       "totalFuelCost": "Cost total combustibil",
       "costPerKm": "Cost mediu/km",
-      "avgCostPerTrip": "Cost mediu/cursa"
+      "totalProfit": "Profit total"
     },
     "chart": {
-      "title": "Profit lunar",
-      "profit": "Profit",
-      "notEnoughData": "Date insuficiente pentru grafic"
+      "title": "Profit lunar – ultimele 6 luni",
+      "profit": "Profit"
     },
     "table": {
       "title": "Detalii curse",
