@@ -1,4 +1,5 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   useReactTable,
   getCoreRowModel,
@@ -11,20 +12,35 @@ import {
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import type { Supplier } from "@/modules/accounting/types";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { SupplierModal } from "../components/SupplierModal";
 import { getCollection, setCollection } from "@/utils/local-storage";
 
-
 const columnHelper = createColumnHelper<Supplier>();
 
 export default function SuppliersPage() {
+  const { t } = useTranslation();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [search, setSearch] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+    null,
+  );
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
     setSuppliers(getCollection<Supplier>(STORAGE_KEYS.suppliers));
@@ -34,8 +50,9 @@ export default function SuppliersPage() {
     const q = search.trim().toLowerCase();
     if (!q) return suppliers;
     return suppliers.filter((s) =>
-      [s.name, s.cui, s.address, s.phone, s.email, s.bankAccount]
-        .some((val) => val?.toLowerCase().includes(q))
+      [s.name, s.cui, s.address, s.phone, s.email, s.bankAccount].some((val) =>
+        val?.toLowerCase().includes(q),
+      ),
     );
   }, [suppliers, search]);
 
@@ -51,50 +68,57 @@ export default function SuppliersPage() {
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: string) => {
-    if (!confirm("Sigur vrei să ștergi acest furnizor?")) return;
-    const updated = suppliers.filter((s) => s.id !== id);
+  const confirmDelete = useCallback(() => {
+    if (!deleteId) return;
+    const updated = suppliers.filter((s) => s.id !== deleteId);
     setSuppliers(updated);
     setCollection(STORAGE_KEYS.suppliers, updated);
-  };
+    setDeleteId(null);
+  }, [deleteId, suppliers]);
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor("name", { header: "Nume" }),
-      columnHelper.accessor("cui", { header: "CUI" }),
-      columnHelper.accessor("address", { header: "Adresă" }),
-      columnHelper.accessor("phone", { header: "Telefon" }),
-      columnHelper.accessor("email", { header: "Email" }),
-      columnHelper.accessor("bankAccount", { header: "Cont bancar" }),
+      columnHelper.accessor("name", { header: t("suppliers.fields.name") }),
+      columnHelper.accessor("cui", { header: t("suppliers.fields.cui") }),
+      columnHelper.accessor("address", {
+        header: t("suppliers.fields.address"),
+      }),
+      columnHelper.accessor("phone", { header: t("suppliers.fields.phone") }),
+      columnHelper.accessor("email", { header: t("suppliers.fields.email") }),
+      columnHelper.accessor("bankAccount", {
+        header: t("suppliers.fields.bankAccount"),
+      }),
       columnHelper.display({
         id: "actions",
-        header: "Acțiuni",
+        header: t("suppliers.fields.actions"),
         cell: ({ row }) => (
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => {
                 setSelectedSupplier(row.original);
                 setIsModalOpen(true);
               }}
-              className="bg-yellow-500 px-3 py-1 rounded text-black text-sm"
             >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDelete(row.original.id)}
-              className="bg-red-600 px-3 py-1 rounded text-white text-sm"
+              {t("suppliers.actions.edit")}
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={() => setDeleteId(row.original.id)}
             >
-              Delete
-            </button>
+              {t("suppliers.actions.delete")}
+            </Button>
           </div>
         ),
       }),
     ],
-    [suppliers]
+    [t],
   );
 
   const table = useReactTable({
-    data: filteredSuppliers, 
+    data: filteredSuppliers,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
@@ -107,50 +131,50 @@ export default function SuppliersPage() {
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold text-white">Furnizori</h1>
+        <h1 className="text-lg font-semibold">{t("suppliers.title")}</h1>
       </Header>
 
       <Main>
         <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Caută după orice câmp..."
+          <Input
+            placeholder={t("suppliers.search")}
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
               table.setPageIndex(0);
             }}
-            className="w-full rounded-md border border-gray-600 bg-slate-800 text-white p-3 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
-        <Card className="bg-slate-900 border border-slate-700">
+        <Card>
           <CardHeader className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
-            <CardTitle className="text-white">Gestiune Furnizori</CardTitle>
-            <button
+            <CardTitle>{t("suppliers.manage")}</CardTitle>
+            <Button
               onClick={() => {
                 setSelectedSupplier(null);
                 setIsModalOpen(true);
               }}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 w-full md:w-auto"
             >
-              + Adaugă Furnizor
-            </button>
+              + {t("suppliers.add")}
+            </Button>
           </CardHeader>
 
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-white text-sm">
-                <thead className="bg-slate-700">
+            <div className="overflow-x-auto rounded-md border">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/50">
                   {table.getHeaderGroups().map((headerGroup) => (
                     <tr key={headerGroup.id}>
                       {headerGroup.headers.map((header) => (
                         <th
                           key={header.id}
-                          className="p-3 text-left cursor-pointer select-none hover:bg-slate-600"
+                          className="p-3 text-left cursor-pointer select-none hover:bg-muted/70 font-medium text-muted-foreground"
                           onClick={header.column.getToggleSortingHandler()}
                         >
-                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                           {header.column.getIsSorted() === "asc" && " ↑"}
                           {header.column.getIsSorted() === "desc" && " ↓"}
                         </th>
@@ -161,16 +185,22 @@ export default function SuppliersPage() {
                 <tbody>
                   {table.getRowModel().rows.length === 0 ? (
                     <tr>
-                      <td colSpan={columns.length} className="p-4 text-center text-slate-400">
-                        Niciun furnizor găsit
+                      <td
+                        colSpan={columns.length}
+                        className="p-4 text-center text-muted-foreground"
+                      >
+                        {t("suppliers.noResults")}
                       </td>
                     </tr>
                   ) : (
                     table.getRowModel().rows.map((row) => (
-                      <tr key={row.id} className="border-b border-slate-700 hover:bg-slate-800">
+                      <tr key={row.id} className="border-b hover:bg-muted/30">
                         {row.getVisibleCells().map((cell) => (
                           <td key={cell.id} className="p-3">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext(),
+                            )}
                           </td>
                         ))}
                       </tr>
@@ -180,41 +210,49 @@ export default function SuppliersPage() {
               </table>
             </div>
 
-            <div className="flex flex-wrap justify-between items-center mt-4 text-white gap-3">
+            <div className="flex flex-wrap justify-between items-center mt-4 gap-3">
               <div className="flex items-center gap-2">
-                <span className="text-sm">Rânduri pe pagină:</span>
+                <span className="text-sm text-muted-foreground">
+                  {t("suppliers.rowsPerPage")}:
+                </span>
                 <select
                   value={table.getState().pagination.pageSize}
                   onChange={(e) => table.setPageSize(Number(e.target.value))}
-                  className="bg-slate-700 text-white rounded px-2 py-1 text-sm"
+                  className="rounded border bg-background px-2 py-1 text-sm"
                 >
                   {[5, 10, 20].map((size) => (
-                    <option key={size} value={size}>{size}</option>
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
                   ))}
                 </select>
               </div>
 
               <div className="flex items-center gap-2">
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
-                  className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40"
                 >
-                  Anterior
-                </button>
-                <span className="text-sm">
-                  Pagina {table.getState().pagination.pageIndex + 1} din {table.getPageCount()}
+                  {t("suppliers.prev")}
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  {t("suppliers.page", {
+                    current: table.getState().pagination.pageIndex + 1,
+                    total: table.getPageCount(),
+                  })}
                 </span>
-                <button
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => table.nextPage()}
                   disabled={!table.getCanNextPage()}
-                  className="px-3 py-1 rounded bg-slate-700 hover:bg-slate-600 disabled:opacity-40"
                 >
-                  Următor
-                </button>
+                  {t("suppliers.next")}
+                </Button>
               </div>
             </div>
-
           </CardContent>
         </Card>
       </Main>
@@ -227,6 +265,26 @@ export default function SuppliersPage() {
           onSave={handleSave}
         />
       )}
+
+      <AlertDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("suppliers.actions.delete")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("suppliers.confirmDelete")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("drivers.cancel")}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>
+              {t("suppliers.actions.delete")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

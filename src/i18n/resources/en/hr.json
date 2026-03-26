@@ -1,0 +1,122 @@
+{
+  "hr": {
+    "title": "Human Resources",
+    "subtitle": "Employees, leaves, payroll and documents.",
+    "totalEmployees": "Total Employees",
+    "totalEmployeesDesc": "Total number of employees",
+    "onLeave": "On Leave",
+    "onLeaveDesc": "Approved leaves this month",
+    "expiredDocs": "Expired Documents",
+    "expiredDocsDesc": "Documents past their expiry date",
+    "totalBonuses": "Total bonuses (month)",
+    "totalBonusesDesc": "Bonuses − fines",
+    "chartDept": "Employees per Department",
+    "chartBonuses": "Bonuses vs Fines (last 6 months)",
+    "chartBonusLabel": "Bonuses",
+    "chartFinesLabel": "Fines",
+    "nav": {
+      "employees": "Employees",
+      "leaves": "Leaves",
+      "payroll": "Payroll"
+    },
+    "documentAlerts": {
+      "title": "Document Alerts",
+      "empty": "No expired documents or documents expiring in the next 30 days.",
+      "columns": {
+        "employee": "Employee",
+        "type": "Document Type",
+        "name": "Name",
+        "expiryDate": "Expiry Date",
+        "status": "Status"
+      },
+      "types": {
+        "license": "License",
+        "tachograph": "Tachograph",
+        "adr": "ADR",
+        "medical": "Medical"
+      },
+      "expired": "Expired",
+      "expiresToday": "Expires today",
+      "daysLeft": "{{count}} days"
+    }
+  },
+  "leaves": {
+    "title": "Leaves",
+    "manage": "Manage Leaves",
+    "requests": "{{count}} requests",
+    "searchPlaceholder": "Search by employee...",
+    "noResults": "No leave request found.",
+    "tabs": {
+      "list": "List",
+      "calendar": "Calendar"
+    },
+    "columns": {
+      "employee": "Employee",
+      "type": "Leave type",
+      "period": "Period",
+      "days": "Days",
+      "daysValue": "{{count}} days",
+      "status": "Status",
+      "reason": "Reason",
+      "noReason": "—"
+    },
+    "types": {
+      "annual": "Annual",
+      "sick": "Sick",
+      "unpaid": "Unpaid",
+      "other": "Other"
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "unknown": "Unknown"
+    },
+    "filters": {
+      "allTypes": "All types",
+      "allStatuses": "All statuses",
+      "type": "Leave type",
+      "status": "Status"
+    },
+    "actions": {
+      "add": "Add leave"
+    },
+    "dialog": {
+      "addTitle": "Add leave",
+      "editTitle": "Edit leave"
+    },
+    "placeholders": {
+      "selectEmployee": "Select employee",
+      "leaveType": "Leave type"
+    },
+    "validation": {
+      "employeeRequired": "Employee is required",
+      "startDateRequired": "Start date is required",
+      "endDateRequired": "End date is required",
+      "endDateAfterStart": "End date must be after or equal to start date"
+    },
+    "toast": {
+      "overlap": "There is already a leave request overlapping this period."
+    }
+  },
+  "documentAlerts": {
+    "title": "Document Alerts",
+    "empty": "No expired documents or documents expiring in the next 30 days.",
+    "columns": {
+      "employee": "Employee",
+      "type": "Document Type",
+      "name": "Name",
+      "expiryDate": "Expiry Date",
+      "status": "Status"
+    },
+    "types": {
+      "license": "License",
+      "tachograph": "Tachograph",
+      "adr": "ADR",
+      "medical": "Medical"
+    },
+    "expired": "Expired",
+    "expiresToday": "Expires today",
+    "daysLeft": "{{count}} days"
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "accounting": {
+    "title": "Contabilitate Simplificata",
+    "subtitle": "Facturi, furnizori, sold si cash flow.",
+    "revenueMonth": "Venituri luna curenta",
+    "expensesMonth": "Cheltuieli luna curenta",
+    "balance": "Sold (Venituri − Cheltuieli)",
+    "unpaidInvoices": "Facturi neplatite",
+    "chartTitle": "Venituri vs Cheltuieli — ultimele 6 luni",
+    "noInvoices": "Nu exista facturi inregistrate.",
+    "chartRevenue": "Venituri",
+    "chartExpenses": "Cheltuieli",
+    "nav": {
+      "invoices": "Facturi",
+      "suppliers": "Furnizori"
+    }
+  },
+  "suppliers": {
+    "title": "Furnizori",
+    "manage": "Gestiune Furnizori",
+    "add": "Adauga Furnizor",
+    "search": "Cauta dupa orice camp...",
+    "noResults": "Niciun furnizor gasit",
+    "confirmDelete": "Sigur vrei sa stergi acest furnizor?",
+    "rowsPerPage": "Randuri pe pagina",
+    "page": "Pagina {{current}} din {{total}}",
+    "prev": "Anterior",
+    "next": "Urmator",
+    "fields": {
+      "name": "Nume",
+      "cui": "CUI",
+      "address": "Adresa",
+      "phone": "Telefon",
+      "email": "Email",
+      "bankAccount": "Cont bancar",
+      "actions": "Actiuni"
+    },
+    "actions": {
+      "edit": "Editeaza",
+      "delete": "Sterge"
+    }
+  }
+}

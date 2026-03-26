@@ -1,0 +1,47 @@
+{
+  "activityLog": {
+    "title": "Istoric Activitati",
+    "empty": "Nu exista activitati inregistrate inca.",
+    "totalEntries": "{{count}} intrari",
+    "showDetails": "Afiseaza detalii",
+    "hideDetails": "Ascunde detalii",
+    "before": "Inainte",
+    "after": "Dupa",
+    "actions": {
+      "create": "Creare",
+      "update": "Modificare",
+      "delete": "Stergere"
+    },
+    "entities": {
+      "driver": "Sofer",
+      "truck": "Camion",
+      "order": "Comanda",
+      "trip": "Cursa"
+    },
+    "filters": {
+      "label": "Filtrare:",
+      "allEntities": "Toate entitatile",
+      "allActions": "Toate actiunile",
+      "reset": "Reseteaza"
+    },
+    "pagination": {
+      "prev": "Anterior",
+      "next": "Urmator",
+      "pageOf": "Pagina {{page}} din {{total}}"
+    },
+    "details": {
+      "driverCreated": "Sofer nou adaugat",
+      "driverUpdated": "Sofer actualizat",
+      "driverDeleted": "Sofer sters",
+      "truckCreated": "Camion nou adaugat",
+      "truckUpdated": "Camion actualizat",
+      "truckDeleted": "Camion sters",
+      "orderCreated": "Comanda noua adaugata",
+      "orderUpdated": "Comanda actualizata",
+      "orderDeleted": "Comanda stearsa",
+      "tripCreated": "Cursa noua adaugata",
+      "tripUpdated": "Cursa actualizata",
+      "tripDeleted": "Cursa stearsa"
+    }
+  }
+}

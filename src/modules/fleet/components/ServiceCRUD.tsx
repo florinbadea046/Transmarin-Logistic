@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -61,23 +61,63 @@ interface ServiceCRUDProps {
   onRecordsChange: (updated: ServiceRecord[]) => void;
 }
 
-export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDProps) {
-  const [parts, setParts] = useState<Part[]>([]);
+function syncTruckStatus(truckId: string, allRecords: ServiceRecord[]) {
+  const trucks = getCollection<Truck>(STORAGE_KEYS.trucks);
+  const today = new Date().toISOString().split("T")[0];
+
+  const hasActiveService = allRecords
+    .filter((r) => r.truckId === truckId)
+    .some((r) => {
+      const isRecent =
+        new Date(r.date) >=
+        new Date(new Date().setDate(new Date().getDate() - 30));
+      const hasUpcoming = r.nextServiceDate
+        ? r.nextServiceDate >= today
+        : false;
+      return isRecent || hasUpcoming;
+    });
+
+  const updatedTrucks = trucks.map((t) => {
+    if (t.id !== truckId) return t;
+    if (t.status === "on_trip") return t;
+    return {
+      ...t,
+      status: hasActiveService ? "in_service" : "available",
+    } as Truck;
+  });
+
+  localStorage.setItem(STORAGE_KEYS.trucks, JSON.stringify(updatedTrucks));
+}
+
+export function ServiceCRUD({
+  records,
+  trucks,
+  onRecordsChange,
+}: ServiceCRUDProps) {
+  const [parts] = useState<Part[]>(() =>
+    getCollection<Part>(STORAGE_KEYS.parts),
+  );
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(createEmptyForm());
 
-  // filtre export
   const [filterTruckId, setFilterTruckId] = useState("all");
   const [filterFrom, setFilterFrom] = useState("");
   const [filterTo, setFilterTo] = useState("");
 
-  useEffect(() => {
-    setParts(getCollection<Part>(STORAGE_KEYS.parts));
-  }, []);
+  const filteredRecords = useMemo(() => {
+    return records.filter((record) => {
+      if (filterTruckId !== "all" && record.truckId !== filterTruckId)
+        return false;
+      if (filterFrom && record.date < filterFrom) return false;
+      if (filterTo && record.date > filterTo) return false;
+      return true;
+    });
+  }, [filterFrom, filterTo, filterTruckId, records]);
 
-  const persist = (data: ServiceRecord[]) => {
-    setRecords(data);
+  const persist = (data: ServiceRecord[], affectedTruckId?: string) => {
+    onRecordsChange(data);
     localStorage.setItem(STORAGE_KEYS.serviceRecords, JSON.stringify(data));
+    if (affectedTruckId) syncTruckStatus(affectedTruckId, data);
   };
 
   const getTruckLabel = (id: string) => {
@@ -87,13 +127,16 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
 
   const totalCost = useMemo(
     () => calculateTotalCost(form.partsUsed, parts),
-    [form.partsUsed, parts]
+    [form.partsUsed, parts],
   );
 
   const addPart = () => {
     setForm((prev) => ({
       ...prev,
-      partsUsed: [...prev.partsUsed, { id: crypto.randomUUID(), partId: "", quantity: 1 }],
+      partsUsed: [
+        ...prev.partsUsed,
+        { id: crypto.randomUUID(), partId: "", quantity: 1 },
+      ],
     }));
   };
 
@@ -104,10 +147,16 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
     }));
   };
 
-  const updatePart = (id: string, field: "partId" | "quantity", value: string | number) => {
+  const updatePart = (
+    id: string,
+    field: "partId" | "quantity",
+    value: string | number,
+  ) => {
     setForm((prev) => ({
       ...prev,
-      partsUsed: prev.partsUsed.map((p) => (p.id === id ? { ...p, [field]: value } : p)),
+      partsUsed: prev.partsUsed.map((p) =>
+        p.id === id ? { ...p, [field]: value } : p,
+      ),
     }));
   };
 
@@ -116,17 +165,20 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
     const newRecord: ServiceRecord = {
       id: crypto.randomUUID(),
       ...form,
-      partsUsed: form.partsUsed.map(({ id, ...rest }) => rest),
+      partsUsed: form.partsUsed.map(({ id: _id, ...rest }) => rest),
       cost: totalCost,
       nextServiceDate: form.nextServiceDate || undefined,
     };
-    persist([...records, newRecord]);
+    const updated = [...records, newRecord];
+    persist(updated, form.truckId);
     setForm(createEmptyForm());
     setOpen(false);
   };
 
   const handleDelete = (id: string) => {
-    persist(records.filter((r) => r.id !== id));
+    const record = records.find((r) => r.id === id);
+    const updated = records.filter((r) => r.id !== id);
+    persist(updated, record?.truckId);
   };
 
   return (
@@ -166,7 +218,7 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
         <Button
           variant="outline"
           onClick={() =>
-            exportServiceToPDF(records, trucks, {
+            exportServiceToPDF(filteredRecords, trucks, {
               truckId: filterTruckId === "all" ? undefined : filterTruckId,
               fromDate: filterFrom || undefined,
               toDate: filterTo || undefined,
@@ -177,8 +229,10 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
         </Button>
       </div>
 
-      {records.length === 0 ? (
-        <p className="text-muted-foreground text-center py-10">Nu există înregistrări de service.</p>
+      {filteredRecords.length === 0 ? (
+        <p className="text-muted-foreground text-center py-10">
+          Nu există înregistrări de service.
+        </p>
       ) : (
         <div className="overflow-x-auto">
           <Table>
@@ -196,15 +250,19 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
               </TableRow>
             </TableHeader>
             <TableBody>
-              {records.map((record) => (
+              {filteredRecords.map((record) => (
                 <TableRow key={record.id}>
-                  <TableCell className="font-semibold">{getTruckLabel(record.truckId)}</TableCell>
+                  <TableCell className="font-semibold">
+                    {getTruckLabel(record.truckId)}
+                  </TableCell>
                   <TableCell>{record.date}</TableCell>
                   <TableCell>
                     <Badge variant="outline">{TYPE_LABELS[record.type]}</Badge>
                   </TableCell>
                   <TableCell>{record.description}</TableCell>
-                  <TableCell>{record.mileageAtService.toLocaleString("ro-RO")} km</TableCell>
+                  <TableCell>
+                    {record.mileageAtService.toLocaleString("ro-RO")} km
+                  </TableCell>
                   <TableCell>
                     {record.partsUsed.length === 0 ? (
                       <span className="text-muted-foreground">—</span>
@@ -218,11 +276,17 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
                       </ul>
                     )}
                   </TableCell>
-                  <TableCell className="font-semibold">{record.cost.toLocaleString("ro-RO")} RON</TableCell>
+                  <TableCell className="font-semibold">
+                    {record.cost.toLocaleString("ro-RO")} RON
+                  </TableCell>
                   <TableCell>{record.nextServiceDate ?? "—"}</TableCell>
                   <TableCell>
                     <div className="flex justify-center">
-                      <Button size="sm" variant="destructive" onClick={() => handleDelete(record.id)}>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={() => handleDelete(record.id)}
+                      >
                         Șterge
                       </Button>
                     </div>
@@ -243,8 +307,13 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <Label>Camion</Label>
-                <Select value={form.truckId} onValueChange={(v) => setForm((p) => ({ ...p, truckId: v }))}>
-                  <SelectTrigger><SelectValue placeholder="Selectează camion..." /></SelectTrigger>
+                <Select
+                  value={form.truckId}
+                  onValueChange={(v) => setForm((p) => ({ ...p, truckId: v }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selectează camion..." />
+                  </SelectTrigger>
                   <SelectContent>
                     {trucks.map((t) => (
                       <SelectItem key={t.id} value={t.id}>
@@ -256,11 +325,20 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
               </div>
               <div className="space-y-1">
                 <Label>Tip service</Label>
-                <Select value={form.type} onValueChange={(v) => setForm((p) => ({ ...p, type: v as ServiceRecord["type"] }))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                <Select
+                  value={form.type}
+                  onValueChange={(v) =>
+                    setForm((p) => ({ ...p, type: v as ServiceRecord["type"] }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
                   <SelectContent>
                     {Object.entries(TYPE_LABELS).map(([value, label]) => (
-                      <SelectItem key={value} value={value}>{label}</SelectItem>
+                      <SelectItem key={value} value={value}>
+                        {label}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -269,53 +347,115 @@ export function ServiceCRUD({ records, trucks, onRecordsChange }: ServiceCRUDPro
 
             <div className="space-y-1">
               <Label>Descriere</Label>
-              <Input value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} />
+              <Input
+                value={form.description}
+                onChange={(e) =>
+                  setForm((p) => ({ ...p, description: e.target.value }))
+                }
+              />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div className="space-y-1">
                 <Label>Dată</Label>
-                <Input type="date" value={form.date} onChange={(e) => setForm((p) => ({ ...p, date: e.target.value }))} />
+                <Input
+                  type="date"
+                  value={form.date}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, date: e.target.value }))
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>Km la service</Label>
-                <Input type="number" value={form.mileageAtService} onChange={(e) => setForm((p) => ({ ...p, mileageAtService: Number(e.target.value) }))} />
+                <Input
+                  type="number"
+                  value={form.mileageAtService}
+                  onChange={(e) =>
+                    setForm((p) => ({
+                      ...p,
+                      mileageAtService: Number(e.target.value),
+                    }))
+                  }
+                />
               </div>
               <div className="space-y-1">
                 <Label>Următor service</Label>
-                <Input type="date" value={form.nextServiceDate} onChange={(e) => setForm((p) => ({ ...p, nextServiceDate: e.target.value }))} />
+                <Input
+                  type="date"
+                  value={form.nextServiceDate}
+                  onChange={(e) =>
+                    setForm((p) => ({ ...p, nextServiceDate: e.target.value }))
+                  }
+                />
               </div>
             </div>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label>Piese consumate</Label>
-                <Button type="button" size="sm" variant="outline" onClick={addPart}>+ Adaugă piesă</Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={addPart}
+                >
+                  + Adaugă piesă
+                </Button>
               </div>
               {form.partsUsed.map((pu) => (
                 <div key={pu.id} className="flex flex-col sm:flex-row gap-2">
-                  <Select value={pu.partId} onValueChange={(v) => updatePart(pu.id, "partId", v)}>
+                  <Select
+                    value={pu.partId}
+                    onValueChange={(v) => updatePart(pu.id, "partId", v)}
+                  >
                     <SelectTrigger className="flex-1">
                       <SelectValue placeholder="Selectează piesă..." />
                     </SelectTrigger>
                     <SelectContent>
                       {parts.map((p) => (
-                        <SelectItem key={p.id} value={p.id}>{p.name} ({p.unitPrice} RON)</SelectItem>
+                        <SelectItem key={p.id} value={p.id}>
+                          {p.name} ({p.unitPrice} RON)
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  <Input type="number" min={1} value={pu.quantity} onChange={(e) => updatePart(pu.id, "quantity", Number(e.target.value))} className="sm:w-24" />
-                  <Button type="button" size="sm" variant="destructive" onClick={() => removePart(pu.id)}>✕</Button>
+                  <Input
+                    type="number"
+                    min={1}
+                    value={pu.quantity}
+                    onChange={(e) =>
+                      updatePart(pu.id, "quantity", Number(e.target.value))
+                    }
+                    className="sm:w-24"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => removePart(pu.id)}
+                  >
+                    ✕
+                  </Button>
                 </div>
               ))}
               {form.partsUsed.length > 0 && (
-                <p className="text-sm font-semibold text-right">Cost total: {totalCost.toLocaleString("ro-RO")} RON</p>
+                <p className="text-sm font-semibold text-right">
+                  Cost total: {totalCost.toLocaleString("ro-RO")} RON
+                </p>
               )}
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Anulează</Button>
-            <Button onClick={handleSubmit} disabled={!form.truckId || !form.date}>Salvează</Button>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Anulează
+            </Button>
+            <Button
+              onClick={handleSubmit}
+              disabled={!form.truckId || !form.date}
+            >
+              Salvează
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

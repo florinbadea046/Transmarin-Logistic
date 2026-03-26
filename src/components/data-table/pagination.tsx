@@ -5,6 +5,7 @@ import {
   DoubleArrowRightIcon,
 } from "@radix-ui/react-icons";
 import { type Table } from "@tanstack/react-table";
+import { useTranslation } from "react-i18next";
 import { cn, getPageNumbers } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +27,7 @@ export function DataTablePagination<TData>({
   className,
   pageSizes = [10, 20, 50],
 }: DataTablePaginationProps<TData>) {
+  const { t } = useTranslation();
   const currentPage = table.getState().pagination.pageIndex + 1;
   const totalPages = table.getPageCount();
   const pageNumbers = getPageNumbers(currentPage, totalPages);
@@ -57,17 +59,17 @@ export function DataTablePagination<TData>({
             </SelectContent>
           </Select>
 
-          <p className="text-sm font-medium">Rows per page</p>
+          <p className="text-sm font-medium">{t("table.rowsPerPage")}</p>
         </div>
 
         <div className="text-sm font-medium text-muted-foreground sm:hidden">
-          Page {currentPage} of {totalPages}
+          {t("table.pageOf", { page: currentPage, total: totalPages })}
         </div>
       </div>
 
       <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end">
         <div className="hidden text-sm font-medium text-muted-foreground sm:block">
-          Page {currentPage} of {totalPages}
+          {t("table.pageOf", { page: currentPage, total: totalPages })}
         </div>
 
         <div className="flex max-w-full items-center gap-2 overflow-x-auto py-1">

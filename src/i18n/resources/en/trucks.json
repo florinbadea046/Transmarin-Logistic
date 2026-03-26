@@ -1,0 +1,130 @@
+{
+  "trucks": {
+    "title": "Trucks",
+    "add": "Add Truck",
+    "edit": "Edit Truck",
+    "save": "Save",
+    "cancel": "Cancel",
+    "noResults": "No trucks found for the current filter.",
+    "toastAdded": "Truck has been added.",
+    "toastUpdated": "Truck has been updated.",
+    "toastDeleted": "Truck has been deleted.",
+    "confirmDelete": "This action is irreversible. The truck will be permanently deleted and the associated driver will be automatically unassigned.",
+    "confirmDeleteTitle": "Are you sure?",
+    "assignTitle": "Assign Driver - {{plateNumber}}",
+    "toastAssigned": "Assignment saved.",
+    "toastUnassigned": "Truck has been unassigned.",
+    "fields": {
+      "plateNumber": "License plate",
+      "brand": "Brand",
+      "model": "Model",
+      "year": "Year",
+      "mileage": "Mileage",
+      "status": "Status",
+      "itpExpiry": "ITP Expiry",
+      "rcaExpiry": "RCA Expiry",
+      "vignetteExpiry": "Vignette Expiry"
+    },
+    "placeholders": {
+      "plateNumber": "e.g. CT-01-TML",
+      "brand": "e.g. Volvo",
+      "model": "e.g. FH16",
+      "year": "e.g. 2021",
+      "mileage": "e.g. 320000",
+      "search": "Search trucks...",
+      "noDriver": "No driver",
+      "selectDriver": "No driver"
+    },
+    "validation": {
+      "plateNumberInvalid": "Invalid format. Example: CT-01-TML",
+      "brandMin": "Brand must be at least 2 characters.",
+      "modelRequired": "Model is required.",
+      "yearRange": "Year must be between 1990 and {{max}}.",
+      "mileagePositive": "Mileage must be a positive number.",
+      "itpExpiryRequired": "ITP expiry date is required.",
+      "rcaExpiryRequired": "RCA expiry date is required.",
+      "vignetteExpiryRequired": "Vignette expiry date is required."
+    },
+    "status": {
+      "available": "Available",
+      "on_trip": "On trip",
+      "in_service": "In service"
+    },
+    "actions": {
+      "add": "Add",
+      "edit": "Edit truck",
+      "delete": "Delete truck",
+      "assign": "Assign driver",
+      "cancel": "Cancel",
+      "confirm": "Delete",
+      "save": "Save",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV"
+    },
+    "columns": {
+      "plateNumber": "Truck",
+      "status": "Status",
+      "itpExpiry": "ITP",
+      "rcaExpiry": "RCA",
+      "vignetteExpiry": "Vignette",
+      "driver": "Driver",
+      "actions": "Actions"
+    },
+    "card": {
+      "status": "Status",
+      "driver": "Driver",
+      "mileage": "Km",
+      "itp": "ITP",
+      "rca": "RCA",
+      "vignette": "Vignette"
+    },
+    "assign": {
+      "selectDriver": "Select driver",
+      "hasTrack": " (has truck)"
+    },
+    "deleteDisabledTooltip": "Cannot delete a truck that is on a trip",
+    "export": {
+      "pdfTitle": "Trucks List",
+      "filename": "trucks"
+    },
+    "import": {
+      "title": "Import Trucks from CSV",
+      "button": "Import CSV",
+      "dropzone": "Drag & drop a CSV file or click to browse",
+      "dropzoneHint": "Columns: Plate (XX-NN-XXX), Brand, Model, Year, Mileage, ITP (yyyy-MM-dd), RCA (yyyy-MM-dd), Vignette (yyyy-MM-dd)",
+      "validCount": "{{count}} valid row(s)",
+      "invalidCount": "{{count}} invalid row(s)",
+      "duplicateCount": "{{count}} duplicate(s)",
+      "errorsCol": "Errors",
+      "errorPlate": "Invalid plate number (e.g. CT-01-TML)",
+      "errorBrand": "Invalid brand (min 2 characters)",
+      "errorModel": "Model is required",
+      "errorYear": "Invalid year (1990 - current year)",
+      "errorMileage": "Invalid mileage",
+      "errorItp": "Invalid ITP date (yyyy-MM-dd)",
+      "errorRca": "Invalid RCA date (yyyy-MM-dd)",
+      "errorVignette": "Invalid Vignette date (yyyy-MM-dd)",
+      "duplicate": "Duplicate (plate number)",
+      "confirm": "Import {{count}} truck(s)",
+      "toastSuccess": "{{count}} truck(s) imported successfully.",
+      "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
+      "toastAllSkipped": "No trucks imported - all rows are duplicates."
+    }
+  },
+  "expiry": {
+    "alerts": {
+      "driversTitle": "Expired or soon-to-expire driver licenses:",
+      "trucksTitle": "Expired or soon-to-expire truck documents:",
+      "expired": "license EXPIRED",
+      "expiresIn": "expires in {{days}} day{{plural}} ({{date}})",
+      "itpExpired": "ITP EXPIRED",
+      "itpExpires": "ITP expires {{date}}",
+      "rcaExpired": "RCA EXPIRED",
+      "rcaExpires": "RCA expires {{date}}",
+      "vignetteExpired": "Vignette EXPIRED",
+      "vignetteExpires": "Vignette expires {{date}}"
+    }
+  }
+}

@@ -1,0 +1,135 @@
+{
+  "reports": {
+    "title": "Rapoarte Avansate",
+    "selectInterval": "Selecteaza interval",
+    "reset": "Reseteaza",
+    "exportPdf": "Export PDF",
+    "exporting": "Se genereaza...",
+    "noData": "Nu exista date pentru intervalul selectat.",
+    "charts": {
+      "kmPerDriver": "Km per sofer",
+      "fuelPerMonth": "Costuri combustibil pe luna",
+      "topRoutes": "Top 5 rute frecvente",
+      "truckUtilization": "Rata utilizare camioane"
+    },
+    "pdf": {
+      "title": "Raport Avansat - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generat",
+      "allData": "Toate datele",
+      "kmPerDriver": "Km per sofer",
+      "fuelPerMonth": "Costuri combustibil pe luna",
+      "topRoutes": "Top 5 rute frecvente",
+      "truckUtilization": "Rata utilizare camioane",
+      "driver": "Sofer",
+      "totalKm": "Total km",
+      "month": "Luna",
+      "cost": "Cost (RON)",
+      "route": "Ruta",
+      "orderCount": "Nr. comenzi",
+      "truck": "Camion",
+      "utilization": "Utilizare (%)",
+      "filename": "raport-avansat"
+    },
+    "tooltip": {
+      "km": "Total km",
+      "cost": "Cost",
+      "utilization": "Utilizare"
+    }
+  },
+  "transportReports": {
+    "title": "Rapoarte Transport",
+    "subtitle": "Analiza curse, soferi si costuri combustibil",
+    "exportPdf": "Export PDF",
+    "exporting": "Se genereaza...",
+    "noData": "Nu exista date pentru filtrele selectate.",
+    "filters": {
+      "selectInterval": "Selecteaza interval",
+      "allDrivers": "Toti soferii",
+      "allTrucks": "Toate camioanele",
+      "reset": "Reseteaza filtre",
+      "tripCount": "{{count}} curse"
+    },
+    "kpi": {
+      "totalKm": "Total km",
+      "avgCostPerTrip": "Cost mediu/cursa",
+      "completedTrips": "Curse finalizate",
+      "totalFuel": "Cost combustibil"
+    },
+    "charts": {
+      "kmPerDriver": "Km per sofer",
+      "fuelPerMonth": "Cost combustibil per luna",
+      "topRoutes": "Top 5 rute frecvente",
+      "truckUtil": "Rata utilizare camioane"
+    },
+    "pdf": {
+      "title": "Raport Transport - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generat",
+      "allData": "Toate datele",
+      "driver": "Sofer",
+      "totalKm": "Total km",
+      "month": "Luna",
+      "cost": "Cost (RON)",
+      "route": "Ruta",
+      "tripCount": "Nr. curse",
+      "truck": "Camion",
+      "utilization": "Utilizare (%)",
+      "filename": "raport-transport"
+    }
+  },
+  "financialReports": {
+    "title": "Rapoarte Financiare",
+    "filters": "Filtre",
+    "from": "De la",
+    "to": "Pana la",
+    "pickDate": "Alege data...",
+    "totalIncome": "Total Venituri",
+    "totalExpenses": "Total Cheltuieli",
+    "balance": "Balanta",
+    "invoiceCount": "Nr. Facturi",
+    "monthlyBreakdown": "Breakdown pe luni",
+    "month": "Luna",
+    "income": "Venituri",
+    "expenses": "Cheltuieli",
+    "noResults": "Niciun rezultat",
+    "invoiceNr": "Nr. Factura",
+    "type": "Tip",
+    "client": "Client",
+    "date": "Data",
+    "total": "Total",
+    "status": "Status",
+    "typeIncome": "Venit",
+    "typeExpense": "Cheltuiala",
+    "statusPaid": "Platita",
+    "statusPending": "In asteptare"
+  },
+  "fleetReports": {
+    "title": "Rapoarte Parc Auto",
+    "serviceCost": "Cost Service",
+    "fuelCost": "Cost Combustibil",
+    "totalCost": "Cost Total",
+    "costPerVehicle": "Cost per Vehicul",
+    "searchTruck": "Cauta camion...",
+    "allTrucks": "Toate camioanele",
+    "allMonths": "Toate lunile",
+    "sortBy": "Sorteaza dupa...",
+    "sortTotalCost": "Sortare: Cost Total",
+    "sortFuelCost": "Sortare: Cost Combustibil",
+    "sortServiceCost": "Sortare: Cost Service",
+    "truck": "Camion",
+    "interventions": "Interventii",
+    "fuelLiters": "Combustibil (L)",
+    "avgConsumption": "Consum Mediu",
+    "fuel": "Combustibil",
+    "topCost": "Top cost",
+    "noData": "Nu exista date pentru filtrele selectate.",
+    "pagination": "{{from}}–{{to}} din {{total}} vehicule",
+    "months": {
+      "jan": "Ianuarie", "feb": "Februarie", "mar": "Martie",
+      "apr": "Aprilie", "may": "Mai", "jun": "Iunie",
+      "jul": "Iulie", "aug": "August", "sep": "Septembrie",
+      "oct": "Octombrie", "nov": "Noiembrie", "dec": "Decembrie"
+    }
+  }
+}

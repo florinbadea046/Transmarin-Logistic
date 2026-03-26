@@ -1,8 +1,4 @@
-// ──────────────────────────────────────────────────────────
-// TrucksSection — card Camioane cu tabel, CRUD complet
-// și dialog asociere șofer ↔ camion.
-// La ștergere camion, șoferul asociat este dezasociat automat.
-// ──────────────────────────────────────────────────────────
+// trucks-section.tsx cu Export PDF/Excel/CSV + Import CSV
 
 import * as React from "react";
 import {
@@ -18,8 +14,24 @@ import {
   type VisibilityState,
   useReactTable,
 } from "@tanstack/react-table";
-import { Link, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Link,
+  Pencil,
+  Plus,
+  Trash2,
+  Upload,
+  Download,
+  X,
+  AlertTriangle,
+  CheckCircle2,
+  FileText,
+} from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
+import Papa from "papaparse";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -41,6 +53,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -50,36 +68,523 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 
 import type { Driver, Truck } from "@/modules/transport/types";
-import { addItem, generateId, removeItem, updateItem } from "@/utils/local-storage";
+import {
+  addItem,
+  generateId,
+  getCollection,
+  removeItem,
+  updateItem,
+} from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import useDialogState from "@/hooks/use-dialog-state";
+import { useMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 import { CardRow, EntityTable, ExpiryCell } from "./transport-shared";
 
-// ── Constante ──────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────
 
-const TRUCK_STATUS_LABELS: Record<Truck["status"], string> = {
-  available: "Disponibil",
-  on_trip: "În cursă",
-  in_service: "În service",
-};
+const PLATE_REGEX = /^[A-Z]{1,2}-\d{2,3}-[A-Z]{2,3}$/;
 
 const TRUCK_STATUS_CLASS: Record<Truck["status"], string> = {
-  available: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200",
-  on_trip: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200",
-  in_service: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200",
+  available:
+    "bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200",
+  on_trip:
+    "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900 dark:text-yellow-200",
+  in_service:
+    "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200",
 };
 
-const statusFilterOptions = (Object.keys(TRUCK_STATUS_LABELS) as Truck["status"][]).map(
-  (value) => ({ value, label: TRUCK_STATUS_LABELS[value] }),
-);
+function stripD(s: unknown): string {
+  return String(s ?? "")
+    .replace(/[ăĂ]/g, (c) => (c === "a" ? "a" : "A"))
+    .replace(/[âÂ]/g, (c) => (c === "a" ? "a" : "A"))
+    .replace(/[îÎ]/g, (c) => (c === "i" ? "i" : "I"))
+    .replace(/[șşŞ]/g, () => "s")
+    .replace(/[ȘŠ]/g, () => "S")
+    .replace(/[țţŢ]/g, () => "t")
+    .replace(/[ȚŤ]/g, () => "T");
+}
 
-// Regex număr înmatriculare: XX-NN-XXX (ex. CT-01-TML)
-const PLATE_REGEX = /^[A-Z]{1,2}-\d{2,3}-[A-Z]{2,3}$/;
+// ── Export Camioane ────────────────────────────────────────
+
+function exportTrucksPDF(
+  trucks: Truck[],
+  drivers: Driver[],
+  t: (k: string) => string,
+) {
+  const doc = new jsPDF();
+  doc.setFontSize(14);
+  doc.text(stripD(t("trucks.export.pdfTitle")), 14, 16);
+  autoTable(doc, {
+    head: [
+      [
+        t("trucks.columns.plateNumber"),
+        t("trucks.fields.brand"),
+        t("trucks.fields.model"),
+        t("trucks.fields.year"),
+        t("trucks.columns.status"),
+        t("trucks.columns.itpExpiry"),
+        t("trucks.columns.rcaExpiry"),
+        t("trucks.columns.vignetteExpiry"),
+        t("trucks.columns.driver"),
+      ].map(stripD),
+    ],
+    body: trucks.map((tr) => {
+      const driver = drivers.find((d) => d.truckId === tr.id);
+      return [
+        tr.plateNumber,
+        tr.brand,
+        tr.model,
+        String(tr.year),
+        t(`trucks.status.${tr.status}`),
+        tr.itpExpiry,
+        tr.rcaExpiry,
+        tr.vignetteExpiry,
+        driver?.name ?? "—",
+      ].map(stripD);
+    }),
+    startY: 22,
+    styles: { fontSize: 7 },
+    headStyles: { fillColor: [30, 30, 30] },
+  });
+  doc.save(`${t("trucks.export.filename")}.pdf`);
+}
+
+function exportTrucksExcel(
+  trucks: Truck[],
+  drivers: Driver[],
+  t: (k: string) => string,
+) {
+  const rows = trucks.map((tr) => {
+    const driver = drivers.find((d) => d.truckId === tr.id);
+    return {
+      [t("trucks.columns.plateNumber")]: tr.plateNumber,
+      [t("trucks.fields.brand")]: tr.brand,
+      [t("trucks.fields.model")]: tr.model,
+      [t("trucks.fields.year")]: tr.year,
+      [t("trucks.columns.status")]: t(`trucks.status.${tr.status}`),
+      [t("trucks.columns.itpExpiry")]: tr.itpExpiry,
+      [t("trucks.columns.rcaExpiry")]: tr.rcaExpiry,
+      [t("trucks.columns.vignetteExpiry")]: tr.vignetteExpiry,
+      [t("trucks.columns.driver")]: driver?.name ?? "—",
+    };
+  });
+  const ws = XLSX.utils.json_to_sheet(rows);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Camioane");
+  XLSX.writeFile(wb, `${t("trucks.export.filename")}.xlsx`);
+}
+
+function exportTrucksCSV(
+  trucks: Truck[],
+  drivers: Driver[],
+  t: (k: string) => string,
+) {
+  const rows = trucks.map((tr) => {
+    const driver = drivers.find((d) => d.truckId === tr.id);
+    return {
+      [t("trucks.columns.plateNumber")]: tr.plateNumber,
+      [t("trucks.fields.brand")]: tr.brand,
+      [t("trucks.fields.model")]: tr.model,
+      [t("trucks.fields.year")]: tr.year,
+      [t("trucks.columns.status")]: t(`trucks.status.${tr.status}`),
+      [t("trucks.columns.itpExpiry")]: tr.itpExpiry,
+      [t("trucks.columns.rcaExpiry")]: tr.rcaExpiry,
+      [t("trucks.columns.vignetteExpiry")]: tr.vignetteExpiry,
+      [t("trucks.columns.driver")]: driver?.name ?? "—",
+    };
+  });
+  const csv = Papa.unparse(rows);
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${t("trucks.export.filename")}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── Import Camioane ────────────────────────────────────────
+
+const TRUCK_COL_MAP: Record<string, string> = {
+  "numar inmatriculare": "plateNumber",
+  platenumber: "plateNumber",
+  plate: "plateNumber",
+  numar: "plateNumber",
+  marca: "brand",
+  brand: "brand",
+  model: "model",
+  an: "year",
+  "an fabricatie": "year",
+  year: "year",
+  kilometraj: "mileage",
+  mileage: "mileage",
+  km: "mileage",
+  itp: "itpExpiry",
+  "expirare itp": "itpExpiry",
+  itpexpiry: "itpExpiry",
+  rca: "rcaExpiry",
+  "expirare rca": "rcaExpiry",
+  rcaexpiry: "rcaExpiry",
+  vigneta: "vignetteExpiry",
+  "expirare vigneta": "vignetteExpiry",
+  vignetteexpiry: "vignetteExpiry",
+};
+
+interface TruckParsedRow {
+  mapped: Partial<Truck>;
+  errors: string[];
+  isDuplicate: boolean;
+  rowIndex: number;
+}
+
+function parseTruckRows(
+  raw: Record<string, string>[],
+  existing: Truck[],
+  t: (k: string) => string,
+): TruckParsedRow[] {
+  return raw.map((row, i) => {
+    const errors: string[] = [];
+    const mapped: Partial<Truck> = {};
+
+    for (const [col, val] of Object.entries(row)) {
+      const key = TRUCK_COL_MAP[col.trim().toLowerCase()];
+      if (key) (mapped as Record<string, unknown>)[key] = val.trim();
+    }
+
+    const plate = (mapped.plateNumber ?? "").toUpperCase();
+    if (!plate || !PLATE_REGEX.test(plate))
+      errors.push(t("trucks.import.errorPlate"));
+    else mapped.plateNumber = plate;
+
+    if (!mapped.brand || String(mapped.brand).trim().length < 2)
+      errors.push(t("trucks.import.errorBrand"));
+    if (!mapped.model) errors.push(t("trucks.import.errorModel"));
+
+    const year = Number(mapped.year);
+    if (
+      !mapped.year ||
+      isNaN(year) ||
+      year < 1990 ||
+      year > new Date().getFullYear()
+    )
+      errors.push(t("trucks.import.errorYear"));
+    else (mapped as Record<string, unknown>).year = year;
+
+    const mileage = Number(mapped.mileage);
+    if (mapped.mileage !== undefined && (isNaN(mileage) || mileage < 0))
+      errors.push(t("trucks.import.errorMileage"));
+    else if (mapped.mileage !== undefined)
+      (mapped as Record<string, unknown>).mileage = mileage;
+
+    const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+    if (!mapped.itpExpiry || !dateRe.test(mapped.itpExpiry))
+      errors.push(t("trucks.import.errorItp"));
+    if (!mapped.rcaExpiry || !dateRe.test(mapped.rcaExpiry))
+      errors.push(t("trucks.import.errorRca"));
+    if (!mapped.vignetteExpiry || !dateRe.test(mapped.vignetteExpiry))
+      errors.push(t("trucks.import.errorVignette"));
+
+    const isDuplicate = existing.some(
+      (e) => e.plateNumber.toLowerCase() === plate.toLowerCase(),
+    );
+
+    return { mapped, errors, isDuplicate, rowIndex: i + 1 };
+  });
+}
+
+function TruckImportDialog({
+  open,
+  onOpenChange,
+  onImported,
+  isMobile,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onImported: () => void;
+  isMobile: boolean;
+}) {
+  const { t } = useTranslation();
+  const inputRef = React.useRef<HTMLInputElement>(null);
+  const [rows, setRows] = React.useState<TruckParsedRow[]>([]);
+  const [fileName, setFileName] = React.useState("");
+  const [existing, setExisting] = React.useState<Truck[]>([]);
+
+  React.useEffect(() => {
+    if (!open) return;
+    setExisting(getCollection<Truck>(STORAGE_KEYS.trucks));
+  }, [open]);
+
+  const validRows = rows.filter((r) => r.errors.length === 0 && !r.isDuplicate);
+  const invalidRows = rows.filter((r) => r.errors.length > 0);
+  const duplicateRows = rows.filter(
+    (r) => r.errors.length === 0 && r.isDuplicate,
+  );
+
+  const handleFile = (file: File) => {
+    setFileName(file.name);
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (res) =>
+        setRows(
+          parseTruckRows(res.data as Record<string, string>[], existing, t),
+        ),
+    });
+  };
+
+  const handleConfirm = () => {
+    let added = 0;
+    for (const row of validRows) {
+      addItem<Truck>(STORAGE_KEYS.trucks, {
+        id: generateId(),
+        plateNumber: row.mapped.plateNumber ?? "",
+        brand: String(row.mapped.brand ?? ""),
+        model: String(row.mapped.model ?? ""),
+        year: ((row.mapped as Record<string, unknown>).year as number) ?? 0,
+        mileage:
+          ((row.mapped as Record<string, unknown>).mileage as number) ?? 0,
+        status: "available",
+        itpExpiry: row.mapped.itpExpiry ?? "",
+        rcaExpiry: row.mapped.rcaExpiry ?? "",
+        vignetteExpiry: row.mapped.vignetteExpiry ?? "",
+      });
+      added++;
+    }
+    const skipped = duplicateRows.length;
+    if (added > 0 && skipped > 0)
+      toast.success(t("trucks.import.toastPartial", { added, skipped }));
+    else if (added > 0)
+      toast.success(t("trucks.import.toastSuccess", { count: added }));
+    else toast.info(t("trucks.import.toastAllSkipped"));
+    onImported();
+    onOpenChange(false);
+    setRows([]);
+    setFileName("");
+  };
+
+  const reset = () => {
+    setRows([]);
+    setFileName("");
+  };
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        onOpenChange(v);
+        if (!v) reset();
+      }}
+    >
+      <DialogContent
+        className={cn(
+          "flex flex-col gap-4",
+          isMobile ? "max-w-[calc(100vw-2rem)] p-4" : "max-w-2xl",
+        )}
+      >
+        <DialogHeader>
+          <DialogTitle>{t("trucks.import.title")}</DialogTitle>
+        </DialogHeader>
+
+        {rows.length === 0 ? (
+          <div
+            className="flex flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-muted/30 transition-colors text-muted-foreground"
+            onClick={() => inputRef.current?.click()}
+            onDrop={(e) => {
+              e.preventDefault();
+              const f = e.dataTransfer.files?.[0];
+              if (f?.name.endsWith(".csv")) handleFile(f);
+            }}
+            onDragOver={(e) => e.preventDefault()}
+          >
+            <Upload className="h-8 w-8 opacity-40" />
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                {t("trucks.import.dropzone")}
+              </p>
+              <p className="text-xs mt-1">{t("trucks.import.dropzoneHint")}</p>
+            </div>
+            <input
+              ref={inputRef}
+              type="file"
+              accept=".csv"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) handleFile(f);
+                e.target.value = "";
+              }}
+            />
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/30 px-3 py-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
+                <span className="text-sm truncate">{fileName}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7 shrink-0"
+                onClick={reset}
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+
+            <div
+              className={cn(
+                "grid gap-2",
+                isMobile ? "grid-cols-1" : "grid-cols-3",
+              )}
+            >
+              <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 dark:bg-green-950 px-3 py-2">
+                <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
+                <span className="text-sm">
+                  {t("trucks.import.validCount", { count: validRows.length })}
+                </span>
+              </div>
+              <div
+                className={cn(
+                  "flex items-center gap-2 rounded-lg border px-3 py-2",
+                  invalidRows.length > 0
+                    ? "border-red-200 bg-red-50 dark:bg-red-950"
+                    : "border-muted bg-muted/30",
+                )}
+              >
+                <AlertTriangle
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    invalidRows.length > 0
+                      ? "text-red-600"
+                      : "text-muted-foreground",
+                  )}
+                />
+                <span className="text-sm">
+                  {t("trucks.import.invalidCount", {
+                    count: invalidRows.length,
+                  })}
+                </span>
+              </div>
+              <div
+                className={cn(
+                  "flex items-center gap-2 rounded-lg border px-3 py-2",
+                  duplicateRows.length > 0
+                    ? "border-yellow-200 bg-yellow-50 dark:bg-yellow-950"
+                    : "border-muted bg-muted/30",
+                )}
+              >
+                <AlertTriangle
+                  className={cn(
+                    "h-4 w-4 shrink-0",
+                    duplicateRows.length > 0
+                      ? "text-yellow-600"
+                      : "text-muted-foreground",
+                  )}
+                />
+                <span className="text-sm">
+                  {t("trucks.import.duplicateCount", {
+                    count: duplicateRows.length,
+                  })}
+                </span>
+              </div>
+            </div>
+
+            <ScrollArea className="h-[200px] rounded-lg border">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-8">#</TableHead>
+                      <TableHead className="min-w-[120px]">
+                        {t("trucks.columns.plateNumber")}
+                      </TableHead>
+                      <TableHead className="min-w-[100px] hidden sm:table-cell">
+                        {t("trucks.fields.brand")}
+                      </TableHead>
+                      <TableHead className="min-w-[200px]">
+                        {t("trucks.import.errorsCol")}
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {rows.map((row) => (
+                      <TableRow
+                        key={row.rowIndex}
+                        className={cn(
+                          row.errors.length > 0
+                            ? "bg-red-50 dark:bg-red-950/30"
+                            : row.isDuplicate
+                              ? "bg-yellow-50 dark:bg-yellow-950/30"
+                              : "",
+                        )}
+                      >
+                        <TableCell className="text-xs text-muted-foreground">
+                          {row.rowIndex}
+                        </TableCell>
+                        <TableCell className="text-sm font-medium whitespace-nowrap">
+                          {row.mapped.plateNumber ?? "—"}
+                        </TableCell>
+                        <TableCell className="hidden sm:table-cell text-sm whitespace-nowrap">
+                          {String(row.mapped.brand ?? "—")}
+                        </TableCell>
+                        <TableCell className="text-xs whitespace-nowrap">
+                          {row.errors.length > 0 ? (
+                            <span className="text-red-600">
+                              {row.errors.join(", ")}
+                            </span>
+                          ) : row.isDuplicate ? (
+                            <span className="text-yellow-600">
+                              {t("trucks.import.duplicate")}
+                            </span>
+                          ) : (
+                            <span className="text-green-600">✓</span>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+
+        <DialogFooter className={cn(isMobile && "flex-col gap-2")}>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className={cn(isMobile && "w-full")}
+          >
+            {t("trucks.cancel")}
+          </Button>
+          {rows.length > 0 && validRows.length > 0 && (
+            <Button
+              onClick={handleConfirm}
+              className={cn(isMobile && "w-full")}
+            >
+              {t("trucks.import.confirm", { count: validRows.length })}
+            </Button>
+          )}
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 // ── Tipuri formular ────────────────────────────────────────
 
@@ -94,7 +599,6 @@ interface TruckFormData {
   rcaExpiry: string;
   vignetteExpiry: string;
 }
-
 interface TruckFormErrors {
   plateNumber?: string;
   brand?: string;
@@ -105,30 +609,6 @@ interface TruckFormErrors {
   rcaExpiry?: string;
   vignetteExpiry?: string;
 }
-
-function validateTruckForm(data: TruckFormData): TruckFormErrors {
-  const errors: TruckFormErrors = {};
-  if (!data.plateNumber || !PLATE_REGEX.test(data.plateNumber.trim().toUpperCase()))
-    errors.plateNumber = "Format invalid. Exemplu: CT-01-TML";
-  if (!data.brand || data.brand.trim().length < 2)
-    errors.brand = "Marca trebuie să aibă minim 2 caractere.";
-  if (!data.model || data.model.trim().length < 1)
-    errors.model = "Modelul este obligatoriu.";
-  const year = Number(data.year);
-  if (!data.year || isNaN(year) || year < 1990 || year > new Date().getFullYear())
-    errors.year = `Anul trebuie să fie între 1990 și ${new Date().getFullYear()}.`;
-  const mileage = Number(data.mileage);
-  if (!data.mileage || isNaN(mileage) || mileage < 0)
-    errors.mileage = "Kilometrajul trebuie să fie un număr pozitiv.";
-  if (!data.itpExpiry)
-    errors.itpExpiry = "Data expirării ITP este obligatorie.";
-  if (!data.rcaExpiry)
-    errors.rcaExpiry = "Data expirării RCA este obligatorie.";
-  if (!data.vignetteExpiry)
-    errors.vignetteExpiry = "Data expirării vignetei este obligatorie.";
-  return errors;
-}
-
 const EMPTY_FORM: TruckFormData = {
   plateNumber: "",
   brand: "",
@@ -141,7 +621,7 @@ const EMPTY_FORM: TruckFormData = {
   vignetteExpiry: "",
 };
 
-// ── TruckMobileCard ────────────────────────────────────────
+// ── Mobile Card ────────────────────────────────────────────
 
 function TruckMobileCard({
   truck,
@@ -156,6 +636,7 @@ function TruckMobileCard({
   onDelete: () => void;
   onAssign: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="rounded-lg border bg-card p-4 shadow-sm space-y-3">
       <div className="flex items-start justify-between gap-2">
@@ -166,17 +647,27 @@ function TruckMobileCard({
           </p>
         </div>
         <div className="flex shrink-0 gap-1">
-          <Button variant="ghost" size="icon" onClick={onAssign} aria-label="Asociere șofer">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onAssign}
+            aria-label={t("trucks.actions.assign")}
+          >
             <Link className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={onEdit} aria-label="Editează camion">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onEdit}
+            aria-label={t("trucks.actions.edit")}
+          >
             <Pencil className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="icon"
             onClick={onDelete}
-            aria-label="Șterge camion"
+            aria-label={t("trucks.actions.delete")}
             className="text-red-500 hover:text-red-600"
             disabled={truck.status === "on_trip"}
           >
@@ -185,26 +676,28 @@ function TruckMobileCard({
         </div>
       </div>
       <div className="space-y-1.5">
-        <CardRow label="Status">
+        <CardRow label={t("trucks.card.status")}>
           <Badge variant="outline" className={TRUCK_STATUS_CLASS[truck.status]}>
-            {TRUCK_STATUS_LABELS[truck.status]}
+            {t(`trucks.status.${truck.status}`)}
           </Badge>
         </CardRow>
-        <CardRow label="Șofer">
-          {driver
-            ? <span>{driver.name}</span>
-            : <span className="text-muted-foreground">—</span>}
+        <CardRow label={t("trucks.card.driver")}>
+          {driver ? (
+            <span>{driver.name}</span>
+          ) : (
+            <span className="text-muted-foreground">—</span>
+          )}
         </CardRow>
-        <CardRow label="Km">
+        <CardRow label={t("trucks.card.mileage")}>
           <span>{truck.mileage.toLocaleString("ro-RO")}</span>
         </CardRow>
-        <CardRow label="ITP">
+        <CardRow label={t("trucks.card.itp")}>
           <ExpiryCell dateStr={truck.itpExpiry} />
         </CardRow>
-        <CardRow label="RCA">
+        <CardRow label={t("trucks.card.rca")}>
           <ExpiryCell dateStr={truck.rcaExpiry} />
         </CardRow>
-        <CardRow label="Vignetă">
+        <CardRow label={t("trucks.card.vignette")}>
           <ExpiryCell dateStr={truck.vignetteExpiry} />
         </CardRow>
       </div>
@@ -212,7 +705,7 @@ function TruckMobileCard({
   );
 }
 
-// ── TruckDialog ────────────────────────────────────────────
+// ── Dialog CRUD ────────────────────────────────────────────
 
 function TruckDialog({
   open,
@@ -231,20 +724,23 @@ function TruckDialog({
   onFormChange: (patch: Partial<TruckFormData>) => void;
   onSubmit: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>{editingTruck ? "Editează Camion" : "Adaugă Camion"}</DialogTitle>
+          <DialogTitle>
+            {editingTruck ? t("trucks.edit") : t("trucks.add")}
+          </DialogTitle>
         </DialogHeader>
-
         <div className="grid grid-cols-1 gap-4 py-2 sm:grid-cols-2">
-          {/* Număr înmatriculare — full width */}
           <div className="space-y-1 sm:col-span-2">
-            <Label htmlFor="plateNumber">Număr înmatriculare</Label>
+            <Label htmlFor="plateNumber">
+              {t("trucks.fields.plateNumber")}
+            </Label>
             <Input
               id="plateNumber"
-              placeholder="ex. CT-01-TML"
+              placeholder={t("trucks.placeholders.plateNumber")}
               value={form.plateNumber}
               onChange={(e) =>
                 onFormChange({ plateNumber: e.target.value.toUpperCase() })
@@ -254,13 +750,11 @@ function TruckDialog({
               <p className="text-xs text-red-500">{errors.plateNumber}</p>
             )}
           </div>
-
-          {/* Marcă */}
           <div className="space-y-1">
-            <Label htmlFor="brand">Marcă</Label>
+            <Label htmlFor="brand">{t("trucks.fields.brand")}</Label>
             <Input
               id="brand"
-              placeholder="ex. Volvo"
+              placeholder={t("trucks.placeholders.brand")}
               value={form.brand}
               onChange={(e) => onFormChange({ brand: e.target.value })}
             />
@@ -268,13 +762,11 @@ function TruckDialog({
               <p className="text-xs text-red-500">{errors.brand}</p>
             )}
           </div>
-
-          {/* Model */}
           <div className="space-y-1">
-            <Label htmlFor="model">Model</Label>
+            <Label htmlFor="model">{t("trucks.fields.model")}</Label>
             <Input
               id="model"
-              placeholder="ex. FH16"
+              placeholder={t("trucks.placeholders.model")}
               value={form.model}
               onChange={(e) => onFormChange({ model: e.target.value })}
             />
@@ -282,14 +774,12 @@ function TruckDialog({
               <p className="text-xs text-red-500">{errors.model}</p>
             )}
           </div>
-
-          {/* An */}
           <div className="space-y-1">
-            <Label htmlFor="year">An fabricație</Label>
+            <Label htmlFor="year">{t("trucks.fields.year")}</Label>
             <Input
               id="year"
               type="number"
-              placeholder="ex. 2021"
+              placeholder={t("trucks.placeholders.year")}
               value={form.year}
               onChange={(e) => onFormChange({ year: e.target.value })}
             />
@@ -297,14 +787,12 @@ function TruckDialog({
               <p className="text-xs text-red-500">{errors.year}</p>
             )}
           </div>
-
-          {/* Kilometraj */}
           <div className="space-y-1">
-            <Label htmlFor="mileage">Kilometraj</Label>
+            <Label htmlFor="mileage">{t("trucks.fields.mileage")}</Label>
             <Input
               id="mileage"
               type="number"
-              placeholder="ex. 320000"
+              placeholder={t("trucks.placeholders.mileage")}
               value={form.mileage}
               onChange={(e) => onFormChange({ mileage: e.target.value })}
             />
@@ -312,26 +800,32 @@ function TruckDialog({
               <p className="text-xs text-red-500">{errors.mileage}</p>
             )}
           </div>
-
-          {/* Status — full width */}
           <div className="space-y-1 sm:col-span-2">
-            <Label htmlFor="truckStatus">Status</Label>
+            <Label htmlFor="truckStatus">{t("trucks.fields.status")}</Label>
             <Select
               value={form.status}
-              onValueChange={(val) => onFormChange({ status: val as Truck["status"] })}
+              onValueChange={(val) =>
+                onFormChange({ status: val as Truck["status"] })
+              }
             >
-              <SelectTrigger id="truckStatus"><SelectValue /></SelectTrigger>
+              <SelectTrigger id="truckStatus">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
-                <SelectItem value="available">Disponibil</SelectItem>
-                <SelectItem value="on_trip">În cursă</SelectItem>
-                <SelectItem value="in_service">În service</SelectItem>
+                <SelectItem value="available">
+                  {t("trucks.status.available")}
+                </SelectItem>
+                <SelectItem value="on_trip">
+                  {t("trucks.status.on_trip")}
+                </SelectItem>
+                <SelectItem value="in_service">
+                  {t("trucks.status.in_service")}
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
-
-          {/* ITP */}
           <div className="space-y-1">
-            <Label htmlFor="itpExpiry">Expirare ITP</Label>
+            <Label htmlFor="itpExpiry">{t("trucks.fields.itpExpiry")}</Label>
             <Input
               id="itpExpiry"
               type="date"
@@ -342,10 +836,8 @@ function TruckDialog({
               <p className="text-xs text-red-500">{errors.itpExpiry}</p>
             )}
           </div>
-
-          {/* RCA */}
           <div className="space-y-1">
-            <Label htmlFor="rcaExpiry">Expirare RCA</Label>
+            <Label htmlFor="rcaExpiry">{t("trucks.fields.rcaExpiry")}</Label>
             <Input
               id="rcaExpiry"
               type="date"
@@ -356,10 +848,10 @@ function TruckDialog({
               <p className="text-xs text-red-500">{errors.rcaExpiry}</p>
             )}
           </div>
-
-          {/* Vignetă — full width */}
           <div className="space-y-1 sm:col-span-2">
-            <Label htmlFor="vignetteExpiry">Expirare Vignetă</Label>
+            <Label htmlFor="vignetteExpiry">
+              {t("trucks.fields.vignetteExpiry")}
+            </Label>
             <Input
               id="vignetteExpiry"
               type="date"
@@ -371,13 +863,12 @@ function TruckDialog({
             )}
           </div>
         </div>
-
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Anulează
+            {t("trucks.cancel")}
           </Button>
           <Button onClick={onSubmit}>
-            {editingTruck ? "Salvează" : "Adaugă"}
+            {editingTruck ? t("trucks.save") : t("trucks.actions.add")}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -385,7 +876,7 @@ function TruckDialog({
   );
 }
 
-// ── AssignDialog ───────────────────────────────────────────
+// ── Assign Dialog ──────────────────────────────────────────
 
 function AssignDialog({
   open,
@@ -404,29 +895,38 @@ function AssignDialog({
   onDriverChange: (id: string) => void;
   onSubmit: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
-          <DialogTitle>Asociere Șofer — {truck?.plateNumber}</DialogTitle>
+          <DialogTitle>
+            {t("trucks.assignTitle", { plateNumber: truck?.plateNumber ?? "" })}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div className="space-y-1">
-            <Label htmlFor="assignDriver">Selectează șofer</Label>
+            <Label htmlFor="assignDriver">
+              {t("trucks.assign.selectDriver")}
+            </Label>
             <Select
               value={selectedDriverId || "none"}
               onValueChange={(val) => onDriverChange(val === "none" ? "" : val)}
             >
               <SelectTrigger id="assignDriver">
-                <SelectValue placeholder="Fără șofer" />
+                <SelectValue
+                  placeholder={t("trucks.placeholders.selectDriver")}
+                />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">Fără șofer</SelectItem>
-                {drivers.map((driver) => (
-                  <SelectItem key={driver.id} value={driver.id}>
-                    {driver.name}
-                    {driver.truckId && driver.truckId !== truck?.id
-                      ? " (are camion)"
+                <SelectItem value="none">
+                  {t("trucks.placeholders.noDriver")}
+                </SelectItem>
+                {drivers.map((d) => (
+                  <SelectItem key={d.id} value={d.id}>
+                    {d.name}
+                    {d.truckId && d.truckId !== truck?.id
+                      ? t("trucks.assign.hasTrack")
                       : ""}
                   </SelectItem>
                 ))}
@@ -436,9 +936,9 @@ function AssignDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Anulează
+            {t("trucks.actions.cancel")}
           </Button>
-          <Button onClick={onSubmit}>Salvează</Button>
+          <Button onClick={onSubmit}>{t("trucks.actions.save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -456,29 +956,62 @@ export function TrucksSection({
   trucks: Truck[];
   onDataChange: () => void;
 }) {
-  // Dialog CRUD
+  const { t } = useTranslation();
+  const isMobile = useMobile(640);
+
+  const statusFilterOptions = (
+    ["available", "on_trip", "in_service"] as Truck["status"][]
+  ).map((value) => ({ value, label: t(`trucks.status.${value}`) }));
+
   const [truckDialogOpen, setTruckDialogOpen] = useDialogState();
   const [editingTruck, setEditingTruck] = React.useState<Truck | null>(null);
   const [form, setForm] = React.useState<TruckFormData>(EMPTY_FORM);
   const [errors, setErrors] = React.useState<TruckFormErrors>({});
   const [deleteTruckId, setDeleteTruckId] = React.useState<string | null>(null);
-
-  // Dialog asociere
   const [assignDialogOpen, setAssignDialogOpen] = useDialogState();
-  const [assigningTruck, setAssigningTruck] = React.useState<Truck | null>(null);
+  const [assigningTruck, setAssigningTruck] = React.useState<Truck | null>(
+    null,
+  );
   const [selectedDriverId, setSelectedDriverId] = React.useState<string>("");
-
-  // TanStack state
+  const [importOpen, setImportOpen] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
 
   const getDriver = React.useCallback(
     (truck: Truck) => drivers.find((d) => d.truckId === truck.id),
     [drivers],
   );
 
-  // ── Handlers CRUD ──
+  function validateTruckForm(data: TruckFormData): TruckFormErrors {
+    const errs: TruckFormErrors = {};
+    if (
+      !data.plateNumber ||
+      !PLATE_REGEX.test(data.plateNumber.trim().toUpperCase())
+    )
+      errs.plateNumber = t("trucks.validation.plateNumberInvalid");
+    if (!data.brand || data.brand.trim().length < 2)
+      errs.brand = t("trucks.validation.brandMin");
+    if (!data.model || data.model.trim().length < 1)
+      errs.model = t("trucks.validation.modelRequired");
+    const year = Number(data.year);
+    const maxYear = new Date().getFullYear();
+    if (!data.year || isNaN(year) || year < 1990 || year > maxYear)
+      errs.year = t("trucks.validation.yearRange", { max: maxYear });
+    const mileage = Number(data.mileage);
+    if (!data.mileage || isNaN(mileage) || mileage < 0)
+      errs.mileage = t("trucks.validation.mileagePositive");
+    if (!data.itpExpiry)
+      errs.itpExpiry = t("trucks.validation.itpExpiryRequired");
+    if (!data.rcaExpiry)
+      errs.rcaExpiry = t("trucks.validation.rcaExpiryRequired");
+    if (!data.vignetteExpiry)
+      errs.vignetteExpiry = t("trucks.validation.vignetteExpiryRequired");
+    return errs;
+  }
 
   const handleOpenAdd = () => {
     setEditingTruck(null);
@@ -486,34 +1019,38 @@ export function TrucksSection({
     setErrors({});
     setTruckDialogOpen(true);
   };
-
-  const handleOpenEdit = (truck: Truck) => {
-    setEditingTruck(truck);
-    setForm({
-      plateNumber: truck.plateNumber,
-      brand: truck.brand,
-      model: truck.model,
-      year: String(truck.year),
-      mileage: String(truck.mileage),
-      status: truck.status,
-      itpExpiry: truck.itpExpiry,
-      rcaExpiry: truck.rcaExpiry,
-      vignetteExpiry: truck.vignetteExpiry,
-    });
-    setErrors({});
-    setTruckDialogOpen(true);
-  };
+  const handleOpenEdit = React.useCallback(
+    (truck: Truck) => {
+      setEditingTruck(truck);
+      setForm({
+        plateNumber: truck.plateNumber,
+        brand: truck.brand,
+        model: truck.model,
+        year: String(truck.year),
+        mileage: String(truck.mileage),
+        status: truck.status,
+        itpExpiry: truck.itpExpiry,
+        rcaExpiry: truck.rcaExpiry,
+        vignetteExpiry: truck.vignetteExpiry,
+      });
+      setErrors({});
+      setTruckDialogOpen(true);
+    },
+    [setTruckDialogOpen],
+  );
 
   const handleSubmit = () => {
     const errs = validateTruckForm(form);
-    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
-
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
     if (editingTruck) {
       updateItem<Truck>(
         STORAGE_KEYS.trucks,
-        (t) => t.id === editingTruck.id,
-        (t) => ({
-          ...t,
+        (tr) => tr.id === editingTruck.id,
+        (tr) => ({
+          ...tr,
           plateNumber: form.plateNumber.trim().toUpperCase(),
           brand: form.brand.trim(),
           model: form.model.trim(),
@@ -525,7 +1062,7 @@ export function TrucksSection({
           vignetteExpiry: form.vignetteExpiry,
         }),
       );
-      toast.success("Camionul a fost actualizat.");
+      toast.success(t("trucks.toastUpdated"));
     } else {
       addItem<Truck>(STORAGE_KEYS.trucks, {
         id: generateId(),
@@ -539,7 +1076,7 @@ export function TrucksSection({
         rcaExpiry: form.rcaExpiry,
         vignetteExpiry: form.vignetteExpiry,
       });
-      toast.success("Camionul a fost adăugat.");
+      toast.success(t("trucks.toastAdded"));
     }
     setTruckDialogOpen(false);
     onDataChange();
@@ -547,27 +1084,27 @@ export function TrucksSection({
 
   const handleDelete = () => {
     if (!deleteTruckId) return;
-
-    // Dezasociază automat șoferul asociat acestui camion
     updateItem<Driver>(
       STORAGE_KEYS.drivers,
       (d) => d.truckId === deleteTruckId,
       (d) => ({ ...d, truckId: undefined }),
     );
-
-    removeItem<Truck>(STORAGE_KEYS.trucks, (t) => t.id === deleteTruckId);
-    toast.success("Camionul a fost șters.");
+    removeItem<Truck>(STORAGE_KEYS.trucks, (tr) => tr.id === deleteTruckId);
+    toast.success(t("trucks.toastDeleted"));
     setDeleteTruckId(null);
     onDataChange();
   };
 
-  // ── Handlers asociere ──
-
-  const handleOpenAssign = (truck: Truck) => {
-    setAssigningTruck(truck);
-    setSelectedDriverId(drivers.find((d) => d.truckId === truck.id)?.id ?? "");
-    setAssignDialogOpen(true);
-  };
+  const handleOpenAssign = React.useCallback(
+    (truck: Truck) => {
+      setAssigningTruck(truck);
+      setSelectedDriverId(
+        drivers.find((d) => d.truckId === truck.id)?.id ?? "",
+      );
+      setAssignDialogOpen(true);
+    },
+    [drivers, setAssignDialogOpen],
+  );
 
   const handleSubmitAssign = () => {
     if (!assigningTruck) return;
@@ -582,119 +1119,161 @@ export function TrucksSection({
         (d) => d.id === selectedDriverId,
         (d) => ({ ...d, truckId: assigningTruck.id }),
       );
-      toast.success("Asocierea a fost salvată.");
+      toast.success(t("trucks.toastAssigned"));
     } else {
-      toast.success("Camionul a fost dezasociat.");
+      toast.success(t("trucks.toastUnassigned"));
     }
     setAssignDialogOpen(false);
     onDataChange();
   };
 
-  // ── Coloane ──
-
-  const columns: ColumnDef<Truck>[] = React.useMemo(() => [
-    {
-      accessorKey: "plateNumber",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Camion" />,
-      cell: ({ row }) => {
-        const driver = getDriver(row.original);
-        return (
-          <div className="font-medium">
-            <div>{row.getValue("plateNumber")}</div>
-            <div className="text-xs text-muted-foreground">
-              {row.original.brand} {row.original.model} ({row.original.year})
+  const columns: ColumnDef<Truck>[] = React.useMemo(
+    () => [
+      {
+        accessorKey: "plateNumber",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("trucks.columns.plateNumber")}
+          />
+        ),
+        cell: ({ row }) => {
+          const driver = getDriver(row.original);
+          return (
+            <div className="font-medium">
+              <div>{row.getValue("plateNumber")}</div>
+              <div className="text-xs text-muted-foreground">
+                {row.original.brand} {row.original.model} ({row.original.year})
+              </div>
+              {driver && (
+                <div className="text-xs text-muted-foreground lg:hidden">
+                  {driver.name}
+                </div>
+              )}
             </div>
-            {driver && (
-              <div className="text-xs text-muted-foreground lg:hidden">{driver.name}</div>
-            )}
-          </div>
-        );
+          );
+        },
       },
-    },
-    {
-      accessorKey: "status",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Status" />,
-      cell: ({ row }) => {
-        const status = row.getValue("status") as Truck["status"];
-        return (
-          <Badge variant="outline" className={`whitespace-nowrap ${TRUCK_STATUS_CLASS[status]}`}>
-            {TRUCK_STATUS_LABELS[status]}
-          </Badge>
-        );
-      },
-      filterFn: (row, id, value) => {
-        const selected = value as string[] | undefined;
-        return !selected || selected.length === 0 || selected.includes(row.getValue(id));
-      },
-    },
-    {
-      accessorKey: "itpExpiry",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="ITP" />,
-      cell: ({ row }) => <ExpiryCell dateStr={row.getValue("itpExpiry")} />,
-    },
-    {
-      accessorKey: "rcaExpiry",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="RCA" />,
-      cell: ({ row }) => <ExpiryCell dateStr={row.getValue("rcaExpiry")} />,
-    },
-    {
-      accessorKey: "vignetteExpiry",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Vignetă" />,
-      cell: ({ row }) => <ExpiryCell dateStr={row.getValue("vignetteExpiry")} />,
-    },
-    {
-      id: "driverName",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Șofer" />,
-      cell: ({ row }) => {
-        const driver = getDriver(row.original);
-        return (
-          <div className="text-sm text-muted-foreground">{driver ? driver.name : "—"}</div>
-        );
-      },
-      enableSorting: false,
-    },
-    {
-      id: "actions",
-      header: () => <div className="text-right">Acțiuni</div>,
-      cell: ({ row }) => {
-        const truck = row.original;
-        const isOnTrip = truck.status === "on_trip";
-        return (
-          <div className="flex justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleOpenAssign(truck)}
-              aria-label="Asociere șofer"
+      {
+        accessorKey: "status",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("trucks.columns.status")}
+          />
+        ),
+        cell: ({ row }) => {
+          const status = row.getValue("status") as Truck["status"];
+          return (
+            <Badge
+              variant="outline"
+              className={`whitespace-nowrap ${TRUCK_STATUS_CLASS[status]}`}
             >
-              <Link className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handleOpenEdit(truck)}
-              aria-label="Editează camion"
-            >
-              <Pencil className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setDeleteTruckId(truck.id)}
-              aria-label="Șterge camion"
-              className="text-red-500 hover:text-red-600"
-              disabled={isOnTrip}
-              title={isOnTrip ? "Nu poți șterge un camion aflat în cursă" : "Șterge"}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        );
+              {t(`trucks.status.${status}`)}
+            </Badge>
+          );
+        },
+        filterFn: (row, id, value) => {
+          const s = value as string[] | undefined;
+          return !s || s.length === 0 || s.includes(row.getValue(id));
+        },
       },
-      enableSorting: false,
-      enableHiding: false,
-    },
-  ], [drivers]);
+      {
+        accessorKey: "itpExpiry",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("trucks.columns.itpExpiry")}
+          />
+        ),
+        cell: ({ row }) => <ExpiryCell dateStr={row.getValue("itpExpiry")} />,
+      },
+      {
+        accessorKey: "rcaExpiry",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("trucks.columns.rcaExpiry")}
+          />
+        ),
+        cell: ({ row }) => <ExpiryCell dateStr={row.getValue("rcaExpiry")} />,
+      },
+      {
+        accessorKey: "vignetteExpiry",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("trucks.columns.vignetteExpiry")}
+          />
+        ),
+        cell: ({ row }) => (
+          <ExpiryCell dateStr={row.getValue("vignetteExpiry")} />
+        ),
+      },
+      {
+        id: "driverName",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("trucks.columns.driver")}
+          />
+        ),
+        cell: ({ row }) => {
+          const d = getDriver(row.original);
+          return (
+            <div className="text-sm text-muted-foreground">
+              {d ? d.name : "—"}
+            </div>
+          );
+        },
+        enableSorting: false,
+      },
+      {
+        id: "actions",
+        header: () => (
+          <div className="text-right">{t("trucks.columns.actions")}</div>
+        ),
+        cell: ({ row }) => {
+          const truck = row.original;
+          const isOnTrip = truck.status === "on_trip";
+          return (
+            <div className="flex justify-end gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleOpenAssign(truck)}
+                aria-label={t("trucks.actions.assign")}
+              >
+                <Link className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => handleOpenEdit(truck)}
+                aria-label={t("trucks.actions.edit")}
+              >
+                <Pencil className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setDeleteTruckId(truck.id)}
+                aria-label={t("trucks.actions.delete")}
+                className="text-red-500 hover:text-red-600"
+                disabled={isOnTrip}
+                title={isOnTrip ? t("trucks.deleteDisabledTooltip") : undefined}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          );
+        },
+        enableSorting: false,
+        enableHiding: false,
+      },
+    ],
+    [getDriver, handleOpenAssign, handleOpenEdit, t],
+  );
 
   const table = useReactTable({
     data: trucks,
@@ -712,31 +1291,79 @@ export function TrucksSection({
     initialState: { pagination: { pageSize: 10 } },
   });
 
-  // ── Render ──
-
   return (
     <>
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Camioane</CardTitle>
-          <Button onClick={handleOpenAdd} size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Adaugă
-          </Button>
+        <CardHeader className="flex flex-row items-center justify-between gap-2">
+          <CardTitle>{t("trucks.title")}</CardTitle>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size={isMobile ? "icon" : "sm"}
+                  title={t("trucks.actions.export")}
+                >
+                  <Download className="h-3.5 w-3.5" />
+                  {!isMobile && (
+                    <span className="ml-1.5">{t("trucks.actions.export")}</span>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => exportTrucksPDF(trucks, drivers, t)}
+                >
+                  {t("trucks.actions.exportPdf")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => exportTrucksExcel(trucks, drivers, t)}
+                >
+                  {t("trucks.actions.exportExcel")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => exportTrucksCSV(trucks, drivers, t)}
+                >
+                  {t("trucks.actions.exportCsv")}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button
+              variant="outline"
+              size={isMobile ? "icon" : "sm"}
+              onClick={() => setImportOpen(true)}
+              title={t("trucks.import.button")}
+            >
+              <Upload className="h-3.5 w-3.5" />
+              {!isMobile && (
+                <span className="ml-1.5">{t("trucks.import.button")}</span>
+              )}
+            </Button>
+            <Button onClick={handleOpenAdd} size="sm">
+              <Plus className={cn("h-4 w-4", !isMobile && "mr-2")} />
+              {!isMobile && t("trucks.actions.add")}
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <EntityTable
             table={table}
             columns={columns}
-            searchPlaceholder="Caută camioane..."
+            searchPlaceholder={t("trucks.placeholders.search")}
             searchKey="plateNumber"
-            filterConfig={[{ columnId: "status", title: "Status", options: statusFilterOptions }]}
+            filterConfig={[
+              {
+                columnId: "status",
+                title: t("trucks.fields.status"),
+                options: statusFilterOptions,
+              },
+            ]}
             columnVisibilityClass={{
               rcaExpiry: "hidden md:table-cell",
               vignetteExpiry: "hidden md:table-cell",
               driverName: "hidden lg:table-cell",
             }}
-            emptyText="Nu există camioane pentru filtrul curent."
+            emptyText={t("trucks.noResults")}
             renderMobileCard={(truck) => (
               <TruckMobileCard
                 truck={truck}
@@ -770,25 +1397,33 @@ export function TrucksSection({
         onSubmit={handleSubmitAssign}
       />
 
+      <TruckImportDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        onImported={onDataChange}
+        isMobile={isMobile}
+      />
+
       <AlertDialog
         open={!!deleteTruckId}
         onOpenChange={(open) => !open && setDeleteTruckId(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Ești sigur?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {t("trucks.confirmDeleteTitle")}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Această acțiune este ireversibilă. Camionul va fi șters definitiv,
-              iar șoferul asociat va fi dezasociat automat.
+              {t("trucks.confirmDelete")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogCancel>{t("trucks.actions.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
             >
-              Șterge
+              {t("trucks.actions.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

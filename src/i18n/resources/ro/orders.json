@@ -1,0 +1,100 @@
+{
+  "orders": {
+    "title": "Comenzi",
+    "manage": "Gestiune Comenzi",
+    "add": "Adauga comanda",
+    "edit": "Editeaza comanda",
+    "delete": "Sterge comanda",
+    "save": "Salveaza",
+    "cancel": "Anuleaza",
+    "close": "Inchide",
+    "noResults": "Nu exista comenzi pentru filtrul curent.",
+    "duplicate": "Exista deja o comanda identica (aceleasi date).",
+    "confirmDelete": "Esti sigur ca vrei sa stergi comanda pentru {{name}} ({{origin}} - {{destination}}, {{date}})? Aceasta actiune este ireversibila.",
+    "confirmDeleteFallback": "Esti sigur ca vrei sa stergi aceasta comanda?",
+    "fields": {
+      "client": "Client",
+      "origin": "Origine",
+      "destination": "Destinatie",
+      "date": "Data",
+      "status": "Status",
+      "weight": "Greutate (t)",
+      "notes": "Note",
+      "weightUnit": "t"
+    },
+    "placeholders": {
+      "client": "Ex: SC Transmarin SRL",
+      "origin": "Ex: Brasov",
+      "destination": "Ex: Constanta",
+      "weight": "Ex: 12.5",
+      "notes": "Detalii extra (optional)",
+      "selectDate": "Selecteaza data",
+      "search": "Cauta comenzi...",
+      "filterOrigin": "Origine...",
+      "filterDest": "Destinatie..."
+    },
+    "validation": {
+      "clientRequired": "Clientul este obligatoriu",
+      "originRequired": "Originea este obligatorie",
+      "destinationRequired": "Destinatia este obligatorie",
+      "dateRequired": "Data este obligatorie",
+      "weightRequired": "Greutatea este obligatorie",
+      "weightPositive": "Greutatea trebuie sa fie > 0"
+    },
+    "status": {
+      "pending": "In asteptare",
+      "assigned": "Asignata",
+      "in_transit": "In tranzit",
+      "delivered": "Livrata",
+      "cancelled": "Anulata"
+    },
+    "actions": {
+      "details": "Detalii",
+      "edit": "Editeaza",
+      "delete": "Sterge",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV",
+      "reset": "Resetare filtre"
+    },
+    "filters": {
+      "from": "De la data",
+      "to": "Pana la data"
+    },
+    "costs": {
+      "title": "Costuri curse asociate",
+      "noTrips": "Nu exista curse asociate acestei comenzi.",
+      "trip": "Cursa {{index}}",
+      "kmLoaded": "Km incarcati",
+      "kmEmpty": "Km goi",
+      "fuelCost": "Cost combustibil",
+      "costPerKm": "Cost/km",
+      "totalFuel": "Total cost combustibil",
+      "totalCostPerKm": "Cost/km total"
+    },
+    "detail": {
+      "route": "Ruta",
+      "date": "Data",
+      "status": "Status",
+      "weight": "Greutate",
+      "notes": "Note",
+      "title": "Detaliu comanda"
+    },
+    "import": {
+      "title": "Import Comenzi din CSV",
+      "button": "Import",
+      "dropzone": "Trage un fisier CSV aici sau da click pentru a selecta",
+      "dropzoneHint": "Coloane acceptate: Client, Origine/Origin, Destinatie/Destination, Data/Date (yyyy-MM-dd), Greutate (t)/Weight (t), Status, Note/Notes",
+      "validCount": "{{count}} rand(uri) valide",
+      "invalidCount": "{{count}} rand(uri) invalide",
+      "errorsCol": "Erori",
+      "invalidDate": "Data trebuie sa fie in formatul yyyy-MM-dd",
+      "reupload": "Incarca alt fisier",
+      "confirm": "Importa {{count}} rand(uri)",
+      "toastSuccess": "{{count}} comanda(zi) importata(e) cu succes.",
+      "toastPartial": "{{added}} importate, {{skipped}} ignorate (duplicate).",
+      "toastAllSkipped": "Nicio comanda importata - toate randurile sunt duplicate."
+    }
+  }
+}
