@@ -20,6 +20,7 @@ import {
   Monitor,
   DollarSign,
   History,
+  CalendarDays,
 } from "lucide-react";
 import { type SidebarData } from "../types";
 
@@ -161,6 +162,11 @@ export const sidebarData: SidebarData = {
               title: "Salarizare",
               url: "/hr/payroll",
               icon: Wallet,
+            },
+            {
+              title: "Pontaj Lunar",
+              url: "/hr/attendance",
+              icon: CalendarDays,
             },
           ],
         },
