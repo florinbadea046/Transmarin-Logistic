@@ -13,6 +13,7 @@ import NotFoundPage from "@/pages/not-found";
 import UnauthorizedPage from "@/pages/unauthorized";
 import CostsPage from "@/pages/costs";
 import ActivityLogPage from "@/pages/activity-log";
+import DriverPerformancePage from "@/modules/transport/pages/_components/driver-performance";
 
 import TransportPage from "@/modules/transport/index";
 import OrdersPage from "@/modules/transport/pages/orders";
@@ -263,6 +264,13 @@ const settingsDisplayRoute = createRoute({
   component: SettingsPage,
 });
 
+// EXTRA (din al doilea cod)
+const driverPerformanceRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/driver-performance",
+  component: DriverPerformancePage,
+});
+
 const unauthorizedRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/unauthorized",
@@ -276,6 +284,7 @@ const routeTree = rootRoute.addChildren([
     dashboardRoute,
     costsRoute,
     activityLogRoute,
+
     // Transport
     transportRoute,
     ordersRoute,
@@ -286,34 +295,41 @@ const routeTree = rootRoute.addChildren([
     tripsCalendarDndRoute,
     driversRoute,
     driverProfileRoute,
+
     // Fleet
     fleetRoute,
     partsRoute,
     serviceRoute,
     fuelRoute,
     vehiclesRoute,
-    // Accounting
+
     // Accounting
     accountingRoute,
     invoicesRoute,
     suppliersRoute,
+
     // HR
     hrRoute,
     employeesRoute,
     leavesRoute,
     payrollRoute,
+
     // Reports
     reportsRoute,
     transportReportsRoute,
     financialReportsRoute,
     fleetReportsRoute,
     advancedReportsRoute,
+
     // Settings
     settingsRoute,
     settingsAccountRoute,
     settingsAppearanceRoute,
     settingsNotificationsRoute,
     settingsDisplayRoute,
+
+    // EXTRA
+    driverPerformanceRoute,
   ]),
 ]);
 

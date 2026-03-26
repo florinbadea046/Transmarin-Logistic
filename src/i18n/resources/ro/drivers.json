@@ -135,5 +135,39 @@
   },
   "driversPage": {
     "title": "Soferi & Camioane"
+  },
+  "driverPerformance": {
+    "title": "Analiza Performanta Soferi",
+    "selectDriver": "Selecteaza sofer",
+    "allDrivers": "Toti soferii",
+    "showing": "Date pentru",
+    "exportPdf": "Export PDF",
+    "noData": "Nu exista date disponibile",
+    "kpi": {
+      "totalTrips": "Total curse",
+      "finalized": "Finalizate",
+      "totalKm": "Total km",
+      "totalFuelCost": "Cost combustibil",
+      "totalProfit": "Profit total",
+      "finishRate": "Rata finalizare"
+    },
+    "charts": {
+      "kmPerMonth": "Km / luna — ultimele 6 luni",
+      "statusDistribution": "Distributie status curse",
+      "profitRanking": "Ranking profit — top soferi"
+    },
+    "ranking": {
+      "title": "Top soferi dupa profit",
+      "driver": "Sofer",
+      "trips": "Curse",
+      "km": "Km",
+      "profit": "Profit"
+    },
+    "pdf": {
+      "reportFor": "Raport individual —",
+      "reportAll": "Raport toti soferii",
+      "generated": "Generat la",
+      "filename": "raport-performanta-soferi"
+    }
   }
 }
