@@ -28,6 +28,7 @@ import FleetPage from "@/modules/fleet/index";
 import PartsPage from "@/modules/fleet/pages/parts";
 import ServicePage from "@/modules/fleet/pages/service";
 import FuelPage from "@/modules/fleet/pages/fuel";
+import VehiclesPage from "@/modules/fleet/pages/vehicles";
 
 import AccountingPage from "@/modules/accounting/index";
 import InvoicesPage from "@/modules/accounting/pages/invoices";
@@ -163,6 +164,11 @@ const fuelRoute = createRoute({
   path: "/fleet/fuel",
   component: FuelPage,
 });
+const vehiclesRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/fleet/vehicles",
+  component: VehiclesPage,
+});
 
 // Accounting
 const accountingRoute = createRoute({
@@ -285,6 +291,8 @@ const routeTree = rootRoute.addChildren([
     partsRoute,
     serviceRoute,
     fuelRoute,
+    vehiclesRoute,
+    // Accounting
     // Accounting
     accountingRoute,
     invoicesRoute,
