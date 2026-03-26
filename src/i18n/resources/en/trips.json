@@ -1,127 +1,127 @@
 {
   "trips": {
-    "title": "Curse Zilnice",
-    "tableTitle": "Tabel Curse",
-    "add": "Cursa noua",
-    "addShort": "Nou",
-    "edit": "Editeaza cursa",
-    "save": "Salveaza modificarile",
-    "saveNew": "Adauga cursa",
-    "cancel": "Anuleaza",
-    "noResults": "Nu exista curse. Apasa Cursa noua pentru a adauga.",
+    "title": "Daily Trips",
+    "tableTitle": "Trips Table",
+    "add": "New Trip",
+    "addShort": "New",
+    "edit": "Edit Trip",
+    "save": "Save Changes",
+    "saveNew": "Add Trip",
+    "cancel": "Cancel",
+    "noResults": "No trips found. Click New Trip to add one.",
     "columns": {
-      "nr": "Nr.",
-      "order": "Comanda",
-      "route": "Ruta",
-      "driver": "Sofer",
-      "truck": "Camion",
+      "nr": "No.",
+      "order": "Order",
+      "route": "Route",
+      "driver": "Driver",
+      "truck": "Truck",
       "status": "Status",
-      "departureDate": "Data plecare",
-      "arrivalDate": "Sosire estimata",
-      "kmLoaded": "Km incarcat",
-      "kmEmpty": "Km gol",
-      "fuelCost": "Cost combustibil",
-      "actions": "Actiuni",
-      "revenue": "Venit"
+      "departureDate": "Departure Date",
+      "arrivalDate": "Est. Arrival",
+      "kmLoaded": "Loaded Km",
+      "kmEmpty": "Empty Km",
+      "fuelCost": "Fuel Cost",
+      "actions": "Actions",
+      "revenue": "Revenue"
     },
     "fields": {
-      "order": "Comanda",
-      "driver": "Sofer",
-      "truck": "Camion",
-      "departureDate": "Data plecare",
-      "arrivalDate": "Sosire estimata",
-      "kmLoaded": "Km incarcat",
-      "kmEmpty": "Km gol",
-      "fuelCost": "Cost combustibil (RON)",
+      "order": "Order",
+      "driver": "Driver",
+      "truck": "Truck",
+      "departureDate": "Departure Date",
+      "arrivalDate": "Estimated Arrival",
+      "kmLoaded": "Loaded Km",
+      "kmEmpty": "Empty Km",
+      "fuelCost": "Fuel Cost (RON)",
       "status": "Status",
-      "revenue": "Venit estimat (RON)",
-      "date": "Data",
-      "driverId": "Sofer",
-      "orderId": "Comanda",
-      "truckId": "Camion",
-      "unscheduled": "Neplanuita (fara date)"
+      "revenue": "Revenue (RON)",
+      "date": "Date",
+      "driverId": "Driver",
+      "orderId": "Order",
+      "truckId": "Truck",
+      "unscheduled": "Unscheduled (no dates)"
     },
     "placeholders": {
-      "order": "Selecteaza o comanda",
-      "driver": "Selecteaza sofer",
-      "truck": "Selecteaza camion",
-      "status": "Selecteaza status",
-      "search": "Cauta curse...",
+      "order": "Select an order",
+      "driver": "Select driver",
+      "truck": "Select truck",
+      "status": "Select status",
+      "search": "Search trips...",
       "km": "0"
     },
     "status": {
-      "planned": "Planificata",
-      "in_desfasurare": "In desfasurare",
-      "finalizata": "Finalizata",
-      "anulata": "Anulata"
+      "planned": "Planned",
+      "in_desfasurare": "In Progress",
+      "finalizata": "Completed",
+      "anulata": "Cancelled"
     },
     "actions": {
-      "edit": "Editeaza",
-      "delete": "Sterge",
-      "start": "Porneste",
-      "cancel": "Anuleaza",
-      "finish": "Finalizeaza",
+      "edit": "Edit",
+      "delete": "Delete",
+      "start": "Start",
+      "cancel": "Cancel",
+      "finish": "Complete",
       "export": "Export",
       "exportPdf": "Export PDF",
       "exportExcel": "Export Excel",
       "exportCsv": "Export CSV",
-      "liveTrack": "Urmărire Live"
+      "liveTrack": "Live Track"
     },
     "validation": {
-      "orderRequired": "Selecteaza o comanda",
-      "driverRequired": "Selecteaza un sofer",
-      "truckRequired": "Selecteaza un camion",
-      "departureDateRequired": "Data plecare este obligatorie",
-      "arrivalDateRequired": "Data sosire estimata este obligatorie",
-      "arrivalAfterDeparture": "Data sosire trebuie sa fie dupa data plecare",
-      "kmLoadedPositive": "Km incarcat trebuie sa fie > 0",
-      "kmEmptyPositive": "Km gol trebuie sa fie > 0",
-      "fuelCostMin": "Cost combustibil trebuie sa fie >= 0",
-      "revenueMin": "Venitul trebuie sa fie >= 0"
+      "orderRequired": "Select an order",
+      "driverRequired": "Select a driver",
+      "truckRequired": "Select a truck",
+      "departureDateRequired": "Departure date is required",
+      "arrivalDateRequired": "Estimated arrival date is required",
+      "arrivalAfterDeparture": "Arrival date must be after departure date",
+      "kmLoadedPositive": "Loaded km must be > 0",
+      "kmEmptyPositive": "Empty km must be > 0",
+      "fuelCostMin": "Fuel cost must be >= 0",
+      "revenueMin": "Revenue must be >= 0"
     },
     "toast": {
-      "added": "Cursa adaugata cu succes!",
-      "updated": "Cursa actualizata cu succes!",
-      "deleted": "Cursa stearsa.",
-      "started": "Cursa pornita!",
-      "finished": "Cursa finalizata!",
-      "cancelled": "Cursa anulata.",
-      "error": "A aparut o eroare. Incearca din nou."
+      "added": "Trip added successfully!",
+      "updated": "Trip updated successfully!",
+      "deleted": "Trip deleted.",
+      "started": "Trip started!",
+      "finished": "Trip completed!",
+      "cancelled": "Trip cancelled.",
+      "error": "An error occurred. Please try again."
     },
     "dialog": {
-      "addDesc": "Completeaza detaliile pentru o cursa noua.",
-      "editDesc": "Modifica detaliile cursei existente."
+      "addDesc": "Fill in the details for a new trip.",
+      "editDesc": "Edit the details of the existing trip."
     },
     "delete": {
-      "title": "Sterge cursa",
-      "desc": "Esti sigur ca vrei sa stergi cursa pentru comanda #{{orderId}}? Aceasta actiune nu poate fi anulata.",
-      "descFallback": "Esti sigur ca vrei sa stergi aceasta cursa?",
-      "confirm": "Sterge",
-      "disabledTooltip": "Nu se poate sterge o cursa in desfasurare"
+      "title": "Delete Trip",
+      "desc": "Are you sure you want to delete the trip for order #{{orderId}}? This action cannot be undone.",
+      "descFallback": "Are you sure you want to delete this trip?",
+      "confirm": "Delete",
+      "disabledTooltip": "Cannot delete a trip that is in progress"
     },
     "mobile": {
-      "driver": "Sofer",
-      "departure": "Data plecare",
-      "arrival": "Sosire estimata",
-      "kmLoaded": "Km incarcat",
-      "kmEmpty": "Km gol",
-      "fuelCost": "Cost combustibil",
-      "revenue": "Venit"
+      "driver": "Driver",
+      "departure": "Departure",
+      "arrival": "Est. Arrival",
+      "kmLoaded": "Loaded Km",
+      "kmEmpty": "Empty Km",
+      "fuelCost": "Fuel Cost",
+      "revenue": "Revenue"
     },
     "export": {
-      "nr": "Nr. cursa",
-      "order": "Comanda",
-      "driver": "Sofer",
-      "truck": "Camion",
-      "route": "Ruta",
-      "departure": "Data plecare",
-      "arrival": "Data sosire estimata",
-      "kmLoaded": "Km incarcat",
-      "kmEmpty": "Km gol",
-      "fuelCost": "Cost combustibil (RON)",
+      "nr": "Trip No.",
+      "order": "Order",
+      "driver": "Driver",
+      "truck": "Truck",
+      "route": "Route",
+      "departure": "Departure Date",
+      "arrival": "Est. Arrival Date",
+      "kmLoaded": "Loaded Km",
+      "kmEmpty": "Empty Km",
+      "fuelCost": "Fuel Cost (RON)",
       "status": "Status",
-      "filename": "curse",
-      "revenue": "Venit estimat (RON)"
+      "filename": "trips",
+      "revenue": "Revenue (RON)"
     },
     "suggest": {
       "button": "Suggest driver & truck",
@@ -133,78 +133,70 @@
     }
   },
   "tripsCalendar": {
-    "title": "Calendar Curse",
+    "title": "Trips Calendar",
     "tabs": {
-      "table": "Tabel",
+      "table": "Table",
       "calendar": "Calendar",
       "calendarShort": "Cal.",
       "tableShort": "Tab."
     },
-    "prevWeek": "Saptamana anterioara",
-    "nextWeek": "Saptamana urmatoare",
-    "redirecting": "Se redirectioneaza catre tabel...",
-    "dayNames": [
-      "Lun",
-      "Mar",
-      "Mie",
-      "Joi",
-      "Vin",
-      "Sam",
-      "Dum"
-    ],
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "redirecting": "Redirecting to table...",
+    "dayNames": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
     "dialog": {
-      "title": "Detalii cursa",
-      "desc": "Informatii complete despre cursa"
+      "title": "Trip Details",
+      "desc": "Full details about this trip"
     }
   },
   "tripsMap": {
-    "title": "Harta Curse Active",
+    "title": "Active Trips Map",
     "tabs": {
-      "map": "Harta",
-      "mapShort": "Harta"
+      "map": "Map",
+      "mapShort": "Map"
     },
-    "filterLabel": "Filtrare dupa status",
-    "clearFilter": "Sterge filtrul",
+    "filterLabel": "Filter by status",
+    "clearFilter": "Clear filter",
     "popup": {
-      "origin": "Origine",
-      "destination": "Destinatie",
+      "origin": "Origin",
+      "destination": "Destination",
       "client": "Client",
-      "driver": "Sofer",
-      "truck": "Camion",
-      "arrival": "Sosire est."
+      "driver": "Driver",
+      "truck": "Truck",
+      "arrival": "Est. arrival"
     }
   },
   "tripsDnd": {
-    "title": "Calendar Curse — Drag & Drop",
+    "title": "Trips Calendar — Drag & Drop",
     "tabs": {
       "dnd": "Drag & Drop",
       "dndShort": "D&D"
     },
-    "today": "Astazi",
+    "today": "Today",
     "sidebar": {
-      "title": "Curse neplanificate",
-      "hint": "Trage cursele pe calendar pentru a le planifica",
-      "empty": "Nicio cursa neplanificata"
+      "title": "Unscheduled trips",
+      "hint": "Drag trips onto the calendar to schedule them",
+      "empty": "No unscheduled trips"
     },
     "confirmMove": {
-      "title": "Confirma mutarea cursei",
-      "desc": "Muti cursa lui {{driver}} pe data {{date}}?",
-      "confirm": "Confirma"
+      "title": "Confirm trip move",
+      "desc": "Move {{driver}}s trip to {{date}}?",
+      "confirm": "Confirm"
     },
     "toast": {
-      "moved": "Cursa a fost mutata cu succes."
+      "moved": "Trip moved successfully."
     }
   },
   "tripTracker": {
-    "title": "Urmărire GPS Live",
-    "backToTrips": "Înapoi la curse",
-    "progress": "Progres",
-    "stopTracking": "Oprește urmărirea",
-    "arrived": "A ajuns la destinație",
-    "stopped": "Urmărire oprită",
-    "details": "Detalii cursă",
-    "notFound": "Cursa nu a fost găsită.",
-    "unknownRoute": "Rută necunoscută",
-    "noCoordsMessage": "Coordonatele rutei nu sunt disponibile pentru această cursă."
+    "title": "Live GPS Tracking",
+    "backToTrips": "Back to trips",
+    "progress": "Progress",
+    "stopTracking": "Stop tracking",
+    "arrived": "Arrived at destination",
+    "stopped": "Tracking stopped",
+    "details": "Trip details",
+    "notFound": "Trip not found.",
+    "unknownRoute": "Unknown route",
+    "noCoordsMessage": "Route coordinates not available for this trip."
   }
 }
