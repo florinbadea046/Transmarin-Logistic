@@ -36,6 +36,7 @@ import HRPage from "@/modules/hr/index";
 import EmployeesPage from "@/modules/hr/pages/employees";
 import LeavesPage from "@/modules/hr/pages/leaves";
 import PayrollPage from "@/modules/hr/pages/payroll";
+import AttendancePage from "@/modules/hr/pages/attendance";
 
 import ReportsPage from "@/modules/reports/index";
 import TransportReportsPage from "@/modules/reports/pages/transport-reports";
@@ -116,6 +117,7 @@ const hrRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/
 const employeesRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/employees", component: EmployeesPage });
 const leavesRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/leaves", component: LeavesPage });
 const payrollRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/payroll", component: PayrollPage });
+const attendanceRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/attendance", component: AttendancePage });
 
 // Reports
 const reportsRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/reports", component: ReportsPage });
@@ -167,6 +169,7 @@ const routeTree = rootRoute.addChildren([
     employeesRoute,
     leavesRoute,
     payrollRoute,
+    attendanceRoute,
     // Reports
     reportsRoute,
     transportReportsRoute,

@@ -28,6 +28,7 @@ export const STORAGE_KEYS = {
   employees: "transmarin_employees",
   leaveRequests: "transmarin_leave_requests",
   bonuses: "transmarin_bonuses",
+  attendance: "transmarin_attendance",
   // Notifications
   notifications: "transmarin_notifications",
   // Activity Log
@@ -986,6 +987,27 @@ const seedTrips: Trip[] = [
   { id: "tr8", orderId: "o8", driverId: "d2", truckId: "t2", departureDate: "2026-03-05", estimatedArrivalDate: "2026-03-06", kmLoaded: 430, kmEmpty: 80, fuelCost: 1020, status: "planned" },
 ];
 
+import type { AttendanceRecord } from "@/modules/hr/types";
+
+const seedAttendance: AttendanceRecord[] = [
+  { id: "e4_2026-03-01", employeeId: "e4", date: "2026-03-01", status: "P" },
+  { id: "e4_2026-03-02", employeeId: "e4", date: "2026-03-02", status: "P" },
+  { id: "e4_2026-03-04", employeeId: "e4", date: "2026-03-04", status: "A" },
+  { id: "e4_2026-03-13", employeeId: "e4", date: "2026-03-13", status: "LP" },
+  { id: "e4_2026-03-14", employeeId: "e4", date: "2026-03-14", status: "LP" },
+  { id: "e2_2026-03-01", employeeId: "e2", date: "2026-03-01", status: "P" },
+  { id: "e2_2026-03-02", employeeId: "e2", date: "2026-03-02", status: "P" },
+  { id: "e2_2026-03-03", employeeId: "e2", date: "2026-03-03", status: "P" },
+  { id: "e2_2026-03-04", employeeId: "e2", date: "2026-03-04", status: "P" },
+  { id: "e2_2026-03-05", employeeId: "e2", date: "2026-03-05", status: "P" },
+  { id: "e2_2026-03-06", employeeId: "e2", date: "2026-03-06", status: "P" },
+  { id: "e2_2026-03-07", employeeId: "e2", date: "2026-03-07", status: "P" },
+  { id: "e2_2026-03-08", employeeId: "e2", date: "2026-03-08", status: "CM" },
+  { id: "e5_2026-03-09", employeeId: "e5", date: "2026-03-09", status: "A" },
+  { id: "e5_2026-03-10", employeeId: "e5", date: "2026-03-10", status: "A" },
+  { id: "e5_2026-03-11", employeeId: "e5", date: "2026-03-11", status: "A" },
+];
+
 const TRIPS_SCHEMA_VERSION = "v3";
 const TRIPS_VERSION_KEY = "transmarin_trips_schema_version";
 
@@ -1006,6 +1028,7 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.invoices, seedInvoices);
   initCollection(STORAGE_KEYS.leaveRequests, seedLeaveRequests);
   initCollection(STORAGE_KEYS.bonuses, seedBonuses);
+  initCollection(STORAGE_KEYS.attendance, seedAttendance);
 }
 
 export { seedEmployees };

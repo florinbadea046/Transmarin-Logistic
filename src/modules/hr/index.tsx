@@ -46,6 +46,7 @@ export default function HRPage() {
     { title: t("hr.nav.employees"), href: "/hr/employees", isActive: false },
     { title: t("hr.nav.leaves"), href: "/hr/leaves", isActive: false },
     { title: t("hr.nav.payroll"), href: "/hr/payroll", isActive: false },
+    { title: "Pontaj Lunar", href: "/hr/attendance", isActive: false },
   ];
 
   const links = topNavLinks.map((link) => ({
