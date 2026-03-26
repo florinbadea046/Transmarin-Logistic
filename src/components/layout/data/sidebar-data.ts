@@ -110,6 +110,11 @@ export const sidebarData: SidebarData = {
               url: "/fleet/fuel",
               icon: Fuel,
             },
+            {
+              title: "Fisa Vehicul",
+              url: "/fleet/vehicles",
+              icon: FileText,
+            },
           ],
         },
         {
