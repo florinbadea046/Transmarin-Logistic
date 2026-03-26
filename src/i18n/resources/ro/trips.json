@@ -122,6 +122,14 @@
       "status": "Status",
       "filename": "curse",
       "revenue": "Venit estimat (RON)"
+    },
+    "suggest": {
+      "button": "Sugereaza sofer & camion",
+      "title": "Sugestii disponibile",
+      "noSuggestions": "Nu exista soferi sau camioane disponibile.",
+      "thisMonth": "luna aceasta",
+      "driverKm": "Km sofer",
+      "truckKm": "Km camion"
     }
   },
   "tripsCalendar": {
@@ -135,7 +143,15 @@
     "prevWeek": "Saptamana anterioara",
     "nextWeek": "Saptamana urmatoare",
     "redirecting": "Se redirectioneaza catre tabel...",
-    "dayNames": ["Lun", "Mar", "Mie", "Joi", "Vin", "Sam", "Dum"],
+    "dayNames": [
+      "Lun",
+      "Mar",
+      "Mie",
+      "Joi",
+      "Vin",
+      "Sam",
+      "Dum"
+    ],
     "dialog": {
       "title": "Detalii cursa",
       "desc": "Informatii complete despre cursa"
