@@ -37,9 +37,7 @@ export default function SuppliersPage() {
   const [search, setSearch] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
-    null,
-  );
+  const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,6 +47,7 @@ export default function SuppliersPage() {
   const filteredSuppliers = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return suppliers;
+
     return suppliers.filter((s) =>
       [s.name, s.cui, s.address, s.phone, s.email, s.bankAccount].some((val) =>
         val?.toLowerCase().includes(q),
@@ -58,11 +57,13 @@ export default function SuppliersPage() {
 
   const handleSave = (supplier: Supplier) => {
     let updated: Supplier[];
+
     if (selectedSupplier) {
       updated = suppliers.map((s) => (s.id === supplier.id ? supplier : s));
     } else {
       updated = [...suppliers, { ...supplier, id: crypto.randomUUID() }];
     }
+
     setSuppliers(updated);
     setCollection(STORAGE_KEYS.suppliers, updated);
     setIsModalOpen(false);
@@ -70,6 +71,7 @@ export default function SuppliersPage() {
 
   const confirmDelete = useCallback(() => {
     if (!deleteId) return;
+
     const updated = suppliers.filter((s) => s.id !== deleteId);
     setSuppliers(updated);
     setCollection(STORAGE_KEYS.suppliers, updated);
@@ -103,6 +105,7 @@ export default function SuppliersPage() {
             >
               {t("suppliers.actions.edit")}
             </Button>
+
             <Button
               variant="destructive"
               size="sm"
@@ -125,7 +128,9 @@ export default function SuppliersPage() {
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize: 5 } },
+    initialState: {
+      pagination: { pageSize: 5 },
+    },
   });
 
   return (
@@ -149,6 +154,7 @@ export default function SuppliersPage() {
         <Card>
           <CardHeader className="flex flex-col gap-3 md:flex-row md:justify-between md:items-center">
             <CardTitle>{t("suppliers.manage")}</CardTitle>
+
             <Button
               onClick={() => {
                 setSelectedSupplier(null);
@@ -182,6 +188,7 @@ export default function SuppliersPage() {
                     </tr>
                   ))}
                 </thead>
+
                 <tbody>
                   {table.getRowModel().rows.length === 0 ? (
                     <tr>
@@ -215,6 +222,7 @@ export default function SuppliersPage() {
                 <span className="text-sm text-muted-foreground">
                   {t("suppliers.rowsPerPage")}:
                 </span>
+
                 <select
                   value={table.getState().pagination.pageSize}
                   onChange={(e) => table.setPageSize(Number(e.target.value))}
@@ -237,12 +245,14 @@ export default function SuppliersPage() {
                 >
                   {t("suppliers.prev")}
                 </Button>
+
                 <span className="text-sm text-muted-foreground">
                   {t("suppliers.page", {
                     current: table.getState().pagination.pageIndex + 1,
                     total: table.getPageCount(),
                   })}
                 </span>
+
                 <Button
                   variant="outline"
                   size="sm"
@@ -277,8 +287,9 @@ export default function SuppliersPage() {
               {t("suppliers.confirmDelete")}
             </AlertDialogDescription>
           </AlertDialogHeader>
+
           <AlertDialogFooter>
-            <AlertDialogCancel>{t("drivers.cancel")}</AlertDialogCancel>
+            <AlertDialogCancel>{t("suppliers.modal.cancel")}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDelete}>
               {t("suppliers.actions.delete")}
             </AlertDialogAction>
