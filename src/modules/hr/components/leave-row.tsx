@@ -25,6 +25,7 @@ import { getCollection, removeItem, updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { LeaveRequest } from "@/modules/hr/types";
 import { toast } from "sonner";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 
 const UNKNOWN_EMPLOYEE = "Necunoscut";
 
@@ -45,6 +46,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
   onRefreshCalendar,
 }) => {
   const leave = row.original;
+  const { log } = useHrAuditLog();
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
 
@@ -136,6 +138,13 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
                   STORAGE_KEYS.leaveRequests,
                   (lr) => lr.id === leave.id,
                 );
+                log({
+                  action: "delete",
+                  entity: "leave",
+                  entityId: leave.id,
+                  entityLabel: leave.employeeName,
+                  details: `${leave.type}, ${leave.startDate} – ${leave.endDate}`,
+                });
                 refreshData();
                 toast.success("Concediu șters cu succes");
               }}

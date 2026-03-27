@@ -20,6 +20,7 @@ import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Trip } from "@/modules/transport/types";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 
 interface EmployeeRowProps {
   row: Row<Employee>;
@@ -28,6 +29,7 @@ interface EmployeeRowProps {
 
 export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
   const { t } = useTranslation();
+  const { log } = useHrAuditLog();
   const employee = row.original;
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
@@ -155,6 +157,14 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
             () => updated,
           );
           setData(getCollection<Employee>(STORAGE_KEYS.employees));
+          log({
+            action: "update",
+            entity: "employee",
+            entityId: updated.id,
+            entityLabel: updated.name,
+            oldValue: { name: employee.name, position: employee.position, salary: employee.salary },
+            newValue: { name: updated.name, position: updated.position, salary: updated.salary },
+          });
           toast.success(t("employees.toast.updated"));
         }}
 
@@ -175,6 +185,13 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
             (e) => e.id === employee.id,
           );
           setData(getCollection<Employee>(STORAGE_KEYS.employees));
+          log({
+            action: "delete",
+            entity: "employee",
+            entityId: employee.id,
+            entityLabel: employee.name,
+            details: `${employee.position}, ${employee.department}`,
+          });
           toast.success(t("employees.toast.deleted"));
         }}
       />

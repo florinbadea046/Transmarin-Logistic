@@ -30,6 +30,7 @@ import {
 import { CalendarDropdown } from "./calendar-dropdown";
 import { addItem, generateId, getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 import type { LeaveRequest, Employee } from "@/modules/hr/types";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -142,6 +143,7 @@ export default function LeaveDialog(props: Props) {
   const externalOpen = isEdit ? props.open : undefined;
   const externalOnOpenChange = isEdit ? props.onOpenChange : undefined;
 
+  const { log } = useHrAuditLog();
   const [internalOpen, setInternalOpen] = React.useState(false);
   const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const setOpen = externalOnOpenChange ?? setInternalOpen;
@@ -189,19 +191,45 @@ export default function LeaveDialog(props: Props) {
       return;
     }
 
+    const empName = employees.find((e) => e.id === values.employeeId)?.name ?? values.employeeId;
+    const leaveTypeLabel = t(`leaves.types.${values.type}`);
     if (props.mode === "edit") {
+      const oldStatus = props.leave.status;
+      const newStatus = values.status ?? props.leave.status;
+      const action =
+        newStatus === "approved" && oldStatus !== "approved" ? "approve" :
+        newStatus === "rejected" && oldStatus !== "rejected" ? "reject" :
+        "update";
       props.onEdit({
         ...props.leave,
         ...values,
-        status: values.status ?? props.leave.status,
+        status: newStatus,
         days,
       });
+      log({
+        action,
+        entity: "leave",
+        entityId: props.leave.id,
+        entityLabel: empName,
+        details: `${leaveTypeLabel}, ${values.startDate} – ${values.endDate} (${days} zile)`,
+        oldValue: { status: oldStatus },
+        newValue: { status: newStatus },
+      });
     } else {
+      const newId = generateId();
       addItem<LeaveRequest>(STORAGE_KEYS.leaveRequests, {
         ...values,
-        id: generateId(),
+        id: newId,
         days,
         status: "pending",
+      });
+      log({
+        action: "create",
+        entity: "leave",
+        entityId: newId,
+        entityLabel: empName,
+        details: `${leaveTypeLabel}, ${values.startDate} – ${values.endDate} (${days} zile)`,
+        newValue: { type: leaveTypeLabel, startDate: values.startDate, endDate: values.endDate, days, ...(values.reason ? { reason: values.reason } : {}) },
       });
       props.onAdd();
       form.reset();

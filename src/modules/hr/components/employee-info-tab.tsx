@@ -16,6 +16,7 @@ import { formatDate } from "@/utils/format";
 import { getEmployeeDepartmentLabel } from "../utils/department-label";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 
 // ── Info Tab ─────────────────────────────────────────────────
 
@@ -26,6 +27,7 @@ interface InfoTabProps {
 
 export function InfoTab({ employee, onUpdate }: InfoTabProps) {
   const { t } = useTranslation();
+  const { log } = useHrAuditLog();
   const [editing, setEditing] = React.useState(false);
   const [form, setForm] = React.useState({
     name: employee.name,
@@ -76,6 +78,14 @@ export function InfoTab({ employee, onUpdate }: InfoTabProps) {
       (e) => e.id === employee.id,
       () => updated,
     );
+    log({
+      action: "update",
+      entity: "employee",
+      entityId: employee.id,
+      entityLabel: updated.name,
+      oldValue: { name: employee.name, position: employee.position, salary: employee.salary },
+      newValue: { name: updated.name, position: updated.position, salary: updated.salary },
+    });
     onUpdate(updated);
     setEditing(false);
     toast.success("Profil actualizat cu succes");

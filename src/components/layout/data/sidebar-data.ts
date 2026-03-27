@@ -183,6 +183,11 @@ export const sidebarData: SidebarData = {
               url: "/hr/attendance",
               icon: CalendarDays,
             },
+            {
+              title: "Istoric",
+              url: "/hr/activity-log",
+              icon: History,
+            },
           ],
         },
         {
@@ -213,6 +218,11 @@ export const sidebarData: SidebarData = {
               title: "Rapoarte Avansate",
               url: "/reports/advanced",
               icon: BarChart3,
+            },
+            {
+              title: "Rapoarte HR",
+              url: "/reports/hr",
+              icon: Users,
             },
           ],
         },
