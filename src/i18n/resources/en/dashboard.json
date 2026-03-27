@@ -1,6 +1,18 @@
 {
   "dashboard": {
     "title": "Dashboard",
+    "transport": {
+      "title": "Transport — Summary",
+      "activeOrders": "Active Orders",
+      "activeOrdersDesc": "live from orders (pending + assigned + in transit)",
+      "fuelCostMonth": "Fuel Cost This Month",
+      "fuelCostMonthDesc": "sum of fuel logs this month",
+      "profitMonth": "Estimated Profit This Month",
+      "profitMonthDesc": "revenue - fuel cost (completed trips)",
+      "maintenanceAlert": "Trucks in service > 7 days",
+      "maintenanceDays": "{{days}} days",
+      "noMaintenanceAlerts": "No active maintenance alerts."
+    },
     "cards": {
       "activeOrders": "Active Orders",
       "activeOrdersDesc": "pending + assigned + in transit",
@@ -56,7 +68,9 @@
     "alerts": {
       "expiredDocs": "Expired documents",
       "pendingLeaves": "Pending leave requests",
-      "allGood": "No active HR alerts."
+      "allGood": "No active HR alerts.",
+      "days_one": "{{count}} day",
+      "days_other": "{{count}} days"
     }
   }
 }

@@ -2,7 +2,7 @@ import * as React from "react";
 import { useTranslation } from "react-i18next";
 import {
   Users, Receipt, BarChart3, AlertTriangle, PackageCheck,
-  UserCheck, CalendarOff, FileWarning, Clock,
+  UserCheck, CalendarOff, FileWarning, Clock, Truck, Fuel, TrendingUp,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/layout/header";
@@ -17,6 +17,8 @@ import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Order, Truck as TruckType } from "@/modules/transport/types";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
+import type { MaintenanceRecord } from "@/modules/transport/types";
+import type { FuelLog } from "@/modules/transport/types";
 import { cn } from "@/lib/utils";
 
 // ── Types ──────────────────────────────────────────────────
@@ -24,7 +26,8 @@ import { cn } from "@/lib/utils";
 type RawTrip = {
   id: string; orderId: string; driverId: string; truckId: string;
   date?: string; departureDate?: string;
-  kmLoaded: number; kmEmpty: number; fuelCost: number; status: string;
+  kmLoaded: number; kmEmpty: number; fuelCost: number;
+  revenue?: number; status: string;
 };
 
 // ── Helpers ────────────────────────────────────────────────
@@ -66,12 +69,16 @@ function useTransportData() {
   const [orders, setOrders] = React.useState<Order[]>([]);
   const [trips, setTrips] = React.useState<RawTrip[]>([]);
   const [trucks, setTrucks] = React.useState<TruckType[]>([]);
+  const [maintenance, setMaintenance] = React.useState<MaintenanceRecord[]>([]);
+  const [fuelLogs, setFuelLogs] = React.useState<FuelLog[]>([]);
   React.useEffect(() => {
     try { setOrders(getCollection<Order>(STORAGE_KEYS.orders)); } catch (_) { void _; }
     try { setTrips(getCollection<RawTrip>(STORAGE_KEYS.trips)); } catch (_) { void _; }
     try { setTrucks(getCollection<TruckType>(STORAGE_KEYS.trucks)); } catch (_) { void _; }
+    try { setMaintenance(getCollection<MaintenanceRecord>(STORAGE_KEYS.maintenance)); } catch (_) { void _; }
+    try { setFuelLogs(getCollection<FuelLog>(STORAGE_KEYS.fuelLog)); } catch (_) { void _; }
   }, []);
-  return { orders, trips, trucks };
+  return { orders, trips, trucks, maintenance, fuelLogs };
 }
 
 function useHRData() {
@@ -84,7 +91,7 @@ function useHRData() {
   return { employees, leaveRequests };
 }
 
-// ── Transport Alerts ───────────────────────────────────────
+// ── Transport Alerts (ITP/RCA/Vignette) ───────────────────
 
 function AlerteTransport({ trucks }: { trucks: TruckType[] }) {
   const { t } = useTranslation();
@@ -136,7 +143,126 @@ function AlerteTransport({ trucks }: { trucks: TruckType[] }) {
   );
 }
 
-// ── HR Section ─────────────────────────────────────────────
+// ── A42: Transport Section (NOU) ───────────────────────────
+
+function TransportSection({
+  orders, trips, trucks, maintenance, fuelLogs,
+}: {
+  orders: Order[];
+  trips: RawTrip[];
+  trucks: TruckType[];
+  maintenance: MaintenanceRecord[];
+  fuelLogs: FuelLog[];
+}) {
+  const { t } = useTranslation();
+  const today = new Date();
+  const thisMonth = `${today.getFullYear()}-${padTwo(today.getMonth() + 1)}`;
+
+  // Card 1: Comenzi Active (live)
+  const activeOrders = orders.filter((o) =>
+    o.status === "pending" || o.status === "assigned" || o.status === "in_transit",
+  ).length;
+
+  // Card 2: Cost Combustibil luna curenta
+  const fuelCostMonth = fuelLogs
+    .filter((f) => f.date.startsWith(thisMonth))
+    .reduce((s, f) => s + f.totalCost, 0);
+
+  // Card 3: Profit Estimat luna curenta
+  const profitMonth = trips
+    .filter((tr) => getTripDate(tr).startsWith(thisMonth) && tr.status === "finalizata")
+    .reduce((s, tr) => s + (tr.revenue ?? 0) - (tr.fuelCost ?? 0), 0);
+
+  // Alerte mentenanta > 7 zile
+  const maintenanceAlerts = maintenance
+    .filter((m) => m.status === "in_lucru" && !m.exitDate)
+    .map((m) => {
+      const days = Math.ceil(
+        (today.getTime() - new Date(`${m.entryDate}T00:00:00`).getTime()) / 86400000,
+      );
+      const truck = trucks.find((tr) => tr.id === m.truckId);
+      return { m, days, truck };
+    })
+    .filter((a) => a.days > 7)
+    .sort((a, b) => b.days - a.days);
+
+  const cards = [
+    {
+      title: t("dashboard.transport.activeOrders"),
+      value: activeOrders,
+      desc: t("dashboard.transport.activeOrdersDesc"),
+      icon: <PackageCheck className="h-4 w-4 text-muted-foreground" />,
+    },
+    {
+      title: t("dashboard.transport.fuelCostMonth"),
+      value: `${fuelCostMonth.toLocaleString("ro-RO")} RON`,
+      desc: t("dashboard.transport.fuelCostMonthDesc"),
+      icon: <Fuel className="h-4 w-4 text-muted-foreground" />,
+    },
+    {
+      title: t("dashboard.transport.profitMonth"),
+      value: `${profitMonth.toLocaleString("ro-RO")} RON`,
+      desc: t("dashboard.transport.profitMonthDesc"),
+      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
+      alert: profitMonth < 0,
+    },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-2">
+        <Truck className="h-5 w-5 text-muted-foreground" />
+        <h2 className="text-base font-semibold">{t("dashboard.transport.title")}</h2>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        {cards.map(({ title, value, desc, icon, alert }) => (
+          <Card key={title} className={alert ? "border-red-200 dark:border-red-800" : ""}>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className={cn("text-sm font-medium",
+                alert ? "text-red-600 dark:text-red-400" : "text-muted-foreground")}>
+                {title}
+              </CardTitle>
+              {icon}
+            </CardHeader>
+            <CardContent>
+              <div className={cn("text-2xl font-bold",
+                alert ? "text-red-600 dark:text-red-400" : "")}>{value}</div>
+              <p className="text-xs text-muted-foreground">{desc}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Alerte mentenanta */}
+      {maintenanceAlerts.length > 0 && (
+        <Card className="border-orange-200 dark:border-orange-800">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium text-orange-700 dark:text-orange-400">
+              <AlertTriangle className="h-4 w-4" />
+              {t("dashboard.transport.maintenanceAlert")}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-1.5 max-h-44 overflow-y-auto">
+              {maintenanceAlerts.map(({ m, days, truck }) => (
+                <li key={m.id} className="flex items-center justify-between gap-2 text-xs">
+                  <span className="font-medium">{truck?.plateNumber ?? m.truckId}</span>
+                  <span className="text-muted-foreground truncate">{m.mechanic}</span>
+                  <Badge variant="secondary" className="text-[10px] shrink-0 bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200">
+                    {t("dashboard.transport.maintenanceDays", { days })}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+// ── HR Section (NEATINS) ───────────────────────────────────
 
 function HRSection({ employees, leaveRequests }: {
   employees: Employee[];
@@ -146,16 +272,13 @@ function HRSection({ employees, leaveRequests }: {
   const today = new Date();
   const thisMonth = `${today.getFullYear()}-${padTwo(today.getMonth() + 1)}`;
 
-  // Card 1: Total angajati
   const totalEmployees = employees.length;
 
-  // Card 2: In concediu luna curenta (approved, overlap cu luna curenta)
   const onLeaveThisMonth = leaveRequests.filter((lr) => {
     if (lr.status !== "approved") return false;
     return lr.startDate.startsWith(thisMonth) || lr.endDate.startsWith(thisMonth);
   }).length;
 
-  // Card 3: Documente expirate (expiryDate < azi)
   const expiredDocs: { employeeName: string; docName: string; expiryDate: string }[] = [];
   for (const emp of employees) {
     for (const doc of emp.documents) {
@@ -166,10 +289,8 @@ function HRSection({ employees, leaveRequests }: {
     }
   }
 
-  // Card 4: Cereri in asteptare
   const pendingLeaves = leaveRequests.filter((lr) => lr.status === "pending").length;
 
-  // Grafic: angajati noi pe luna ultimele 6 luni
   const last6Months: string[] = [];
   for (let i = 5; i >= 0; i--) {
     const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
@@ -221,7 +342,6 @@ function HRSection({ employees, leaveRequests }: {
         <h2 className="text-base font-semibold">{t("hrDashboard.title")}</h2>
       </div>
 
-      {/* 4 carduri HR */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {hrCards.map(({ title, value, desc, icon, alert }) => (
           <Card key={title} className={alert ? "border-red-200 dark:border-red-800" : ""}>
@@ -241,9 +361,7 @@ function HRSection({ employees, leaveRequests }: {
         ))}
       </div>
 
-      {/* Grafic + Alerte */}
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* Grafic angajati noi per luna */}
         <Card>
           <CardHeader>
             <CardTitle className="text-sm font-medium">{t("hrDashboard.charts.newEmployees")}</CardTitle>
@@ -261,9 +379,7 @@ function HRSection({ employees, leaveRequests }: {
           </CardContent>
         </Card>
 
-        {/* Alerte HR */}
         <div className="space-y-3">
-          {/* Documente expirate */}
           {expiredDocs.length > 0 && (
             <Card className="border-red-200 dark:border-red-800">
               <CardHeader className="pb-2">
@@ -288,7 +404,6 @@ function HRSection({ employees, leaveRequests }: {
             </Card>
           )}
 
-          {/* Cereri neaprobate */}
           {pendingLeaves > 0 && (
             <Card className="border-yellow-200 dark:border-yellow-800">
               <CardHeader className="pb-2">
@@ -307,7 +422,7 @@ function HRSection({ employees, leaveRequests }: {
                         <span className="text-muted-foreground shrink-0">
                           {formatDateRO(lr.startDate)} — {formatDateRO(lr.endDate)}
                         </span>
-                        <Badge variant="secondary" className="text-[10px] shrink-0">{lr.days}z</Badge>
+                        <Badge variant="secondary" className="text-[10px] shrink-0">{t("hrDashboard.alerts.days", { count: lr.days })}</Badge>
                       </li>
                     );
                   })}
@@ -333,7 +448,7 @@ function HRSection({ employees, leaveRequests }: {
 
 export default function DashboardPage() {
   const { t } = useTranslation();
-  const { orders, trips, trucks } = useTransportData();
+  const { orders, trips, trucks, maintenance, fuelLogs } = useTransportData();
   const { employees, leaveRequests } = useHRData();
 
   const today = new Date();
@@ -372,7 +487,7 @@ export default function DashboardPage() {
         <div className="space-y-8">
           <AlerteTransport trucks={trucks} />
 
-          {/* Sectiunea Transport */}
+          {/* Sectiunea Transport originala — NEATINSA */}
           <div className="space-y-4">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <Card>
@@ -447,7 +562,18 @@ export default function DashboardPage() {
 
           <Separator />
 
-          {/* Sectiunea HR */}
+          {/* A42: Sectiunea Transport — NOU */}
+          <TransportSection
+            orders={orders}
+            trips={trips}
+            trucks={trucks}
+            maintenance={maintenance}
+            fuelLogs={fuelLogs}
+          />
+
+          <Separator />
+
+          {/* Sectiunea HR — NEATINSA */}
           <HRSection employees={employees} leaveRequests={leaveRequests} />
         </div>
       </Main>
