@@ -202,6 +202,7 @@ const suppliersRoute = createRoute({
 });
 
 // HR
+
 const hrRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr",
@@ -222,6 +223,7 @@ const payrollRoute = createRoute({
   path: "/hr/payroll",
   component: PayrollPage,
 });
+
 const attendanceRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/attendance", component: AttendancePage });
 
 // Reports
