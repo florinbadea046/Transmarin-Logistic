@@ -38,6 +38,11 @@
     "actions": {
       "edit": "Editeaza",
       "delete": "Sterge"
-    }
+    },
+    "modal": { 
+      "editTitle": "Editeaza Furnizor", 
+      "addTitle": "Adauga Furnizor", 
+      "cancel": "Anuleaza", 
+      "save": "Salveaza" }
   }
 }

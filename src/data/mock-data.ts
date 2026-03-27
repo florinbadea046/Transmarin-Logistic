@@ -33,6 +33,9 @@ export const STORAGE_KEYS = {
   notifications: "transmarin_notifications",
   // Activity Log
   auditLog: "transmarin_audit_log",
+  // Maintenance
+  maintenance: "transmarin_maintenance",
+  fuelLog: "transmarin_fuel_log",
 } as const;
 
 // ──────────────────────────────────────────────────────────
@@ -965,14 +968,14 @@ const seedBonuses: Bonus[] = [
   { id: "b1", employeeId: "e1", type: "diurna", amount: 350, date: "2026-03-01", description: "Diurnă cursă Constanța-București (7 zile)" },
   { id: "b2", employeeId: "e1", type: "bonus", amount: 500, date: "2026-03-05", description: "Bonus performanță Q1" },
   { id: "b3", employeeId: "e2", type: "diurna", amount: 200, date: "2026-03-03", description: "Diurnă cursă Timișoara-Constanța (4 zile)" },
-  { id: "b4", employeeId: "e2", type: "amenda", amount: -150, date: "2026-03-06", description: "Amendă întârziere livrare" },
+  { id: "b4", employeeId: "e2", type: "amenda", amount: 150, date: "2026-03-06", description: "Amendă întârziere livrare" },
   { id: "b5", employeeId: "e3", type: "ore_suplimentare", amount: 300, date: "2026-03-02", description: "Ore suplimentare dispecerat" },
   { id: "b6", employeeId: "e4", type: "bonus", amount: 400, date: "2026-03-04", description: "Bonus reparații complexe" },
   { id: "b7", employeeId: "e5", type: "ore_suplimentare", amount: 250, date: "2026-03-01", description: "Ore suplimentare bilanț lunar" },
   { id: "b8", employeeId: "e6", type: "bonus", amount: 600, date: "2026-03-10", description: "Bonus management excelent" },
   { id: "b9", employeeId: "e1", type: "diurna", amount: 450, date: "2026-02-10", description: "Diurnă cursă Cluj-Constanța (9 zile)" },
   { id: "b10", employeeId: "e2", type: "diurna", amount: 300, date: "2026-02-15", description: "Diurnă cursă Timișoara-Iași (6 zile)" },
-  { id: "b11", employeeId: "e1", type: "amenda", amount: -200, date: "2026-02-20", description: "Amendă depășire program" },
+  { id: "b11", employeeId: "e1", type: "amenda", amount: 200, date: "2026-02-20", description: "Amendă depășire program" },
   { id: "b12", employeeId: "e3", type: "bonus", amount: 350, date: "2026-02-14", description: "Bonus activitate" },
 ];
 
@@ -1032,4 +1035,10 @@ export function seedMockData(): void {
 }
 
 export { seedEmployees };
-export const EMPLOYEE_DEPARTMENTS = ["Dispecerat", "Transport", "Service", "Contabilitate", "Administrativ"] as const;
+export const EMPLOYEE_DEPARTMENTS = [
+  "Dispecerat",
+  "Transport",
+  "Service",
+  "Contabilitate",
+  "Administrativ",
+] as const;

@@ -1,5 +1,5 @@
-
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -18,9 +18,7 @@ import type { Supplier } from "../types";
 const supplierSchema = z.object({
   id: z.string(),
   name: z.string().min(3, "Numele trebuie să aibă minim 3 caractere"),
-  cui: z
-    .string()
-    .regex(/^RO[0-9]{2,10}$/, "CUI invalid (ex: RO12345678)"),
+  cui: z.string().regex(/^RO[0-9]{2,10}$/, "CUI invalid (ex: RO12345678)"),
   address: z.string().min(1, "Adresa este obligatorie"),
   phone: z
     .string()
@@ -48,7 +46,14 @@ const emptySupplier: SupplierFormData = {
   bankAccount: "",
 };
 
-export function SupplierModal({ isOpen, onClose, initialData, onSave }: SupplierModalProps) {
+export function SupplierModal({
+  isOpen,
+  onClose,
+  initialData,
+  onSave,
+}: SupplierModalProps) {
+  const { t } = useTranslation();
+
   const {
     register,
     handleSubmit,
@@ -66,29 +71,31 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
 
   const onSubmit = (data: SupplierFormData) => {
     onSave(data as Supplier);
-   };
-  
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {initialData ? "Editează Furnizor" : "Adaugă Furnizor"}
+            {initialData
+              ? t("suppliers.modal.editTitle")
+              : t("suppliers.modal.addTitle")}
           </DialogTitle>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="name">Nume</Label>
-
+              <Label htmlFor="name">{t("suppliers.fields.name")}</Label>
               <Input id="name" {...register("name")} />
               {errors.name && (
                 <p className="text-red-400 text-xs">{errors.name.message}</p>
               )}
             </div>
+
             <div className="space-y-1">
-              <Label htmlFor="cui">CUI</Label>
+              <Label htmlFor="cui">{t("suppliers.fields.cui")}</Label>
               <Input id="cui" {...register("cui")} placeholder="RO12345678" />
               {errors.cui && (
                 <p className="text-red-400 text-xs">{errors.cui.message}</p>
@@ -97,8 +104,7 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="address">Adresă</Label>
-
+            <Label htmlFor="address">{t("suppliers.fields.address")}</Label>
             <Input id="address" {...register("address")} />
             {errors.address && (
               <p className="text-red-400 text-xs">{errors.address.message}</p>
@@ -107,15 +113,15 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label htmlFor="phone">Telefon</Label>
-
+              <Label htmlFor="phone">{t("suppliers.fields.phone")}</Label>
               <Input id="phone" {...register("phone")} placeholder="07xxxxxxxx" />
               {errors.phone && (
                 <p className="text-red-400 text-xs">{errors.phone.message}</p>
               )}
             </div>
+
             <div className="space-y-1">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("suppliers.fields.email")}</Label>
               <Input id="email" type="email" {...register("email")} />
               {errors.email && (
                 <p className="text-red-400 text-xs">{errors.email.message}</p>
@@ -124,22 +130,25 @@ export function SupplierModal({ isOpen, onClose, initialData, onSave }: Supplier
           </div>
 
           <div className="space-y-1">
-            <Label htmlFor="bankAccount">Cont bancar</Label>
-
+            <Label htmlFor="bankAccount">
+              {t("suppliers.fields.bankAccount")}
+            </Label>
             <Input id="bankAccount" {...register("bankAccount")} />
             {errors.bankAccount && (
-              <p className="text-red-400 text-xs">{errors.bankAccount.message}</p>
+              <p className="text-red-400 text-xs">
+                {errors.bankAccount.message}
+              </p>
             )}
           </div>
         </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
-            Anulează
+            {t("suppliers.modal.cancel")}
           </Button>
 
           <Button onClick={handleSubmit(onSubmit)}>
-            {initialData ? "Salvează" : "Adaugă"}
+            {initialData ? t("suppliers.modal.save") : t("suppliers.add")}
           </Button>
         </DialogFooter>
       </DialogContent>

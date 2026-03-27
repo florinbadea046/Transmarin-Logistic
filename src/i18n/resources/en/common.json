@@ -32,7 +32,8 @@
     },
     "transport": {
       "title": "Transport & Dispatch",
-      "overview": "Overview"
+      "overview": "Overview",
+      "driverPerformance": "Driver Performance"
     },
     "fleet": {
       "title": "Fleet & Service",

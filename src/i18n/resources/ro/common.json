@@ -32,7 +32,8 @@
     },
     "transport": {
       "title": "Transport & Dispecerat",
-      "overview": "Prezentare Generala"
+      "overview": "Prezentare Generala",
+      "driverPerformance": "Analiza Soferi"
     },
     "fleet": {
       "title": "Parc Auto & Service",
