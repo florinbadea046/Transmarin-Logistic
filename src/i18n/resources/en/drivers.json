@@ -142,5 +142,39 @@
   },
   "driversPage": {
     "title": "Drivers & Trucks"
+  },
+  "driverPerformance": {
+    "title": "Driver Performance Analysis",
+    "selectDriver": "Select driver",
+    "allDrivers": "All drivers",
+    "showing": "Showing data for",
+    "exportPdf": "Export PDF",
+    "noData": "No data available",
+    "kpi": {
+      "totalTrips": "Total trips",
+      "finalized": "Completed",
+      "totalKm": "Total km",
+      "totalFuelCost": "Fuel cost",
+      "totalProfit": "Total profit",
+      "finishRate": "Completion rate"
+    },
+    "charts": {
+      "kmPerMonth": "Km / month — last 6 months",
+      "statusDistribution": "Trip status distribution",
+      "profitRanking": "Profit ranking — top drivers"
+    },
+    "ranking": {
+      "title": "Top drivers by profit",
+      "driver": "Driver",
+      "trips": "Trips",
+      "km": "Km",
+      "profit": "Profit"
+    },
+    "pdf": {
+      "reportFor": "Individual report —",
+      "reportAll": "All drivers report",
+      "generated": "Generated on",
+      "filename": "driver-performance-report"
+    }
   }
 }

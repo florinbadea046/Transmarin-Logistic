@@ -84,6 +84,11 @@ export const sidebarData: SidebarData = {
               url: "/transport/drivers",
               icon: Users,
             },
+            {
+              title: "Analiza Soferi",
+              url: "/driver-performance",
+              icon: TrendingUp,
+            },
           ],
         },
         {
