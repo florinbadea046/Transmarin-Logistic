@@ -1,7 +1,9 @@
 export type NotificationType =
-  | "document_expiry"  
-  | "delayed_trip"      
-  | "unassigned_order"; 
+  | "document_expiry"
+  | "delayed_trip"
+  | "unassigned_order"
+  | "hr_document_expiry"
+  | "pending_leave";
 
 export interface AppNotification {
   id: string;
