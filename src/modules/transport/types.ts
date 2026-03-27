@@ -70,3 +70,15 @@ export interface MaintenanceRecord {
   status: MaintenanceStatus;
   notes?: string;
 }
+
+export interface FuelLog {
+  id: string;
+  truckId: string;
+  driverId: string;
+  date: string;           
+  station: string;
+  liters: number;
+  pricePerLiter: number;
+  totalCost: number;     
+  kmAtFueling: number;    
+}

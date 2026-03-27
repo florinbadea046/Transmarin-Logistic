@@ -34,6 +34,7 @@ export const STORAGE_KEYS = {
   auditLog: "transmarin_audit_log",
   // Maintenance
   maintenance: "transmarin_maintenance",
+  fuelLog: "transmarin_fuel_log",
 } as const;
 
 // ──────────────────────────────────────────────────────────
