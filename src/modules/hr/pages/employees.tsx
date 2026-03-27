@@ -20,26 +20,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
@@ -60,34 +47,26 @@ const ALL_DEPARTMENTS = "__all__";
 
 // ── Validare CSV ───────────────────────────────────────────
 
-const REQUIRED_FIELDS = [
-  "name",
-  "position",
-  "department",
-  "phone",
-  "email",
-  "hireDate",
-  "salary",
-];
+const REQUIRED_FIELDS = ["name", "position", "department", "phone", "email", "hireDate", "salary"];
 
 const COLUMN_MAP: Record<string, string> = {
-  nume: "name",
-  functie: "position",
+  "nume": "name",
+  "functie": "position",
   "functie/pozitie": "position",
-  departament: "department",
-  telefon: "phone",
-  email: "email",
+  "departament": "department",
+  "telefon": "phone",
+  "email": "email",
   "data angajarii": "hireDate",
   "data angajarii (yyyy-mm-dd)": "hireDate",
-  salariu: "salary",
+  "salariu": "salary",
   "salariu (ron)": "salary",
-  name: "name",
-  position: "position",
-  department: "department",
-  phone: "phone",
-  hiredate: "hireDate",
+  "name": "name",
+  "position": "position",
+  "department": "department",
+  "phone": "phone",
+  "hiredate": "hireDate",
   "hire date": "hireDate",
-  salary: "salary",
+  "salary": "salary",
   "salary (ron)": "salary",
 };
 
@@ -123,9 +102,7 @@ function parseRows(
 
     for (const field of REQUIRED_FIELDS) {
       if (!mapped[field as keyof typeof mapped]) {
-        errors.push(
-          t("employees.import.errorRequired").replace("{{field}}", field),
-        );
+        errors.push(t("employees.import.errorRequired").replace("{{field}}", field));
       }
     }
 
@@ -170,18 +147,14 @@ function ImportDialog({
   const [rows, setRows] = React.useState<ParsedRow[]>([]);
   const [fileName, setFileName] = React.useState("");
 
-  const [existing, setExisting] = React.useState<Employee[]>([]);
-
-  React.useEffect(() => {
-    if (!open) return;
-    setExisting(getCollection<Employee>(STORAGE_KEYS.employees));
-  }, [open]);
+  const existing = React.useMemo(
+    () => getCollection<Employee>(STORAGE_KEYS.employees),
+    [open],
+  );
 
   const validRows = rows.filter((r) => r.errors.length === 0 && !r.isDuplicate);
   const invalidRows = rows.filter((r) => r.errors.length > 0);
-  const duplicateRows = rows.filter(
-    (r) => r.errors.length === 0 && r.isDuplicate,
-  );
+  const duplicateRows = rows.filter((r) => r.errors.length === 0 && r.isDuplicate);
 
   const handleFile = (file: File) => {
     if (!file) return;
@@ -190,11 +163,7 @@ function ImportDialog({
       header: true,
       skipEmptyLines: true,
       complete: (results) => {
-        const parsed = parseRows(
-          results.data as Record<string, string>[],
-          existing,
-          t,
-        );
+        const parsed = parseRows(results.data as Record<string, string>[], existing, t);
         setRows(parsed);
       },
     });
@@ -223,7 +192,7 @@ function ImportDialog({
         phone: row.mapped.phone ?? "",
         email: row.mapped.email ?? "",
         hireDate: row.mapped.hireDate ?? "",
-        salary: ((row.mapped as Record<string, unknown>).salary as number) ?? 0,
+        salary: (row.mapped as Record<string, unknown>).salary as number ?? 0,
         documents: [],
       });
       added++;
@@ -250,19 +219,11 @@ function ImportDialog({
   };
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        onOpenChange(v);
-        if (!v) reset();
-      }}
-    >
-      <DialogContent
-        className={cn(
-          "flex flex-col gap-4",
-          isMobile ? "max-w-[calc(100vw-2rem)] p-4" : "max-w-2xl",
-        )}
-      >
+    <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>
+      <DialogContent className={cn(
+        "flex flex-col gap-4",
+        isMobile ? "max-w-[calc(100vw-2rem)] p-4" : "max-w-2xl",
+      )}>
         <DialogHeader>
           <DialogTitle>{t("employees.import.title")}</DialogTitle>
         </DialogHeader>
@@ -276,12 +237,8 @@ function ImportDialog({
           >
             <Upload className="h-8 w-8 opacity-40" />
             <div>
-              <p className="text-sm font-medium text-foreground">
-                {t("employees.import.dropzone")}
-              </p>
-              <p className="text-xs mt-1 text-muted-foreground">
-                {t("employees.import.dropzoneHint")}
-              </p>
+              <p className="text-sm font-medium text-foreground">{t("employees.import.dropzone")}</p>
+              <p className="text-xs mt-1 text-muted-foreground">{t("employees.import.dropzoneHint")}</p>
             </div>
             <input
               ref={inputRef}
@@ -299,74 +256,30 @@ function ImportDialog({
                 <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
                 <span className="text-sm truncate">{fileName}</span>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 shrink-0"
-                onClick={reset}
-              >
+              <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={reset}>
                 <X className="h-3.5 w-3.5" />
               </Button>
             </div>
 
             {/* Sumar */}
-            <div
-              className={cn(
-                "grid gap-2",
-                isMobile ? "grid-cols-1" : "grid-cols-3",
-              )}
-            >
-              <div className="flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 dark:bg-green-950 px-3 py-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-                <span className="text-sm">
-                  {t("employees.import.validCount", {
-                    count: validRows.length,
-                  })}
-                </span>
+            <div className={cn("grid gap-2", isMobile ? "grid-cols-1" : "grid-cols-3")}>
+              <div className="flex items-center gap-2 rounded-lg border-2 border-green-500 bg-green-500/10 px-3 py-2">
+                <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                <span className="text-sm font-medium text-green-700 dark:text-green-400">{t("employees.import.validCount", { count: validRows.length })}</span>
               </div>
-              <div
-                className={cn(
-                  "flex items-center gap-2 rounded-lg border px-3 py-2",
-                  invalidRows.length > 0
-                    ? "border-red-200 bg-red-50 dark:bg-red-950"
-                    : "border-muted bg-muted/30",
-                )}
-              >
-                <AlertTriangle
-                  className={cn(
-                    "h-4 w-4 shrink-0",
-                    invalidRows.length > 0
-                      ? "text-red-600"
-                      : "text-muted-foreground",
-                  )}
-                />
-                <span className="text-sm">
-                  {t("employees.import.invalidCount", {
-                    count: invalidRows.length,
-                  })}
-                </span>
+              <div className={cn(
+                "flex items-center gap-2 rounded-lg border px-3 py-2",
+                invalidRows.length > 0 ? "border-red-500 bg-red-500/10" : "border-muted bg-muted/30",
+              )}>
+                <AlertTriangle className={cn("h-4 w-4 shrink-0", invalidRows.length > 0 ? "text-red-500" : "text-muted-foreground")} />
+                <span className="text-sm font-medium text-red-700 dark:text-red-400">{t("employees.import.invalidCount", { count: invalidRows.length })}</span>
               </div>
-              <div
-                className={cn(
-                  "flex items-center gap-2 rounded-lg border px-3 py-2",
-                  duplicateRows.length > 0
-                    ? "border-yellow-200 bg-yellow-50 dark:bg-yellow-950"
-                    : "border-muted bg-muted/30",
-                )}
-              >
-                <AlertTriangle
-                  className={cn(
-                    "h-4 w-4 shrink-0",
-                    duplicateRows.length > 0
-                      ? "text-yellow-600"
-                      : "text-muted-foreground",
-                  )}
-                />
-                <span className="text-sm">
-                  {t("employees.import.duplicateCount", {
-                    count: duplicateRows.length,
-                  })}
-                </span>
+              <div className={cn(
+                "flex items-center gap-2 rounded-lg border px-3 py-2",
+                duplicateRows.length > 0 ? "border-yellow-500 bg-yellow-500/10" : "border-muted bg-muted/30",
+              )}>
+                <AlertTriangle className={cn("h-4 w-4 shrink-0", duplicateRows.length > 0 ? "text-yellow-500" : "text-muted-foreground")} />
+                <span className="text-sm font-medium text-yellow-700 dark:text-yellow-400">{t("employees.import.duplicateCount", { count: duplicateRows.length })}</span>
               </div>
             </div>
 
@@ -376,16 +289,10 @@ function ImportDialog({
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-8">#</TableHead>
-                      <TableHead className="min-w-[140px]">
-                        {t("employees.fields.name")}
-                      </TableHead>
-                      <TableHead className="min-w-[120px] hidden sm:table-cell">
-                        {t("employees.fields.department")}
-                      </TableHead>
-                      <TableHead className="min-w-[200px]">
-                        {t("employees.import.errorsCol")}
-                      </TableHead>
+                      <TableHead className="w-8 text-foreground font-semibold">#</TableHead>
+                      <TableHead className="min-w-[140px] text-foreground font-semibold">{t("employees.fields.name")}</TableHead>
+                      <TableHead className="min-w-[120px] hidden sm:table-cell">{t("employees.fields.department")}</TableHead>
+                      <TableHead className="min-w-[200px] text-foreground font-semibold">{t("employees.import.errorsCol")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -394,32 +301,22 @@ function ImportDialog({
                         key={row.rowIndex}
                         className={cn(
                           row.errors.length > 0
-                            ? "bg-red-50 dark:bg-red-950/30"
-                            : row.isDuplicate
-                              ? "bg-yellow-50 dark:bg-yellow-950/30"
-                              : "",
+                          ? "bg-red-500/10 hover:bg-red-500/15"
+                          : row.isDuplicate
+                          ? "bg-yellow-500/10 hover:bg-yellow-500/15"
+                          : "bg-green-500/5 hover:bg-green-500/10",
                         )}
                       >
-                        <TableCell className="text-xs text-muted-foreground">
-                          {row.rowIndex}
-                        </TableCell>
-                        <TableCell className="text-sm font-medium whitespace-nowrap">
-                          {row.mapped.name ?? "—"}
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-sm whitespace-nowrap">
-                          {row.mapped.department ?? "—"}
-                        </TableCell>
-                        <TableCell className="text-xs whitespace-nowrap">
+                        <TableCell className="text-xs text-muted-foreground">{row.rowIndex}</TableCell>
+                        <TableCell className="text-sm font-medium whitespace-nowrap">{row.mapped.name ?? "—"}</TableCell>
+                        <TableCell className="hidden sm:table-cell text-sm whitespace-nowrap">{row.mapped.department ?? "—"}</TableCell>
+                        <TableCell className="text-xs whitespace-nowrap font-medium">
                           {row.errors.length > 0 ? (
-                            <span className="text-red-600">
-                              {row.errors.join(", ")}
-                            </span>
+                            <span className="text-red-600 dark:text-red-400">{row.errors.join(" | ")}</span>
                           ) : row.isDuplicate ? (
-                            <span className="text-yellow-600">
-                              {t("employees.import.duplicate")}
-                            </span>
+                            <span className="text-yellow-600 dark:text-yellow-400">{t("employees.import.duplicate")}</span>
                           ) : (
-                            <span className="text-green-600">✓</span>
+                            <span className="text-green-600 dark:text-green-400">✓ {t("employees.import.rowValid")}</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -431,20 +328,31 @@ function ImportDialog({
           </div>
         )}
 
-        <DialogFooter className={cn(isMobile && "flex-col gap-2")}>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className={cn(isMobile && "w-full")}
-          >
+        {rows.length > 0 && (
+          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded bg-green-500/20 border border-green-500" />
+              {t("employees.import.legendValid")}
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded bg-red-500/20 border border-red-500" />
+              {t("employees.import.legendInvalid")}
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="inline-block w-3 h-3 rounded bg-yellow-500/20 border border-yellow-500" />
+              {t("employees.import.legendDuplicate")}
+            </span>
+          </div>
+        )}
+        <DialogFooter className={cn("gap-2", isMobile && "flex-col")}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} className={cn(isMobile && "w-full")}>
             {t("employees.actions.cancel")}
           </Button>
-          {rows.length > 0 && validRows.length > 0 && (
-            <Button
-              onClick={handleConfirm}
-              className={cn(isMobile && "w-full")}
-            >
-              {t("employees.import.confirm", { count: validRows.length })}
+          {rows.length > 0 && (
+            <Button onClick={handleConfirm} disabled={validRows.length === 0} className={cn(isMobile && "w-full")}>
+              {validRows.length > 0
+                ? t("employees.import.confirm", { count: validRows.length })
+                : t("employees.import.noValidRows")}
             </Button>
           )}
         </DialogFooter>
@@ -461,25 +369,17 @@ function getColumns(t: (key: string) => string): ColumnDef<Employee>[] {
       accessorKey: "name",
       enableHiding: false,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={t("employees.fields.name")}
-        />
+        <DataTableColumnHeader column={column} title={t("employees.fields.name")} />
       ),
       cell: ({ row }) => (
-        <div className="font-medium whitespace-nowrap">
-          {row.getValue("name")}
-        </div>
+        <div className="font-medium whitespace-nowrap">{row.getValue("name")}</div>
       ),
     },
     {
       accessorKey: "position",
       enableHiding: false,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={t("employees.fields.position")}
-        />
+        <DataTableColumnHeader column={column} title={t("employees.fields.position")} />
       ),
       cell: ({ row }) => (
         <div className="whitespace-nowrap">{row.getValue("position")}</div>
@@ -489,10 +389,7 @@ function getColumns(t: (key: string) => string): ColumnDef<Employee>[] {
       accessorKey: "department",
       enableHiding: false,
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={t("employees.fields.department")}
-        />
+        <DataTableColumnHeader column={column} title={t("employees.fields.department")} />
       ),
       cell: ({ row }) => (
         <Badge variant="secondary">
@@ -523,24 +420,16 @@ function getColumns(t: (key: string) => string): ColumnDef<Employee>[] {
     {
       accessorKey: "hireDate",
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={t("employees.fields.hireDate")}
-        />
+        <DataTableColumnHeader column={column} title={t("employees.fields.hireDate")} />
       ),
       cell: ({ row }) => (
-        <div className="whitespace-nowrap">
-          {formatDate(row.getValue("hireDate"))}
-        </div>
+        <div className="whitespace-nowrap">{formatDate(row.getValue("hireDate"))}</div>
       ),
     },
     {
       accessorKey: "salary",
       header: ({ column }) => (
-        <DataTableColumnHeader
-          column={column}
-          title={t("employees.fields.salary")}
-        />
+        <DataTableColumnHeader column={column} title={t("employees.fields.salary")} />
       ),
       cell: ({ row }) => (
         <div className="whitespace-nowrap font-medium">
@@ -571,12 +460,8 @@ export default function EmployeesPage() {
   const [data, setData] = React.useState<Employee[]>(() =>
     getCollection<Employee>(STORAGE_KEYS.employees),
   );
-  const [sorting, setSorting] = React.useState<SortingState>([
-    { id: "name", desc: false },
-  ]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
+  const [sorting, setSorting] = React.useState<SortingState>([{ id: "name", desc: false }]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [search, setSearch] = React.useState("");
   const [dept, setDept] = React.useState(ALL_DEPARTMENTS);
   const [importOpen, setImportOpen] = React.useState(false);
@@ -602,10 +487,7 @@ export default function EmployeesPage() {
     onGlobalFilterChange: setSearch,
     globalFilterFn: (row, _columnId, value) => {
       const normalize = (s: string) =>
-        s
-          .toLowerCase()
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "");
+        s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
       const q = normalize(String(value));
       if (!q) return true;
       return (
@@ -623,9 +505,7 @@ export default function EmployeesPage() {
 
   const handleDeptChange = (v: string) => {
     setDept(v);
-    table
-      .getColumn("department")
-      ?.setFilterValue(v === ALL_DEPARTMENTS ? undefined : v);
+    table.getColumn("department")?.setFilterValue(v === ALL_DEPARTMENTS ? undefined : v);
     table.setPageIndex(0);
   };
 
@@ -634,8 +514,7 @@ export default function EmployeesPage() {
     table.setPageIndex(0);
   };
 
-  const refreshData = () =>
-    setData(getCollection<Employee>(STORAGE_KEYS.employees));
+  const refreshData = () => setData(getCollection<Employee>(STORAGE_KEYS.employees));
 
   return (
     <>
@@ -645,36 +524,23 @@ export default function EmployeesPage() {
       <Main>
         <Card>
           <CardHeader>
-            <div
-              className={cn(
-                "flex flex-wrap gap-2",
-                isMobile ? "flex-col" : "items-center justify-between",
-              )}
-            >
+            <div className={cn(
+              "flex flex-wrap gap-2",
+              isMobile ? "flex-col" : "items-center justify-between",
+            )}>
               <CardTitle>{t("employees.listTitle")}</CardTitle>
               <span className="text-sm text-muted-foreground">
-                {t("employees.count", {
-                  count: table.getFilteredRowModel().rows.length,
-                })}
+                {t("employees.count", { count: table.getFilteredRowModel().rows.length })}
               </span>
-              <div
-                className={cn(
-                  "flex items-center gap-2",
-                  isMobile && "w-full justify-end",
-                )}
-              >
+              <div className={cn("flex items-center gap-2", isMobile && "w-full justify-end")}>
                 {isMobile ? (
                   <EmployeeExportMenu
-                    employees={table
-                      .getFilteredRowModel()
-                      .rows.map((row) => row.original)}
+                    employees={table.getFilteredRowModel().rows.map((row) => row.original)}
                     iconOnly
                   />
                 ) : (
                   <EmployeeExportMenu
-                    employees={table
-                      .getFilteredRowModel()
-                      .rows.map((row) => row.original)}
+                    employees={table.getFilteredRowModel().rows.map((row) => row.original)}
                   />
                 )}
                 <Button
@@ -683,20 +549,13 @@ export default function EmployeesPage() {
                   onClick={() => setImportOpen(true)}
                   title={t("employees.import.button")}
                 >
-                  <Upload
-                    className={cn("h-3.5 w-3.5", !isMobile && "mr-1.5")}
-                  />
+                  <Upload className={cn("h-3.5 w-3.5", !isMobile && "mr-1.5")} />
                   {!isMobile && t("employees.import.button")}
                 </Button>
                 <EmployeeDialog mode="add" onAdd={refreshData} />
               </div>
             </div>
-            <div
-              className={cn(
-                "flex flex-wrap gap-2 mt-3",
-                isMobile && "flex-col",
-              )}
-            >
+            <div className={cn("flex flex-wrap gap-2 mt-3", isMobile && "flex-col")}>
               <Input
                 placeholder={t("employees.placeholders.search")}
                 value={search}
@@ -709,9 +568,7 @@ export default function EmployeesPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {departments.map((d) => (
-                    <SelectItem key={d.value} value={d.value}>
-                      {d.label}
-                    </SelectItem>
+                    <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -726,12 +583,10 @@ export default function EmployeesPage() {
                     <TableRow key={headerGroup.id}>
                       {headerGroup.headers.map((header) => (
                         <TableHead key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
+                          {header.isPlaceholder ? null : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
                         </TableHead>
                       ))}
                     </TableRow>
@@ -739,11 +594,9 @@ export default function EmployeesPage() {
                 </TableHeader>
                 <TableBody>
                   {table.getRowModel().rows?.length ? (
-                    table
-                      .getRowModel()
-                      .rows.map((row) => (
-                        <EmployeeRow key={row.id} row={row} setData={setData} />
-                      ))
+                    table.getRowModel().rows.map((row) => (
+                      <EmployeeRow key={row.id} row={row} setData={setData} />
+                    ))
                   ) : (
                     <TableRow>
                       <TableCell

@@ -85,6 +85,21 @@ export const sidebarData: SidebarData = {
               url: "/transport/drivers",
               icon: Users,
             },
+            {
+              title: "Analiza Soferi",
+              url: "/driver-performance",
+              icon: TrendingUp,
+            },
+            {
+              title: "Mentenanta Camioane",
+              url: "/transport/maintenance",
+              icon: Wrench,
+            },
+            { 
+              title: "Combustibil", 
+              url: "/transport/fuel-log", 
+              icon: Fuel 
+            },
           ],
         },
         {

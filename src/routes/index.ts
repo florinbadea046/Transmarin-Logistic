@@ -13,6 +13,7 @@ import NotFoundPage from "@/pages/not-found";
 import UnauthorizedPage from "@/pages/unauthorized";
 import CostsPage from "@/pages/costs";
 import ActivityLogPage from "@/pages/activity-log";
+import DriverPerformancePage from "@/modules/transport/pages/_components/driver-performance";
 
 import TransportPage from "@/modules/transport/index";
 import OrdersPage from "@/modules/transport/pages/orders";
@@ -23,6 +24,8 @@ import TripsMapPage from "@/modules/transport/pages/_components/trips-map";
 import TripTrackerPage from "@/modules/transport/pages/_components/trip-tracker";
 import DriversPage from "@/modules/transport/pages/drivers";
 import DriverProfilePage from "@/modules/transport/pages/_components/driver-profile";
+import MaintenancePage from "@/modules/transport/pages/maintenance";
+import FuelLogPage from "@/modules/transport/pages/fuel-log";
 
 import FleetPage from "@/modules/fleet/index";
 import PartsPage from "@/modules/fleet/pages/parts";
@@ -38,6 +41,7 @@ import HRPage from "@/modules/hr/index";
 import EmployeesPage from "@/modules/hr/pages/employees";
 import LeavesPage from "@/modules/hr/pages/leaves";
 import PayrollPage from "@/modules/hr/pages/payroll";
+import AttendancePage from "@/modules/hr/pages/attendance";
 import AttendancePage from "@/modules/hr/pages/attendance";
 
 import ReportsPage from "@/modules/reports/index";
@@ -143,6 +147,16 @@ const driverProfileRoute = createRoute({
   path: "/transport/drivers/$driverId",
   component: DriverProfilePage,
 });
+const maintenanceRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/transport/maintenance",
+  component: MaintenancePage,
+});
+const fuelLogRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/transport/fuel-log",
+  component: FuelLogPage,
+});
 
 // Fleet
 const fleetRoute = createRoute({
@@ -189,6 +203,7 @@ const suppliersRoute = createRoute({
 });
 
 // HR
+
 const hrRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr",
@@ -265,6 +280,12 @@ const settingsDisplayRoute = createRoute({
   component: SettingsPage,
 });
 
+const driverPerformanceRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/driver-performance",
+  component: DriverPerformancePage,
+});
+
 const unauthorizedRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/unauthorized",
@@ -278,6 +299,7 @@ const routeTree = rootRoute.addChildren([
     dashboardRoute,
     costsRoute,
     activityLogRoute,
+
     // Transport
     transportRoute,
     ordersRoute,
@@ -288,17 +310,21 @@ const routeTree = rootRoute.addChildren([
     tripsCalendarDndRoute,
     driversRoute,
     driverProfileRoute,
+    maintenanceRoute,
+    fuelLogRoute,
+
     // Fleet
     fleetRoute,
     partsRoute,
     serviceRoute,
     fuelRoute,
     vehiclesRoute,
-    // Accounting
+
     // Accounting
     accountingRoute,
     invoicesRoute,
     suppliersRoute,
+
     // HR
     hrRoute,
     employeesRoute,
@@ -311,12 +337,15 @@ const routeTree = rootRoute.addChildren([
     financialReportsRoute,
     fleetReportsRoute,
     advancedReportsRoute,
+
     // Settings
     settingsRoute,
     settingsAccountRoute,
     settingsAppearanceRoute,
     settingsNotificationsRoute,
     settingsDisplayRoute,
+
+    driverPerformanceRoute,
   ]),
 ]);
 

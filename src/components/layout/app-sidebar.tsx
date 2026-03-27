@@ -26,11 +26,15 @@ const TITLE_KEYS: Record<string, string> = {
   "/transport/drivers": "driversPage.title",
   "/transport/trips-map": "tripsMap.title",
   "/transport/trips-calendar": "tripsCalendar.title",
+  "/driver-performance": "sidebar.transport.driverPerformance",
+  "/transport/maintenance": "maintenance.title",
+  "/transport/fuel-log": "fuelLog.title",
   // Fleet
   "/fleet": "sidebar.fleet.overview",
   "/fleet/parts": "sidebar.fleet.parts",
   "/fleet/service": "sidebar.fleet.service",
   "/fleet/fuel": "sidebar.fleet.fuel",
+  "/fleet/vehicles": "sidebar.fleet.vehicles",
   // Accounting
   "/accounting": "sidebar.accounting.overview",
   "/accounting/invoices": "invoices.title",
@@ -55,20 +59,20 @@ const TITLE_KEYS: Record<string, string> = {
 
 // Mapeaza titlu grup -> cheie i18n
 const GROUP_KEYS: Record<string, string> = {
-  "General": "sidebar.groups.general",
-  "Module": "sidebar.groups.modules",
-  "Setari": "sidebar.groups.settings",
+  General: "sidebar.groups.general",
+  Module: "sidebar.groups.modules",
+  Setari: "sidebar.groups.settings",
 };
 
 // Mapeaza titlu item parinte -> cheie i18n
 const PARENT_KEYS: Record<string, string> = {
   "Transport & Dispecerat": "sidebar.transport.title",
   "Parc Auto & Service": "sidebar.fleet.title",
-  "Contabilitate": "sidebar.accounting.title",
+  Contabilitate: "sidebar.accounting.title",
   "Resurse Umane": "sidebar.hr.title",
-  "Rapoarte": "sidebar.reports.title",
-  "Setari": "sidebar.settings.title",
-  "Dashboard": "dashboard.title",
+  Rapoarte: "sidebar.reports.title",
+  Setari: "sidebar.settings.title",
+  Dashboard: "dashboard.title",
   "Costs & Profitability": "costs.title",
   "Istoric Activitati": "activityLog.title",
 };
@@ -87,14 +91,19 @@ export function AppSidebar() {
       ...group,
       title: GROUP_KEYS[group.title] ? t(GROUP_KEYS[group.title]) : group.title,
       items: group.items.map((item): import("./types").NavItem => {
-        const translatedTitle = PARENT_KEYS[item.title] ? t(PARENT_KEYS[item.title]) : item.title;
+        const translatedTitle = PARENT_KEYS[item.title]
+          ? t(PARENT_KEYS[item.title])
+          : item.title;
         if (item.items) {
           return {
             ...item,
             title: translatedTitle,
             items: item.items.map((sub) => ({
               ...sub,
-              title: sub.url && TITLE_KEYS[sub.url] ? t(TITLE_KEYS[sub.url]) : sub.title,
+              title:
+                sub.url && TITLE_KEYS[sub.url]
+                  ? t(TITLE_KEYS[sub.url])
+                  : sub.title,
             })),
           };
         }
