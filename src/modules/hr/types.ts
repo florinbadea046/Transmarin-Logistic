@@ -44,3 +44,12 @@ export interface Bonus {
   date: string;
   description: string;
 }
+
+export type AttendanceStatus = "P" | "CO" | "CM" | "A" | "LP";
+
+export interface AttendanceRecord {
+  id: string;
+  employeeId: string;
+  date: string; // YYYY-MM-DD
+  status: AttendanceStatus;
+}
