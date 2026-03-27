@@ -27,6 +27,7 @@ import {
   Pencil,
   Trash2,
   MapPin,
+  FileText,
 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -79,6 +80,7 @@ import {
 } from "@/components/ui/form";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { InvoiceGenerator } from "@/modules/transport/pages/_components/invoice-generator";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
 import { DataTableToolbar } from "@/components/data-table/toolbar";
@@ -282,6 +284,7 @@ function buildColumns(
   onStatusChange: (trip: Trip) => void,
   onEdit: (trip: Trip) => void,
   onDelete: (trip: Trip) => void,
+  onGenerateInvoice: (trip: Trip) => void,
   t: ReturnType<typeof useTranslation>["t"],
   navigate: ReturnType<typeof useNavigate>,
 ): ColumnDef<Trip>[] {
@@ -588,10 +591,21 @@ function buildColumns(
                 <MapPin className="h-3 w-3 text-amber-500" />
               </button>
             )}
+            {trip.status === "finalizata" && (
+              <button
+                title={t("trips.actions.generateInvoice")}
+                onClick={() => {
+                  onGenerateInvoice(trip);
+                }}
+                className="h-6 w-6 flex items-center justify-center rounded-md border border-violet-300 bg-transparent hover:bg-violet-50 dark:hover:bg-violet-900/20 transition-colors"
+              >
+                <FileText className="h-3 w-3 text-violet-500" />
+              </button>
+            )}
           </div>
         );
       },
-      size: 110,
+      size: 120,
     },
   ];
 }
@@ -611,6 +625,8 @@ export default function TripsPage() {
   const [editingTrip, setEditingTrip] = React.useState<Trip | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = React.useState(false);
   const [deletingTrip, setDeletingTrip] = React.useState<Trip | null>(null);
+  const [invoiceDialogOpen, setInvoiceDialogOpen] = React.useState(false);
+  const [invoiceTrip, setInvoiceTrip] = React.useState<Trip | null>(null);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -713,6 +729,11 @@ export default function TripsPage() {
     setDialogOpen(true);
   }, []);
 
+  const handleGenerateInvoice = React.useCallback((trip: Trip) => {
+    setInvoiceTrip(trip);
+    setInvoiceDialogOpen(true);
+  }, []);
+
   const statusFilterOptions = (
     ["planned", "in_desfasurare", "finalizata", "anulata"] as Trip["status"][]
   ).map((value) => ({ value, label: t(`trips.status.${value}`) }));
@@ -727,6 +748,7 @@ export default function TripsPage() {
         handleStatusChange,
         handleEdit,
         handleDeleteRequest,
+        handleGenerateInvoice,
         t,
         navigate,
       ),
@@ -738,6 +760,7 @@ export default function TripsPage() {
       handleStatusChange,
       handleEdit,
       handleDeleteRequest,
+      handleGenerateInvoice,
       t,
       navigate,
     ],
@@ -1132,6 +1155,17 @@ export default function TripsPage() {
                             >
                               <MapPin className="mr-1 h-3 w-3" />
                               {t("trips.actions.liveTrack")}
+                            </Button>
+                          )}
+                          {trip.status === "finalizata" && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 px-2 text-xs text-violet-600 border-violet-400"
+                              onClick={() => handleGenerateInvoice(trip)}
+                            >
+                              <FileText className="mr-1 h-3 w-3" />
+                              {t("trips.actions.generateInvoice")}
                             </Button>
                           )}
                         </div>
@@ -1620,6 +1654,18 @@ export default function TripsPage() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {invoiceTrip && (
+        <InvoiceGenerator
+          trip={invoiceTrip}
+          open={invoiceDialogOpen}
+          onOpenChange={(v) => {
+            setInvoiceDialogOpen(v);
+            if (!v) setInvoiceTrip(null);
+          }}
+          onInvoiceSaved={loadData}
+        />
+      )}
 
       <ConfirmDialog
         open={deleteDialogOpen}

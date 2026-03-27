@@ -65,7 +65,8 @@
       "exportPdf": "Export PDF",
       "exportExcel": "Export Excel",
       "exportCsv": "Export CSV",
-      "liveTrack": "Urmărire Live"
+      "liveTrack": "Urmărire Live",
+      "generateInvoice": "Genereaza Factura"
     },
     "validation": {
       "orderRequired": "Selecteaza o comanda",
@@ -86,7 +87,8 @@
       "started": "Cursa pornita!",
       "finished": "Cursa finalizata!",
       "cancelled": "Cursa anulata.",
-      "error": "A aparut o eroare. Incearca din nou."
+      "error": "A aparut o eroare. Incearca din nou.",
+      "invoiceSaved": "Factura a fost generata si salvata."
     },
     "dialog": {
       "addDesc": "Completeaza detaliile pentru o cursa noua.",
