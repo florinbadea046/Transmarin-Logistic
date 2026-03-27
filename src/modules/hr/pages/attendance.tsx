@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/table";
 import { getCollection, setCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS, EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 import type {
   Employee,
   LeaveRequest,
@@ -47,6 +48,10 @@ import {
 
 // ── Page ─────────────────────────────────────────────────
 export default function AttendancePage() {
+  const { log } = useHrAuditLog();
+  const logRef = React.useRef(log);
+  logRef.current = log;
+
   const [selectedMonth, setSelectedMonth] = React.useState(currentMonth);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -154,6 +159,8 @@ export default function AttendancePage() {
   recordsRef.current = records;
   const attendanceMapRef = React.useRef(attendanceMap);
   attendanceMapRef.current = attendanceMap;
+  const employeesRef = React.useRef(employees);
+  employeesRef.current = employees;
 
   const handleCellClick = React.useCallback(
     (
@@ -203,6 +210,19 @@ export default function AttendancePage() {
 
       setRecords(newRecords);
       setCollection(STORAGE_KEYS.attendance, newRecords);
+
+      const empName = employeesRef.current.find((e) => e.id === employeeId)?.name ?? employeeId;
+      const auditAction =
+        next === undefined ? "delete" :
+        !hasExisting && currentStatus === undefined ? "create" :
+        "update";
+      logRef.current({
+        action: auditAction,
+        entity: "attendance",
+        entityId: `${employeeId}_${date}`,
+        entityLabel: empName,
+        details: `${date}: ${currentStatus ?? "—"} → ${next ?? "—"}`,
+      });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],

@@ -22,6 +22,7 @@ import { ExpiryDatePicker } from "./expiry-date-picker";
 import type { Employee, Bonus } from "@/modules/hr/types";
 import { addItem, updateItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 import { BONUS_TYPE_LABELS } from "../payroll/payroll-shared";
 
 const BONUS_FORM_TYPES = ["bonus", "amenda", "ore_suplimentare"] as const;
@@ -76,6 +77,7 @@ export default function BonusDialog({
     },
   });
 
+  const { log } = useHrAuditLog();
   const employeeId = useWatch({ control: form.control, name: "employeeId" });
   const type = useWatch({ control: form.control, name: "type" });
 
@@ -97,14 +99,33 @@ export default function BonusDialog({
       values.type === "amenda" ? -Math.abs(values.amount) : Math.abs(values.amount);
     const payload = { ...values, amount: normalizedAmount };
 
+    const empName = employees.find((e) => e.id === values.employeeId)?.name ?? values.employeeId;
     if (isEdit && bonus) {
       updateItem<Bonus>(
         STORAGE_KEYS.bonuses,
         (b) => b.id === bonus.id,
         () => ({ ...bonus, ...payload }),
       );
+      log({
+        action: "update",
+        entity: "bonus",
+        entityId: bonus.id,
+        entityLabel: empName,
+        details: `${values.type}: ${normalizedAmount} RON`,
+        oldValue: { amount: bonus.amount, type: bonus.type, description: bonus.description },
+        newValue: { amount: normalizedAmount, type: values.type, description: values.description },
+      });
     } else {
-      addItem<Bonus>(STORAGE_KEYS.bonuses, { ...payload, id: generateId() });
+      const newId = generateId();
+      addItem<Bonus>(STORAGE_KEYS.bonuses, { ...payload, id: newId });
+      log({
+        action: "create",
+        entity: "bonus",
+        entityId: newId,
+        entityLabel: empName,
+        details: `${values.type}: ${normalizedAmount} RON`,
+        newValue: { amount: normalizedAmount, type: values.type, description: values.description },
+      });
     }
     onSave();
     onOpenChange(false);

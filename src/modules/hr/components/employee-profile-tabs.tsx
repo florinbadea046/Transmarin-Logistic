@@ -22,6 +22,7 @@ import {
 import { getCollection, updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, LeaveRequest, Bonus, EmployeeDocument } from "@/modules/hr/types";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 import { formatDate } from "@/utils/format";
 import { DocumentsTab } from "./documents-tab";
 import { BONUS_TYPE_LABELS } from "../payroll/payroll-shared";
@@ -147,15 +148,36 @@ interface DocsTabProps {
 }
 
 export function DocsTabWrapper({ employee, onUpdate }: DocsTabProps) {
+  const { log } = useHrAuditLog();
+
   const handleChange = React.useCallback((docs: EmployeeDocument[]) => {
+    const oldCount = employee.documents.length;
+    const newCount = docs.length;
+    const action = newCount > oldCount ? "create" : newCount < oldCount ? "delete" : "update";
+    const changedDoc = action === "delete"
+      ? employee.documents.find((d) => !docs.some((nd) => nd.id === d.id))
+      : action === "create"
+        ? docs.find((d) => !employee.documents.some((od) => od.id === d.id))
+        : docs.find((d) => {
+            const old = employee.documents.find((od) => od.id === d.id);
+            return old && JSON.stringify(old) !== JSON.stringify(d);
+          });
+
     const updated = { ...employee, documents: docs };
     updateItem<Employee>(
       STORAGE_KEYS.employees,
       (e) => e.id === employee.id,
       () => updated,
     );
+    log({
+      action,
+      entity: "document",
+      entityId: changedDoc?.id ?? employee.id,
+      entityLabel: employee.name,
+      details: changedDoc ? `${changedDoc.type}: ${changedDoc.name || changedDoc.documentNumber || "—"}` : undefined,
+    });
     onUpdate(updated);
-  }, [employee, onUpdate]);
+  }, [employee, onUpdate, log]);
 
   return (
     <DocumentsTab documents={employee.documents} onChange={handleChange} />

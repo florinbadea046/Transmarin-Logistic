@@ -29,6 +29,7 @@ export const STORAGE_KEYS = {
   leaveRequests: "transmarin_leave_requests",
   bonuses: "transmarin_bonuses",
   attendance: "transmarin_attendance",
+  hr_audit_log: "transmarin_hr_audit_log",
   // Notifications
   notifications: "transmarin_notifications",
   // Activity Log

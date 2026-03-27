@@ -13,6 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import type { Employee } from "@/modules/hr/types";
 import { addItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 import { EmployeeFormFields } from "./employee-form-fields";
 import {
   makeEmployeeSchema,
@@ -37,6 +38,7 @@ export default function EmployeeDialog(props: Props) {
   const externalOpen = isEdit ? props.open : undefined;
   const externalOnOpenChange = isEdit ? props.onOpenChange : undefined;
 
+  const { log } = useHrAuditLog();
   const [internalOpen, setInternalOpen] = React.useState(false);
   const open = externalOpen !== undefined ? externalOpen : internalOpen;
   const setOpen = externalOnOpenChange ?? setInternalOpen;
@@ -77,10 +79,19 @@ export default function EmployeeDialog(props: Props) {
     if (props.mode === "edit") {
       props.onEdit({ ...props.employee, ...values });
     } else {
+      const newId = generateId();
       addItem<Employee>(STORAGE_KEYS.employees, {
         ...values,
-        id: generateId(),
+        id: newId,
         documents: [],
+      });
+      log({
+        action: "create",
+        entity: "employee",
+        entityId: newId,
+        entityLabel: values.name,
+        details: `${values.position}, ${values.department}`,
+        newValue: { name: values.name, position: values.position, department: values.department, salary: values.salary },
       });
       props.onAdd();
       form.reset();

@@ -15,6 +15,7 @@ import { removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, Bonus } from "@/modules/hr/types";
 import { toast } from "sonner";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 
 export type BonusRow = Bonus & { employeeName: string };
 
@@ -26,10 +27,18 @@ interface Props {
 
 export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) => {
   const bonus = row.original;
+  const { log } = useHrAuditLog();
   const [editOpen, setEditOpen] = React.useState(false);
 
   const handleDelete = () => {
     removeItem<Bonus>(STORAGE_KEYS.bonuses, (b) => b.id === bonus.id);
+    log({
+      action: "delete",
+      entity: "bonus",
+      entityId: bonus.id,
+      entityLabel: bonus.employeeName,
+      details: `${bonus.type}: ${bonus.amount} RON`,
+    });
     onRefresh();
     toast.success("Înregistrare ștearsă");
   };

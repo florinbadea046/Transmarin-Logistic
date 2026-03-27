@@ -42,12 +42,14 @@ import EmployeesPage from "@/modules/hr/pages/employees";
 import LeavesPage from "@/modules/hr/pages/leaves";
 import PayrollPage from "@/modules/hr/pages/payroll";
 import AttendancePage from "@/modules/hr/pages/attendance";
+import ActivityLogHRPage from "@/modules/hr/pages/activity-log-hr";
 
 import ReportsPage from "@/modules/reports/index";
 import TransportReportsPage from "@/modules/reports/pages/transport-reports";
 import FinancialReportsPage from "@/modules/reports/pages/financial-reports";
 import FleetReportsPage from "@/modules/reports/pages/fleet-reports";
 import AdvancedReportsPage from "@/modules/reports/pages/reports";
+import HrReportsPage from "@/modules/reports/pages/reports-hr";
 
 import SettingsPage from "@/pages/settings";
 
@@ -223,8 +225,8 @@ const payrollRoute = createRoute({
   path: "/hr/payroll",
   component: PayrollPage,
 });
-
 const attendanceRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/attendance", component: AttendancePage });
+const hrActivityLogRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/activity-log", component: ActivityLogHRPage });
 
 // Reports
 const reportsRoute = createRoute({
@@ -251,6 +253,11 @@ const advancedReportsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/reports/advanced",
   component: AdvancedReportsPage,
+});
+const hrReportsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/reports/hr",
+  component: HrReportsPage,
 });
 
 // Settings
@@ -331,14 +338,14 @@ const routeTree = rootRoute.addChildren([
     leavesRoute,
     payrollRoute,
     attendanceRoute,
-
+    hrActivityLogRoute,
     // Reports
     reportsRoute,
     transportReportsRoute,
     financialReportsRoute,
     fleetReportsRoute,
     advancedReportsRoute,
-
+    hrReportsRoute,
     // Settings
     settingsRoute,
     settingsAccountRoute,
