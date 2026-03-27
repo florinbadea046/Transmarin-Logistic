@@ -3,6 +3,7 @@ export interface Order {
   clientName: string;
   origin: string;
   destination: string;
+  stops?: string[];
   date: string;
   status: "pending" | "assigned" | "in_transit" | "delivered" | "cancelled";
   weight?: number;
@@ -53,10 +54,7 @@ export type MaintenanceType =
   | "frane"
   | "altele";
 
-export type MaintenanceStatus =
-  | "programat"
-  | "in_lucru"
-  | "finalizat";
+export type MaintenanceStatus = "programat" | "in_lucru" | "finalizat";
 
 export interface MaintenanceRecord {
   id: string;
@@ -75,10 +73,10 @@ export interface FuelLog {
   id: string;
   truckId: string;
   driverId: string;
-  date: string;           
+  date: string;
   station: string;
   liters: number;
   pricePerLiter: number;
-  totalCost: number;     
-  kmAtFueling: number;    
+  totalCost: number;
+  kmAtFueling: number;
 }

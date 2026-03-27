@@ -20,7 +20,8 @@
       "status": "Status",
       "weight": "Weight (t)",
       "notes": "Notes",
-      "weightUnit": "t"
+      "weightUnit": "t",
+      "stops": "Stops"
     },
     "placeholders": {
       "client": "Ex: SC Transmarin SRL",
@@ -31,7 +32,8 @@
       "selectDate": "Select date",
       "search": "Search orders...",
       "filterOrigin": "Origin...",
-      "filterDest": "Destination..."
+      "filterDest": "Destination...",
+      "stop": "Ex: Ploiesti"
     },
     "validation": {
       "clientRequired": "Client is required",
@@ -56,7 +58,9 @@
       "exportPdf": "Export PDF",
       "exportExcel": "Export Excel",
       "exportCsv": "Export CSV",
-      "reset": "Reset filters"
+      "reset": "Reset filters",
+      "actions": "Actions",
+      "rowOptions": "Row options"
     },
     "filters": {
       "from": "From date",
@@ -95,6 +99,11 @@
       "toastSuccess": "{{count}} order(s) imported successfully.",
       "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
       "toastAllSkipped": "No orders imported - all rows are duplicates."
+    },
+    "stops": {
+      "add": "Add stop",
+      "section": "Intermediate stops",
+      "hint": "Add intermediate stops along the route. Drag to reorder."
     }
   }
 }
