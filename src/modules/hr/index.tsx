@@ -265,7 +265,9 @@ export default function HRPage() {
               </ResponsiveContainer>
             </CardContent>
           </Card>
+
         </div>
+
       </Main>
     </>
   );

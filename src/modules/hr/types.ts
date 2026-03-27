@@ -5,13 +5,14 @@
 export interface Employee {
   id: string;
   name: string;
-  position: string;
+  position: string; // ex: "CEO", "Manager", "Developer"
   department: string;
   phone: string;
   email: string;
   hireDate: string;
   salary: number;
   documents: EmployeeDocument[];
+  managerId?: string | null; // id-ul managerului direct, null pentru CEO
 }
 
 export interface EmployeeDocument {
