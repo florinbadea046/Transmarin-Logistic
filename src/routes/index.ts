@@ -24,6 +24,7 @@ import TripsMapPage from "@/modules/transport/pages/_components/trips-map";
 import TripTrackerPage from "@/modules/transport/pages/_components/trip-tracker";
 import DriversPage from "@/modules/transport/pages/drivers";
 import DriverProfilePage from "@/modules/transport/pages/_components/driver-profile";
+import MaintenancePage from "@/modules/transport/pages/maintenance";
 
 import FleetPage from "@/modules/fleet/index";
 import PartsPage from "@/modules/fleet/pages/parts";
@@ -142,6 +143,11 @@ const driverProfileRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/transport/drivers/$driverId",
   component: DriverProfilePage,
+});
+const maintenanceRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/transport/maintenance",
+  component: MaintenancePage,
 });
 
 // Fleet
@@ -264,7 +270,6 @@ const settingsDisplayRoute = createRoute({
   component: SettingsPage,
 });
 
-// EXTRA (din al doilea cod)
 const driverPerformanceRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/driver-performance",
@@ -295,6 +300,7 @@ const routeTree = rootRoute.addChildren([
     tripsCalendarDndRoute,
     driversRoute,
     driverProfileRoute,
+    maintenanceRoute,
 
     // Fleet
     fleetRoute,
@@ -328,7 +334,6 @@ const routeTree = rootRoute.addChildren([
     settingsNotificationsRoute,
     settingsDisplayRoute,
 
-    // EXTRA
     driverPerformanceRoute,
   ]),
 ]);

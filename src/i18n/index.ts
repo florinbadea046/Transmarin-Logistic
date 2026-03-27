@@ -18,6 +18,7 @@ import roFleet from "./resources/ro/fleet.json";
 import roAccounting from "./resources/ro/accounting.json";
 import roHr from "./resources/ro/hr.json";
 import roSettings from "./resources/ro/settings.json";
+import roMaintenance from "./resources/ro/maintenance.json";
 
 // EN
 import enCommon from "./resources/en/common.json";
@@ -35,6 +36,7 @@ import enFleet from "./resources/en/fleet.json";
 import enAccounting from "./resources/en/accounting.json";
 import enHr from "./resources/en/hr.json";
 import enSettings from "./resources/en/settings.json";
+import enMaintenance from "./resources/en/maintenance.json";
 
 i18n
   .use(LanguageDetector)
@@ -61,6 +63,7 @@ i18n
           ...enAccounting,
           ...enHr,
           ...enSettings,
+          ...enMaintenance,
         },
       },
       ro: {
@@ -80,6 +83,7 @@ i18n
           ...roAccounting,
           ...roHr,
           ...roSettings,
+          ...roMaintenance,
         },
       },
     },
