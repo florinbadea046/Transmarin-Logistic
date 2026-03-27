@@ -155,7 +155,9 @@
       "client": "Client",
       "driver": "Driver",
       "truck": "Truck",
-      "arrival": "Est. arrival"
+      "arrival": "Est. arrival",
+      "estimatedKm": "Est. distance",
+      "stop": "Stop"
     }
   },
   "tripsDnd": {
@@ -189,6 +191,7 @@
     "details": "Trip details",
     "notFound": "Trip not found.",
     "unknownRoute": "Unknown route",
-    "noCoordsMessage": "Route coordinates not available for this trip."
+    "noCoordsMessage": "Route coordinates not available for this trip.",
+    "stopReached": "Reached"
   }
 }

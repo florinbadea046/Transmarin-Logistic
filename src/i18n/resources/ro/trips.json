@@ -155,7 +155,9 @@
       "client": "Client",
       "driver": "Sofer",
       "truck": "Camion",
-      "arrival": "Sosire est."
+      "arrival": "Sosire est.",
+      "estimatedKm": "Distanta est.",
+      "stop": "Oprire"
     }
   },
   "tripsDnd": {
@@ -189,6 +191,7 @@
     "details": "Detalii cursă",
     "notFound": "Cursa nu a fost găsită.",
     "unknownRoute": "Rută necunoscută",
-    "noCoordsMessage": "Coordonatele rutei nu sunt disponibile pentru această cursă."
+    "noCoordsMessage": "Coordonatele rutei nu sunt disponibile pentru această cursă.",
+    "stopReached": "Atins"
   }
 }

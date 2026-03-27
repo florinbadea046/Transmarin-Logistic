@@ -70,12 +70,81 @@ function getCoords(city: string): [number, number] | null {
   return key ? CITY_COORDS[key] : null;
 }
 
-function interpolate(
-  from: [number, number],
-  to: [number, number],
-  t: number,
-): [number, number] {
-  return [from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t];
+function haversineKm(a: [number, number], b: [number, number]) {
+  const R = 6371;
+  const dLat = ((b[0] - a[0]) * Math.PI) / 180;
+  const dLon = ((b[1] - a[1]) * Math.PI) / 180;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a[0] * Math.PI) / 180) *
+      Math.cos((b[0] * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+
+function interpolateAlongRoute(
+  waypoints: [number, number][],
+  progress: number,
+): [number, number] | null {
+  if (waypoints.length < 2) return null;
+  if (progress <= 0) return waypoints[0];
+  if (progress >= 1) return waypoints[waypoints.length - 1];
+
+  const segLengths: number[] = [];
+  let totalLen = 0;
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    const d = haversineKm(waypoints[i], waypoints[i + 1]);
+    segLengths.push(d);
+    totalLen += d;
+  }
+
+  if (totalLen === 0) return waypoints[0];
+
+  const targetDist = progress * totalLen;
+  let traveled = 0;
+  for (let i = 0; i < segLengths.length; i++) {
+    const segLen = segLengths[i];
+    if (traveled + segLen >= targetDist) {
+      const t = segLen === 0 ? 0 : (targetDist - traveled) / segLen;
+      const a = waypoints[i];
+      const b = waypoints[i + 1];
+      return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+    }
+    traveled += segLen;
+  }
+  return waypoints[waypoints.length - 1];
+}
+
+function traveledSegments(
+  waypoints: [number, number][],
+  progress: number,
+  currentPos: [number, number],
+): [number, number][] {
+  if (waypoints.length < 2 || progress <= 0) return [];
+
+  const segLengths: number[] = [];
+  let totalLen = 0;
+  for (let i = 0; i < waypoints.length - 1; i++) {
+    const d = haversineKm(waypoints[i], waypoints[i + 1]);
+    segLengths.push(d);
+    totalLen += d;
+  }
+  if (totalLen === 0) return [];
+
+  const targetDist = progress * totalLen;
+  const result: [number, number][] = [waypoints[0]];
+  let traveled = 0;
+
+  for (let i = 0; i < segLengths.length; i++) {
+    const segLen = segLengths[i];
+    if (traveled + segLen >= targetDist) {
+      result.push(currentPos);
+      break;
+    }
+    traveled += segLen;
+    result.push(waypoints[i + 1]);
+  }
+  return result;
 }
 
 function makeTruckIcon() {
@@ -98,6 +167,17 @@ function makeEndpointIcon(color: string) {
   });
 }
 
+function makeStopIcon(num: number, reached: boolean) {
+  const bg = reached ? "#22c55e" : "#94a3b8";
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:20px;height:20px;border-radius:50%;background:${bg};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:700;font-family:sans-serif">${num}</div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    popupAnchor: [0, -12],
+  });
+}
+
 function PanTo({ position }: { position: [number, number] }) {
   const map = useMap();
   React.useEffect(() => {
@@ -111,8 +191,8 @@ type TrackerData = {
   order: Order | null;
   driver: Driver | null;
   truck: Truck | null;
-  originCoords: [number, number] | null;
-  destCoords: [number, number] | null;
+  waypoints: [number, number][];
+  stopNames: string[];
 };
 
 export default function TripTrackerPage() {
@@ -126,8 +206,8 @@ export default function TripTrackerPage() {
     order: null,
     driver: null,
     truck: null,
-    originCoords: null,
-    destCoords: null,
+    waypoints: [],
+    stopNames: [],
   });
 
   React.useEffect(() => {
@@ -146,25 +226,39 @@ export default function TripTrackerPage() {
     const truck = trip
       ? (trucks.find((tr) => tr.id === trip.truckId) ?? null)
       : null;
-    const originCoords = order ? getCoords(order.origin) : null;
-    const destCoords = order ? getCoords(order.destination) : null;
 
-    setData({ trip, order, driver, truck, originCoords, destCoords });
+    const pts: [number, number][] = [];
+    const stopNames: string[] = order?.stops ?? [];
+
+    const originCoords = order ? getCoords(order.origin) : null;
+    if (originCoords) pts.push(originCoords);
+
+    for (const stop of stopNames) {
+      const c = getCoords(stop);
+      if (c) pts.push(c);
+    }
+
+    const destCoords = order ? getCoords(order.destination) : null;
+    if (destCoords) pts.push(destCoords);
+
+    setData({ trip, order, driver, truck, waypoints: pts, stopNames });
   }, [tripId]);
 
-  const { trip, order, driver, truck, originCoords, destCoords } = data;
+  const { trip, order, driver, truck, waypoints, stopNames } = data;
+
+  const originCoords = waypoints[0] ?? null;
+  const destCoords = waypoints[waypoints.length - 1] ?? null;
+  const hasRoute = waypoints.length >= 2;
 
   const [progress, setProgress] = React.useState(0);
   const [running, setRunning] = React.useState(true);
   const intervalRef = React.useRef<ReturnType<typeof setInterval> | null>(null);
   const initializedRef = React.useRef(false);
 
-  const originCoordsRef = React.useRef(originCoords);
-  const destCoordsRef = React.useRef(destCoords);
+  const waypointsRef = React.useRef(waypoints);
   React.useEffect(() => {
-    originCoordsRef.current = originCoords;
-    destCoordsRef.current = destCoords;
-  }, [originCoords, destCoords]);
+    waypointsRef.current = waypoints;
+  }, [waypoints]);
 
   React.useEffect(() => {
     if (!trip || initializedRef.current) return;
@@ -177,7 +271,7 @@ export default function TripTrackerPage() {
   }, [trip]);
 
   React.useEffect(() => {
-    if (!running || !originCoordsRef.current || !destCoordsRef.current) return;
+    if (!running || waypointsRef.current.length < 2) return;
     intervalRef.current = setInterval(() => {
       setProgress((prev) => {
         const next = prev + 0.005;
@@ -198,12 +292,39 @@ export default function TripTrackerPage() {
     if (intervalRef.current) clearInterval(intervalRef.current);
   };
 
-  const markerPos =
-    originCoords && destCoords
-      ? interpolate(originCoords, destCoords, progress)
-      : null;
+  const markerPos = hasRoute
+    ? interpolateAlongRoute(waypoints, progress)
+    : null;
+
+  const traveled =
+    markerPos && hasRoute
+      ? traveledSegments(waypoints, progress, markerPos)
+      : [];
 
   const progressPct = Math.round(progress * 100);
+
+  function isStopReached(waypointIdx: number): boolean {
+    if (!hasRoute) return false;
+    const segLengths: number[] = [];
+    let totalLen = 0;
+    for (let i = 0; i < waypoints.length - 1; i++) {
+      const d = haversineKm(waypoints[i], waypoints[i + 1]);
+      segLengths.push(d);
+      totalLen += d;
+    }
+    if (totalLen === 0) return false;
+    let distToStop = 0;
+    for (let i = 0; i < waypointIdx; i++) distToStop += segLengths[i];
+    return progress * totalLen >= distToStop;
+  }
+
+  const totalKm = hasRoute
+    ? Math.round(
+        waypoints
+          .slice(1)
+          .reduce((acc, pt, i) => acc + haversineKm(waypoints[i], pt), 0),
+      )
+    : null;
 
   if (!trip) {
     return (
@@ -226,8 +347,6 @@ export default function TripTrackerPage() {
       </>
     );
   }
-
-  const noCoords = !originCoords || !destCoords;
 
   return (
     <>
@@ -257,7 +376,7 @@ export default function TripTrackerPage() {
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <CardTitle className="truncate text-sm sm:text-base">
                   {order
-                    ? `${order.origin} → ${order.destination}`
+                    ? `${order.origin}${stopNames.length > 0 ? ` → ${stopNames.join(" → ")}` : ""} → ${order.destination}`
                     : t("tripTracker.unknownRoute")}
                 </CardTitle>
                 <Badge
@@ -269,7 +388,7 @@ export default function TripTrackerPage() {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              {noCoords ? (
+              {!hasRoute ? (
                 <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground px-6 text-center">
                   {t("tripTracker.noCoordsMessage")}
                 </div>
@@ -285,20 +404,23 @@ export default function TripTrackerPage() {
                       attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
                       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     />
+
                     <Polyline
-                      positions={[originCoords!, destCoords!]}
+                      positions={waypoints}
                       pathOptions={{
                         color: "#94a3b8",
                         weight: 2,
                         dashArray: "5 5",
                       }}
                     />
-                    {markerPos && (
+
+                    {traveled.length > 1 && (
                       <Polyline
-                        positions={[originCoords!, markerPos]}
+                        positions={traveled}
                         pathOptions={{ color: "#f59e0b", weight: 3 }}
                       />
                     )}
+
                     <Marker
                       position={originCoords!}
                       icon={makeEndpointIcon("#22c55e")}
@@ -309,6 +431,35 @@ export default function TripTrackerPage() {
                         </span>
                       </Popup>
                     </Marker>
+
+                    {stopNames.map((stopName, idx) => {
+                      const wpIdx = idx + 1;
+                      if (wpIdx >= waypoints.length - 1) return null;
+                      const coords = waypoints[wpIdx];
+                      const reached = isStopReached(wpIdx);
+                      return (
+                        <Marker
+                          key={`stop-${idx}`}
+                          position={coords}
+                          icon={makeStopIcon(idx + 1, reached)}
+                        >
+                          <Popup>
+                            <div className="text-sm space-y-1 min-w-[140px]">
+                              <div className="font-semibold">{stopName}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {t("tripsMap.popup.stop")} {idx + 1}
+                              </div>
+                              {reached && (
+                                <div className="text-xs text-green-600 font-medium">
+                                  ✓ {t("tripTracker.stopReached")}
+                                </div>
+                              )}
+                            </div>
+                          </Popup>
+                        </Marker>
+                      );
+                    })}
+
                     <Marker
                       position={destCoords!}
                       icon={makeEndpointIcon("#ef4444")}
@@ -320,6 +471,7 @@ export default function TripTrackerPage() {
                         </span>
                       </Popup>
                     </Marker>
+
                     {markerPos && (
                       <>
                         <PanTo position={markerPos} />
@@ -385,6 +537,66 @@ export default function TripTrackerPage() {
                 </div>
               </CardContent>
             </Card>
+
+            {stopNames.length > 0 && (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {t("orders.stops.section")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-green-500 shrink-0" />
+                    <span className="text-muted-foreground text-xs">
+                      {t("tripsMap.popup.origin")}
+                    </span>
+                    <span className="font-medium ml-auto text-right truncate">
+                      {order?.origin}
+                    </span>
+                  </div>
+                  {stopNames.map((name, idx) => {
+                    const wpIdx = idx + 1;
+                    const reached = isStopReached(wpIdx);
+                    return (
+                      <div key={idx} className="flex items-center gap-2">
+                        <span
+                          className="inline-flex items-center justify-center w-4 h-4 rounded-full text-white text-[10px] font-bold shrink-0"
+                          style={{
+                            background: reached ? "#22c55e" : "#94a3b8",
+                          }}
+                        >
+                          {idx + 1}
+                        </span>
+                        <span className="font-medium truncate">{name}</span>
+                        {reached && (
+                          <span className="ml-auto text-green-600 text-xs shrink-0">
+                            ✓
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                  <div className="flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                    <span className="text-muted-foreground text-xs">
+                      {t("tripsMap.popup.destination")}
+                    </span>
+                    <span className="font-medium ml-auto text-right truncate">
+                      {order?.destination}
+                    </span>
+                  </div>
+                  {totalKm != null && (
+                    <div className="pt-1 border-t text-xs text-muted-foreground flex justify-between">
+                      <span>{t("tripsMap.popup.estimatedKm")}</span>
+                      <span className="font-medium tabular-nums">
+                        {totalKm} km
+                      </span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             <Card>
               <CardHeader className="pb-2">

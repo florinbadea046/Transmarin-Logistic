@@ -20,7 +20,8 @@
       "status": "Status",
       "weight": "Greutate (t)",
       "notes": "Note",
-      "weightUnit": "t"
+      "weightUnit": "t",
+      "stops": "Opriri"
     },
     "placeholders": {
       "client": "Ex: SC Transmarin SRL",
@@ -31,7 +32,8 @@
       "selectDate": "Selecteaza data",
       "search": "Cauta comenzi...",
       "filterOrigin": "Origine...",
-      "filterDest": "Destinatie..."
+      "filterDest": "Destinatie...",
+      "stop": "Ex: Ploiesti"
     },
     "validation": {
       "clientRequired": "Clientul este obligatoriu",
@@ -56,7 +58,9 @@
       "exportPdf": "Export PDF",
       "exportExcel": "Export Excel",
       "exportCsv": "Export CSV",
-      "reset": "Resetare filtre"
+      "reset": "Resetare filtre",
+      "actions": "Actiuni",
+      "rowOptions": "Optiuni rand"
     },
     "filters": {
       "from": "De la data",
@@ -95,6 +99,11 @@
       "toastSuccess": "{{count}} comanda(zi) importata(e) cu succes.",
       "toastPartial": "{{added}} importate, {{skipped}} ignorate (duplicate).",
       "toastAllSkipped": "Nicio comanda importata - toate randurile sunt duplicate."
+    },
+    "stops": {
+      "add": "Adauga oprire",
+      "section": "Opriri intermediare",
+      "hint": "Adauga orase intermediare pe ruta. Trage pentru a reordona."
     }
   }
 }

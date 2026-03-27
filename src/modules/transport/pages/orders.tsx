@@ -49,7 +49,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
-import { CalendarIcon, X, Upload } from "lucide-react";
+import { CalendarIcon, X, Upload, Plus, GripVertical } from "lucide-react";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import {
   Table,
@@ -111,6 +111,7 @@ function makeOrderSchema(t: (k: string) => string) {
         message: t("orders.validation.weightPositive"),
       }),
     notes: z.string().trim().optional(),
+    stops: z.array(z.string()).optional(),
   });
 }
 
@@ -167,6 +168,7 @@ const EMPTY_FORM: OrderForm = {
   date: new Date(),
   weight: 1,
   notes: "",
+  stops: [],
 };
 
 function getExportOrderCols(t: (k: string) => string) {
@@ -931,9 +933,7 @@ function OrderFormDialog({
       <DialogContent className="w-[calc(100vw-2rem)] max-w-[640px]">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
-          <DialogDescription className="sr-only">
-            Formular pentru {title.toLowerCase()}.
-          </DialogDescription>
+          <DialogDescription className="sr-only">{title}</DialogDescription>
         </DialogHeader>
 
         {formError && (
@@ -1066,6 +1066,68 @@ function OrderFormDialog({
                 <p className="text-xs text-destructive">{errors.notes}</p>
               )}
             </div>
+
+            {/* Stops section */}
+            <div className="grid gap-2 sm:col-span-2">
+              <Label>{t("orders.fields.stops")}</Label>
+              <div className="space-y-2">
+                {(form.stops ?? []).map((stop, idx) => (
+                  <div key={idx} className="flex items-center gap-2">
+                    <GripVertical className="h-4 w-4 text-muted-foreground shrink-0 cursor-grab" />
+                    <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-bold shrink-0">
+                      {idx + 1}
+                    </span>
+                    <Input
+                      value={stop}
+                      onChange={(e) => {
+                        const next = [...(form.stops ?? [])];
+                        next[idx] = e.target.value;
+                        setForm((p) => ({ ...p, stops: next }));
+                      }}
+                      placeholder={t("orders.placeholders.stop")}
+                      className="h-8"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          const next = [...(form.stops ?? [])];
+                          next.splice(idx + 1, 0, "");
+                          setForm((p) => ({ ...p, stops: next }));
+                        }
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 w-8 p-0 shrink-0"
+                      onClick={() => {
+                        const next = (form.stops ?? []).filter(
+                          (_, i) => i !== idx,
+                        );
+                        setForm((p) => ({ ...p, stops: next }));
+                      }}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-1"
+                  onClick={() =>
+                    setForm((p) => ({
+                      ...p,
+                      stops: [...(p.stops ?? []), ""],
+                    }))
+                  }
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  {t("orders.stops.add")}
+                </Button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1171,6 +1233,7 @@ export default function OrdersPage() {
       ...payload,
       status: "pending",
       ...(values.notes ? { notes: values.notes } : {}),
+      stops: (values.stops ?? []).map((s) => s.trim()).filter(Boolean),
     } as unknown as Order;
     const next = [newOrder, ...data];
     setData(next);
@@ -1192,7 +1255,12 @@ export default function OrdersPage() {
       return t("orders.duplicate");
     const next = data.map((o) =>
       o.id === editingOrder.id
-        ? { ...o, ...payload, notes: values.notes ?? "" }
+        ? {
+            ...o,
+            ...payload,
+            notes: values.notes ?? "",
+            stops: (values.stops ?? []).map((s) => s.trim()).filter(Boolean),
+          }
         : o,
     );
     setData(next);
@@ -1271,6 +1339,7 @@ export default function OrdersPage() {
         date: new Date(editingOrder.date),
         weight: editingOrder.weight ?? 1,
         notes: editingOrder.notes ?? "",
+        stops: editingOrder.stops ?? [],
       }
     : undefined;
 
@@ -1312,6 +1381,27 @@ export default function OrdersPage() {
       ),
       cell: ({ row }) => <div>{row.getValue("destination")}</div>,
       enableSorting: true,
+    },
+    {
+      id: "stops",
+      meta: { label: t("orders.fields.stops") },
+      header: () => (
+        <span className="text-xs font-medium">{t("orders.fields.stops")}</span>
+      ),
+      cell: ({ row }) => {
+        const stops = row.original.stops;
+        if (!stops || stops.length === 0)
+          return <span className="text-muted-foreground text-xs">—</span>;
+        return (
+          <Badge variant="secondary" className="text-xs tabular-nums">
+            {stops.length}
+          </Badge>
+        );
+      },
+      enableSorting: false,
+      size: 80,
+      minSize: 70,
+      maxSize: 90,
     },
     {
       accessorKey: "date",
@@ -1392,7 +1482,9 @@ export default function OrdersPage() {
     },
     {
       id: "actions",
-      header: () => <span className="sr-only">Actiuni</span>,
+      header: () => (
+        <span className="sr-only">{t("orders.actions.actions")}</span>
+      ),
       cell: ({ row }) => {
         const order = row.original;
         return (
@@ -1403,7 +1495,7 @@ export default function OrdersPage() {
                   variant="ghost"
                   size="sm"
                   className="h-7 w-7 p-0"
-                  aria-label="Optiuni rand"
+                  aria-label={t("orders.actions.rowOptions")}
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1506,6 +1598,7 @@ export default function OrdersPage() {
                 clientName: t("orders.fields.client"),
                 origin: t("orders.fields.origin"),
                 destination: t("orders.fields.destination"),
+                stops: t("orders.fields.stops"),
                 date: t("orders.fields.date"),
                 status: t("orders.fields.status"),
                 weight: t("orders.fields.weight"),
