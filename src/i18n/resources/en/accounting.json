@@ -38,6 +38,12 @@
     "actions": {
       "edit": "Edit",
       "delete": "Delete"
-    }
+    },
+    "modal": {
+      "editTitle": "Edit Supplier",
+      "addTitle": "Add Supplier",
+      "cancel": "Cancel",
+      "save": "Save"
+}
   }
 }
