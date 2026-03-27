@@ -1,0 +1,68 @@
+{
+    "fuelLog": {
+      "title": "Fuel Management",
+      "listTitle": "Fuel Log",
+      "add": "Add Refueling",
+      "edit": "Edit Refueling",
+      "save": "Save",
+      "cancel": "Cancel",
+      "noResults": "No fuel records found.",
+      "toastAdded": "Refueling has been added.",
+      "toastUpdated": "Refueling has been updated.",
+      "toastDeleted": "Refueling has been deleted.",
+      "confirmDeleteTitle": "Are you sure?",
+      "confirmDelete": "This action is irreversible. The record will be permanently deleted.",
+      "fields": {
+        "truck": "Truck",
+        "driver": "Driver",
+        "date": "Date",
+        "station": "Station",
+        "liters": "Liters",
+        "pricePerLiter": "Price/liter (RON)",
+        "totalCost": "Total cost (RON)",
+        "kmAtFueling": "Odometer (km)"
+      },
+      "placeholders": {
+        "truck": "Select truck",
+        "driver": "Select driver",
+        "station": "e.g. Petrom Constanta",
+        "search": "Search by truck, driver, station..."
+      },
+      "validation": {
+        "truckRequired": "Select a truck",
+        "driverRequired": "Select a driver"
+      },
+      "actions": {
+        "add": "Add",
+        "export": "Export Excel",
+        "confirm": "Delete"
+      },
+      "columns": {
+        "date": "Date",
+        "truck": "Truck",
+        "driver": "Driver",
+        "station": "Station",
+        "liters": "Liters",
+        "pricePerLiter": "RON/L",
+        "totalCost": "Total cost",
+        "kmAtFueling": "Odometer"
+      },
+      "kpi": {
+        "avgConsumption": "Avg. consumption",
+        "avgConsumptionDesc": "L/100km per truck",
+        "totalCostMonth": "Fuel cost this month",
+        "totalCostMonthDesc": "all refuelings this month",
+        "topStation": "Most used station",
+        "topStationDesc": "by number of refuelings"
+      },
+      "chart": {
+        "title": "Monthly consumption (last 6 months)",
+        "liters": "Liters",
+        "cost": "Cost (RON)"
+      },
+      "export": {
+        "sheetName": "Fuel Log",
+        "filename": "fuel-log"
+      }
+    }
+  }

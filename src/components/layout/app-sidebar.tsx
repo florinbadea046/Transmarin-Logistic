@@ -28,11 +28,13 @@ const TITLE_KEYS: Record<string, string> = {
   "/transport/trips-calendar": "tripsCalendar.title",
   "/driver-performance": "sidebar.transport.driverPerformance",
   "/transport/maintenance": "maintenance.title",
+  "/transport/fuel-log": "fuelLog.title",
   // Fleet
   "/fleet": "sidebar.fleet.overview",
   "/fleet/parts": "sidebar.fleet.parts",
   "/fleet/service": "sidebar.fleet.service",
   "/fleet/fuel": "sidebar.fleet.fuel",
+  "/fleet/vehicles": "sidebar.fleet.vehicles",
   // Accounting
   "/accounting": "sidebar.accounting.overview",
   "/accounting/invoices": "invoices.title",

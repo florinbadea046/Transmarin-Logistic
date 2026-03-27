@@ -1,0 +1,68 @@
+{
+    "fuelLog": {
+      "title": "Gestionare Combustibil",
+      "listTitle": "Registru Alimentari",
+      "add": "Adauga Alimentare",
+      "edit": "Editeaza Alimentare",
+      "save": "Salveaza",
+      "cancel": "Anuleaza",
+      "noResults": "Nu exista inregistrari de alimentare.",
+      "toastAdded": "Alimentarea a fost adaugata.",
+      "toastUpdated": "Alimentarea a fost actualizata.",
+      "toastDeleted": "Alimentarea a fost stearsa.",
+      "confirmDeleteTitle": "Esti sigur?",
+      "confirmDelete": "Aceasta actiune este ireversibila. Alimentarea va fi stearsa definitiv.",
+      "fields": {
+        "truck": "Camion",
+        "driver": "Sofer",
+        "date": "Data",
+        "station": "Statie",
+        "liters": "Litri",
+        "pricePerLiter": "Pret/litru (RON)",
+        "totalCost": "Cost total (RON)",
+        "kmAtFueling": "Km la bord"
+      },
+      "placeholders": {
+        "truck": "Selecteaza camion",
+        "driver": "Selecteaza sofer",
+        "station": "ex. Petrom Constanta",
+        "search": "Cauta dupa camion, sofer, statie..."
+      },
+      "validation": {
+        "truckRequired": "Selecteaza un camion",
+        "driverRequired": "Selecteaza un sofer"
+      },
+      "actions": {
+        "add": "Adauga",
+        "export": "Export Excel",
+        "confirm": "Sterge"
+      },
+      "columns": {
+        "date": "Data",
+        "truck": "Camion",
+        "driver": "Sofer",
+        "station": "Statie",
+        "liters": "Litri",
+        "pricePerLiter": "RON/L",
+        "totalCost": "Cost total",
+        "kmAtFueling": "Km bord"
+      },
+      "kpi": {
+        "avgConsumption": "Consum mediu",
+        "avgConsumptionDesc": "L/100km per camion",
+        "totalCostMonth": "Cost combustibil luna curenta",
+        "totalCostMonthDesc": "toate alimentarile lunii",
+        "topStation": "Statia cea mai folosita",
+        "topStationDesc": "dupa numarul de alimentari"
+      },
+      "chart": {
+        "title": "Consum lunar (ultimele 6 luni)",
+        "liters": "Litri",
+        "cost": "Cost (RON)"
+      },
+      "export": {
+        "sheetName": "Alimentari",
+        "filename": "alimentari"
+      }
+    }
+  }

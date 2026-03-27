@@ -94,6 +94,11 @@ export const sidebarData: SidebarData = {
               url: "/transport/maintenance",
               icon: Wrench,
             },
+            { 
+              title: "Combustibil", 
+              url: "/transport/fuel-log", 
+              icon: Fuel 
+            },
           ],
         },
         {

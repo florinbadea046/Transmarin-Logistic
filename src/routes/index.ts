@@ -25,6 +25,7 @@ import TripTrackerPage from "@/modules/transport/pages/_components/trip-tracker"
 import DriversPage from "@/modules/transport/pages/drivers";
 import DriverProfilePage from "@/modules/transport/pages/_components/driver-profile";
 import MaintenancePage from "@/modules/transport/pages/maintenance";
+import FuelLogPage from "@/modules/transport/pages/fuel-log";
 
 import FleetPage from "@/modules/fleet/index";
 import PartsPage from "@/modules/fleet/pages/parts";
@@ -148,6 +149,11 @@ const maintenanceRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/transport/maintenance",
   component: MaintenancePage,
+});
+const fuelLogRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/transport/fuel-log",
+  component: FuelLogPage,
 });
 
 // Fleet
@@ -301,6 +307,7 @@ const routeTree = rootRoute.addChildren([
     driversRoute,
     driverProfileRoute,
     maintenanceRoute,
+    fuelLogRoute,
 
     // Fleet
     fleetRoute,
