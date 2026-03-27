@@ -214,6 +214,11 @@ export const sidebarData: SidebarData = {
               url: "/reports/advanced",
               icon: BarChart3,
             },
+            {
+              title: "Rapoarte HR",
+              url: "/reports/hr",
+              icon: Users,
+            },
           ],
         },
       ],
