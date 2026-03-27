@@ -45,3 +45,28 @@ export interface Truck {
   rcaExpiry: string;
   vignetteExpiry: string;
 }
+
+export type MaintenanceType =
+  | "revizie"
+  | "schimb_ulei"
+  | "anvelope"
+  | "frane"
+  | "altele";
+
+export type MaintenanceStatus =
+  | "programat"
+  | "in_lucru"
+  | "finalizat";
+
+export interface MaintenanceRecord {
+  id: string;
+  truckId: string;
+  type: MaintenanceType;
+  description: string;
+  entryDate: string;
+  exitDate?: string;
+  cost: number;
+  mechanic: string;
+  status: MaintenanceStatus;
+  notes?: string;
+}

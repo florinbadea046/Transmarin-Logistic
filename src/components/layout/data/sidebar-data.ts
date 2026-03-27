@@ -89,6 +89,11 @@ export const sidebarData: SidebarData = {
               url: "/driver-performance",
               icon: TrendingUp,
             },
+            {
+              title: "Mentenanta Camioane",
+              url: "/transport/maintenance",
+              icon: Wrench,
+            },
           ],
         },
         {

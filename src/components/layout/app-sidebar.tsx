@@ -27,6 +27,7 @@ const TITLE_KEYS: Record<string, string> = {
   "/transport/trips-map": "tripsMap.title",
   "/transport/trips-calendar": "tripsCalendar.title",
   "/driver-performance": "sidebar.transport.driverPerformance",
+  "/transport/maintenance": "maintenance.title",
   // Fleet
   "/fleet": "sidebar.fleet.overview",
   "/fleet/parts": "sidebar.fleet.parts",
