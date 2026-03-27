@@ -23,7 +23,8 @@
       "name": "e.g. John Smith",
       "phone": "07XXXXXXXX",
       "search": "Search drivers...",
-      "noTruck": "No truck"
+      "noTruck": "No truck",
+      "noEmployee": "No HR link"
     },
     "validation": {
       "nameMin": "Name must be at least 3 characters.",
@@ -61,7 +62,8 @@
     },
     "export": {
       "pdfTitle": "Drivers List",
-      "filename": "drivers"
+      "filename": "drivers",
+      "sheetName": "Drivers"
     },
     "import": {
       "title": "Import Drivers from CSV",
@@ -79,7 +81,12 @@
       "confirm": "Import {{count}} driver(s)",
       "toastSuccess": "{{count}} driver(s) imported successfully.",
       "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
-      "toastAllSkipped": "No drivers imported - all rows are duplicates."
+      "toastAllSkipped": "No drivers imported - all rows are duplicates.",
+      "rowValid": "Valid",
+      "noValidRows": "No valid rows",
+      "legendValid": "Valid",
+      "legendInvalid": "Invalid",
+      "legendDuplicate": "Duplicate"
     }
   },
   "driverProfile": {

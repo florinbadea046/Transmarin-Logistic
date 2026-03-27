@@ -23,7 +23,8 @@
       "name": "ex. Ion Popescu",
       "phone": "07XXXXXXXX",
       "search": "Cauta soferi...",
-      "noTruck": "Fara camion"
+      "noTruck": "Fara camion",
+      "noEmployee": "Fara legatura HR"
     },
     "validation": {
       "nameMin": "Numele trebuie sa aiba minim 3 caractere.",
@@ -61,7 +62,8 @@
     },
     "export": {
       "pdfTitle": "Lista Soferi",
-      "filename": "soferi"
+      "filename": "soferi",
+      "sheetName": "Soferi"
     },
     "import": {
       "title": "Import Soferi din CSV",
@@ -79,7 +81,12 @@
       "confirm": "Importa {{count}} soferi",
       "toastSuccess": "{{count}} sofer(i) importat(i) cu succes.",
       "toastPartial": "{{added}} importati, {{skipped}} ignorati (duplicate).",
-      "toastAllSkipped": "Niciun sofer importat - toate randurile sunt duplicate."
+      "toastAllSkipped": "Niciun sofer importat - toate randurile sunt duplicate.",
+      "rowValid": "Valid",
+      "noValidRows": "Niciun rand valid",
+      "legendValid": "Valid",
+      "legendInvalid": "Invalid",
+      "legendDuplicate": "Duplicat"
     }
   },
   "driverProfile": {
