@@ -23,7 +23,8 @@
       "name": "e.g. John Smith",
       "phone": "07XXXXXXXX",
       "search": "Search drivers...",
-      "noTruck": "No truck"
+      "noTruck": "No truck",
+      "noEmployee": "No HR link"
     },
     "validation": {
       "nameMin": "Name must be at least 3 characters.",
@@ -61,7 +62,8 @@
     },
     "export": {
       "pdfTitle": "Drivers List",
-      "filename": "drivers"
+      "filename": "drivers",
+      "sheetName": "Drivers"
     },
     "import": {
       "title": "Import Drivers from CSV",
@@ -79,7 +81,12 @@
       "confirm": "Import {{count}} driver(s)",
       "toastSuccess": "{{count}} driver(s) imported successfully.",
       "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
-      "toastAllSkipped": "No drivers imported - all rows are duplicates."
+      "toastAllSkipped": "No drivers imported - all rows are duplicates.",
+      "rowValid": "Valid",
+      "noValidRows": "No valid rows",
+      "legendValid": "Valid",
+      "legendInvalid": "Invalid",
+      "legendDuplicate": "Duplicate"
     }
   },
   "driverProfile": {
@@ -135,5 +142,39 @@
   },
   "driversPage": {
     "title": "Drivers & Trucks"
+  },
+  "driverPerformance": {
+    "title": "Driver Performance Analysis",
+    "selectDriver": "Select driver",
+    "allDrivers": "All drivers",
+    "showing": "Showing data for",
+    "exportPdf": "Export PDF",
+    "noData": "No data available",
+    "kpi": {
+      "totalTrips": "Total trips",
+      "finalized": "Completed",
+      "totalKm": "Total km",
+      "totalFuelCost": "Fuel cost",
+      "totalProfit": "Total profit",
+      "finishRate": "Completion rate"
+    },
+    "charts": {
+      "kmPerMonth": "Km / month — last 6 months",
+      "statusDistribution": "Trip status distribution",
+      "profitRanking": "Profit ranking — top drivers"
+    },
+    "ranking": {
+      "title": "Top drivers by profit",
+      "driver": "Driver",
+      "trips": "Trips",
+      "km": "Km",
+      "profit": "Profit"
+    },
+    "pdf": {
+      "reportFor": "Individual report —",
+      "reportAll": "All drivers report",
+      "generated": "Generated on",
+      "filename": "driver-performance-report"
+    }
   }
 }

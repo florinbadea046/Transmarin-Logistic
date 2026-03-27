@@ -110,7 +110,12 @@
       "confirm": "Importa {{count}} camioane",
       "toastSuccess": "{{count}} camion(oane) importat(e) cu succes.",
       "toastPartial": "{{added}} importate, {{skipped}} ignorate (duplicate).",
-      "toastAllSkipped": "Niciun camion importat - toate randurile sunt duplicate."
+      "toastAllSkipped": "Niciun camion importat - toate randurile sunt duplicate.",
+      "rowValid": "Valid",
+      "noValidRows": "Niciun rand valid",
+      "legendValid": "Valid",
+      "legendInvalid": "Invalid",
+      "legendDuplicate": "Duplicat"
     }
   },
   "expiry": {

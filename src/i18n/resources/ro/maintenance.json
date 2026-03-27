@@ -1,0 +1,80 @@
+{
+    "maintenance": {
+      "title": "Mentenanta Camioane",
+      "listTitle": "Inregistrari Mentenanta",
+      "add": "Adauga Inregistrare",
+      "edit": "Editeaza Inregistrare",
+      "save": "Salveaza",
+      "cancel": "Anuleaza",
+      "noResults": "Nu exista inregistrari de mentenanta.",
+      "toastAdded": "Inregistrarea a fost adaugata.",
+      "toastUpdated": "Inregistrarea a fost actualizata.",
+      "toastDeleted": "Inregistrarea a fost stearsa.",
+      "confirmDeleteTitle": "Esti sigur?",
+      "confirmDelete": "Aceasta actiune este ireversibila. Inregistrarea va fi stearsa definitiv.",
+      "fields": {
+        "truck": "Camion",
+        "type": "Tip lucrare",
+        "description": "Descriere",
+        "entryDate": "Data intrare",
+        "exitDate": "Data iesire",
+        "cost": "Cost (RON)",
+        "mechanic": "Mecanic",
+        "status": "Status",
+        "notes": "Note",
+        "optional": "optional"
+      },
+      "placeholders": {
+        "truck": "Selecteaza camion",
+        "description": "ex. Schimb ulei motor + filtre",
+        "mechanic": "ex. Ion Ionescu",
+        "notes": "Detalii suplimentare...",
+        "search": "Cauta dupa camion, descriere, mecanic..."
+      },
+      "types": {
+        "revizie": "Revizie",
+        "schimb_ulei": "Schimb ulei",
+        "anvelope": "Anvelope",
+        "frane": "Frane",
+        "altele": "Altele"
+      },
+      "status": {
+        "programat": "Programat",
+        "in_lucru": "In lucru",
+        "finalizat": "Finalizat"
+      },
+      "actions": {
+        "add": "Adauga",
+        "edit": "Editeaza",
+        "delete": "Sterge",
+        "confirm": "Sterge"
+      },
+      "columns": {
+        "truck": "Camion",
+        "type": "Tip",
+        "description": "Descriere",
+        "entryDate": "Data intrare",
+        "exitDate": "Data iesire",
+        "cost": "Cost",
+        "mechanic": "Mecanic",
+        "status": "Status"
+      },
+      "validation": {
+        "truckRequired": "Selecteaza un camion"
+      },
+      "alerts": {
+        "longService": "Camioane in service de peste 7 zile",
+        "daysInService": "{{days}} zile in service"
+      },
+      "kpi": {
+        "totalCost": "Cost total mentenanta",
+        "allRecords": "toate inregistrarile",
+        "completed": "Interventii finalizate",
+        "completedDesc": "lucrari finalizate",
+        "inProgress": "In lucru acum",
+        "inProgressDesc": "lucrari active",
+        "costPerTruck": "Cost mentenanta per camion",
+        "interventions": "interventii"
+      }
+    }
+  }

@@ -88,7 +88,12 @@
       "confirm": "Importa {{count}} randuri",
       "toastSuccess": "{{count}} angajat(i) importat(i) cu succes.",
       "toastPartial": "{{added}} importati, {{skipped}} ignorati (duplicate).",
-      "toastAllSkipped": "Niciun angajat importat - toate randurile sunt duplicate."
+      "toastAllSkipped": "Niciun angajat importat - toate randurile sunt duplicate.",
+      "rowValid": "Valid",
+      "noValidRows": "Niciun rand valid",
+      "legendValid": "Valid",
+      "legendInvalid": "Invalid",
+      "legendDuplicate": "Duplicat"
     }
   }
 }
