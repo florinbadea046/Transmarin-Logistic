@@ -202,7 +202,7 @@ const suppliersRoute = createRoute({
 });
 
 // HR
-<<<<<<< hr-C18
+
 const hrRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr",
@@ -223,12 +223,7 @@ const payrollRoute = createRoute({
   path: "/hr/payroll",
   component: PayrollPage,
 });
-=======
-const hrRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr", component: HRPage });
-const employeesRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/employees", component: EmployeesPage });
-const leavesRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/leaves", component: LeavesPage });
-const payrollRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/payroll", component: PayrollPage });
->>>>>>> main
+
 const attendanceRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/attendance", component: AttendancePage });
 
 // Reports
