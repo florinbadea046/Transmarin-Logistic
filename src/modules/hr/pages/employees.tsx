@@ -37,6 +37,7 @@ import EmployeeDialog from "../components/employee-dialog";
 import { EmployeeExportMenu } from "../components/employee-export-menu";
 import { EmployeeRow } from "../components/employee-row";
 import { getEmployeeDepartmentLabel } from "../utils/department-label";
+import { getHRSettings } from "../utils/get-hr-settings";
 import { useMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
