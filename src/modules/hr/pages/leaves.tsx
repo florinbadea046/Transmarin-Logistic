@@ -143,12 +143,16 @@ export default function LeavesPage() {
         cell: ({ row }) => {
           const status = row.getValue("status") as LeaveRequest["status"];
           const variant =
+            status === "rejected" ? "destructive" : "secondary";
+          const className =
             status === "approved"
-              ? "default"
-              : status === "rejected"
-                ? "destructive"
-                : "secondary";
-          return <Badge variant={variant}>{STATUS_LABELS[status]}</Badge>;
+              ? "bg-green-600 text-white hover:bg-green-600"
+              : undefined;
+          return (
+            <Badge variant={variant} className={className}>
+              {STATUS_LABELS[status]}
+            </Badge>
+          );
         },
         filterFn: (row, id, value) => {
           if (!value || value === "all") return true;

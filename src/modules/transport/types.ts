@@ -8,6 +8,7 @@ export interface Order {
   status: "pending" | "assigned" | "in_transit" | "delivered" | "cancelled";
   weight?: number;
   notes?: string;
+  invoices?: string[];
 }
 
 export interface Trip {
@@ -79,4 +80,20 @@ export interface FuelLog {
   pricePerLiter: number;
   totalCost: number;
   kmAtFueling: number;
+}
+
+export interface TripInvoice {
+  id: string;
+  number: string;
+  tripId: string;
+  orderId: string;
+  clientName: string;
+  route: string;
+  km: number;
+  transportCost: number;
+  vatRate: number;
+  vatAmount: number;
+  totalWithVat: number;
+  status: "emisa" | "platita" | "anulata";
+  createdAt: string;
 }
