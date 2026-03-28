@@ -1,6 +1,18 @@
 {
   "dashboard": {
     "title": "Dashboard",
+    "transport": {
+      "title": "Transport — Sumar",
+      "activeOrders": "Comenzi Active",
+      "activeOrdersDesc": "live din comenzi (pending + assigned + in tranzit)",
+      "fuelCostMonth": "Cost Combustibil Luna",
+      "fuelCostMonthDesc": "sumat din alimentari luna curenta",
+      "profitMonth": "Profit Estimat Luna",
+      "profitMonthDesc": "venit - cost combustibil (curse finalizate)",
+      "maintenanceAlert": "Camioane in service > 7 zile",
+      "maintenanceDays": "{{days}} zile",
+      "noMaintenanceAlerts": "Nicio alerta de mentenanta activa."
+    },
     "cards": {
       "activeOrders": "Comenzi Active",
       "activeOrdersDesc": "pending + assigned + in tranzit",
@@ -56,7 +68,11 @@
     "alerts": {
       "expiredDocs": "Documente expirate",
       "pendingLeaves": "Cereri de concediu neaprobate",
-      "allGood": "Nu exista alerte HR active."
+      "allGood": "Nu exista alerte HR active.",
+      "days": "{{count}} z",
+      "days_one": "{{count}} zi",
+      "days_few": "{{count}} zile",
+      "days_other": "{{count}} zile"
     }
   }
 }
