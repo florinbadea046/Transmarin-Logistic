@@ -152,7 +152,7 @@ export default function EmployeesPage() {
   const departments = React.useMemo(() => {
     return [
       { value: ALL_DEPARTMENTS, label: t("employees.filters.all") },
-      ...EMPLOYEE_DEPARTMENTS.map((department) => ({
+      ...getHRSettings().departments.map((department) => ({
         value: department,
         label: getEmployeeDepartmentLabel(t, department),
       })),

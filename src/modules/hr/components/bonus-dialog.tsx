@@ -24,6 +24,7 @@ import { addItem, updateItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 import { BONUS_TYPE_LABELS } from "../payroll/payroll-shared";
+import { getHRSettings } from "../utils/get-hr-settings";
 
 const BONUS_FORM_TYPES = ["bonus", "amenda", "ore_suplimentare"] as const;
 
@@ -78,6 +79,7 @@ export default function BonusDialog({
   });
 
   const { log } = useHrAuditLog();
+  const currency = React.useMemo(() => getHRSettings().bonusCurrency, []);
   const employeeId = useWatch({ control: form.control, name: "employeeId" });
   const type = useWatch({ control: form.control, name: "type" });
 
@@ -200,7 +202,7 @@ export default function BonusDialog({
 
           <Input
             type="number"
-            placeholder="Sumă (RON)"
+            placeholder={`Sumă (${currency})`}
             {...form.register("amount", { valueAsNumber: true })}
           />
           {form.formState.errors.amount && (

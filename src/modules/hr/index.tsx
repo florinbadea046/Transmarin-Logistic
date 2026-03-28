@@ -47,6 +47,7 @@ export default function HRPage() {
     { title: t("hr.nav.leaves"), href: "/hr/leaves", isActive: false },
     { title: t("hr.nav.payroll"), href: "/hr/payroll", isActive: false },
     { title: "Pontaj Lunar", href: "/hr/attendance", isActive: false },
+    { title: t("hrSettings.nav"), href: "/hr/settings", isActive: false },
   ];
 
   const links = topNavLinks.map((link) => ({
@@ -55,6 +56,16 @@ export default function HRPage() {
       pathname === link.href ||
       (link.href === "/hr/employees" && pathname === "/hr"),
   }));
+
+  const alertDays = React.useMemo(() => {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.hr_settings);
+      if (!raw) return 30;
+      return (JSON.parse(raw) as { documentAlertDays?: number }).documentAlertDays ?? 30;
+    } catch {
+      return 30;
+    }
+  }, []);
 
   const employees = React.useMemo(
     () => getCollection<Employee>(STORAGE_KEYS.employees),
@@ -191,7 +202,7 @@ export default function HRPage() {
           </Card>
         </div>
 
-        <DocumentAlerts employees={employees} />
+        <DocumentAlerts employees={employees} alertDays={alertDays} />
 
         <div className="mt-6 grid gap-6 lg:grid-cols-2">
           <Card>

@@ -118,5 +118,34 @@
     "expired": "Expirat",
     "expiresToday": "Expira azi",
     "daysLeft": "{{count}} zile"
+  },
+  "hrSettings": {
+    "title": "Setări HR",
+    "nav": "Setări",
+    "saveButton": "Salvează setările",
+    "saveSuccess": "Setările au fost salvate.",
+    "leave": {
+      "title": "Concediu",
+      "defaultDays": "Zile concediu implicit / an",
+      "leaveTypes": "Tipuri de concediu",
+      "addType": "Adaugă tip",
+      "typePlaceholder": "Ex: Concediu special",
+      "typeExists": "Tipul există deja."
+    },
+    "documents": {
+      "title": "Documente",
+      "alertDays": "Prag alertă (zile înainte de expirare)",
+      "numberFormat": "Format număr document"
+    },
+    "departments": {
+      "title": "Departamente",
+      "addDept": "Adaugă departament",
+      "deptPlaceholder": "Ex: Marketing",
+      "deptExists": "Departamentul există deja."
+    },
+    "bonuses": {
+      "title": "Bonusuri",
+      "currency": "Monedă bonusuri"
+    }
   }
 }

@@ -118,5 +118,34 @@
     "expired": "Expired",
     "expiresToday": "Expires today",
     "daysLeft": "{{count}} days"
+  },
+  "hrSettings": {
+    "title": "HR Settings",
+    "nav": "Settings",
+    "saveButton": "Save settings",
+    "saveSuccess": "Settings saved.",
+    "leave": {
+      "title": "Leave",
+      "defaultDays": "Default leave days / year",
+      "leaveTypes": "Leave types",
+      "addType": "Add type",
+      "typePlaceholder": "E.g. Special leave",
+      "typeExists": "Type already exists."
+    },
+    "documents": {
+      "title": "Documents",
+      "alertDays": "Alert threshold (days before expiry)",
+      "numberFormat": "Document number format"
+    },
+    "departments": {
+      "title": "Departments",
+      "addDept": "Add department",
+      "deptPlaceholder": "E.g. Marketing",
+      "deptExists": "Department already exists."
+    },
+    "bonuses": {
+      "title": "Bonuses",
+      "currency": "Bonus currency"
+    }
   }
 }

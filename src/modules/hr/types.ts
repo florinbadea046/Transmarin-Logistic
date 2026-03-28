@@ -46,6 +46,15 @@ export interface Bonus {
   description: string;
 }
 
+export interface HRSettings {
+  defaultLeaveDays: number;        // nr. zile concediu/an, default 21
+  leaveTypes: string[];            // tipuri concediu configurabile
+  documentAlertDays: number;       // prag alertă documente în zile, default 30
+  departments: string[];           // departamente disponibile (CRUD)
+  documentNumberFormat: string;    // format nr. document
+  bonusCurrency: "RON" | "EUR";   // moneda bonusuri
+}
+
 export type AttendanceStatus = "P" | "CO" | "CM" | "A" | "LP";
 
 export interface AttendanceRecord {
