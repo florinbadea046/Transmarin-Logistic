@@ -30,8 +30,7 @@ import {
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
 import { getCollection } from "@/utils/local-storage";
-import { STORAGE_KEYS } from "@/data/mock-data";
-import { getHRSettings } from "@/modules/hr/utils/get-hr-settings";
+import { STORAGE_KEYS, EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
 import type { Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
 import EmployeeDialog from "../components/employee-dialog";

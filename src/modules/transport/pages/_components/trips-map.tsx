@@ -94,6 +94,16 @@ function makeIcon(color: string) {
   });
 }
 
+function makeStopIcon(color: string, num: number) {
+  return L.divIcon({
+    className: "",
+    html: `<div style="width:20px;height:20px;border-radius:50%;background:${color};border:2px solid white;box-shadow:0 1px 4px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center;color:white;font-size:10px;font-weight:700;font-family:sans-serif">${num}</div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+    popupAnchor: [0, -12],
+  });
+}
+
 function FitBounds({ bounds }: { bounds: L.LatLngBoundsExpression | null }) {
   const map = useMap();
   React.useEffect(() => {
@@ -111,6 +121,7 @@ type EnrichedTrip = {
   truck: Truck | undefined;
   originCoords: [number, number] | null;
   destCoords: [number, number] | null;
+  stopsCoords: ([number, number] | null)[];
 };
 
 function useData() {
@@ -127,6 +138,7 @@ function useData() {
         const order = orders.find((o) => o.id === trip.orderId);
         const driver = drivers.find((d) => d.id === trip.driverId);
         const truck = trucks.find((tr) => tr.id === trip.truckId);
+        const stopsCoords = (order?.stops ?? []).map((s) => getCoords(s));
         return {
           trip,
           order,
@@ -134,6 +146,7 @@ function useData() {
           truck,
           originCoords: order ? getCoords(order.origin) : null,
           destCoords: order ? getCoords(order.destination) : null,
+          stopsCoords,
         };
       }),
     );
@@ -161,8 +174,11 @@ export default function TripsMapPage() {
 
   const bounds = React.useMemo<L.LatLngBoundsExpression | null>(() => {
     const pts: [number, number][] = [];
-    filtered.forEach(({ originCoords, destCoords }) => {
+    filtered.forEach(({ originCoords, destCoords, stopsCoords }) => {
       if (originCoords) pts.push(originCoords);
+      stopsCoords.forEach((c) => {
+        if (c) pts.push(c);
+      });
       if (destCoords) pts.push(destCoords);
     });
     if (pts.length === 0) return null;
@@ -307,14 +323,51 @@ export default function TripsMapPage() {
                     truck,
                     originCoords,
                     destCoords,
+                    stopsCoords,
                   }) => {
                     const color = STATUS_COLORS[trip.status];
 
+                    // Build the full route: origin → stops → destination
+                    const routePoints: [number, number][] = [];
+                    if (originCoords) routePoints.push(originCoords);
+                    stopsCoords.forEach((c) => {
+                      if (c) routePoints.push(c);
+                    });
+                    if (destCoords) routePoints.push(destCoords);
+
+                    // Estimated km: sum of haversine distances between consecutive points
+                    function haversineKm(
+                      a: [number, number],
+                      b: [number, number],
+                    ) {
+                      const R = 6371;
+                      const dLat = ((b[0] - a[0]) * Math.PI) / 180;
+                      const dLon = ((b[1] - a[1]) * Math.PI) / 180;
+                      const s =
+                        Math.sin(dLat / 2) ** 2 +
+                        Math.cos((a[0] * Math.PI) / 180) *
+                          Math.cos((b[0] * Math.PI) / 180) *
+                          Math.sin(dLon / 2) ** 2;
+                      return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+                    }
+                    const totalKm =
+                      routePoints.length > 1
+                        ? Math.round(
+                            routePoints
+                              .slice(1)
+                              .reduce(
+                                (acc, pt, i) =>
+                                  acc + haversineKm(routePoints[i], pt),
+                                0,
+                              ),
+                          )
+                        : null;
+
                     return (
                       <React.Fragment key={trip.id}>
-                        {originCoords && destCoords && (
+                        {routePoints.length > 1 && (
                           <Polyline
-                            positions={[originCoords, destCoords]}
+                            positions={routePoints}
                             pathOptions={{
                               color,
                               weight: 2.5,
@@ -325,6 +378,7 @@ export default function TripsMapPage() {
                           />
                         )}
 
+                        {/* Origin marker */}
                         {originCoords && (
                           <Marker
                             position={originCoords}
@@ -357,6 +411,14 @@ export default function TripsMapPage() {
                                   </span>
                                   {truck?.plateNumber ?? "—"}
                                 </div>
+                                {totalKm != null && (
+                                  <div>
+                                    <span className="text-muted-foreground">
+                                      {t("tripsMap.popup.estimatedKm")}:{" "}
+                                    </span>
+                                    {totalKm} km
+                                  </div>
+                                )}
                                 <div className="flex items-center gap-1 pt-1">
                                   <span
                                     className="inline-block rounded-full"
@@ -378,6 +440,38 @@ export default function TripsMapPage() {
                           </Marker>
                         )}
 
+                        {/* Intermediate stop markers */}
+                        {(order?.stops ?? []).map((stopName, stopIdx) => {
+                          const coords = stopsCoords[stopIdx];
+                          if (!coords) return null;
+                          return (
+                            <Marker
+                              key={`stop-${trip.id}-${stopIdx}`}
+                              position={coords}
+                              icon={makeStopIcon(color, stopIdx + 1)}
+                            >
+                              <Popup>
+                                <div className="text-sm space-y-1 min-w-[160px]">
+                                  <div className="font-semibold">
+                                    {stopName}
+                                  </div>
+                                  <div className="text-xs text-muted-foreground">
+                                    {t("tripsMap.popup.stop")} {stopIdx + 1}
+                                  </div>
+                                  <hr className="my-1" />
+                                  <div>
+                                    <span className="text-muted-foreground">
+                                      {t("tripsMap.popup.client")}:{" "}
+                                    </span>
+                                    {order?.clientName ?? "—"}
+                                  </div>
+                                </div>
+                              </Popup>
+                            </Marker>
+                          );
+                        })}
+
+                        {/* Destination marker */}
                         {destCoords && (
                           <Marker position={destCoords} icon={makeIcon(color)}>
                             <Popup>
@@ -407,6 +501,14 @@ export default function TripsMapPage() {
                                   </span>
                                   {trip.estimatedArrivalDate}
                                 </div>
+                                {totalKm != null && (
+                                  <div>
+                                    <span className="text-muted-foreground">
+                                      {t("tripsMap.popup.estimatedKm")}:{" "}
+                                    </span>
+                                    {totalKm} km
+                                  </div>
+                                )}
                                 <div className="flex items-center gap-1 pt-1">
                                   <span
                                     className="inline-block rounded-full"
