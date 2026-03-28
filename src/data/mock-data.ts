@@ -6,7 +6,7 @@
 import { initCollection } from "@/utils/local-storage";
 import type { Driver, Truck, Order, Trip } from "@/modules/transport/types";
 import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
-import type { Employee, LeaveRequest } from "@/modules/hr/types";
+import type { Employee, LeaveRequest, HRSettings } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
 import { Bonus } from "../modules/hr/types";
 
@@ -30,6 +30,7 @@ export const STORAGE_KEYS = {
   bonuses: "transmarin_bonuses",
   attendance: "transmarin_attendance",
   hr_audit_log: "transmarin_hr_audit_log",
+  hr_settings: "transmarin_hr_settings",
   // Notifications
   notifications: "transmarin_notifications",
   // Activity Log
@@ -1057,6 +1058,17 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.leaveRequests, seedLeaveRequests);
   initCollection(STORAGE_KEYS.bonuses, seedBonuses);
   initCollection(STORAGE_KEYS.attendance, seedAttendance);
+  if (!localStorage.getItem(STORAGE_KEYS.hr_settings)) {
+    const defaultSettings: HRSettings = {
+      defaultLeaveDays: 21,
+      leaveTypes: ["Concediu de odihnă", "Medical", "Fără plată", "Altele"],
+      documentAlertDays: 30,
+      departments: ["Dispecerat", "Transport", "Service", "Contabilitate", "Administrativ"],
+      documentNumberFormat: "DOC-{YYYY}-{NNN}",
+      bonusCurrency: "RON",
+    };
+    localStorage.setItem(STORAGE_KEYS.hr_settings, JSON.stringify(defaultSettings));
+  }
 }
 
 export { seedEmployees };

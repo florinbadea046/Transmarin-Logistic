@@ -1,3 +1,4 @@
+import * as React from "react";
 import { format } from "date-fns";
 import { Input } from "@/components/ui/input";
 import {
@@ -8,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useWatch, type UseFormReturn } from "react-hook-form";
-import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
+import { getHRSettings } from "../utils/get-hr-settings";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -35,6 +36,7 @@ export function EmployeeFormFields({
 }: Props) {
   const { t } = useTranslation();
   const department = useWatch({ control: form.control, name: "department" });
+  const departments = React.useMemo(() => getHRSettings().departments, []);
 
   return (
     <>
@@ -69,7 +71,7 @@ export function EmployeeFormFields({
           <SelectValue placeholder={t("employees.fields.department")} />
         </SelectTrigger>
         <SelectContent>
-          {EMPLOYEE_DEPARTMENTS.map((dep) => (
+          {departments.map((dep) => (
             <SelectItem key={dep} value={dep}>
               {getEmployeeDepartmentLabel(t, dep)}
             </SelectItem>

@@ -29,9 +29,10 @@ interface AlertRow {
 
 interface Props {
   employees: Employee[];
+  alertDays?: number;
 }
 
-export function DocumentAlerts({ employees }: Props) {
+export function DocumentAlerts({ employees, alertDays = 30 }: Props) {
   const { t } = useTranslation();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -47,6 +48,7 @@ export function DocumentAlerts({ employees }: Props) {
       const daysLeft = Math.ceil(
         (expiryDate.getTime() - today.getTime()) / 86400000,
       );
+      if (daysLeft > alertDays) continue;
       rows.push({
         employeeName: emp.name,
         docType: doc.type,

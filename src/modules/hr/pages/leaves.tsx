@@ -36,6 +36,7 @@ import { DataTablePagination } from "@/components/data-table/pagination";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { getHRSettings } from "../utils/get-hr-settings";
 import type { LeaveRequest, Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
 import LeaveDialog from "../components/leave-dialog";
@@ -48,6 +49,7 @@ type LeaveRow = LeaveRequest & { employeeName: string };
 // ── Page ─────────────────────────────────────────────────────
 export default function LeavesPage() {
   const { t } = useTranslation();
+  const defaultLeaveDays = React.useMemo(() => getHRSettings().defaultLeaveDays, []);
 
   const LEAVE_TYPE_LABELS = React.useMemo<Record<LeaveRequest["type"], string>>(
     () => ({
@@ -278,7 +280,12 @@ export default function LeavesPage() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between flex-wrap gap-2">
-                  <CardTitle>{t("leaves.manage")}</CardTitle>
+                  <div className="flex items-center gap-2">
+                    <CardTitle>{t("leaves.manage")}</CardTitle>
+                    <Badge variant="secondary" className="text-xs font-normal">
+                      {defaultLeaveDays} zile/an
+                    </Badge>
+                  </div>
                   <span className="text-sm text-muted-foreground">
                     {t("leaves.requests", {
                       count: table.getFilteredRowModel().rows.length,

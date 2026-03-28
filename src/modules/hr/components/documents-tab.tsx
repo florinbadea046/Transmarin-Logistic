@@ -14,6 +14,7 @@ import {
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { ExpiryDatePicker } from "./expiry-date-picker";
 import { generateId } from "@/utils/local-storage";
+import { getHRSettings } from "../utils/get-hr-settings";
 import type { EmployeeDocument } from "@/modules/hr/types";
 
 const TYPE_LABELS: Record<EmployeeDocument["type"], string> = {
@@ -79,6 +80,7 @@ interface Props {
 }
 
 export function DocumentsTab({ documents, onChange }: Props) {
+  const docNumberFormat = React.useMemo(() => getHRSettings().documentNumberFormat, []);
   const [showDocForm, setShowDocForm] = React.useState(false);
   const [editingDocId, setEditingDocId] = React.useState<string | null>(null);
   const [docForm, setDocForm] = React.useState(emptyDocForm);
@@ -234,7 +236,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
             </SelectContent>
           </Select>
           <Input
-            placeholder="Nr. document"
+            placeholder={`Nr. document (ex: ${docNumberFormat})`}
             value={docForm.documentNumber}
             onChange={(e) => setDocForm((f) => ({ ...f, documentNumber: e.target.value }))}
           />
