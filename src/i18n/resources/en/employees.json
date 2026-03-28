@@ -2,6 +2,8 @@
   "employees": {
     "title": "Employees",
     "listTitle": "Employee List",
+    "viewList": "List",
+    "viewOrgChart": "Org Chart",
     "count_one": "{{count}} employee",
     "count_other": "{{count}} employees",
     "empty": "No employees found.",
