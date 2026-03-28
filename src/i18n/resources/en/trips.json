@@ -65,7 +65,8 @@
       "exportPdf": "Export PDF",
       "exportExcel": "Export Excel",
       "exportCsv": "Export CSV",
-      "liveTrack": "Live Track"
+      "liveTrack": "Live Track",
+      "generateInvoice": "Generate Invoice"
     },
     "validation": {
       "orderRequired": "Select an order",
@@ -86,7 +87,8 @@
       "started": "Trip started!",
       "finished": "Trip completed!",
       "cancelled": "Trip cancelled.",
-      "error": "An error occurred. Please try again."
+      "error": "An error occurred. Please try again.",
+      "invoiceSaved": "Invoice generated and saved."
     },
     "dialog": {
       "addDesc": "Fill in the details for a new trip.",
