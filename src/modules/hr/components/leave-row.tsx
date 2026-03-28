@@ -1,7 +1,7 @@
 import * as React from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { flexRender, type Row, type Cell } from "@tanstack/react-table";
-import { MoreVertical, Pencil, Trash2 } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, Check, X } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -61,11 +61,48 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
     onRefreshCalendar?.();
   }, [employeeMap, setData, onRefreshCalendar]);
 
+  const handleStatusChange = (newStatus: "approved" | "rejected") => {
+    updateItem<LeaveRequest>(
+      STORAGE_KEYS.leaveRequests,
+      (lr) => lr.id === leave.id,
+      (lr) => ({ ...lr, status: newStatus }),
+    );
+    refreshData();
+    toast.success(
+      newStatus === "approved"
+        ? `Concediul lui ${leave.employeeName} a fost aprobat`
+        : `Concediul lui ${leave.employeeName} a fost respins`,
+    );
+  };
+
   return (
     <TableRow key={row.id}>
       {row.getVisibleCells().map((cell: Cell<LeaveRow, unknown>) =>
         cell.column.id === "actions" ? (
-          <TableCell key={cell.id} className="text-center">
+          <TableCell key={cell.id} className="text-right">
+            <div className="flex items-center justify-end gap-1">
+              {leave.status === "pending" && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
+                    aria-label="Aprobă concediu"
+                    onClick={() => handleStatusChange("approved")}
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    aria-label="Respinge concediu"
+                    onClick={() => handleStatusChange("rejected")}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
@@ -96,6 +133,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </div>
           </TableCell>
         ) : (
           <TableCell key={cell.id}>
