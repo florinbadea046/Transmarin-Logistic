@@ -33,6 +33,7 @@ import { DataTablePagination } from "@/components/data-table/pagination";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS, EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
 import type { Employee, Bonus } from "@/modules/hr/types";
+import type { Trip, Driver } from "@/modules/transport/types";
 import { BonusTableRow, type BonusRow } from "../components/bonus-row";
 import BonusDialog from "../components/bonus-dialog";
 import {
@@ -50,6 +51,12 @@ export default function PayrollPage() {
   );
   const [bonuses, setBonuses] = React.useState<Bonus[]>(() =>
     getCollection<Bonus>(STORAGE_KEYS.bonuses),
+  );
+  const [trips, setTrips] = React.useState<Trip[]>(() =>
+    getCollection<Trip>(STORAGE_KEYS.trips),
+  );
+  const [drivers, setDrivers] = React.useState<Driver[]>(() =>
+    getCollection<Driver>(STORAGE_KEYS.drivers),
   );
 
   const [selectedMonth, setSelectedMonth] = React.useState(currentMonth);
@@ -70,18 +77,42 @@ export default function PayrollPage() {
   const handleRefresh = () => {
     setEmployees(getCollection<Employee>(STORAGE_KEYS.employees));
     setBonuses(getCollection<Bonus>(STORAGE_KEYS.bonuses));
+    setTrips(getCollection<Trip>(STORAGE_KEYS.trips));
+    setDrivers(getCollection<Driver>(STORAGE_KEYS.drivers));
   };
 
   const payrollRows = React.useMemo<PayrollRow[]>(() => {
+    // Diurnă = nr. zile cursă × 50 RON/zi din curse finalizate în luna selectată
+    const driverNameToTrips = new Map<string, Trip[]>();
+    for (const trip of trips) {
+      if (trip.status !== "finalizata") continue;
+      if (!trip.departureDate.startsWith(selectedMonth)) continue;
+      const driver = drivers.find((d) => d.id === trip.driverId);
+      if (!driver) continue;
+      const existing = driverNameToTrips.get(driver.name) ?? [];
+      existing.push(trip);
+      driverNameToTrips.set(driver.name, existing);
+    }
+
     return employees.map((emp) => {
       const empBonuses = bonuses.filter(
         (b) => b.employeeId === emp.id && b.date.startsWith(selectedMonth),
       );
       const sum = (type: Bonus["type"]) =>
         empBonuses.filter((b) => b.type === type).reduce((s, b) => s + b.amount, 0);
-      const diurna = sum("diurna");
+
+      const empTrips = driverNameToTrips.get(emp.name) ?? [];
+      const diurna = empTrips.reduce((total, trip) => {
+        const dep = new Date(trip.departureDate);
+        const arr = new Date(trip.estimatedArrivalDate);
+        const days = Math.max(1, Math.round((arr.getTime() - dep.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+        return total + days * 50;
+      }, 0);
+
       const bonusuri = sum("bonus");
-      const amenzi = sum("amenda");
+      const amenzi = empBonuses
+        .filter((b) => b.type === "amenda")
+        .reduce((s, b) => s + Math.abs(b.amount), 0);
       const oreSuplimentare = sum("ore_suplimentare");
       return {
         id: emp.id,
@@ -95,11 +126,13 @@ export default function PayrollPage() {
         totalNet: emp.salary + diurna + bonusuri + oreSuplimentare - amenzi,
       };
     });
-  }, [employees, bonuses, selectedMonth]);
+  }, [employees, bonuses, trips, drivers, selectedMonth]);
 
   const bonusRows = React.useMemo<BonusRow[]>(() => {
     return bonuses
       .filter((b) => b.date.startsWith(selectedMonth))
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 20)
       .map((b) => ({
         ...b,
         employeeName: employees.find((e) => e.id === b.employeeId)?.name ?? "—",

@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import BonusDialog from "./bonus-dialog";
+import ConfirmDeleteDialog from "./confirm-delete-dialog";
 import { removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, Bonus } from "@/modules/hr/types";
@@ -27,6 +28,7 @@ interface Props {
 export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) => {
   const bonus = row.original;
   const [editOpen, setEditOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
 
   const handleDelete = () => {
     removeItem<Bonus>(STORAGE_KEYS.bonuses, (b) => b.id === bonus.id);
@@ -56,7 +58,7 @@ export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) =>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-destructive focus:text-destructive"
-                  onClick={handleDelete}
+                  onClick={() => setDeleteOpen(true)}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Șterge
@@ -77,6 +79,12 @@ export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) =>
         open={editOpen}
         onOpenChange={setEditOpen}
         onSave={onRefresh}
+      />
+      <ConfirmDeleteDialog
+        employeeName={bonus.employeeName}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onDelete={handleDelete}
       />
     </TableRow>
   );

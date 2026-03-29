@@ -24,12 +24,14 @@ import { addItem, updateItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { BONUS_TYPE_LABELS } from "./payroll-columns";
 
+const todayStr = () => new Date().toISOString().slice(0, 10);
+
 const bonusSchema = z.object({
   employeeId: z.string().min(1, "Selectați un angajat"),
   type: z.enum(["diurna", "bonus", "amenda", "ore_suplimentare"]),
   amount: z.number().min(0.01, "Suma trebuie să fie pozitivă"),
   date: z.string().min(1, "Data este obligatorie"),
-  description: z.string().min(1, "Descrierea este obligatorie"),
+  description: z.string().min(5, "Motivul trebuie să aibă minim 5 caractere"),
 });
 
 type BonusFormValues = z.infer<typeof bonusSchema>;
@@ -54,7 +56,7 @@ export default function BonusDialog({
   const isEdit = mode === "edit";
 
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    bonus?.date ? new Date(bonus.date) : undefined,
+    bonus?.date ? new Date(bonus.date) : new Date(),
   );
 
   const form = useForm<BonusFormValues>({
@@ -62,8 +64,8 @@ export default function BonusDialog({
     defaultValues: {
       employeeId: bonus?.employeeId ?? "",
       type: bonus?.type ?? "bonus",
-      amount: bonus?.amount ?? 0,
-      date: bonus?.date ?? "",
+      amount: bonus?.amount ? Math.abs(bonus.amount) : 0,
+      date: bonus?.date ?? todayStr(),
       description: bonus?.description ?? "",
     },
   });
@@ -76,23 +78,25 @@ export default function BonusDialog({
       form.reset({
         employeeId: bonus?.employeeId ?? "",
         type: bonus?.type ?? "bonus",
-        amount: bonus?.amount ?? 0,
-        date: bonus?.date ?? "",
+        amount: bonus?.amount ? Math.abs(bonus.amount) : 0,
+        date: bonus?.date ?? todayStr(),
         description: bonus?.description ?? "",
       });
-      setSelectedDate(bonus?.date ? new Date(bonus.date) : undefined);
+      setSelectedDate(bonus?.date ? new Date(bonus.date) : new Date());
     }
   }, [open, bonus, form]);
 
   const handleSubmit = (values: BonusFormValues) => {
+    const amount = values.type === "amenda" ? -Math.abs(values.amount) : Math.abs(values.amount);
+    const data = { ...values, amount };
     if (isEdit && bonus) {
       updateItem<Bonus>(
         STORAGE_KEYS.bonuses,
         (b) => b.id === bonus.id,
-        () => ({ ...bonus, ...values }),
+        () => ({ ...bonus, ...data }),
       );
     } else {
-      addItem<Bonus>(STORAGE_KEYS.bonuses, { ...values, id: generateId() });
+      addItem<Bonus>(STORAGE_KEYS.bonuses, { ...data, id: generateId() });
     }
     onSave();
     onOpenChange(false);
