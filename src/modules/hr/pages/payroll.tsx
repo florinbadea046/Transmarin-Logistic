@@ -40,6 +40,7 @@ import {
   payrollColumns,
   bonusColumns,
 } from "../components/payroll-columns";
+import { PayrollExportMenu } from "../components/payroll-export-menu";
 
 export default function PayrollPage() {
   const [selectedMonth, setSelectedMonth] = React.useState(currentMonth);
@@ -116,6 +117,7 @@ export default function PayrollPage() {
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <CardTitle>Calcul Salarizare</CardTitle>
               <div className="flex flex-wrap items-center gap-2">
+                <PayrollExportMenu rows={payrollRows} selectedMonth={selectedMonth} />
                 <Select value={selectedMonth} onValueChange={handleMonthChange}>
                   <SelectTrigger className="flex-1 min-w-[140px] sm:w-44">
                     <SelectValue />
