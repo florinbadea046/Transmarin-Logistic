@@ -480,7 +480,7 @@ export default function MaintenancePage() {
     refreshRecords();
   };
 
-  const getTruck = (truckId: string) => trucks.find((tr) => tr.id === truckId);
+  const getTruck = React.useCallback((truckId: string) => trucks.find((tr) => tr.id === truckId), [trucks]);
 
   const columns: ColumnDef<MaintenanceRecord>[] = React.useMemo(() => [
     {
@@ -547,7 +547,7 @@ export default function MaintenancePage() {
       ),
       enableSorting: false,
     },
-  ], [trucks, t]);
+  ], [getTruck, t]);
 
   const table = useReactTable({
     data: records,

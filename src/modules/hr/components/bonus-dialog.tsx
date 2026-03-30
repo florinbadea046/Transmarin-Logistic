@@ -96,7 +96,7 @@ export default function BonusDialog({
       });
       setSelectedDate(bonus?.date ? new Date(bonus.date) : new Date());
     }
-  }, [open, bonus, form, initialType]);
+  }, [open, bonus, form, initialType, todayStr]);
 
   const handleSubmit = (values: BonusFormValues) => {
     const normalizedAmount =
