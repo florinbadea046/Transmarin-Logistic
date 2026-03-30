@@ -37,7 +37,7 @@ import type {
   AttendanceRecord,
   AttendanceStatus,
 } from "@/modules/hr/types";
-import { MONTH_OPTIONS, currentMonth } from "../payroll/payroll-shared";
+import { getMonthOptions, currentMonth } from "../payroll/payroll-shared";
 import {
   COLUMN_VISIBILITY,
   WEEKEND_BLOCKED,
@@ -52,6 +52,11 @@ import {
 export default function AttendancePage() {
   const { t, i18n } = useTranslation();
   const { log } = useHrAuditLog();
+
+  const monthOptions = React.useMemo(
+    () => getMonthOptions(i18n.language.startsWith("en") ? "en-GB" : "ro-RO"),
+    [i18n.language],
+  );
 
   const STATUS_NAMES: Record<AttendanceStatus, string> = React.useMemo(() => ({
     P: t("attendance.status.present"),
@@ -311,7 +316,7 @@ export default function AttendancePage() {
   };
 
   const monthLabel =
-    MONTH_OPTIONS.find((o) => o.value === selectedMonth)?.label ??
+    monthOptions.find((o) => o.value === selectedMonth)?.label ??
     selectedMonth;
 
   const visibleRows = table.getFilteredRowModel().rows;
@@ -332,7 +337,7 @@ export default function AttendancePage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {MONTH_OPTIONS.map((opt) => (
+                    {monthOptions.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
                       </SelectItem>
@@ -362,7 +367,7 @@ export default function AttendancePage() {
                       days,
                       monthLabel,
                       t,
-                      i18n.language === "en" ? "en-GB" : "ro-RO",
+                      i18n.language.startsWith("en") ? "en-GB" : "ro-RO",
                     )
                   }
                 >

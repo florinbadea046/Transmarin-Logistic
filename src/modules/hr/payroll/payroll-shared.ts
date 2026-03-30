@@ -27,14 +27,14 @@ export type PayrollRow = {
   totalNet: number;
 };
 
-function getMonthOptions() {
+export function getMonthOptions(locale: string) {
   const options: { value: string; label: string }[] = [];
   const now = new Date();
 
   for (let i = 0; i < 12; i++) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const label = d.toLocaleDateString("ro-RO", {
+    const label = d.toLocaleDateString(locale, {
       month: "long",
       year: "numeric",
     });
@@ -43,8 +43,6 @@ function getMonthOptions() {
 
   return options;
 }
-
-export const MONTH_OPTIONS = getMonthOptions();
 
 export function currentMonth(): string {
   const now = new Date();

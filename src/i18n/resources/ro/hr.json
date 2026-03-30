@@ -150,6 +150,40 @@
       "currency": "Monedă bonusuri"
     }
   },
+  "departments": {
+    "Dispecerat": "Dispecerat",
+    "Transport": "Transport",
+    "Service": "Service",
+    "Contabilitate": "Contabilitate",
+    "Administrativ": "Administrativ"
+  },
+  "attendance": {
+    "title": "Pontaj Lunar",
+    "manage": "Gestiune Pontaj",
+    "allDepartments": "Toate departamentele",
+    "exportPdf": "Export PDF",
+    "noEmployees": "Niciun angajat găsit.",
+    "columns": {
+      "employee": "Angajat",
+      "present": "Prez.",
+      "leave": "Conc.",
+      "absent": "Abs.",
+      "paidLeave": "LP"
+    },
+    "status": {
+      "present": "Prezent",
+      "annualLeave": "Concediu Odihnă",
+      "sickLeave": "Concediu Medical",
+      "absent": "Absent",
+      "paidLeave": "Liber Plătit",
+      "setStatus": "Setează status",
+      "clickToSet": "Click pentru a seta"
+    },
+    "pdf": {
+      "title": "Pontaj Lunar",
+      "generated": "Generat:"
+    }
+  },
   "hrAuditLog": {
     "title": "Istoric Activități HR",
     "subtitle": "Toate acțiunile CRUD efectuate pe entitățile HR",
