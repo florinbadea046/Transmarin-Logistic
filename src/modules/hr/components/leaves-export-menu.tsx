@@ -11,6 +11,7 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import type { LeaveRequest } from "@/modules/hr/types";
+import { useTranslation } from "react-i18next";
 
 type LeaveRow = LeaveRequest & { employeeName: string };
 
@@ -25,72 +26,73 @@ function toPdfSafe(value: unknown): string {
     .replace(/[ȚŢ]/g, "T");
 }
 
-const TYPE_LABELS: Record<LeaveRequest["type"], string> = {
-  annual: "Concediu anual",
-  sick: "Medical",
-  unpaid: "Neplata",
-  other: "Altul",
+type ExportLabels = {
+  pdfTitle: string;
+  fileName: string;
+  cols: Record<string, string>;
+  types: Record<LeaveRequest["type"], string>;
+  status: Record<LeaveRequest["status"], string>;
 };
 
-const STATUS_LABELS: Record<LeaveRequest["status"], string> = {
-  pending: "In asteptare",
-  approved: "Aprobat",
-  rejected: "Respins",
-};
+function buildCols(labels: ExportLabels) {
+  return [
+    { key: "employeeName" as const, label: labels.cols.employee },
+    { key: "type" as const, label: labels.cols.type },
+    { key: "startDate" as const, label: labels.cols.startDate },
+    { key: "endDate" as const, label: labels.cols.endDate },
+    { key: "days" as const, label: labels.cols.days },
+    { key: "status" as const, label: labels.cols.status },
+    { key: "reason" as const, label: labels.cols.reason },
+  ];
+}
 
-const COLS = [
-  { key: "employeeName", label: "Angajat" },
-  { key: "type", label: "Tip" },
-  { key: "startDate", label: "Data inceput" },
-  { key: "endDate", label: "Data sfarsit" },
-  { key: "days", label: "Zile" },
-  { key: "status", label: "Status" },
-  { key: "reason", label: "Motiv" },
-] as const;
+type ColKey = "employeeName" | "type" | "startDate" | "endDate" | "days" | "status" | "reason";
 
-function getRowValue(row: LeaveRow, key: (typeof COLS)[number]["key"]): string {
-  if (key === "type") return TYPE_LABELS[row.type];
-  if (key === "status") return STATUS_LABELS[row.status];
+function getRowValue(row: LeaveRow, key: ColKey, labels: ExportLabels): string {
+  if (key === "type") return labels.types[row.type];
+  if (key === "status") return labels.status[row.status];
   if (key === "reason") return row.reason ?? "";
   return String(row[key] ?? "");
 }
 
-function toExportRows(rows: LeaveRow[]) {
+function toExportRows(rows: LeaveRow[], labels: ExportLabels) {
+  const cols = buildCols(labels);
   return rows.map((row) =>
-    Object.fromEntries(COLS.map((c) => [c.label, getRowValue(row, c.key)])),
+    Object.fromEntries(cols.map((c) => [c.label, getRowValue(row, c.key, labels)])),
   );
 }
 
-function exportPDF(rows: LeaveRow[]) {
+function exportPDF(rows: LeaveRow[], labels: ExportLabels) {
+  const cols = buildCols(labels);
   const doc = new jsPDF({ orientation: "landscape" });
   doc.setFontSize(13);
-  doc.text(toPdfSafe("Transmarin Logistic — Concedii"), 14, 16);
+  doc.text(toPdfSafe(labels.pdfTitle), 14, 16);
 
   autoTable(doc, {
-    head: [COLS.map((c) => toPdfSafe(c.label))],
-    body: rows.map((row) => COLS.map((c) => toPdfSafe(getRowValue(row, c.key)))),
+    head: [cols.map((c) => toPdfSafe(c.label))],
+    body: rows.map((row) => cols.map((c) => toPdfSafe(getRowValue(row, c.key, labels)))),
     startY: 22,
     styles: { fontSize: 8 },
     headStyles: { fillColor: [30, 30, 30] },
   });
 
-  doc.save("concedii.pdf");
+  doc.save(`${labels.fileName}.pdf`);
 }
 
-function exportExcel(rows: LeaveRow[]) {
-  const ws = XLSX.utils.json_to_sheet(toExportRows(rows));
+function exportExcel(rows: LeaveRow[], labels: ExportLabels) {
+  const ws = XLSX.utils.json_to_sheet(toExportRows(rows, labels));
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Concedii");
-  XLSX.writeFile(wb, "concedii.xlsx");
+  XLSX.utils.book_append_sheet(wb, ws, labels.fileName);
+  XLSX.writeFile(wb, `${labels.fileName}.xlsx`);
 }
 
-function exportCSV(rows: LeaveRow[]) {
-  const csv = Papa.unparse(toExportRows(rows));
+function exportCSV(rows: LeaveRow[], labels: ExportLabels) {
+  const csv = Papa.unparse(toExportRows(rows, labels));
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
-  a.download = "concedii.csv";
+  a.download = `${labels.fileName}.csv`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 100);
 }
@@ -100,34 +102,60 @@ type Props = {
 };
 
 export function LeavesExportMenu({ rows }: Props) {
+  const { t } = useTranslation();
   const isEmpty = rows.length === 0;
+
+  const labels: ExportLabels = {
+    pdfTitle: t("leavesExport.pdfTitle"),
+    fileName: t("leavesExport.fileName"),
+    cols: {
+      employee: t("leavesExport.cols.employee"),
+      type: t("leavesExport.cols.type"),
+      startDate: t("leavesExport.cols.startDate"),
+      endDate: t("leavesExport.cols.endDate"),
+      days: t("leavesExport.cols.days"),
+      status: t("leavesExport.cols.status"),
+      reason: t("leavesExport.cols.reason"),
+    },
+    types: {
+      annual: t("leavesExport.types.annual"),
+      sick: t("leavesExport.types.sick"),
+      unpaid: t("leavesExport.types.unpaid"),
+      other: t("leavesExport.types.other"),
+    },
+    status: {
+      pending: t("leavesExport.status.pending"),
+      approved: t("leavesExport.status.approved"),
+      rejected: t("leavesExport.status.rejected"),
+    },
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" disabled={isEmpty}>
           <Download className="h-3.5 w-3.5 mr-1.5" />
-          Export
+          {t("leaves.export.button")}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => exportPDF(rows)}
+          onClick={() => exportPDF(rows, labels)}
         >
-          Export PDF
+          {t("leaves.export.pdf")}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => exportExcel(rows)}
+          onClick={() => exportExcel(rows, labels)}
         >
-          Export Excel
+          {t("leaves.export.excel")}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => exportCSV(rows)}
+          onClick={() => exportCSV(rows, labels)}
         >
-          Export CSV
+          {t("leaves.export.csv")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

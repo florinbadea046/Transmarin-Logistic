@@ -1,6 +1,8 @@
 import * as React from "react";
 import { format, isSameMonth, addDays, differenceInCalendarDays } from "date-fns";
 import { ro } from "date-fns/locale";
+import { enGB } from "date-fns/locale";
+import { useTranslation } from "react-i18next";
 import { DayButton } from "react-day-picker";
 import { Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -35,22 +37,17 @@ import { toast } from "sonner";
 // ── Constants ────────────────────────────────────────────────
 const MAX_VISIBLE_NAMES = 2;
 const MAX_VISIBLE_DOTS = 4;
-const UNKNOWN_EMPLOYEE = "Necunoscut";
+const UNKNOWN_EMPLOYEE = "—";
 const UNKNOWN_DEPARTMENT = "—";
 
 const LEAVE_CONFIG: Record<
   LeaveRequest["type"],
-  { label: string; bg: string }
+  { bg: string }
 > = {
-  annual: { label: "Odihnă", bg: "bg-blue-500" },
-  sick: { label: "Medical", bg: "bg-red-500" },
-  other: { label: "Personal", bg: "bg-yellow-400" },
-  unpaid: { label: "Fără plată", bg: "bg-gray-400" },
-};
-
-const calendarFormatters = {
-  formatCaption: (date: Date) =>
-    format(date, "MMMM yyyy", { locale: ro }).replace(/^\w/, (c) => c.toUpperCase()),
+  annual: { bg: "bg-blue-500" },
+  sick: { bg: "bg-red-500" },
+  other: { bg: "bg-yellow-400" },
+  unpaid: { bg: "bg-gray-400" },
 };
 
 // ── Types ────────────────────────────────────────────────────
@@ -82,6 +79,13 @@ function LeaveTypePill({
 
 // ── Component ────────────────────────────────────────────────
 export default function LeaveCalendar() {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language.startsWith("en") ? enGB : ro;
+  const calendarFormatters = React.useMemo(() => ({
+    formatCaption: (date: Date) =>
+      format(date, "MMMM yyyy", { locale }).replace(/^\w/, (c) => c.toUpperCase()),
+  }), [locale]);
+
   const [currentDate, setCurrentDate] = React.useState(new Date());
   const [selectedDay, setSelectedDay] = React.useState<Date | null>(null);
   const [editLeave, setEditLeave] = React.useState<DayLeave | null>(null);
@@ -217,7 +221,7 @@ export default function LeaveCalendar() {
                 mode="single"
                 month={currentDate}
                 onMonthChange={setCurrentDate}
-                locale={ro}
+                locale={locale}
                 weekStartsOn={1}
                 showOutsideDays={false}
                 className="w-full [--cell-size:theme(spacing.9)] sm:[--cell-size:theme(spacing.16)]"
@@ -234,7 +238,7 @@ export default function LeaveCalendar() {
 
               {!hasAnyLeave && (
                 <p className="text-sm text-muted-foreground text-center py-6">
-                  Niciun concediu aprobat în această lună.
+                  {t("leaves.calendar.noLeavesMonth")}
                 </p>
               )}
 
@@ -242,7 +246,7 @@ export default function LeaveCalendar() {
                 {Object.entries(LEAVE_CONFIG).map(([type, cfg]) => (
                   <div key={type} className="flex items-center gap-1.5">
                     <div className={cn("w-3 h-3 rounded-sm", cfg.bg)} />
-                    <span className="text-xs text-muted-foreground">{cfg.label}</span>
+                    <span className="text-xs text-muted-foreground">{t(`leaves.calendar.types.${type}`)}</span>
                   </div>
                 ))}
               </div>
@@ -253,22 +257,22 @@ export default function LeaveCalendar() {
         <div className="w-full lg:w-60 lg:shrink-0">
           <Card>
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm">Sumar Departamente</CardTitle>
+              <CardTitle className="text-sm">{t("leaves.calendar.deptSummary")}</CardTitle>
               <p className="text-xs text-muted-foreground capitalize">
-                {format(currentDate, "MMMM yyyy", { locale: ro })}
+                {format(currentDate, "MMMM yyyy", { locale })}
               </p>
             </CardHeader>
             <CardContent>
               {deptSummary.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  Niciun concediu aprobat.
+                  {t("leaves.calendar.noLeaves")}
                 </p>
               ) : (
                 <div className="space-y-2">
                   {deptSummary.map(([dept, total]) => (
                     <div key={dept} className="flex items-center justify-between">
                       <span className="text-sm">{dept}</span>
-                      <Badge variant="secondary">{total} zile</Badge>
+                      <Badge variant="secondary">{t("leaves.calendar.days", { count: total })}</Badge>
                     </div>
                   ))}
                 </div>
@@ -286,18 +290,17 @@ export default function LeaveCalendar() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {selectedDay && format(selectedDay, "d MMMM yyyy", { locale: ro })}
+              {selectedDay && format(selectedDay, "d MMMM yyyy", { locale })}
             </DialogTitle>
             {selectedDayLeaves.length > 0 && (
               <DialogDescription>
-                {selectedDayLeaves.length}{" "}
-                {selectedDayLeaves.length === 1 ? "angajat" : "angajați"} în concediu
+                {t("leaves.calendar.onLeave", { count: selectedDayLeaves.length })}
               </DialogDescription>
             )}
           </DialogHeader>
           {selectedDayLeaves.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              Niciun angajat în concediu în această zi.
+              {t("leaves.calendar.noLeaveDay")}
             </p>
           ) : (
             <div className="space-y-2 max-h-96 overflow-y-auto">
@@ -313,9 +316,9 @@ export default function LeaveCalendar() {
                     <p className="text-sm font-medium">{leave.employeeName}</p>
                     <p className="text-xs text-muted-foreground">{leave.department}</p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {LEAVE_CONFIG[leave.type].label} ·{" "}
+                      {t(`leaves.calendar.types.${leave.type}`)} ·{" "}
                       {formatDate(leave.startDate)} –{" "}
-                      {formatDate(leave.endDate)} · {leave.days} zile
+                      {formatDate(leave.endDate)} · {t("leaves.calendar.days", { count: leave.days })}
                     </p>
                     {leave.reason && (
                       <p className="text-xs text-muted-foreground italic">
@@ -328,7 +331,7 @@ export default function LeaveCalendar() {
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7"
-                      aria-label="Editează concediu"
+                      aria-label={t("leaves.calendar.editLeave")}
                       onClick={() => {
                         setSelectedDay(null);
                         setEditLeave(leave);
@@ -340,7 +343,7 @@ export default function LeaveCalendar() {
                       variant="ghost"
                       size="icon"
                       className="h-7 w-7 text-destructive hover:text-destructive"
-                      aria-label="Șterge concediu"
+                      aria-label={t("leaves.calendar.deleteLeave")}
                       onClick={() => {
                         setSelectedDay(null);
                         setDeleteLeave(leave);
@@ -371,26 +374,26 @@ export default function LeaveCalendar() {
             );
             setEditLeave(null);
             refresh();
-            toast.success("Concediu actualizat cu succes");
+            toast.success(t("leaves.calendar.updateSuccess"));
           }}
         />
       )}
 
-      {/* Dialog confirmare ștergere */}
+      {/* Dialog confirmare stergere */}
       <AlertDialog
         open={!!deleteLeave}
         onOpenChange={(open) => !open && setDeleteLeave(null)}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmă ștergerea</AlertDialogTitle>
+            <AlertDialogTitle>{t("leaves.calendar.confirmDelete")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Sigur doriți să ștergeți concediul lui{" "}
+              {t("leaves.calendar.confirmDeleteDesc")}{" "}
               <strong className="text-foreground">{deleteLeave?.employeeName}</strong>?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogCancel>{t("leaves.calendar.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: "destructive" })}
               onClick={() => {
@@ -401,10 +404,10 @@ export default function LeaveCalendar() {
                 );
                 setDeleteLeave(null);
                 refresh();
-                toast.success("Concediu șters cu succes");
+                toast.success(t("leaves.calendar.deleteSuccess"));
               }}
             >
-              Șterge
+              {t("leaves.calendar.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

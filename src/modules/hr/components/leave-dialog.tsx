@@ -211,7 +211,7 @@ export default function LeaveDialog(props: Props) {
         entity: "leave",
         entityId: props.leave.id,
         entityLabel: empName,
-        details: `${leaveTypeLabel}, ${values.startDate} – ${values.endDate} (${days} zile)`,
+        details: `${leaveTypeLabel}, ${values.startDate} – ${values.endDate} (${t("leaves.auditDays", { count: days })})`,
         oldValue: { status: oldStatus },
         newValue: { status: newStatus },
       });
@@ -228,7 +228,7 @@ export default function LeaveDialog(props: Props) {
         entity: "leave",
         entityId: newId,
         entityLabel: empName,
-        details: `${leaveTypeLabel}, ${values.startDate} – ${values.endDate} (${days} zile)`,
+        details: `${leaveTypeLabel}, ${values.startDate} – ${values.endDate} (${t("leaves.auditDays", { count: days })})`,
         newValue: { type: leaveTypeLabel, startDate: values.startDate, endDate: values.endDate, days, ...(values.reason ? { reason: values.reason } : {}) },
       });
       props.onAdd();
@@ -320,15 +320,15 @@ export default function LeaveDialog(props: Props) {
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="pending">În așteptare</SelectItem>
-                  <SelectItem value="approved">Aprobat</SelectItem>
-                  <SelectItem value="rejected">Respins</SelectItem>
+                  <SelectItem value="pending">{t("leaves.status.pending")}</SelectItem>
+                  <SelectItem value="approved">{t("leaves.status.approved")}</SelectItem>
+                  <SelectItem value="rejected">{t("leaves.status.rejected")}</SelectItem>
                 </SelectContent>
               </Select>
             )}
 
             <DatePickerField
-              label="Data de start"
+              label={t("leaves.form.dateStart")}
               value={startDate}
               onChange={(v) =>
                 form.setValue("startDate", v, { shouldValidate: true })
@@ -337,7 +337,7 @@ export default function LeaveDialog(props: Props) {
             />
 
             <DatePickerField
-              label="Data de sfârșit"
+              label={t("leaves.form.dateEnd")}
               value={endDate}
               onChange={(v) =>
                 form.setValue("endDate", v, { shouldValidate: true })
@@ -347,13 +347,13 @@ export default function LeaveDialog(props: Props) {
 
             {days > 0 && (
               <p className="text-sm text-muted-foreground">
-                Număr zile:{" "}
+                {t("leaves.form.daysCount")}{" "}
                 <span className="font-medium text-foreground">{days}</span>
               </p>
             )}
 
             <Input
-              placeholder="Motiv (opțional)"
+              placeholder={t("leaves.form.reasonPlaceholder")}
               {...form.register("reason")}
             />
           </div>
@@ -361,10 +361,10 @@ export default function LeaveDialog(props: Props) {
           <div className="flex gap-2 justify-end pt-4">
             <DialogClose asChild>
               <Button type="button" variant="outline">
-                Anulează
+                {t("leaves.form.cancel")}
               </Button>
             </DialogClose>
-            <Button type="submit">Salvează</Button>
+            <Button type="submit">{t("leaves.form.save")}</Button>
           </div>
         </form>
       </DialogContent>

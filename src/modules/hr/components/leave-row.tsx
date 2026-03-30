@@ -26,8 +26,8 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import type { LeaveRequest } from "@/modules/hr/types";
 import { toast } from "sonner";
 import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
+import { useTranslation } from "react-i18next";
 
-const UNKNOWN_EMPLOYEE = "Necunoscut";
 
 type LeaveRow = LeaveRequest & { employeeName: string };
 
@@ -47,6 +47,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
 }) => {
   const leave = row.original;
   const { log } = useHrAuditLog();
+  const { t } = useTranslation();
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
 
@@ -55,7 +56,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
       STORAGE_KEYS.leaveRequests,
     ).map((lr) => ({
       ...lr,
-      employeeName: employeeMap.get(lr.employeeId) ?? UNKNOWN_EMPLOYEE,
+      employeeName: employeeMap.get(lr.employeeId) ?? t("leaves.unknown"),
     }));
     setData(updated);
     onRefreshCalendar?.();
@@ -70,8 +71,8 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
     refreshData();
     toast.success(
       newStatus === "approved"
-        ? `Concediul lui ${leave.employeeName} a fost aprobat`
-        : `Concediul lui ${leave.employeeName} a fost respins`,
+        ? t("leaves.toast.approved", { name: leave.employeeName })
+        : t("leaves.toast.rejected", { name: leave.employeeName }),
     );
   };
 
@@ -87,7 +88,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                    aria-label="Aprobă concediu"
+                    aria-label={t("leaves.actions.approve")}
                     onClick={() => handleStatusChange("approved")}
                   >
                     <Check className="h-4 w-4" />
@@ -96,7 +97,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
                     variant="ghost"
                     size="icon"
                     className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                    aria-label="Respinge concediu"
+                    aria-label={t("leaves.actions.reject")}
                     onClick={() => handleStatusChange("rejected")}
                   >
                     <X className="h-4 w-4" />
@@ -109,7 +110,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 p-0"
-                  aria-label="Acțiuni concediu"
+                  aria-label={t("leaves.actions.actions")}
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
@@ -120,7 +121,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
                   onClick={() => setEditOpen(true)}
                 >
                   <Pencil className="mr-2 h-4 w-4" />
-                  Editează
+                  {t("leaves.actions.edit")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -129,7 +130,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
                   onClick={() => setDeleteOpen(true)}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Șterge
+                  {t("leaves.actions.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -154,21 +155,21 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
             () => updated,
           );
           refreshData();
-          toast.success("Concediu actualizat cu succes");
+          toast.success(t("leaves.calendar.updateSuccess"));
         }}
       />
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirmă ștergerea</AlertDialogTitle>
+            <AlertDialogTitle>{t("leaves.calendar.confirmDelete")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Sigur doriți să ștergeți concediul lui{" "}
+              {t("leaves.calendar.confirmDeleteDesc")}{" "}
               <strong className="text-foreground">{leave.employeeName}</strong>?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogCancel>{t("leaves.calendar.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               className={buttonVariants({ variant: "destructive" })}
               onClick={() => {
@@ -184,10 +185,10 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
                   details: `${leave.type}, ${leave.startDate} – ${leave.endDate}`,
                 });
                 refreshData();
-                toast.success("Concediu șters cu succes");
+                toast.success(t("leaves.calendar.deleteSuccess"));
               }}
             >
-              Șterge
+              {t("leaves.calendar.delete")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
