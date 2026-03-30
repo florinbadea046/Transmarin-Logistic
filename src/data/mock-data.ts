@@ -6,7 +6,7 @@
 import { initCollection } from "@/utils/local-storage";
 import type { Driver, Truck, Order, Trip } from "@/modules/transport/types";
 import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
-import type { Employee, LeaveRequest, HRSettings } from "@/modules/hr/types";
+import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
 import { Bonus } from "../modules/hr/types";
 
@@ -30,7 +30,6 @@ export const STORAGE_KEYS = {
   bonuses: "transmarin_bonuses",
   attendance: "transmarin_attendance",
   hr_audit_log: "transmarin_hr_audit_log",
-  hr_settings: "transmarin_hr_settings",
   // Notifications
   notifications: "transmarin_notifications",
   // Activity Log
@@ -38,6 +37,7 @@ export const STORAGE_KEYS = {
   // Maintenance
   maintenance: "transmarin_maintenance",
   fuelLog: "transmarin_fuel_log",
+  transport_settings: "transmarin_transport_settings",
   tripInvoices: "transmarin_trip_invoices",
 } as const;
 
@@ -417,18 +417,6 @@ const seedParts: Part[] = [
 
 const seedEmployees: Employee[] = [
   {
-    id: "e0",
-    name: "Alexandru Dumitru",
-    position: "Director General",
-    department: "Administrativ",
-    phone: "0720000000",
-    email: "director@transmarin.ro",
-    hireDate: "2015-01-01",
-    salary: 12000,
-    managerId: null,
-    documents: [],
-  },
-  {
     id: "e1",
     name: "Gheorghe Marin",
     position: "Sofer",
@@ -437,7 +425,6 @@ const seedEmployees: Employee[] = [
     email: "gheorghe@transmarin.ro",
     hireDate: "2019-03-01",
     salary: 5500,
-    managerId: "e6",
     documents: [
       {
         id: "doc1",
@@ -486,7 +473,6 @@ const seedEmployees: Employee[] = [
     email: "vasile@transmarin.ro",
     hireDate: "2020-07-15",
     salary: 5200,
-    managerId: "e6",
     documents: [],
   },
   {
@@ -498,7 +484,6 @@ const seedEmployees: Employee[] = [
     email: "ana@transmarin.ro",
     hireDate: "2021-01-10",
     salary: 4800,
-    managerId: "e6",
     documents: [],
   },
   {
@@ -510,7 +495,6 @@ const seedEmployees: Employee[] = [
     email: "andrei@transmarin.ro",
     hireDate: "2022-05-20",
     salary: 5300,
-    managerId: "e6",
     documents: [],
   },
   {
@@ -522,7 +506,6 @@ const seedEmployees: Employee[] = [
     email: "maria@transmarin.ro",
     hireDate: "2023-02-01",
     salary: 5000,
-    managerId: "e6",
     documents: [],
   },
   {
@@ -534,7 +517,6 @@ const seedEmployees: Employee[] = [
     email: "ioana@transmarin.ro",
     hireDate: "2024-01-15",
     salary: 6000,
-    managerId: "e0",
     documents: [],
   },
 ];
@@ -1266,18 +1248,12 @@ const seedAttendance: AttendanceRecord[] = [
 
 const TRIPS_SCHEMA_VERSION = "v3";
 const TRIPS_VERSION_KEY = "transmarin_trips_schema_version";
-const EMPLOYEES_SCHEMA_VERSION = "v2";
-const EMPLOYEES_VERSION_KEY = "transmarin_employees_schema_version";
 
 export function seedMockData(): void {
   initCollection(STORAGE_KEYS.drivers, seedDrivers);
   initCollection(STORAGE_KEYS.trucks, seedTrucks);
   initCollection(STORAGE_KEYS.orders, seedOrders);
   initCollection(STORAGE_KEYS.parts, seedParts);
-  if (localStorage.getItem(EMPLOYEES_VERSION_KEY) !== EMPLOYEES_SCHEMA_VERSION) {
-    localStorage.removeItem(STORAGE_KEYS.employees);
-    localStorage.setItem(EMPLOYEES_VERSION_KEY, EMPLOYEES_SCHEMA_VERSION);
-  }
   initCollection(STORAGE_KEYS.employees, seedEmployees);
   initCollection(STORAGE_KEYS.suppliers, seedSuppliers);
   if (localStorage.getItem(TRIPS_VERSION_KEY) !== TRIPS_SCHEMA_VERSION) {
@@ -1291,17 +1267,6 @@ export function seedMockData(): void {
   initCollection(STORAGE_KEYS.leaveRequests, seedLeaveRequests);
   initCollection(STORAGE_KEYS.bonuses, seedBonuses);
   initCollection(STORAGE_KEYS.attendance, seedAttendance);
-  if (!localStorage.getItem(STORAGE_KEYS.hr_settings)) {
-    const defaultSettings: HRSettings = {
-      defaultLeaveDays: 21,
-      leaveTypes: ["Concediu de odihnă", "Medical", "Fără plată", "Altele"],
-      documentAlertDays: 30,
-      departments: ["Dispecerat", "Transport", "Service", "Contabilitate", "Administrativ"],
-      documentNumberFormat: "DOC-{YYYY}-{NNN}",
-      bonusCurrency: "RON",
-    };
-    localStorage.setItem(STORAGE_KEYS.hr_settings, JSON.stringify(defaultSettings));
-  }
 }
 
 export { seedEmployees };
