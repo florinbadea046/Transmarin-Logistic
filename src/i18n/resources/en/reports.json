@@ -80,6 +80,7 @@
   },
   "financialReports": {
     "title": "Financial Reports",
+    "subtitle": "Analysis of income, expenses and invoices",
     "filters": "Filters",
     "from": "From",
     "to": "To",
@@ -88,6 +89,7 @@
     "totalExpenses": "Total Expenses",
     "balance": "Balance",
     "invoiceCount": "No. Invoices",
+    "invoiceCountLabel": "{{count}} invoices",
     "monthlyBreakdown": "Monthly Breakdown",
     "month": "Month",
     "income": "Income",
@@ -101,8 +103,37 @@
     "status": "Status",
     "typeIncome": "Income",
     "typeExpense": "Expense",
+    "typeFilter": "Type",
+    "allTypes": "All types",
     "statusPaid": "Paid",
-    "statusPending": "Pending"
+    "statusPending": "Pending",
+    "status_paid": "Paid",
+    "status_sent": "Sent",
+    "status_overdue": "Overdue",
+    "status_draft": "Draft",
+    "exportPdf": "Export PDF",
+    "exporting": "Generating...",
+    "resetFilters": "Reset",
+    "searchPlaceholder": "Search invoice...",
+    "invoicesTable": "Invoices",
+    "pagination": "{{from}}-{{to}} of {{total}}",
+    "charts": {
+      "incomeVsExpenses": "Income vs Expenses per month",
+      "expenseBreakdown": "Expense breakdown"
+    },
+    "pie": {
+      "fuel": "Fuel",
+      "maintenance": "Maintenance",
+      "salaries": "Salaries",
+      "other": "Other"
+    },
+    "pdf": {
+      "title": "Financial Report - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generated",
+      "allData": "All data",
+      "filename": "financial-report"
+    }
   },
   "fleetReports": {
     "title": "Fleet Reports",

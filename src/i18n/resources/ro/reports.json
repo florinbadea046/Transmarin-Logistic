@@ -80,6 +80,7 @@
   },
   "financialReports": {
     "title": "Rapoarte Financiare",
+    "subtitle": "Analiza venituri, cheltuieli si facturi",
     "filters": "Filtre",
     "from": "De la",
     "to": "Pana la",
@@ -88,6 +89,7 @@
     "totalExpenses": "Total Cheltuieli",
     "balance": "Balanta",
     "invoiceCount": "Nr. Facturi",
+    "invoiceCountLabel": "{{count}} facturi",
     "monthlyBreakdown": "Breakdown pe luni",
     "month": "Luna",
     "income": "Venituri",
@@ -101,8 +103,37 @@
     "status": "Status",
     "typeIncome": "Venit",
     "typeExpense": "Cheltuiala",
+    "typeFilter": "Tip",
+    "allTypes": "Toate tipurile",
     "statusPaid": "Platita",
-    "statusPending": "In asteptare"
+    "statusPending": "In asteptare",
+    "status_paid": "Platita",
+    "status_sent": "Trimisa",
+    "status_overdue": "Restanta",
+    "status_draft": "Ciorna",
+    "exportPdf": "Export PDF",
+    "exporting": "Se genereaza...",
+    "resetFilters": "Reseteaza",
+    "searchPlaceholder": "Cauta factura...",
+    "invoicesTable": "Facturi",
+    "pagination": "{{from}}-{{to}} din {{total}}",
+    "charts": {
+      "incomeVsExpenses": "Venituri vs Cheltuieli pe luna",
+      "expenseBreakdown": "Distributie cheltuieli"
+    },
+    "pie": {
+      "fuel": "Combustibil",
+      "maintenance": "Mentenanta",
+      "salaries": "Salarii",
+      "other": "Altele"
+    },
+    "pdf": {
+      "title": "Raport Financiar - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generat",
+      "allData": "Toate datele",
+      "filename": "raport-financiar"
+    }
   },
   "fleetReports": {
     "title": "Rapoarte Parc Auto",
