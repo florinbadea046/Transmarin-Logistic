@@ -17,7 +17,9 @@
     "nav": {
       "employees": "Employees",
       "leaves": "Leaves",
-      "payroll": "Payroll"
+      "payroll": "Payroll",
+      "attendance": "Monthly Timesheet",
+      "activityLog": "History"
     },
     "documentAlerts": {
       "title": "Document Alerts",
@@ -146,6 +148,40 @@
     "bonuses": {
       "title": "Bonuses",
       "currency": "Bonus currency"
+    }
+  },
+  "hrAuditLog": {
+    "title": "HR Activity Log",
+    "subtitle": "All CRUD actions performed on HR entities",
+    "filters": "Filters:",
+    "resetFilters": "Reset",
+    "noActivity": "No activity recorded",
+    "perPage": "/ page",
+    "allEntities": "All entities",
+    "allActions": "All actions",
+    "allEmployees": "All employees",
+    "entries_one": "{{count}} entry",
+    "entries_other": "{{count}} entries",
+    "page": "Page {{page}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "before": "Before",
+    "after": "After",
+    "actions": {
+      "create": "Added",
+      "update": "Modified",
+      "delete": "Deleted",
+      "approve": "Approved",
+      "reject": "Rejected"
+    },
+    "entities": {
+      "employee": "Employee",
+      "leave": "Leave",
+      "bonus": "Bonus / Penalty",
+      "document": "Document",
+      "attendance": "Attendance"
     }
   }
 }

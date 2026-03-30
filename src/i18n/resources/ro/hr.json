@@ -17,7 +17,9 @@
     "nav": {
       "employees": "Angajati",
       "leaves": "Concedii",
-      "payroll": "Salarizare"
+      "payroll": "Salarizare",
+      "attendance": "Pontaj Lunar",
+      "activityLog": "Istoric"
     },
     "documentAlerts": {
       "title": "Alerte Documente",
@@ -146,6 +148,40 @@
     "bonuses": {
       "title": "Bonusuri",
       "currency": "Monedă bonusuri"
+    }
+  },
+  "hrAuditLog": {
+    "title": "Istoric Activități HR",
+    "subtitle": "Toate acțiunile CRUD efectuate pe entitățile HR",
+    "filters": "Filtre:",
+    "resetFilters": "Resetează",
+    "noActivity": "Nicio activitate înregistrată",
+    "perPage": "/ pag.",
+    "allEntities": "Toate entitățile",
+    "allActions": "Toate acțiunile",
+    "allEmployees": "Toți angajații",
+    "entries_one": "{{count}} intrare",
+    "entries_other": "{{count}} intrări",
+    "page": "Pagina {{page}} din {{total}}",
+    "previous": "Anterior",
+    "next": "Următor",
+    "showDetails": "Arată detalii",
+    "hideDetails": "Ascunde detalii",
+    "before": "Înainte",
+    "after": "După",
+    "actions": {
+      "create": "Adăugat",
+      "update": "Modificat",
+      "delete": "Șters",
+      "approve": "Aprobat",
+      "reject": "Respins"
+    },
+    "entities": {
+      "employee": "Angajat",
+      "leave": "Concediu",
+      "bonus": "Bonus / Penalizare",
+      "document": "Document",
+      "attendance": "Pontaj"
     }
   }
 }
