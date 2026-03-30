@@ -2,6 +2,39 @@
   "settings": {
     "title": "Settings",
     "profileTitle": "Profile Settings",
-    "profilePlaceholder": "Profile settings will be available soon."
+    "profilePlaceholder": "Profile settings will be available soon.",
+    "tabs": {
+      "transport": "Transport",
+      "profile": "Profile"
+    },
+    "transport": {
+      "alertsTitle": "Expiry Alerts",
+      "alertsDesc": "Configure how many days before expiry an alert is shown for documents and vehicle certificates.",
+      "alertDays": "Days before expiry",
+      "alertDaysHint": "Alerts will appear this many days before ITP, RCA, vignette and document expiry dates.",
+      "days": "days",
+      "plateTitle": "License Plate Format",
+      "plateDesc": "Customize the regex pattern used to validate license plates.",
+      "plateRegex": "Plate regex pattern",
+      "plateRegexHint": "Example for Romania: ^[A-Z]{1,2}\\s?\\d{2,3}\\s?[A-Z]{3}$",
+      "plateRegexInvalid": "Invalid regex pattern.",
+      "unitsTitle": "Units & Currency",
+      "unitsDesc": "Choose the distance unit and currency used across the transport module.",
+      "kmUnit": "Distance unit",
+      "usingKm": "Using kilometers",
+      "usingMiles": "Using miles",
+      "km": "km",
+      "miles": "miles",
+      "currency": "Currency",
+      "currencyHint": "Used for fuel costs, revenues and reports.",
+      "tableTitle": "Table Display",
+      "tableDesc": "Default number of rows shown per page in all transport tables.",
+      "defaultPageSize": "Rows per page",
+      "defaultPageSizeHint": "Applied as default when opening any transport table.",
+      "saveBtn": "Save settings",
+      "resetBtn": "Reset to defaults",
+      "saved": "Settings saved successfully.",
+      "reset": "Settings reset to defaults."
+    }
   }
 }

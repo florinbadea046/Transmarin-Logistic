@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -42,13 +43,23 @@ import {
   WEEKEND_BLOCKED,
   STATUS_CYCLE,
   STATUS_CONFIG,
+  ALL_DEPARTMENTS,
   exportAttendancePDF,
   type AttendanceRow,
 } from "./attendance-shared";
 
 // ── Page ─────────────────────────────────────────────────
 export default function AttendancePage() {
+  const { t, i18n } = useTranslation();
   const { log } = useHrAuditLog();
+
+  const STATUS_NAMES: Record<AttendanceStatus, string> = React.useMemo(() => ({
+    P: t("attendance.status.present"),
+    CO: t("attendance.status.annualLeave"),
+    CM: t("attendance.status.sickLeave"),
+    A: t("attendance.status.absent"),
+    LP: t("attendance.status.paidLeave"),
+  }), [t]);
   const logRef = React.useRef(log);
   logRef.current = log;
 
@@ -59,7 +70,7 @@ export default function AttendancePage() {
 
   const deptFilter =
     (columnFilters.find((f) => f.id === "department")?.value as string) ??
-    "Toate";
+    ALL_DEPARTMENTS;
 
   const employees = React.useMemo(
     () =>
@@ -233,7 +244,7 @@ export default function AttendancePage() {
       {
         id: "name",
         accessorFn: (row) => row.employee.name,
-        header: "Angajat",
+        header: t("attendance.columns.employee"),
         enableHiding: false,
         cell: ({ getValue }) => (
           <div className="font-medium whitespace-nowrap">
@@ -245,7 +256,7 @@ export default function AttendancePage() {
         id: "department",
         accessorFn: (row) => row.employee.department,
         filterFn: (row, _id, value) => {
-          if (!value || value === "Toate") return true;
+          if (!value || value === ALL_DEPARTMENTS) return true;
           return row.original.employee.department === value;
         },
       },
@@ -267,9 +278,9 @@ export default function AttendancePage() {
                 onClick={() =>
                   handleCellClick(row.original.employee.id, date, status, isWeekend)
                 }
-                aria-label={cfg ? cfg.name : "Setează status"}
+                aria-label={cfg ? STATUS_NAMES[status!] : t("attendance.status.setStatus")}
                 className={`inline-flex h-6 w-7 items-center justify-center rounded text-xs font-semibold transition-colors cursor-pointer ${cfg ? cfg.cellClass : isWeekend ? "hover:bg-muted/60 text-transparent" : "hover:bg-muted text-transparent"}`}
-                title={cfg ? cfg.name : "Click pentru a seta"}
+                title={cfg ? STATUS_NAMES[status!] : t("attendance.status.clickToSet")}
               >
                 <span aria-hidden="true">{cfg ? cfg.label : "·"}</span>
               </button>
@@ -278,7 +289,7 @@ export default function AttendancePage() {
         }),
       ),
     ],
-    [days, handleCellClick],
+    [days, handleCellClick, t, STATUS_NAMES],
   );
 
   const table = useReactTable({
@@ -296,7 +307,7 @@ export default function AttendancePage() {
   const handleDeptChange = (value: string) => {
     table
       .getColumn("department")
-      ?.setFilterValue(value === "Toate" ? undefined : value);
+      ?.setFilterValue(value === ALL_DEPARTMENTS ? undefined : value);
   };
 
   const monthLabel =
@@ -308,13 +319,13 @@ export default function AttendancePage() {
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold">Pontaj Lunar</h1>
+        <h1 className="text-lg font-semibold">{t("attendance.title")}</h1>
       </Header>
       <Main>
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <CardTitle>Gestiune Pontaj</CardTitle>
+              <CardTitle>{t("attendance.manage")}</CardTitle>
               <div className="flex items-center gap-2 flex-wrap">
                 <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                   <SelectTrigger className="flex-1 min-w-[140px] sm:w-44">
@@ -333,10 +344,10 @@ export default function AttendancePage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Toate">Toate departamentele</SelectItem>
+                    <SelectItem value={ALL_DEPARTMENTS}>{t("attendance.allDepartments")}</SelectItem>
                     {EMPLOYEE_DEPARTMENTS.map((d) => (
                       <SelectItem key={d} value={d}>
-                        {d}
+                        {t(`departments.${d}`, { defaultValue: d })}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -350,11 +361,13 @@ export default function AttendancePage() {
                       visibleRows.map((r) => r.original),
                       days,
                       monthLabel,
+                      t,
+                      i18n.language === "en" ? "en-GB" : "ro-RO",
                     )
                   }
                 >
                   <FileDown className="h-4 w-4 mr-1.5" />
-                  Export PDF
+                  {t("attendance.exportPdf")}
                 </Button>
               </div>
             </div>
@@ -373,7 +386,7 @@ export default function AttendancePage() {
                   >
                     {cfg.label}
                   </span>
-                  <span className="text-muted-foreground">{cfg.name}</span>
+                  <span className="text-muted-foreground">{STATUS_NAMES[status]}</span>
                 </div>
               ))}
             </div>
@@ -430,7 +443,7 @@ export default function AttendancePage() {
                           colSpan={table.getVisibleLeafColumns().length}
                           className="h-24 text-center text-muted-foreground"
                         >
-                          Niciun angajat găsit.
+                          {t("attendance.noEmployees")}
                         </TableCell>
                       </TableRow>
                     )}
@@ -443,10 +456,10 @@ export default function AttendancePage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="px-1 text-center w-10 text-muted-foreground">Prez.</TableHead>
-                      <TableHead className="px-1 text-center w-10 text-muted-foreground">Conc.</TableHead>
-                      <TableHead className="px-1 text-center w-10 text-muted-foreground">Abs.</TableHead>
-                      <TableHead className="px-1 text-center w-10 text-muted-foreground">LP</TableHead>
+                      <TableHead className="px-1 text-center w-10 text-muted-foreground">{t("attendance.columns.present")}</TableHead>
+                      <TableHead className="px-1 text-center w-10 text-muted-foreground">{t("attendance.columns.leave")}</TableHead>
+                      <TableHead className="px-1 text-center w-10 text-muted-foreground">{t("attendance.columns.absent")}</TableHead>
+                      <TableHead className="px-1 text-center w-10 text-muted-foreground">{t("attendance.columns.paidLeave")}</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

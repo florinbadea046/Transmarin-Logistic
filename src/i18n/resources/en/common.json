@@ -51,7 +51,8 @@
       "title": "Human Resources",
       "overview": "Overview",
       "leaves": "Leave Requests",
-      "payroll": "Payroll"
+      "payroll": "Payroll",
+      "attendance": "Monthly Timesheet"
     },
     "reports": {
       "title": "Reports",

@@ -10,6 +10,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import BonusDialog from "./bonus-dialog";
 import { removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
@@ -29,6 +39,7 @@ export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) =>
   const bonus = row.original;
   const { log } = useHrAuditLog();
   const [editOpen, setEditOpen] = React.useState(false);
+  const [deleteOpen, setDeleteOpen] = React.useState(false);
 
   const handleDelete = () => {
     removeItem<Bonus>(STORAGE_KEYS.bonuses, (b) => b.id === bonus.id);
@@ -65,7 +76,7 @@ export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) =>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer text-destructive focus:text-destructive"
-                  onClick={handleDelete}
+                  onClick={() => setDeleteOpen(true)}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
                   Șterge
@@ -87,6 +98,26 @@ export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) =>
         onOpenChange={setEditOpen}
         onSave={onRefresh}
       />
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Șterge înregistrarea</AlertDialogTitle>
+            <AlertDialogDescription>
+              Ești sigur că vrei să ștergi această înregistrare pentru{" "}
+              <strong>{bonus.employeeName}</strong>? Acțiunea nu poate fi anulată.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={handleDelete}
+            >
+              Șterge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </TableRow>
   );
 };

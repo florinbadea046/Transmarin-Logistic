@@ -118,7 +118,9 @@ export function usePayrollData(selectedMonth: string) {
         ...b,
         amount: normalizeBonusAmount(b),
         employeeName: employees.find((e) => e.id === b.employeeId)?.name ?? "—",
-      }));
+      }))
+      .sort((a, b) => b.date.localeCompare(a.date))
+      .slice(0, 20);
   }, [employees, bonuses, selectedMonth]);
 
   return {

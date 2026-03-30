@@ -15,7 +15,9 @@ import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -33,6 +35,7 @@ import {
 } from "@/components/ui/table";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
+import { DataTableFacetedFilter } from "@/components/data-table/faceted-filter";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
@@ -42,6 +45,7 @@ import { formatDate } from "@/utils/format";
 import LeaveDialog from "../components/leave-dialog";
 import { LeaveTableRow } from "../components/leave-row";
 import LeaveCalendar from "./_components/leave-calendar";
+import { LeavesExportMenu } from "../components/leaves-export-menu";
 
 // ── Row type ─────────────────────────────────────────────────
 type LeaveRow = LeaveRequest & { employeeName: string };
@@ -155,8 +159,10 @@ export default function LeavesPage() {
           );
         },
         filterFn: (row, id, value) => {
-          if (!value || value === "all") return true;
-          return row.getValue(id) === value;
+          if (!value || (Array.isArray(value) && value.length === 0)) return true;
+          return Array.isArray(value)
+            ? value.includes(row.getValue(id))
+            : row.getValue(id) === value;
         },
       },
       {
@@ -213,7 +219,6 @@ export default function LeavesPage() {
   );
   const [search, setSearch] = React.useState("");
   const [typeFilter, setTypeFilter] = React.useState("all");
-  const [statusFilter, setStatusFilter] = React.useState("all");
 
   const table = useReactTable({
     data,
@@ -245,12 +250,6 @@ export default function LeavesPage() {
     table.setPageIndex(0);
   };
 
-  const handleStatusChange = (v: string) => {
-    setStatusFilter(v);
-    table.getColumn("status")?.setFilterValue(v === "all" ? undefined : v);
-    table.setPageIndex(0);
-  };
-
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value);
     table.setPageIndex(0);
@@ -277,7 +276,10 @@ export default function LeavesPage() {
                 {t("leaves.tabs.calendar")}
               </TabsTrigger>
             </TabsList>
-            <LeaveDialog mode="add" onAdd={refreshData} />
+            <div className="flex items-center gap-2">
+              <LeavesExportMenu rows={table.getFilteredRowModel().rows.map((r) => r.original)} />
+              <LeaveDialog mode="add" onAdd={refreshData} />
+            </div>
           </div>
 
           <TabsContent value="list">
@@ -325,28 +327,26 @@ export default function LeavesPage() {
                       </SelectItem>
                     </SelectContent>
                   </Select>
-                  <Select
-                    value={statusFilter}
-                    onValueChange={handleStatusChange}
-                  >
-                    <SelectTrigger className="w-44">
-                      <SelectValue placeholder={t("leaves.filters.status")} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">
-                        {t("leaves.filters.allStatuses")}
-                      </SelectItem>
-                      <SelectItem value="pending">
-                        {t("leaves.status.pending")}
-                      </SelectItem>
-                      <SelectItem value="approved">
-                        {t("leaves.status.approved")}
-                      </SelectItem>
-                      <SelectItem value="rejected">
-                        {t("leaves.status.rejected")}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <DataTableFacetedFilter
+                    column={table.getColumn("status")}
+                    title={t("leaves.filters.status")}
+                    options={[
+                      { value: "pending", label: t("leaves.status.pending") },
+                      { value: "approved", label: t("leaves.status.approved") },
+                      { value: "rejected", label: t("leaves.status.rejected") },
+                    ]}
+                  />
+                  {!!(table.getColumn("status")?.getFilterValue() as string[] | undefined)?.length && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                      onClick={() => table.getColumn("status")?.setFilterValue(undefined)}
+                    >
+                      Resetare
+                      <X className="ml-1 h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </CardHeader>
 
