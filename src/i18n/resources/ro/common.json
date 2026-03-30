@@ -51,7 +51,8 @@
       "title": "Resurse Umane",
       "overview": "Prezentare Generala",
       "leaves": "Concedii",
-      "payroll": "Salarizare"
+      "payroll": "Salarizare",
+      "attendance": "Pontaj Lunar"
     },
     "reports": {
       "title": "Rapoarte",
