@@ -4,7 +4,6 @@ import {
   ChevronLeft,
   ChevronRight,
   CalendarDays,
-  GripVertical,
   List,
 } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
@@ -15,12 +14,9 @@ import {
   DragStartEvent,
   PointerSensor,
   TouchSensor,
-  useDraggable,
-  useDroppable,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
 import { toast } from "sonner";
 
 import { Header } from "@/components/layout/header";
@@ -28,46 +24,24 @@ import { Main } from "@/components/layout/main";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 import type { Trip, Order, Driver, Truck } from "@/modules/transport/types";
 import { getCollection, updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 
-function padTwo(n: number) {
-  return n < 10 ? "0" + n : String(n);
-}
-
-function toYMD(d: Date) {
-  return `${d.getFullYear()}-${padTwo(d.getMonth() + 1)}-${padTwo(d.getDate())}`;
-}
-
-function startOfMonth(d: Date): Date {
-  return new Date(d.getFullYear(), d.getMonth(), 1);
-}
-
-function getDaysInMonth(year: number, month: number): number {
-  return new Date(year, month + 1, 0).getDate();
-}
-
-function getDayOfWeek(d: Date): number {
-  const day = d.getDay();
-  return day === 0 ? 6 : day - 1;
-}
-
-function addDays(d: Date, n: number): Date {
-  const r = new Date(d);
-  r.setDate(r.getDate() + n);
-  return r;
-}
+import {
+  toYMD,
+  startOfMonth,
+  getDaysInMonth,
+  getDayOfWeek,
+  addDays,
+} from "./trips-calendar-utils";
+import { STATUS_DOT } from "./trips-dnd-types";
+import type { TripWithRelations } from "./trips-dnd-types";
+import { TripCard, SidebarTripCard } from "./trips-dnd-cards";
+import { DroppableDay } from "./trips-dnd-droppable-day";
+import { TripDetailDialog, ConfirmMoveDialog } from "./trips-dnd-dialogs";
 
 function useWindowWidth() {
   const [w, setW] = React.useState(
@@ -80,30 +54,6 @@ function useWindowWidth() {
   }, []);
   return w;
 }
-
-const STATUS_BADGE: Record<Trip["status"], string> = {
-  planned:
-    "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400",
-  in_desfasurare:
-    "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400",
-  finalizata:
-    "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400",
-  anulata:
-    "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400",
-};
-
-const STATUS_DOT: Record<Trip["status"], string> = {
-  planned: "bg-blue-500",
-  in_desfasurare: "bg-amber-500",
-  finalizata: "bg-green-500",
-  anulata: "bg-red-500",
-};
-
-type TripWithRelations = Trip & {
-  order?: Order;
-  driver?: Driver;
-  truck?: Truck;
-};
 
 function useData() {
   const [trips, setTrips] = React.useState<Trip[]>([]);
@@ -130,336 +80,6 @@ function useData() {
   }));
 
   return { enriched, reload: load };
-}
-
-function TripCard({
-  trip,
-  isDragging,
-  onClick,
-  compact,
-}: {
-  trip: TripWithRelations;
-  isDragging?: boolean;
-  onClick?: () => void;
-  compact?: boolean;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`w-full text-left rounded border px-1 py-0.5 mb-0.5 transition-opacity flex items-start gap-0.5 group ${STATUS_BADGE[trip.status]} ${isDragging ? "opacity-50" : "hover:opacity-80"}`}
-    >
-      {!compact && (
-        <GripVertical className="h-2.5 w-2.5 mt-0.5 shrink-0 opacity-30 group-hover:opacity-60" />
-      )}
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-0.5 min-w-0">
-          <span
-            className={`h-1.5 w-1.5 rounded-full shrink-0 ${STATUS_DOT[trip.status]}`}
-          />
-          <span className="text-[9px] font-medium truncate leading-snug block w-full">
-            {trip.driver?.name?.split(" ")[0] ?? "—"}
-          </span>
-        </div>
-        {!compact && trip.order && (
-          <div className="text-[8px] text-muted-foreground truncate leading-snug block">
-            {trip.order.origin} → {trip.order.destination}
-          </div>
-        )}
-      </div>
-    </button>
-  );
-}
-
-function DraggableTripCard({
-  trip,
-  onClick,
-  compact,
-}: {
-  trip: TripWithRelations;
-  onClick: () => void;
-  compact?: boolean;
-}) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: trip.id,
-      data: { trip },
-      disabled: trip.status === "finalizata" || trip.status === "anulata",
-    });
-
-  const style: React.CSSProperties = {
-    transform: CSS.Translate.toString(transform),
-    zIndex: isDragging ? 50 : undefined,
-    opacity: isDragging ? 0.4 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-      className="touch-none"
-    >
-      <TripCard
-        trip={trip}
-        isDragging={isDragging}
-        onClick={isDragging ? undefined : onClick}
-        compact={compact}
-      />
-    </div>
-  );
-}
-
-function DroppableDay({
-  ymd,
-  isToday,
-  isCurrentMonth,
-  day,
-  dayName,
-  trips,
-  onTripClick,
-  compact,
-}: {
-  ymd: string;
-  isToday: boolean;
-  isCurrentMonth: boolean;
-  day: number;
-  dayName: string;
-  trips: TripWithRelations[];
-  onTripClick: (trip: TripWithRelations) => void;
-  compact?: boolean;
-}) {
-  const { setNodeRef, isOver } = useDroppable({ id: ymd });
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`rounded-lg border flex flex-col transition-colors overflow-hidden
-        ${compact ? "min-h-[72px] p-0.5" : "min-h-[90px] p-1"}
-        ${isOver ? "bg-primary/10 border-primary/50" : ""}
-        ${isToday ? "border-primary bg-primary/5" : "border-border bg-card"}
-        ${!isCurrentMonth ? "opacity-35" : ""}
-      `}
-    >
-      <div className="text-center mb-0.5">
-        <div
-          className={`text-[8px] uppercase leading-none ${isToday ? "text-primary font-semibold" : "text-muted-foreground"}`}
-        >
-          {dayName}
-        </div>
-        <div
-          className={`text-[10px] font-semibold rounded-full w-4 h-4 flex items-center justify-center mx-auto mt-0.5 ${isToday ? "bg-primary text-primary-foreground" : ""}`}
-        >
-          {day}
-        </div>
-      </div>
-      <div className="flex-1 min-w-0 overflow-hidden">
-        {trips.length === 0 ? (
-          <div className="text-[8px] text-muted-foreground text-center mt-1 select-none">
-            —
-          </div>
-        ) : (
-          trips.map((trip) => (
-            <DraggableTripCard
-              key={trip.id}
-              trip={trip}
-              onClick={() => onTripClick(trip)}
-              compact={compact}
-            />
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
-function SidebarTripCard({
-  trip,
-  onClick,
-}: {
-  trip: TripWithRelations;
-  onClick: () => void;
-}) {
-  const { attributes, listeners, setNodeRef, transform, isDragging } =
-    useDraggable({
-      id: trip.id,
-      data: { trip },
-    });
-
-  const style: React.CSSProperties = {
-    transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.4 : 1,
-  };
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...listeners}
-      {...attributes}
-      className="touch-none"
-    >
-      <button
-        onClick={isDragging ? undefined : onClick}
-        className={`w-full text-left rounded-lg border p-2 mb-1 transition-opacity flex items-start gap-2 group ${STATUS_BADGE[trip.status]} hover:opacity-80`}
-      >
-        <GripVertical className="h-4 w-4 mt-0.5 shrink-0 opacity-30 group-hover:opacity-60" />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span
-              className={`h-2 w-2 rounded-full shrink-0 ${STATUS_DOT[trip.status]}`}
-            />
-            <span className="text-xs font-semibold truncate">
-              {trip.driver?.name ?? "—"}
-            </span>
-          </div>
-          {trip.order && (
-            <div className="text-[10px] text-muted-foreground truncate mt-0.5">
-              {trip.order.origin} → {trip.order.destination}
-            </div>
-          )}
-          <div className="text-[10px] text-muted-foreground mt-0.5">
-            {trip.order?.clientName ?? trip.orderId}
-          </div>
-        </div>
-      </button>
-    </div>
-  );
-}
-
-function DetailRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex justify-between gap-4 text-sm">
-      <span className="text-muted-foreground shrink-0">{label}</span>
-      <span className="font-medium text-right">{value}</span>
-    </div>
-  );
-}
-
-function TripDetailDialog({
-  trip,
-  open,
-  onClose,
-  t,
-}: {
-  trip: TripWithRelations | null;
-  open: boolean;
-  onClose: () => void;
-  t: ReturnType<typeof useTranslation>["t"];
-}) {
-  if (!trip) return null;
-  return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-[calc(100vw-1rem)] max-w-sm overflow-y-auto max-h-[90dvh]">
-        <DialogHeader>
-          <DialogTitle>{t("tripsCalendar.dialog.title")}</DialogTitle>
-          <DialogDescription className="sr-only">
-            {t("tripsCalendar.dialog.desc")}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-2.5">
-          <DetailRow
-            label={t("trips.fields.order")}
-            value={trip.order?.clientName ?? trip.orderId}
-          />
-          {trip.order && (
-            <DetailRow
-              label={t("trips.columns.route")}
-              value={`${trip.order.origin} → ${trip.order.destination}`}
-            />
-          )}
-          <DetailRow
-            label={t("trips.fields.driver")}
-            value={trip.driver?.name ?? "—"}
-          />
-          <DetailRow
-            label={t("trips.fields.truck")}
-            value={
-              trip.truck
-                ? `${trip.truck.plateNumber} · ${trip.truck.brand} ${trip.truck.model}`
-                : "—"
-            }
-          />
-          <DetailRow
-            label={t("trips.fields.departureDate")}
-            value={trip.departureDate ?? "—"}
-          />
-          <DetailRow
-            label={t("trips.fields.arrivalDate")}
-            value={trip.estimatedArrivalDate ?? "—"}
-          />
-          <DetailRow
-            label={t("trips.fields.kmLoaded")}
-            value={`${trip.kmLoaded.toLocaleString()} km`}
-          />
-          <DetailRow
-            label={t("trips.fields.kmEmpty")}
-            value={`${trip.kmEmpty.toLocaleString()} km`}
-          />
-          <DetailRow
-            label={t("trips.fields.fuelCost")}
-            value={`${trip.fuelCost.toLocaleString()} RON`}
-          />
-          <div className="flex justify-between gap-4 text-sm">
-            <span className="text-muted-foreground shrink-0">
-              {t("trips.fields.status")}
-            </span>
-            <span
-              className={`font-medium text-right ${trip.status === "anulata" ? "text-red-600 dark:text-red-400" : trip.status === "finalizata" ? "text-green-600 dark:text-green-400" : trip.status === "in_desfasurare" ? "text-amber-600 dark:text-amber-400" : "text-blue-600 dark:text-blue-400"}`}
-            >
-              {t(`trips.status.${trip.status}`)}
-            </span>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function ConfirmMoveDialog({
-  open,
-  onConfirm,
-  onCancel,
-  trip,
-  newDate,
-  t,
-}: {
-  open: boolean;
-  onConfirm: () => void;
-  onCancel: () => void;
-  trip: TripWithRelations | null;
-  newDate: string;
-  t: ReturnType<typeof useTranslation>["t"];
-}) {
-  if (!trip) return null;
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(v) => {
-        if (!v) onCancel();
-      }}
-    >
-      <DialogContent className="w-[calc(100vw-1rem)] max-w-sm">
-        <DialogHeader>
-          <DialogTitle>{t("tripsDnd.confirmMove.title")}</DialogTitle>
-          <DialogDescription>
-            {t("tripsDnd.confirmMove.desc", {
-              driver: trip.driver?.name ?? trip.driverId,
-              date: newDate,
-            })}
-          </DialogDescription>
-        </DialogHeader>
-        <DialogFooter className="gap-2 sm:gap-0">
-          <Button variant="outline" onClick={onCancel}>
-            {t("trips.cancel")}
-          </Button>
-          <Button onClick={onConfirm}>
-            {t("tripsDnd.confirmMove.confirm")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
 }
 
 export default function TripsCalendarDndPage() {

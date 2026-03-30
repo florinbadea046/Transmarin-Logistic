@@ -256,7 +256,7 @@ export function PartsCRUD() {
           <Label htmlFor="stock-filter">Stoc</Label>
           <Select
             value={stockFilter ?? "_ALL_"}
-            onValueChange={(v: any) => setStockFilter(v === "_ALL_" ? null : v)}
+            onValueChange={(v: string) => setStockFilter(v === "_ALL_" ? null : v as "in_stock" | "low_stock" | "out_of_stock")}
           >
             <SelectTrigger id="stock-filter" className="w-[180px]">
               <SelectValue placeholder="Toate statusurile" />

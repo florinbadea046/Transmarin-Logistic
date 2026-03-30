@@ -235,7 +235,6 @@ export default function AttendancePage() {
         details: `${date}: ${currentStatus ?? "—"} → ${next ?? "—"}`,
       });
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 

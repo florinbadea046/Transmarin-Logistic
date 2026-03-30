@@ -1,9 +1,18 @@
 import type { Part } from "@/modules/fleet/types";
 import type { Truck } from "@/modules/transport/types";
 
+interface Allocation {
+  id: string;
+  partId: string;
+  partName: string;
+  truckId: string;
+  truckPlate: string;
+  allocatedAt: string;
+}
+
 const ALLOCATIONS_KEY = "transmarin_allocations";
 
-function safeParseAllocations(raw: string | null): any[] {
+function safeParseAllocations(raw: string | null): Allocation[] {
   if (!raw) return [];
   try {
     const parsed = JSON.parse(raw);

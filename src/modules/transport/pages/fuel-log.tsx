@@ -401,13 +401,12 @@ function FuelDialog({
 
 // ── Mobile Card ─────────────────────────────────────────────
 
-function FuelMobileCard({ log, truck, driver, onEdit, onDelete, t }: {
+function FuelMobileCard({ log, truck, driver, onEdit, onDelete }: {
   log: FuelLog;
   truck?: Truck;
   driver?: Driver;
   onEdit: () => void;
   onDelete: () => void;
-  t: (k: string) => string;
 }) {
   return (
     <div className="rounded-lg border bg-card p-4 shadow-sm space-y-2">
@@ -453,8 +452,8 @@ export default function FuelLogPage() {
 
   const refreshLogs = () => setLogs(getCollection<FuelLog>(STORAGE_KEYS.fuelLog));
 
-  const getTruck = (id: string) => trucks.find((tr) => tr.id === id);
-  const getDriver = (id: string) => drivers.find((d) => d.id === id);
+  const getTruck = React.useCallback((id: string) => trucks.find((tr) => tr.id === id), [trucks]);
+  const getDriver = React.useCallback((id: string) => drivers.find((d) => d.id === id), [drivers]);
 
   const handleDelete = () => {
     if (!deleteId) return;
@@ -528,7 +527,7 @@ export default function FuelLogPage() {
         </div>
       ),
     },
-  ], [trucks, drivers, t]);
+  ], [getTruck, getDriver, t]);
 
   const table = useReactTable({
     data: logs,
@@ -604,7 +603,6 @@ export default function FuelLogPage() {
                       driver={getDriver(row.original.driverId)}
                       onEdit={() => { setEditingLog(row.original); setDialogOpen(true); }}
                       onDelete={() => setDeleteId(row.original.id)}
-                      t={t}
                     />
                   ))
                 )}
