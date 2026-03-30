@@ -8,7 +8,7 @@
 
 import * as React from "react";
 import { format, parseISO } from "date-fns";
-import { ro } from "date-fns/locale";
+import { ro, enGB } from "date-fns/locale";
 import {
   Plus, Pencil, Trash2, Filter, ChevronLeft, ChevronRight,
   Clock, User, Calendar, Wallet, FileText, CalendarDays,
@@ -41,55 +41,57 @@ import {
 
 // ── Config vizual ───────────────────────────────────────────
 
-const ACTION_CONFIG: Record<HrAuditAction, { color: string; icon: React.ReactNode; label: string }> = {
+const ACTION_CONFIG: Record<HrAuditAction, { color: string; icon: React.ReactNode; labelKey: string }> = {
   create: {
     color: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900 dark:text-green-200",
     icon: <Plus className="h-3.5 w-3.5" />,
-    label: "Adăugat",
+    labelKey: "hrAuditLog.actions.create",
   },
   update: {
     color: "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900 dark:text-blue-200",
     icon: <Pencil className="h-3.5 w-3.5" />,
-    label: "Modificat",
+    labelKey: "hrAuditLog.actions.update",
   },
   delete: {
     color: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900 dark:text-red-200",
     icon: <Trash2 className="h-3.5 w-3.5" />,
-    label: "Șters",
+    labelKey: "hrAuditLog.actions.delete",
   },
   approve: {
     color: "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900 dark:text-emerald-200",
     icon: <CheckCircle2 className="h-3.5 w-3.5" />,
-    label: "Aprobat",
+    labelKey: "hrAuditLog.actions.approve",
   },
   reject: {
     color: "bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900 dark:text-orange-200",
     icon: <XCircle className="h-3.5 w-3.5" />,
-    label: "Respins",
+    labelKey: "hrAuditLog.actions.reject",
   },
 };
 
-const ENTITY_CONFIG: Record<HrAuditEntity, { icon: React.ReactNode; label: string }> = {
-  employee: { icon: <User className="h-4 w-4" />, label: "Angajat" },
-  leave:    { icon: <Calendar className="h-4 w-4" />, label: "Concediu" },
-  bonus:    { icon: <Wallet className="h-4 w-4" />, label: "Bonus / Penalizare" },
-  document: { icon: <FileText className="h-4 w-4" />, label: "Document" },
-  attendance: { icon: <CalendarDays className="h-4 w-4" />, label: "Pontaj" },
+const ENTITY_CONFIG: Record<HrAuditEntity, { icon: React.ReactNode; labelKey: string }> = {
+  employee:   { icon: <User className="h-4 w-4" />,        labelKey: "hrAuditLog.entities.employee" },
+  leave:      { icon: <Calendar className="h-4 w-4" />,    labelKey: "hrAuditLog.entities.leave" },
+  bonus:      { icon: <Wallet className="h-4 w-4" />,      labelKey: "hrAuditLog.entities.bonus" },
+  document:   { icon: <FileText className="h-4 w-4" />,    labelKey: "hrAuditLog.entities.document" },
+  attendance: { icon: <CalendarDays className="h-4 w-4" />, labelKey: "hrAuditLog.entities.attendance" },
 };
 
 // ── Card intrare ────────────────────────────────────────────
 
 function HrAuditEntryCard({ entry, isMobile }: { entry: HrAuditEntry; isMobile: boolean }) {
+  const { t, i18n } = useTranslation();
   const [expanded, setExpanded] = React.useState(false);
   const action = ACTION_CONFIG[entry.action];
   const entity = ENTITY_CONFIG[entry.entity];
+  const dateLocale = i18n.language === "en" ? enGB : ro;
 
   const formattedTime = (() => {
     try {
       return format(
         parseISO(entry.timestamp),
         isMobile ? "dd.MM.yy HH:mm" : "dd MMM yyyy, HH:mm:ss",
-        { locale: ro },
+        { locale: dateLocale },
       );
     } catch {
       return entry.timestamp;
@@ -120,11 +122,11 @@ function HrAuditEntryCard({ entry, isMobile }: { entry: HrAuditEntry; isMobile: 
           <div className="flex flex-wrap items-start gap-2 min-w-0">
             <Badge variant="outline" className={cn("flex items-center gap-1 shrink-0 text-xs", action.color)}>
               {action.icon}
-              {action.label}
+              {t(action.labelKey)}
             </Badge>
 
             <span className="text-sm font-medium truncate min-w-0">
-              {entity.label}:&nbsp;
+              {t(entity.labelKey)}:&nbsp;
               <span className="text-primary">{entry.entityLabel}</span>
             </span>
 
@@ -145,13 +147,13 @@ function HrAuditEntryCard({ entry, isMobile }: { entry: HrAuditEntry; isMobile: 
                 className="text-xs text-primary hover:underline"
                 onClick={() => setExpanded((v) => !v)}
               >
-                {expanded ? "Ascunde detalii" : "Arată detalii"}
+                {expanded ? t("hrAuditLog.hideDetails") : t("hrAuditLog.showDetails")}
               </button>
               {expanded && (
                 <div className={cn("mt-2 grid gap-2 text-xs", !isMobile && "grid-cols-2")}>
                   {entry.oldValue && (
                     <div className="rounded border bg-muted/30 p-2 min-w-0">
-                      <p className="font-medium text-muted-foreground mb-1">Înainte</p>
+                      <p className="font-medium text-muted-foreground mb-1">{t("hrAuditLog.before")}</p>
                       <pre className="whitespace-pre-wrap break-all font-mono text-[10px]">
                         {JSON.stringify(entry.oldValue, null, 2)}
                       </pre>
@@ -159,7 +161,7 @@ function HrAuditEntryCard({ entry, isMobile }: { entry: HrAuditEntry; isMobile: 
                   )}
                   {entry.newValue && (
                     <div className="rounded border bg-muted/30 p-2 min-w-0">
-                      <p className="font-medium text-muted-foreground mb-1">După</p>
+                      <p className="font-medium text-muted-foreground mb-1">{t("hrAuditLog.after")}</p>
                       <pre className="whitespace-pre-wrap break-all font-mono text-[10px]">
                         {JSON.stringify(entry.newValue, null, 2)}
                       </pre>
@@ -188,8 +190,8 @@ export default function ActivityLogHRPage() {
     { title: t("hr.nav.employees"), href: "/hr/employees" },
     { title: t("hr.nav.leaves"), href: "/hr/leaves" },
     { title: t("hr.nav.payroll"), href: "/hr/payroll" },
-    { title: "Pontaj Lunar", href: "/hr/attendance" },
-    { title: "Istoric", href: "/hr/activity-log" },
+    { title: t("hr.nav.attendance"), href: "/hr/attendance" },
+    { title: t("hr.nav.activityLog"), href: "/hr/activity-log" },
   ].map((link) => ({
     ...link,
     isActive:
@@ -240,23 +242,23 @@ export default function ActivityLogHRPage() {
 
   React.useEffect(() => { setPage(1); }, [filterEntity, filterAction, filterEmployee, pageSize]);
 
-  const entityOptions: { value: HrAuditEntity | "all"; label: string }[] = [
-    { value: "all", label: "Toate entitățile" },
-    { value: "employee", label: "Angajat" },
-    { value: "leave", label: "Concediu" },
-    { value: "bonus", label: "Bonus / Penalizare" },
-    { value: "document", label: "Document" },
-    { value: "attendance", label: "Pontaj" },
-  ];
+  const entityOptions = React.useMemo<{ value: HrAuditEntity | "all"; label: string }[]>(() => [
+    { value: "all",        label: t("hrAuditLog.allEntities") },
+    { value: "employee",   label: t("hrAuditLog.entities.employee") },
+    { value: "leave",      label: t("hrAuditLog.entities.leave") },
+    { value: "bonus",      label: t("hrAuditLog.entities.bonus") },
+    { value: "document",   label: t("hrAuditLog.entities.document") },
+    { value: "attendance", label: t("hrAuditLog.entities.attendance") },
+  ], [t]);
 
-  const actionOptions: { value: HrAuditAction | "all"; label: string }[] = [
-    { value: "all", label: "Toate acțiunile" },
-    { value: "create", label: "Adăugat" },
-    { value: "update", label: "Modificat" },
-    { value: "delete", label: "Șters" },
-    { value: "approve", label: "Aprobat" },
-    { value: "reject", label: "Respins" },
-  ];
+  const actionOptions = React.useMemo<{ value: HrAuditAction | "all"; label: string }[]>(() => [
+    { value: "all",     label: t("hrAuditLog.allActions") },
+    { value: "create",  label: t("hrAuditLog.actions.create") },
+    { value: "update",  label: t("hrAuditLog.actions.update") },
+    { value: "delete",  label: t("hrAuditLog.actions.delete") },
+    { value: "approve", label: t("hrAuditLog.actions.approve") },
+    { value: "reject",  label: t("hrAuditLog.actions.reject") },
+  ], [t]);
 
   return (
     <>
@@ -266,10 +268,8 @@ export default function ActivityLogHRPage() {
 
       <Main>
         <div className="mb-6">
-          <h1 className="text-2xl font-bold">Istoric Activități HR</h1>
-          <p className="text-muted-foreground">
-            Toate acțiunile CRUD efectuate pe entitățile HR
-          </p>
+          <h1 className="text-2xl font-bold">{t("hrAuditLog.title")}</h1>
+          <p className="text-muted-foreground">{t("hrAuditLog.subtitle")}</p>
         </div>
 
         {/* Toolbar filtre */}
@@ -279,7 +279,7 @@ export default function ActivityLogHRPage() {
         )}>
           <div className="flex items-center gap-1 shrink-0 text-sm text-muted-foreground">
             <Filter className="h-3.5 w-3.5" />
-            <span>Filtre:</span>
+            <span>{t("hrAuditLog.filters")}</span>
           </div>
 
           <Select value={filterEntity} onValueChange={(v) => setFilterEntity(v as HrAuditEntity | "all")}>
@@ -306,10 +306,10 @@ export default function ActivityLogHRPage() {
 
           <Select value={filterEmployee} onValueChange={setFilterEmployee}>
             <SelectTrigger className={cn(isMobile ? "w-full" : "w-[180px]")}>
-              <SelectValue placeholder="Toți angajații" />
+              <SelectValue placeholder={t("hrAuditLog.allEmployees")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Toți angajații</SelectItem>
+              <SelectItem value="all">{t("hrAuditLog.allEmployees")}</SelectItem>
               {employees.map((emp) => (
                 <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>
               ))}
@@ -317,12 +317,12 @@ export default function ActivityLogHRPage() {
           </Select>
 
           <Select value={String(pageSize)} onValueChange={(v) => setPageSize(Number(v))}>
-            <SelectTrigger className={cn(isMobile ? "w-full" : "w-[90px]")}>
+            <SelectTrigger className={cn(isMobile ? "w-full" : "w-[110px]")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {PAGE_SIZES.map((s) => (
-                <SelectItem key={s} value={String(s)}>{s} / pag.</SelectItem>
+                <SelectItem key={s} value={String(s)}>{s} {t("hrAuditLog.perPage")}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -330,12 +330,12 @@ export default function ActivityLogHRPage() {
           {hasFilters && (
             <Button variant="ghost" size="sm" onClick={resetFilters} className={cn(isMobile && "w-full")}>
               <X className="mr-1 h-3.5 w-3.5" />
-              Resetează
+              {t("hrAuditLog.resetFilters")}
             </Button>
           )}
 
           <span className={cn("text-xs text-muted-foreground", !isMobile && "ml-auto")}>
-            {filtered.length} {filtered.length === 1 ? "intrare" : "intrări"}
+            {t("hrAuditLog.entries", { count: filtered.length })}
           </span>
         </div>
 
@@ -343,7 +343,7 @@ export default function ActivityLogHRPage() {
         {paginated.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-3 py-20 text-muted-foreground">
             <Clock className="h-10 w-10 opacity-20" />
-            <p className="text-sm">Nicio activitate înregistrată</p>
+            <p className="text-sm">{t("hrAuditLog.noActivity")}</p>
           </div>
         ) : (
           <div className="min-w-0">
@@ -366,10 +366,10 @@ export default function ActivityLogHRPage() {
               onClick={() => setPage((p) => p - 1)}
             >
               <ChevronLeft className="h-4 w-4" />
-              {!isMobile && "Anterior"}
+              {!isMobile && t("hrAuditLog.previous")}
             </Button>
             <span className="text-sm text-muted-foreground">
-              Pagina {page} din {totalPages}
+              {t("hrAuditLog.page", { page, total: totalPages })}
             </span>
             <Button
               variant="outline"
@@ -377,7 +377,7 @@ export default function ActivityLogHRPage() {
               disabled={page === totalPages}
               onClick={() => setPage((p) => p + 1)}
             >
-              {!isMobile && "Următor"}
+              {!isMobile && t("hrAuditLog.next")}
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>

@@ -18,7 +18,8 @@
       "employees": "Employees",
       "leaves": "Leaves",
       "payroll": "Payroll",
-      "attendance": "Monthly Timesheet"
+      "attendance": "Monthly Timesheet",
+      "activityLog": "History"
     },
     "documentAlerts": {
       "title": "Document Alerts",
@@ -149,38 +150,38 @@
       "currency": "Bonus currency"
     }
   },
-  "departments": {
-    "Dispecerat": "Dispatch",
-    "Transport": "Transport",
-    "Service": "Service",
-    "Contabilitate": "Accounting",
-    "Administrativ": "Administrative"
-  },
-  "attendance": {
-    "title": "Monthly Timesheet",
-    "manage": "Attendance Management",
-    "allDepartments": "All departments",
-    "exportPdf": "Export PDF",
-    "noEmployees": "No employees found.",
-    "columns": {
+  "hrAuditLog": {
+    "title": "HR Activity Log",
+    "subtitle": "All CRUD actions performed on HR entities",
+    "filters": "Filters:",
+    "resetFilters": "Reset",
+    "noActivity": "No activity recorded",
+    "perPage": "/ page",
+    "allEntities": "All entities",
+    "allActions": "All actions",
+    "allEmployees": "All employees",
+    "entries_one": "{{count}} entry",
+    "entries_other": "{{count}} entries",
+    "page": "Page {{page}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "before": "Before",
+    "after": "After",
+    "actions": {
+      "create": "Added",
+      "update": "Modified",
+      "delete": "Deleted",
+      "approve": "Approved",
+      "reject": "Rejected"
+    },
+    "entities": {
       "employee": "Employee",
-      "present": "Pres.",
       "leave": "Leave",
-      "absent": "Abs.",
-      "paidLeave": "PL"
-    },
-    "status": {
-      "present": "Present",
-      "annualLeave": "Annual Leave",
-      "sickLeave": "Sick Leave",
-      "absent": "Absent",
-      "paidLeave": "Paid Leave",
-      "setStatus": "Set status",
-      "clickToSet": "Click to set"
-    },
-    "pdf": {
-      "title": "Monthly Timesheet",
-      "generated": "Generated:"
+      "bonus": "Bonus / Penalty",
+      "document": "Document",
+      "attendance": "Attendance"
     }
   }
 }
