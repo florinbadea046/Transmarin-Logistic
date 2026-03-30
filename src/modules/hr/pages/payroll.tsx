@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   flexRender,
   getCoreRowModel,
@@ -35,7 +36,7 @@ import type { Bonus } from "@/modules/hr/types";
 import { BonusTableRow } from "../components/bonus-row";
 import BonusDialog from "../components/bonus-dialog";
 import { usePayrollData } from "../hooks/use-payroll-data";
-import { BONUS_TYPE_LABELS, MONTH_OPTIONS, currentMonth } from "../payroll/payroll-shared";
+import { BONUS_TYPE_LABELS, getMonthOptions, currentMonth } from "../payroll/payroll-shared";
 import {
   payrollColumns,
   bonusColumns,
@@ -43,6 +44,11 @@ import {
 import { PayrollExportMenu } from "../components/payroll-export-menu";
 
 export default function PayrollPage() {
+  const { i18n } = useTranslation();
+  const monthOptions = React.useMemo(
+    () => getMonthOptions(i18n.language.startsWith("en") ? "en-GB" : "ro-RO"),
+    [i18n.language],
+  );
   const [selectedMonth, setSelectedMonth] = React.useState(currentMonth);
   const { employees, payrollRows, bonusRows, refreshData } =
     usePayrollData(selectedMonth);
@@ -123,7 +129,7 @@ export default function PayrollPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {MONTH_OPTIONS.map((opt) => (
+                    {monthOptions.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
                       </SelectItem>
