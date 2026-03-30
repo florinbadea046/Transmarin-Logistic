@@ -4,6 +4,7 @@ import type { Employee, AttendanceStatus } from "@/modules/hr/types";
 
 // ── Constants ─────────────────────────────────────────────
 export const COLUMN_VISIBILITY = { department: false };
+export const ALL_DEPARTMENTS = "ALL";
 
 // Statusuri interzise pe weekend (CO, LP = doar zile lucrătoare)
 // #1 — ReadonlySet previne mutarea accidentală din exterior
@@ -28,35 +29,30 @@ export const STATUS_CYCLE: readonly (AttendanceStatus | undefined)[] = [
 
 export const STATUS_CONFIG: Record<
   AttendanceStatus,
-  { label: string; name: string; cellClass: string }
+  { label: string; cellClass: string }
 > = {
   P: {
     label: "P",
-    name: "Prezent",
     cellClass:
       "bg-green-500/15 text-green-600 dark:text-green-400 border border-green-500/30 hover:bg-green-500/25",
   },
   CO: {
     label: "CO",
-    name: "Concediu Odihna",
     cellClass:
       "bg-blue-500/15 text-blue-600 dark:text-blue-400 border border-blue-500/30 hover:bg-blue-500/25",
   },
   CM: {
     label: "CM",
-    name: "Concediu Medical",
     cellClass:
       "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 hover:bg-amber-500/25",
   },
   A: {
     label: "A",
-    name: "Absent",
     cellClass:
       "bg-red-500/15 text-red-600 dark:text-red-400 border border-red-500/30 hover:bg-red-500/25",
   },
   LP: {
     label: "LP",
-    name: "Liber Platit",
     cellClass:
       "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30 hover:bg-purple-500/25",
   },
@@ -79,6 +75,8 @@ export function exportAttendancePDF(
   rows: AttendanceRow[],
   days: { day: number; date: string }[],
   monthLabel: string,
+  t: (key: string, opts?: Record<string, unknown>) => string,
+  locale = "ro-RO",
 ) {
   // #2 — guard: nu genera PDF gol dacă nu există angajați vizibili
   if (rows.length === 0) return;
@@ -87,14 +85,14 @@ export function exportAttendancePDF(
 
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text(safe(`Pontaj Lunar - ${monthLabel}`), 14, 16);
+  doc.text(safe(`${t("attendance.pdf.title")} - ${monthLabel}`), 14, 16);
 
   doc.setFontSize(9);
   doc.setFont("helvetica", "normal");
-  doc.text(`Generat: ${safe(new Date().toLocaleDateString("ro-RO"))}`, 14, 22);
+  doc.text(`${t("attendance.pdf.generated")} ${safe(new Date().toLocaleDateString(locale))}`, 14, 22);
 
   const head = [
-    ["Angajat", ...days.map((d) => String(d.day)), "P", "CO/CM", "A", "LP"],
+    [t("attendance.columns.employee"), ...days.map((d) => String(d.day)), "P", "CO/CM", "A", "LP"],
   ];
 
   const body = rows.map(({ employee, days: dayMap }) => {

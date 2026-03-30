@@ -17,7 +17,8 @@
     "nav": {
       "employees": "Employees",
       "leaves": "Leaves",
-      "payroll": "Payroll"
+      "payroll": "Payroll",
+      "attendance": "Monthly Timesheet"
     },
     "documentAlerts": {
       "title": "Document Alerts",
@@ -146,6 +147,40 @@
     "bonuses": {
       "title": "Bonuses",
       "currency": "Bonus currency"
+    }
+  },
+  "departments": {
+    "Dispecerat": "Dispatch",
+    "Transport": "Transport",
+    "Service": "Service",
+    "Contabilitate": "Accounting",
+    "Administrativ": "Administrative"
+  },
+  "attendance": {
+    "title": "Monthly Timesheet",
+    "manage": "Attendance Management",
+    "allDepartments": "All departments",
+    "exportPdf": "Export PDF",
+    "noEmployees": "No employees found.",
+    "columns": {
+      "employee": "Employee",
+      "present": "Pres.",
+      "leave": "Leave",
+      "absent": "Abs.",
+      "paidLeave": "PL"
+    },
+    "status": {
+      "present": "Present",
+      "annualLeave": "Annual Leave",
+      "sickLeave": "Sick Leave",
+      "absent": "Absent",
+      "paidLeave": "Paid Leave",
+      "setStatus": "Set status",
+      "clickToSet": "Click to set"
+    },
+    "pdf": {
+      "title": "Monthly Timesheet",
+      "generated": "Generated:"
     }
   }
 }
