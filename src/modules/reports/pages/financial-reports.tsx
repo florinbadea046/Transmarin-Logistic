@@ -43,8 +43,10 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Invoice } from "@/modules/accounting/types";
 import { useMobile } from "@/hooks/use-mobile";
 
+// ── Culori ─────────────────────────────────────────────────
 const COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#ec4899"];
 
+// ── Helpers ────────────────────────────────────────────────
 const formatCurrency = (value: number) =>
   new Intl.NumberFormat("ro-RO", { style: "currency", currency: "RON" }).format(value);
 
@@ -57,6 +59,7 @@ function stripDiacritics(str: string): string {
     .replace(/[țţŢŤ]/g, (c) => c === c.toLowerCase() ? "t" : "T");
 }
 
+// ── Builders ───────────────────────────────────────────────
 function buildBarData(invoices: Invoice[]) {
   const map: Record<string, { luna: string; venituri: number; cheltuieli: number }> = {};
   for (const inv of invoices) {
@@ -92,6 +95,7 @@ function buildPieData(invoices: Invoice[], t: TFunction) {
     .slice(0, 6);
 }
 
+// ── DatePicker ─────────────────────────────────────────────
 function DatePicker({ date, onSelect, placeholder }: {
   date: Date | undefined;
   onSelect: (d: Date | undefined) => void;
@@ -113,6 +117,7 @@ function DatePicker({ date, onSelect, placeholder }: {
   );
 }
 
+// ── Export PDF ─────────────────────────────────────────────
 function exportPDF(
   invoices: Invoice[],
   totalVenituri: number,
@@ -170,6 +175,7 @@ function exportPDF(
   doc.save(`${t("financialReports.pdf.filename")}.pdf`);
 }
 
+// ── Export Excel ───────────────────────────────────────────
 function exportExcel(invoices: Invoice[], t: TFunction) {
   const rows = invoices.map((inv) => ({
     [t("financialReports.invoiceNr")]: inv.number,
@@ -185,6 +191,7 @@ function exportExcel(invoices: Invoice[], t: TFunction) {
   XLSX.writeFile(wb, `${t("financialReports.pdf.filename")}.xlsx`);
 }
 
+// ── Status badge colors ────────────────────────────────────
 const statusColors: Record<string, string> = {
   paid: "bg-green-500/20 text-green-400 border-green-500/30",
   sent: "bg-blue-500/20 text-blue-400 border-blue-500/30",
@@ -192,6 +199,7 @@ const statusColors: Record<string, string> = {
   draft: "bg-gray-500/20 text-gray-400 border-gray-500/30",
 };
 
+// ── Main Component ─────────────────────────────────────────
 export default function FinancialReportsPage() {
   const { t } = useTranslation();
   const isMobile = useMobile(640);
@@ -315,12 +323,13 @@ export default function FinancialReportsPage() {
       </Header>
 
       <Main>
+        {/* Titlu + Export */}
         <div className={cn("mb-6 flex gap-3", isMobile ? "flex-col" : "items-center justify-between")}>
           <div>
             <h1 className="text-xl font-bold">{t("financialReports.title")}</h1>
             <p className="text-sm text-muted-foreground">{t("financialReports.subtitle")}</p>
           </div>
-          <div className={cn("flex gap-2", isMobile && "w-full")}>
+          <div className={cn("flex gap-2", isMobile ? "w-full" : "")}>
             <Button size="sm" variant="outline" disabled={exportingXlsx} onClick={handleExportExcel} className={isMobile ? "flex-1" : ""}>
               {exportingXlsx ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
               Excel
@@ -332,6 +341,7 @@ export default function FinancialReportsPage() {
           </div>
         </div>
 
+        {/* Filtre */}
         <div className={cn("mb-6 flex gap-3", isMobile ? "flex-col" : "flex-wrap items-end")}>
           <div className={cn("space-y-1", isMobile ? "w-full" : "")}>
             <Label className="text-xs text-muted-foreground">{t("financialReports.from")}</Label>
@@ -366,7 +376,8 @@ export default function FinancialReportsPage() {
           </span>
         </div>
 
-        <div className={cn("mb-6 grid gap-4", isMobile ? "grid-cols-2" : "grid-cols-4")}>
+        {/* KPI Cards — 1 coloana pe mobile, 4 pe desktop */}
+        <div className={cn("mb-6 grid gap-4", isMobile ? "grid-cols-1" : "grid-cols-4")}>
           {[
             { label: t("financialReports.totalIncome"), value: formatCurrency(totalVenituri), color: "text-green-400" },
             { label: t("financialReports.totalExpenses"), value: formatCurrency(totalCheltuieli), color: "text-red-400" },
@@ -386,8 +397,10 @@ export default function FinancialReportsPage() {
 
         <Separator className="mb-6" />
 
+        {/* Grafice */}
         <div className={cn("grid gap-6 mb-6", isMobile ? "grid-cols-1" : "grid-cols-2")}>
 
+          {/* BarChart */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">{t("financialReports.charts.incomeVsExpenses")}</CardTitle>
@@ -411,6 +424,7 @@ export default function FinancialReportsPage() {
             </CardContent>
           </Card>
 
+          {/* PieChart */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm font-medium">{t("financialReports.charts.expenseBreakdown")}</CardTitle>
@@ -442,6 +456,7 @@ export default function FinancialReportsPage() {
           </Card>
         </div>
 
+        {/* Tabel TanStack */}
         <Card>
           <CardHeader className={cn("flex gap-3", isMobile ? "flex-col" : "flex-row items-center justify-between")}>
             <CardTitle className="text-sm font-medium">{t("financialReports.invoicesTable")}</CardTitle>
@@ -453,6 +468,7 @@ export default function FinancialReportsPage() {
             />
           </CardHeader>
           <CardContent>
+            {/* Desktop */}
             <div className="hidden md:block rounded-md border">
               <Table>
                 <TableHeader>
@@ -493,6 +509,7 @@ export default function FinancialReportsPage() {
               </Table>
             </div>
 
+            {/* Mobile cards */}
             <div className="md:hidden space-y-3">
               {table.getRowModel().rows.length === 0 ? (
                 <p className="text-center text-muted-foreground py-8">{t("financialReports.noResults")}</p>
@@ -525,6 +542,7 @@ export default function FinancialReportsPage() {
               )}
             </div>
 
+            {/* Pagination */}
             <div className={cn("flex items-center gap-2 mt-4", isMobile ? "flex-col" : "justify-between")}>
               <span className="text-xs text-muted-foreground">
                 {t("financialReports.pagination", {
