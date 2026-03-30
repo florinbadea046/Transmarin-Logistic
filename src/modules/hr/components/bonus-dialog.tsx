@@ -35,7 +35,7 @@ const bonusSchema = z.object({
     message: "Suma nu poate fi 0",
   }),
   date: z.string().min(1, "Data este obligatorie"),
-  description: z.string().min(1, "Descrierea este obligatorie"),
+  description: z.string().min(5, "Descrierea trebuie să aibă cel puțin 5 caractere"),
 });
 
 type BonusFormValues = z.infer<typeof bonusSchema>;
@@ -64,8 +64,10 @@ export default function BonusDialog({
       : undefined;
 
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    bonus?.date ? new Date(bonus.date) : undefined,
+    bonus?.date ? new Date(bonus.date) : new Date(),
   );
+
+  const todayStr = new Date().toISOString().slice(0, 10);
 
   const form = useForm<BonusFormValues>({
     resolver: zodResolver(bonusSchema),
@@ -73,7 +75,7 @@ export default function BonusDialog({
       employeeId: bonus?.employeeId ?? "",
       type: initialType as BonusFormValues["type"],
       amount: bonus?.amount ?? 0,
-      date: bonus?.date ?? "",
+      date: bonus?.date ?? todayStr,
       description: bonus?.description ?? "",
     },
   });
@@ -89,10 +91,10 @@ export default function BonusDialog({
         employeeId: bonus?.employeeId ?? "",
         type: initialType as BonusFormValues["type"],
         amount: bonus?.amount ?? 0,
-        date: bonus?.date ?? "",
+        date: bonus?.date ?? todayStr,
         description: bonus?.description ?? "",
       });
-      setSelectedDate(bonus?.date ? new Date(bonus.date) : undefined);
+      setSelectedDate(bonus?.date ? new Date(bonus.date) : new Date());
     }
   }, [open, bonus, form, initialType]);
 
