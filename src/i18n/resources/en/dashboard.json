@@ -35,18 +35,8 @@
       "expiresIn": "expires in {{days}} days"
     },
     "months": [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec"
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
     ]
   },
   "hrDashboard": {
@@ -72,5 +62,31 @@
       "days_one": "{{count}} day",
       "days_other": "{{count}} days"
     }
+  },
+  "reportsDashboard": {
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "balance": "Balance",
+    "margin": "margin",
+    "unpaidInvoices": "Unpaid Invoices",
+    "unpaidSubtitle": "sent / overdue",
+    "trips": "No. Trips",
+    "completed": "completed",
+    "employees": "Employees",
+    "top3Trucks": "Top 3 Trucks — Total Cost",
+    "top3Clients": "Top 3 Clients — Estimated Revenue",
+    "fuel": "Fuel",
+    "service": "Service",
+    "order": "order",
+    "orders": "orders",
+    "incomeVsExpenses": "Income vs Expenses — last 6 months",
+    "kmChart": "Km Traveled — last 6 months",
+    "kmTooltip": "Km traveled",
+    "fleetExpenses": "Fleet Expense Breakdown",
+    "revenueTrend": "Revenue Trend — last 12 months",
+    "income": "Income",
+    "expenses": "Expenses",
+    "month": "Month",
+    "noData": "No data available."
   }
 }
