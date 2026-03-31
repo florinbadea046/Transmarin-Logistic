@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner"; // ← ADĂUGAT
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
@@ -8,31 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Trash2, Pencil, Plus, Search, CheckCircle, X } from "lucide-react";
 
 import type { Invoice, InvoiceLine } from "./_components/invoices-types";
@@ -42,7 +21,6 @@ import { ExportMenu } from "./_components/invoices-export";
 import { InvoiceCard } from "./_components/invoices-card";
 import { InvoiceFormDialog } from "./_components/invoices-form-dialog";
 
-// ── Main Component ────────────────────────────────────────────────────────────
 export default function InvoicesPage() {
   const { t } = useTranslation();
 
@@ -54,8 +32,6 @@ export default function InvoicesPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState(defaultForm());
   const [deleteId, setDeleteId] = useState<string | null>(null);
-
-  // ── Selecție ──
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const filtered = useMemo(() => {
@@ -74,7 +50,7 @@ export default function InvoicesPage() {
   const toggleSelectAll = (checked: boolean) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      filtered.forEach((inv) => checked ? next.add(inv.id) : next.delete(inv.id));
+      filtered.forEach((inv) => (checked ? next.add(inv.id) : next.delete(inv.id)));
       return next;
     });
   };
@@ -94,7 +70,11 @@ export default function InvoicesPage() {
     return inv.scadenta ? new Date(inv.scadenta) < new Date() : false;
   };
 
-  const openNew = () => { setEditId(null); setForm(defaultForm()); setDialogOpen(true); };
+  const openNew = () => {
+    setEditId(null);
+    setForm(defaultForm());
+    setDialogOpen(true);
+  };
 
   const openEdit = (inv: Invoice) => {
     setEditId(inv.id);
@@ -103,10 +83,18 @@ export default function InvoicesPage() {
   };
 
   const handleSave = () => {
+    // ← ADĂUGAT: validare factură fără articole
+    if (form.linii.length === 0 || form.linii.every((l) => !l.descriere.trim())) {
+      toast.error("Factura trebuie să conțină cel puțin un articol cu descriere");
+      return;
+    }
+
     if (editId) {
       setInvoices((prev) => prev.map((inv) => (inv.id === editId ? { ...inv, ...form } : inv)));
+      toast.success("Factură actualizată cu succes");
     } else {
       setInvoices((prev) => [...prev, { id: crypto.randomUUID(), ...form }]);
+      toast.success("Factură adăugată cu succes");
     }
     setDialogOpen(false);
   };
@@ -114,14 +102,20 @@ export default function InvoicesPage() {
   const handleDelete = () => {
     setInvoices((prev) => prev.filter((inv) => inv.id !== deleteId));
     setDeleteId(null);
+    toast.success("Factură ștearsă"); // ← ADĂUGAT
   };
 
   const handleMarkPaid = (id: string) => {
     setInvoices((prev) => prev.map((inv) => (inv.id === id ? { ...inv, status: "plătită" } : inv)));
+    toast.success("Factură marcată ca plătită"); // ← ADĂUGAT
   };
 
   const updateLine = (idx: number, field: keyof InvoiceLine, value: string | number) => {
-    setForm((prev) => { const linii = [...prev.linii]; linii[idx] = { ...linii[idx], [field]: value }; return { ...prev, linii }; });
+    setForm((prev) => {
+      const linii = [...prev.linii];
+      linii[idx] = { ...linii[idx], [field]: value };
+      return { ...prev, linii };
+    });
   };
 
   const addLine = () => setForm((prev) => ({ ...prev, linii: [...prev.linii, emptyLine()] }));
@@ -154,7 +148,9 @@ export default function InvoicesPage() {
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Select value={tipFilter} onValueChange={setTipFilter}>
-                  <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder={t("invoices.filters.allTypes")} /></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder={t("invoices.filters.allTypes")} />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="toate">{t("invoices.filters.allTypes")}</SelectItem>
                     <SelectItem value="venit">{t("invoices.typeLabels.income")}</SelectItem>
@@ -162,7 +158,9 @@ export default function InvoicesPage() {
                   </SelectContent>
                 </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder={t("invoices.filters.allStatuses")} /></SelectTrigger>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder={t("invoices.filters.allStatuses")} />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="toate">{t("invoices.filters.allStatuses")}</SelectItem>
                     <SelectItem value="plătită">{t("invoices.statusLabels.plătită")}</SelectItem>
@@ -174,12 +172,9 @@ export default function InvoicesPage() {
               </div>
             </div>
 
-            {/* Bara selecție */}
             {someFilteredSelected && (
               <div className="flex items-center justify-between rounded-md border border-blue-500/30 bg-blue-500/10 px-3 py-2 mb-3 text-sm">
-                <span className="text-blue-400 font-medium">
-                  {t("invoices.selection.count", { count: selectedIds.size })}
-                </span>
+                <span className="text-blue-400 font-medium">{t("invoices.selection.count", { count: selectedIds.size })}</span>
                 <Button size="sm" variant="ghost" className="h-7 text-muted-foreground hover:text-white" onClick={clearSelection}>
                   <X className="w-3 h-3 mr-1" /> {t("invoices.actions.deselect")}
                 </Button>
@@ -187,23 +182,7 @@ export default function InvoicesPage() {
             )}
 
             {/* Mobile */}
-            <div className="flex flex-col gap-3 md:hidden">
-              {filtered.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">{t("invoices.noResults")}</p>
-              ) : (
-                filtered.map((inv) => (
-                  <InvoiceCard
-                    key={inv.id}
-                    inv={inv}
-                    onEdit={openEdit}
-                    onDelete={(id) => setDeleteId(id)}
-                    onMarkPaid={handleMarkPaid}
-                    selected={selectedIds.has(inv.id)}
-                    onSelect={toggleSelect}
-                  />
-                ))
-              )}
-            </div>
+            <div className="flex flex-col gap-3 md:hidden">{filtered.length === 0 ? <p className="text-center text-muted-foreground py-8">{t("invoices.noResults")}</p> : filtered.map((inv) => <InvoiceCard key={inv.id} inv={inv} onEdit={openEdit} onDelete={(id) => setDeleteId(id)} onMarkPaid={handleMarkPaid} selected={selectedIds.has(inv.id)} onSelect={toggleSelect} />)}</div>
 
             {/* Desktop */}
             <div className="hidden md:block rounded-md border">
@@ -211,12 +190,7 @@ export default function InvoicesPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-10">
-                      <Checkbox
-                        checked={allFilteredSelected}
-                        data-state={someFilteredSelected && !allFilteredSelected ? "indeterminate" : undefined}
-                        onCheckedChange={(checked) => toggleSelectAll(!!checked)}
-                        aria-label={t("invoices.actions.selectAll")}
-                      />
+                      <Checkbox checked={allFilteredSelected} data-state={someFilteredSelected && !allFilteredSelected ? "indeterminate" : undefined} onCheckedChange={(checked) => toggleSelectAll(!!checked)} aria-label={t("invoices.actions.selectAll")} />
                     </TableHead>
                     <TableHead>{t("invoices.columns.nr")}</TableHead>
                     <TableHead>{t("invoices.columns.type")}</TableHead>
@@ -243,21 +217,9 @@ export default function InvoicesPage() {
                       const overdue = isOverdue(inv);
                       const selected = selectedIds.has(inv.id);
                       return (
-                        <TableRow
-                          key={inv.id}
-                          className={
-                            selected
-                              ? "bg-blue-500/10 hover:bg-blue-500/15"
-                              : overdue
-                              ? "bg-red-500/10 hover:bg-red-500/20"
-                              : ""
-                          }
-                        >
+                        <TableRow key={inv.id} className={selected ? "bg-blue-500/10 hover:bg-blue-500/15" : overdue ? "bg-red-500/10 hover:bg-red-500/20" : ""}>
                           <TableCell>
-                            <Checkbox
-                              checked={selected}
-                              onCheckedChange={(checked) => toggleSelect(inv.id, !!checked)}
-                            />
+                            <Checkbox checked={selected} onCheckedChange={(checked) => toggleSelect(inv.id, !!checked)} />
                           </TableCell>
                           <TableCell className="font-medium">{inv.nr}</TableCell>
                           <TableCell>
@@ -297,28 +259,13 @@ export default function InvoicesPage() {
               </Table>
             </div>
 
-            <div className="flex justify-end mt-4 text-sm text-muted-foreground">
-              {t("invoices.pagination.showing", { filtered: filtered.length, total: invoices.length })}
-            </div>
+            <div className="flex justify-end mt-4 text-sm text-muted-foreground">{t("invoices.pagination.showing", { filtered: filtered.length, total: invoices.length })}</div>
           </CardContent>
         </Card>
       </Main>
 
-      {/* Dialog Adăugare / Editare */}
-      <InvoiceFormDialog
-        dialogOpen={dialogOpen}
-        setDialogOpen={setDialogOpen}
-        editId={editId}
-        form={form}
-        setForm={setForm}
-        handleSave={handleSave}
-        updateLine={updateLine}
-        addLine={addLine}
-        removeLine={removeLine}
-        totals={totals}
-      />
+      <InvoiceFormDialog dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} editId={editId} form={form} setForm={setForm} handleSave={handleSave} updateLine={updateLine} addLine={addLine} removeLine={removeLine} totals={totals} />
 
-      {/* AlertDialog Ștergere */}
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -327,7 +274,9 @@ export default function InvoicesPage() {
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2">
             <AlertDialogCancel className="w-full sm:w-auto">{t("invoices.actions.cancel")}</AlertDialogCancel>
-            <AlertDialogAction className="w-full sm:w-auto bg-red-600 hover:bg-red-700" onClick={handleDelete}>{t("invoices.actions.delete")}</AlertDialogAction>
+            <AlertDialogAction className="w-full sm:w-auto bg-red-600 hover:bg-red-700" onClick={handleDelete}>
+              {t("invoices.actions.delete")}
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
