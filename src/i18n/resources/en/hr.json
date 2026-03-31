@@ -81,7 +81,20 @@
       "status": "Status"
     },
     "actions": {
-      "add": "Add leave"
+      "add": "Add leave",
+      "edit": "Edit",
+      "delete": "Delete",
+      "approve": "Approve leave",
+      "reject": "Reject leave",
+      "actions": "Leave actions"
+    },
+    "unknown": "Unknown",
+    "auditDays": "{{count}} days",
+    "export": {
+      "button": "Export",
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "csv": "Export CSV"
     },
     "dialog": {
       "addTitle": "Add leave",
@@ -98,7 +111,40 @@
       "endDateAfterStart": "End date must be after or equal to start date"
     },
     "toast": {
-      "overlap": "There is already a leave request overlapping this period."
+      "overlap": "There is already a leave request overlapping this period.",
+      "approved": "Leave for {{name}} has been approved",
+      "rejected": "Leave for {{name}} has been rejected"
+    },
+    "form": {
+      "dateStart": "Start date",
+      "dateEnd": "End date",
+      "daysCount": "Days:",
+      "reasonPlaceholder": "Reason (optional)",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "calendar": {
+      "noLeavesMonth": "No approved leaves this month.",
+      "deptSummary": "Department Summary",
+      "noLeaves": "No approved leaves.",
+      "days": "{{count}} days",
+      "onLeave_one": "{{count}} employee on leave",
+      "onLeave_other": "{{count}} employees on leave",
+      "noLeaveDay": "No employees on leave today.",
+      "editLeave": "Edit leave",
+      "deleteLeave": "Delete leave",
+      "confirmDelete": "Confirm deletion",
+      "confirmDeleteDesc": "Are you sure you want to delete the leave for",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "updateSuccess": "Leave updated successfully",
+      "deleteSuccess": "Leave deleted successfully",
+      "types": {
+        "annual": "Annual",
+        "sick": "Sick",
+        "other": "Personal",
+        "unpaid": "Unpaid"
+      }
     }
   },
   "documentAlerts": {
@@ -156,6 +202,30 @@
     "Service": "Service",
     "Contabilitate": "Accounting",
     "Administrativ": "Administrative"
+  },
+  "leavesExport": {
+    "pdfTitle": "Transmarin Logistic — Leaves",
+    "fileName": "leaves",
+    "cols": {
+      "employee": "Employee",
+      "type": "Type",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "days": "Days",
+      "status": "Status",
+      "reason": "Reason"
+    },
+    "types": {
+      "annual": "Annual leave",
+      "sick": "Sick leave",
+      "unpaid": "Unpaid",
+      "other": "Other"
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
   },
   "attendance": {
     "title": "Monthly Timesheet",
