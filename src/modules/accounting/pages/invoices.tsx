@@ -22,129 +22,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Trash2, Pencil, Plus, Search, CheckCircle, X } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from "@/components/ui/dialog";
 
-import { Label } from "@/components/ui/label";
+import type { Invoice, InvoiceLine } from "./_components/invoices-types";
+import { statusColor } from "./_components/invoices-types";
+import { calcLineTotals, formatCurrency, emptyLine, defaultForm, initialMock } from "./_components/invoices-utils";
+import { ExportMenu } from "./_components/invoices-export";
+import { InvoiceCard } from "./_components/invoices-card";
+import { InvoiceFormDialog } from "./_components/invoices-form-dialog";
+import InvoicePDFButton from "../components/InvoicePDF"; // ← D15
+import type { InvoiceData } from "../components/invoice-pdf.utils"; // ← D15
 
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator
-} from "@/components/ui/dropdown-menu";
+// ── Helper: mapează Invoice local → InvoiceData (pentru jsPDF) ────────────────
+function toInvoiceData(inv: Invoice): InvoiceData {
+  const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii);
 
-import { Download } from "lucide-react";
-
-type InvoiceType = "venit" | "cheltuială";
-type InvoiceStatus = "plătită" | "neplatită" | "parțial" | "anulată";
-
-interface InvoiceLine {
-  id: string;
-  descriere: string;
-  cantitate: number;
-  pretUnitar: number;
-}
-
-interface Invoice {
-  id: string;
-  nr: string;
-  tip: InvoiceType;
-  data: string;
-  scadenta: string;
-  clientFurnizor: string;
-  linii: InvoiceLine[];
-  status: InvoiceStatus;
-}
-
-interface FormState {
-  tip: InvoiceType;
-  nr: string;
-  data: string;
-  scadenta: string;
-  clientFurnizor: string;
-  linii: InvoiceLine[];
-  status: InvoiceStatus;
-}
-
-const FURNIZORI = ["SC Alpha SRL", "SC Beta SRL", "SC Gamma SA", "SC Delta SRL", "SC Epsilon SRL"];
-
-const statusColor: Record<InvoiceStatus, string> = {
-  plătită:   "bg-green-500/20 text-green-400 border-green-500/30",
-  neplatită: "bg-red-500/20 text-red-400 border-red-500/30",
-  parțial:   "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
-  anulată:   "bg-gray-500/20 text-gray-400 border-gray-500/30",
-};
-
-const generateNr = (tip: InvoiceType) => {
-  const prefix = tip === "venit" ? "FACT" : "CHELT";
-  return `${prefix}-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 900) + 100)}`;
-};
-
-const calcLineTotals = (linii: InvoiceLine[]) => {
-  const totalFaraTVA = linii.reduce((sum, l) => sum + l.cantitate * l.pretUnitar, 0);
-  const tva = totalFaraTVA * 0.19;
-  return { totalFaraTVA, tva, total: totalFaraTVA + tva };
-};
-
-const formatCurrency = (amount: number) =>
-  new Intl.NumberFormat("ro-RO", { style: "currency", currency: "RON" }).format(amount);
-
-const emptyLine = (): InvoiceLine => ({
-  id: crypto.randomUUID(),
-  descriere: "",
-  cantitate: 1,
-  pretUnitar: 0,
-});
-
-const defaultForm = (): FormState => ({
-  tip: "venit",
-  nr: generateNr("venit"),
-  data: new Date().toISOString().slice(0, 10),
-  scadenta: "",
-  clientFurnizor: FURNIZORI[0],
-  linii: [emptyLine()],
-  status: "neplatită",
-});
-
-const initialMock: Invoice[] = [
-  {
-    id: "1", nr: "FACT-2024-001", tip: "venit", data: "2024-01-10", scadenta: "2024-02-10",
-    clientFurnizor: "SC Alpha SRL",
-    linii: [{ id: "l1", descriere: "Transport marfă", cantitate: 2, pretUnitar: 2500 }],
-    status: "plătită",
-  },
-  {
-    id: "2", nr: "CHELT-2024-002", tip: "cheltuială", data: "2024-01-15", scadenta: "2024-02-15",
-    clientFurnizor: "SC Beta SRL",
-    linii: [{ id: "l2", descriere: "Combustibil", cantitate: 400, pretUnitar: 5 }],
-    status: "neplatită",
-  },
-  {
-    id: "3", nr: "FACT-2024-003", tip: "venit", data: "2024-01-20", scadenta: "2024-02-20",
-    clientFurnizor: "SC Gamma SA",
-    linii: [
-      { id: "l3", descriere: "Transport intern", cantitate: 5, pretUnitar: 1000 },
-      { id: "l4", descriere: "Taxă urgență", cantitate: 1, pretUnitar: 500 },
-    ],
-    status: "parțial",
-  },
-];
-
-
-type ExportRow = {
-  [key: string]: string
-}
-
-function getExportRows(invoices: Invoice[], t: (key: string) => string): ExportRow[] {
-  return invoices.map((inv) => {
-    const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii)
+  // Mapare status
+  const statusMap: Record<string, InvoiceData["status"]> = {
+    "plătită":  "paid",
+    "neplatită": "overdue",
+    "parțial":  "sent",
+    "anulată":  "cancelled",
+  };
 
     return {
       [t("invoices.columns.nr")]: inv.nr,
@@ -340,7 +238,7 @@ function InvoiceCard({
       </CardContent>
     </Card>
   );
-}
+
 
 export default function InvoicesPage() {
   const { t } = useTranslation();

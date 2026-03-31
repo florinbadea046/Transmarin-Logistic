@@ -44,15 +44,13 @@ export const COMPANY = {
   email: "office@transmarin-logistic.ro",
 };
 
-export const getStatusLabels = (
-  t: (key: string) => string,
-): Record<InvoiceData["status"], string> => ({
-  draft: t("pdf.statusLabels.draft"),
-  sent: t("pdf.statusLabels.sent"),
-  paid: t("pdf.statusLabels.paid"),
-  overdue: t("pdf.statusLabels.overdue"),
-  cancelled: t("pdf.statusLabels.cancelled"),
-});
+export const STATUS_LABELS: Record<InvoiceData["status"], string> = {
+  draft: "Ciornă",
+  sent: "Trimisă",
+  paid: "Achitată",
+  overdue: "Restantă",
+  cancelled: "Anulată",
+};
 
 // ─── Utilitar formatare ────────────────────────────────────────────────────────
 
@@ -65,19 +63,39 @@ export const fmtDate = (iso?: string) => {
   return `${d}.${m}.${y}`;
 };
 
+<<<<<<< HEAD
+// ─── Normalizare diacritice române (jsPDF/Helvetica nu suportă UTF-8 nativ) ───
+// Înlocuiește ș/ț/ă/î/â cu s/t/a/i/a pentru a evita caractere tăiate/lipsă.
+export const ro = (s: string): string =>
+  s
+    .replace(/ș|ş/g, "s").replace(/Ș|Ş/g, "S")
+    .replace(/ț|ţ/g, "t").replace(/Ț|Ţ/g, "T")
+    .replace(/ă/g, "a").replace(/Ă/g, "A")
+    .replace(/î/g, "i").replace(/Î/g, "I")
+    .replace(/â/g, "a").replace(/Â/g, "A")
+    .replace(/—/g, "-");
+
+=======
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
 // ─── Generator PDF ─────────────────────────────────────────────────────────────
 
-export type TFunction = (key: string, opts?: Record<string, unknown>) => string;
-
-export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
+export function generateInvoicePDF(invoice: InvoiceData): void {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
   const supplier = {
+<<<<<<< HEAD
+    name:    ro(invoice.supplierName ?? COMPANY.name),
+    address: ro(invoice.supplierAddress ?? COMPANY.address),
+    cui:     invoice.supplierCUI ?? COMPANY.cui,
+    iban:    invoice.supplierIBAN ?? COMPANY.iban,
+    bank:    ro(invoice.supplierBank ?? COMPANY.bank),
+=======
     name: invoice.supplierName ?? COMPANY.name,
     address: invoice.supplierAddress ?? COMPANY.address,
     cui: invoice.supplierCUI ?? COMPANY.cui,
     iban: invoice.supplierIBAN ?? COMPANY.iban,
     bank: invoice.supplierBank ?? COMPANY.bank,
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
   };
 
   type RGB = [number, number, number];
@@ -107,28 +125,50 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
-  doc.text(t("pdf.labels.invoice"), pageW - margin, 16, { align: "right" });
+<<<<<<< HEAD
+  doc.text("FACTURA", pageW - margin, 16, { align: "right" });
+=======
+  doc.text("FACTURĂ", pageW - margin, 16, { align: "right" });
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(t("pdf.labels.invoiceNr", { nr: invoice.invoiceNumber }), pageW - margin, 23, { align: "right" });
+  doc.text(`Nr. ${invoice.invoiceNumber}`, pageW - margin, 23, { align: "right" });
 
-  const STATUS_LABELS = getStatusLabels(t);
+<<<<<<< HEAD
+  const statusLabel = ro(STATUS_LABELS[invoice.status] ?? invoice.status.toUpperCase());
+  const badgeColors: Record<string, RGB> = {
+    paid:      [0, 160, 80],
+    sent:      [0, 112, 192],
+    overdue:   [200, 40, 40],
+    draft:     [120, 120, 120],
+=======
   const statusLabel = STATUS_LABELS[invoice.status] ?? invoice.status.toUpperCase();
   const badgeColors: Record<string, RGB> = {
     paid: [0, 160, 80],
     sent: [0, 112, 192],
     overdue: [200, 40, 40],
     draft: [120, 120, 120],
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
     cancelled: [80, 80, 80],
   };
   const badgeColor: RGB = badgeColors[invoice.status] ?? GRAY;
   doc.setFillColor(...badgeColor);
+<<<<<<< HEAD
+  const badgeW = Math.max(28, doc.getTextWidth(statusLabel) + 8);
+  const badgeX = pageW - margin - badgeW;
+  doc.roundedRect(badgeX, 26, badgeW, 7, 2, 2, "F");
+  doc.setTextColor(...WHITE);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+  doc.text(statusLabel, badgeX + badgeW / 2, 31.2, { align: "center" });
+=======
   const badgeX = pageW - margin - 28;
   doc.roundedRect(badgeX, 26, 28, 7, 2, 2, "F");
   doc.setTextColor(...WHITE);
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
   doc.text(statusLabel, badgeX + 14, 31.2, { align: "center" });
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
 
   // ── Info dată ─────────────────────────────────────────────────────────────────
   doc.setFillColor(...LIGHT_BG);
@@ -136,9 +176,13 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
   doc.setTextColor(...GRAY);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
-  doc.text(t("pdf.labels.issueDate", { date: fmtDate(invoice.invoiceDate) }), margin, 43.5);
+  doc.text(`Data emiterii: ${fmtDate(invoice.invoiceDate)}`, margin, 43.5);
   if (invoice.dueDate) {
-    doc.text(t("pdf.labels.dueDate", { date: fmtDate(invoice.dueDate) }), margin + 55, 43.5);
+<<<<<<< HEAD
+    doc.text(`Scadenta: ${fmtDate(invoice.dueDate)}`, margin + 55, 43.5);
+=======
+    doc.text(`Scadență: ${fmtDate(invoice.dueDate)}`, margin + 55, 43.5);
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
   }
 
   // ── Furnizor & client ─────────────────────────────────────────────────────────
@@ -153,8 +197,8 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
   doc.setTextColor(...WHITE);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
-  doc.text(t("pdf.labels.supplier"), col1X + 3, y + 4.8);
-  doc.text(t("pdf.labels.client"), col2X + 3, y + 4.8);
+  doc.text("FURNIZOR", col1X + 3, y + 4.8);
+  doc.text("CLIENT", col2X + 3, y + 4.8);
   y += 7;
 
   doc.setFillColor(248, 250, 254);
@@ -171,17 +215,25 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
   const supplierLines = doc.splitTextToSize(supplier.address, blockW - 6);
   doc.text(supplierLines, col1X + 3, y + 13);
   doc.text(`CUI: ${supplier.cui}`, col1X + 3, y + 13 + supplierLines.length * 4.5);
-  doc.text(t("pdf.labels.regCom", { value: COMPANY.regCom }), col1X + 3, y + 13 + supplierLines.length * 4.5 + 4.5);
+  doc.text(`Reg. Com.: ${COMPANY.regCom}`, col1X + 3, y + 13 + supplierLines.length * 4.5 + 4.5);
 
   doc.setTextColor(...BLACK);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
+<<<<<<< HEAD
+  doc.text(ro(invoice.clientName), col2X + 3, y + 7);
+=======
   doc.text(invoice.clientName, col2X + 3, y + 7);
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(...GRAY);
   if (invoice.clientAddress) {
+<<<<<<< HEAD
+    const clientLines = doc.splitTextToSize(ro(invoice.clientAddress), blockW - 6);
+=======
     const clientLines = doc.splitTextToSize(invoice.clientAddress, blockW - 6);
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
     doc.text(clientLines, col2X + 3, y + 13);
   }
   if (invoice.clientCUI) {
@@ -198,7 +250,11 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
     const total = subtotal + vatAmt;
     return [
       String(idx + 1),
+<<<<<<< HEAD
+      ro(item.description),
+=======
       item.description,
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
       String(item.quantity),
       `${fmt(item.unitPrice)} RON`,
       `${vat}%`,
@@ -209,15 +265,11 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
 
   autoTable(doc, {
     startY: y,
-    head: [[
-      t("pdf.table.nr"),
-      t("pdf.table.description"),
-      t("pdf.table.quantity"),
-      t("pdf.table.unitPrice"),
-      t("pdf.table.vatPercent"),
-      t("pdf.table.vat"),
-      t("pdf.table.total"),
-    ]],
+<<<<<<< HEAD
+    head: [["#", "Descriere", "Cant.", "Pret unitar", "TVA %", "TVA", "Total"]],
+=======
+    head: [["#", "Descriere", "Cant.", "Preț unitar", "TVA %", "TVA", "Total"]],
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
     body: tableData,
     margin: { left: margin, right: margin },
     styles: {
@@ -267,7 +319,11 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
   doc.setTextColor(...GRAY);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
-  doc.text(t("pdf.labels.subtotal"), totalsX + 3, ty + 5.3);
+<<<<<<< HEAD
+  doc.text("Subtotal (fara TVA):", totalsX + 3, ty + 5.3);
+=======
+  doc.text("Subtotal (fără TVA):", totalsX + 3, ty + 5.3);
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
   doc.setTextColor(...BLACK);
   doc.text(`${fmt(subtotalNet)} RON`, totalsX + totalsW - 3, ty + 5.3, { align: "right" });
   ty += 8;
@@ -275,7 +331,7 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
   doc.setFillColor(245, 248, 255);
   doc.rect(totalsX, ty, totalsW, 8, "F");
   doc.setTextColor(...GRAY);
-  doc.text(t("pdf.labels.vat19"), totalsX + 3, ty + 5.3);
+  doc.text("TVA 19%:", totalsX + 3, ty + 5.3);
   doc.setTextColor(...BLACK);
   doc.text(`${fmt(totalVAT)} RON`, totalsX + totalsW - 3, ty + 5.3, { align: "right" });
   ty += 8;
@@ -285,7 +341,7 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
   doc.setTextColor(...WHITE);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9.5);
-  doc.text(t("pdf.labels.totalLabel"), totalsX + 3, ty + 6.5);
+  doc.text("TOTAL:", totalsX + 3, ty + 6.5);
   doc.text(`${fmt(grandTotal)} RON`, totalsX + totalsW - 3, ty + 6.5, { align: "right" });
   ty += 14;
 
@@ -296,15 +352,26 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
     doc.setTextColor(...ACCENT);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
-    doc.text(t("pdf.labels.paymentTerms"), margin + 3, ty + 5);
+<<<<<<< HEAD
+    doc.text("CONDITII DE PLATA", margin + 3, ty + 5);
+=======
+    doc.text("CONDIȚII DE PLATĂ", margin + 3, ty + 5);
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
     doc.setTextColor(...GRAY);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
     if (invoice.paymentTerms) {
+<<<<<<< HEAD
+      doc.text(ro(invoice.paymentTerms), margin + 3, ty + 10);
+    }
+    if (invoice.notes) {
+      doc.text(ro(invoice.notes), margin + 3, ty + 15);
+=======
       doc.text(invoice.paymentTerms, margin + 3, ty + 10);
     }
     if (invoice.notes) {
       doc.text(invoice.notes, margin + 3, ty + 15);
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
     }
   }
 
@@ -317,12 +384,16 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
   doc.setTextColor(...WHITE);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text(t("pdf.labels.bankDetails"), margin, footerY + 7);
+  doc.text("Date bancare:", margin, footerY + 7);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(180, 200, 230);
-  doc.text(t("pdf.labels.iban", { value: supplier.iban }), margin, footerY + 12);
-  doc.text(t("pdf.labels.bank", { value: supplier.bank }), margin, footerY + 17);
+  doc.text(`IBAN: ${supplier.iban}`, margin, footerY + 12);
+<<<<<<< HEAD
+  doc.text(`Banca: ${supplier.bank}`, margin, footerY + 17);
+=======
+  doc.text(`Bancă: ${supplier.bank}`, margin, footerY + 17);
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
 
   doc.setTextColor(180, 200, 230);
   doc.text(COMPANY.phone, pageW - margin, footerY + 9, { align: "right" });
@@ -331,7 +402,7 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
   doc.setTextColor(120, 150, 190);
   doc.setFontSize(7);
   doc.text(
-    t("pdf.labels.footer"),
+    `Document generat automat · Transmarin Logistic SRL · Pagina 1`,
     pageW / 2,
     footerY + 18,
     { align: "center" }
@@ -339,4 +410,8 @@ export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
 
   const filename = `Factura_${invoice.invoiceNumber.replace(/\//g, "-")}_${invoice.invoiceDate}.pdf`;
   doc.save(filename);
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
