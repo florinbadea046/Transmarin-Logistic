@@ -20,6 +20,11 @@ import { calcLineTotals, formatCurrency, emptyLine, defaultForm, initialMock } f
 import { ExportMenu } from "./_components/invoices-export";
 import { InvoiceCard } from "./_components/invoices-card";
 import { InvoiceFormDialog } from "./_components/invoices-form-dialog";
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
 import InvoicePDFButton from "../components/InvoicePDF"; // ← D15
 import type { InvoiceData } from "../components/invoice-pdf.utils"; // ← D15
 
@@ -51,6 +56,10 @@ function toInvoiceData(inv: Invoice): InvoiceData {
     paymentTerms: `Subtotal: ${formatCurrency(totalFaraTVA)} | TVA: ${formatCurrency(tva)} | Total: ${formatCurrency(total)}`,
   };
 }
+<<<<<<< HEAD
+=======
+>>>>>>> 260905a (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
+>>>>>>> 0945dfc (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
 
 export default function InvoicesPage() {
   const { t } = useTranslation();
