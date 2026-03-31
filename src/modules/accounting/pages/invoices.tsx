@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Header } from "@/components/layout/header";
@@ -41,6 +41,37 @@ import { calcLineTotals, formatCurrency, emptyLine, defaultForm, initialMock } f
 import { ExportMenu } from "./_components/invoices-export";
 import { InvoiceCard } from "./_components/invoices-card";
 import { InvoiceFormDialog } from "./_components/invoices-form-dialog";
+import InvoicePDFButton from "../components/InvoicePDF"; // ← D15
+import type { InvoiceData } from "../components/invoice-pdf.utils"; // ← D15
+
+// ── Helper: mapează Invoice local → InvoiceData (pentru jsPDF) ────────────────
+function toInvoiceData(inv: Invoice): InvoiceData {
+  const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii);
+
+  // Mapare status
+  const statusMap: Record<string, InvoiceData["status"]> = {
+    "plătită":  "paid",
+    "neplatită": "overdue",
+    "parțial":  "sent",
+    "anulată":  "cancelled",
+  };
+
+  return {
+    invoiceNumber: inv.nr,
+    invoiceDate:   inv.data,
+    dueDate:       inv.scadenta,
+    status:        statusMap[inv.status] ?? "draft",
+    clientName:    inv.clientFurnizor,
+    lineItems: inv.linii.map((l) => ({
+      description: l.descriere,
+      quantity:    l.cantitate,
+      unitPrice:   l.pretUnitar,
+      vatRate:     19,
+    })),
+    // Câmpuri calculate (opționale – folosite în secțiunea totale)
+    paymentTerms: `Subtotal: ${formatCurrency(totalFaraTVA)} | TVA: ${formatCurrency(tva)} | Total: ${formatCurrency(total)}`,
+  };
+}
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function InvoicesPage() {
@@ -275,7 +306,13 @@ export default function InvoicesPage() {
                             <Badge className={`border ${statusColor[inv.status]}`}>{t(`invoices.statusLabels.${inv.status}`)}</Badge>
                           </TableCell>
                           <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
+                            <div className="flex justify-end gap-1">
+                              {/* ── D15: Buton PDF ── */}
+                              <InvoicePDFButton
+                                invoice={toInvoiceData(inv)}
+                                size="icon"
+                                variant="ghost"
+                              />
                               {(inv.status === "neplatită" || inv.status === "parțial") && (
                                 <Button size="icon" variant="ghost" className="text-green-400 hover:text-green-300" title={t("invoices.actions.markPaid")} onClick={() => handleMarkPaid(inv.id)}>
                                   <CheckCircle className="w-4 h-4" />
