@@ -23,18 +23,8 @@
       "expiresIn": "expira in {{days}} zile"
     },
     "months": [
-      "Ian",
-      "Feb",
-      "Mar",
-      "Apr",
-      "Mai",
-      "Iun",
-      "Iul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec"
+      "Ian", "Feb", "Mar", "Apr", "Mai", "Iun",
+      "Iul", "Aug", "Sep", "Oct", "Nov", "Dec"
     ]
   },
   "hrDashboard": {
@@ -58,5 +48,31 @@
       "pendingLeaves": "Cereri de concediu neaprobate",
       "allGood": "Nu exista alerte HR active."
     }
+  },
+  "reportsDashboard": {
+    "totalIncome": "Total Venituri",
+    "totalExpenses": "Total Cheltuieli",
+    "balance": "Sold",
+    "margin": "marjă",
+    "unpaidInvoices": "Facturi Neplatite",
+    "unpaidSubtitle": "trimise / restante",
+    "trips": "Nr. Curse",
+    "completed": "finalizate",
+    "employees": "Angajați",
+    "top3Trucks": "Top 3 Camioane — Cost Total",
+    "top3Clients": "Top 3 Clienți — Venit Estimat",
+    "fuel": "Combustibil",
+    "service": "Service",
+    "order": "comandă",
+    "orders": "comenzi",
+    "incomeVsExpenses": "Venituri vs Cheltuieli — ultimele 6 luni",
+    "kmChart": "Km Parcurși — ultimele 6 luni",
+    "kmTooltip": "Km parcurși",
+    "fleetExpenses": "Distribuție Cheltuieli Parc Auto",
+    "revenueTrend": "Trend Venituri — ultimele 12 luni",
+    "income": "Venituri",
+    "expenses": "Cheltuieli",
+    "month": "Luna",
+    "noData": "Nu există date disponibile."
   }
 }
