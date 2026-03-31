@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+﻿import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Header } from "@/components/layout/header";
@@ -41,8 +41,6 @@ import { calcLineTotals, formatCurrency, emptyLine, defaultForm, initialMock } f
 import { ExportMenu } from "./_components/invoices-export";
 import { InvoiceCard } from "./_components/invoices-card";
 import { InvoiceFormDialog } from "./_components/invoices-form-dialog";
-<<<<<<< HEAD
-=======
 import InvoicePDFButton from "../components/InvoicePDF"; // ← D15
 import type { InvoiceData } from "../components/invoice-pdf.utils"; // ← D15
 
@@ -74,7 +72,6 @@ function toInvoiceData(inv: Invoice): InvoiceData {
     paymentTerms: `Subtotal: ${formatCurrency(totalFaraTVA)} | TVA: ${formatCurrency(tva)} | Total: ${formatCurrency(total)}`,
   };
 }
->>>>>>> 260905a (feat(accounting): D15 - download PDF profesional facturi (jsPDF))
 
 // ── Main Component ────────────────────────────────────────────────────────────
 export default function InvoicesPage() {
