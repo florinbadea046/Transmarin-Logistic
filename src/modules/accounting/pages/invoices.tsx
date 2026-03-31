@@ -1,15 +1,6 @@
-﻿import { useState, useMemo, useEffect } from "react";
+﻿import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-
-import { getCollection, setCollection, initCollection } from "../components/invoices-utils";
-
-import { toast } from "sonner";
-import { useAuditLog } from "@/hooks/use-audit-log";
-import { useAccountingAuditLog } from "@/hooks/use-accounting-audit-log";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-import Papa from "papaparse";
+import { toast } from "sonner"; // ← ADĂUGAT
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
@@ -44,208 +35,27 @@ function toInvoiceData(inv: Invoice): InvoiceData {
     "anulată":  "cancelled",
   };
 
-    return {
-      [t("invoices.columns.nr")]: inv.nr,
-      [t("invoices.columns.clientSupplier")]: inv.clientFurnizor,
-      [t("invoices.columns.type")]: inv.tip === "venit" ? t("invoices.typeLabels.income") : t("invoices.typeLabels.expense"),
-      [t("invoices.columns.date")]: inv.data,
-      [t("invoices.columns.subtotal")]: totalFaraTVA.toFixed(2),
-      [t("invoices.columns.vat")]: tva.toFixed(2),
-      [t("invoices.columns.total")]: total.toFixed(2),
-      [t("invoices.columns.status")]: t(`invoices.statusLabels.${inv.status}`),
-    }
-  })
+  return {
+    invoiceNumber: inv.nr,
+    invoiceDate:   inv.data,
+    dueDate:       inv.scadenta,
+    status:        statusMap[inv.status] ?? "draft",
+    clientName:    inv.clientFurnizor,
+    lineItems: inv.linii.map((l) => ({
+      description: l.descriere,
+      quantity:    l.cantitate,
+      unitPrice:   l.pretUnitar,
+      vatRate:     19,
+    })),
+    // Câmpuri calculate (opționale – folosite în secțiunea totale)
+    paymentTerms: `Subtotal: ${formatCurrency(totalFaraTVA)} | TVA: ${formatCurrency(tva)} | Total: ${formatCurrency(total)}`,
+  };
 }
-
-function exportPDF(invoices: Invoice[], t: (key: string) => string) {
-  const doc = new jsPDF()
-
-  doc.setFontSize(16)
-  doc.text(t("invoices.header"), 14, 16)
-
-  doc.setFontSize(11)
-  doc.text(`${t("invoices.export.invoiceList")} [${new Date().toLocaleDateString("ro-RO")}]`, 14, 24)
-
-  const rows = getExportRows(invoices, t)
-
-  const cols = Object.keys(rows[0] ?? {})
-
-  autoTable(doc, {
-    head: [cols],
-    body: rows.map((r) => cols.map((c) => r[c])),
-    startY: 30,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [30, 30, 30] },
-  })
-
-  doc.save("facturi.pdf")
-}
-
-function exportExcel(invoices: Invoice[], t: (key: string) => string) {
-  const rows = getExportRows(invoices, t)
-
-  const ws = XLSX.utils.json_to_sheet(rows)
-
-  const wb = XLSX.utils.book_new()
-
-  XLSX.utils.book_append_sheet(wb, ws, t("invoices.title"))
-
-  XLSX.writeFile(wb, "facturi.xlsx")
-}
-
-function exportCSV(invoices: Invoice[], t: (key: string) => string) {
-  const rows = getExportRows(invoices, t)
-
-  const csv = Papa.unparse(rows)
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" })
-
-  const url = URL.createObjectURL(blob)
-
-  const a = document.createElement("a")
-
-  a.href = url
-  a.download = "facturi.csv"
-
-  a.click()
-
-  URL.revokeObjectURL(url)
-}
-
-function ExportMenu({
-  invoices,
-  selectedIds,
-  filteredInvoices,
-}: {
-  invoices: Invoice[];
-  selectedIds: Set<string>;
-  filteredInvoices: Invoice[];
-}) {
-  const { t } = useTranslation();
-
-  const toExport = selectedIds.size > 0
-    ? invoices.filter((inv) => selectedIds.has(inv.id))
-    : filteredInvoices;
-
-  const label = selectedIds.size > 0
-    ? `${t("invoices.export.export")} (${selectedIds.size})`
-    : t("invoices.export.export");
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" className={selectedIds.size > 0 ? "border-blue-500 text-blue-400" : ""}>
-          <Download className="w-4 h-4 mr-1" />
-          {label}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {selectedIds.size > 0 && (
-          <>
-            <div className="px-2 py-1 text-xs text-muted-foreground font-medium">
-              {t("invoices.selection.count", { count: selectedIds.size })}
-            </div>
-            <DropdownMenuSeparator />
-          </>
-        )}
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => { exportPDF(toExport, t); toast.success(t("invoices.export.pdfSuccess")); }}
-        >
-          {t("invoices.export.pdf")}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => { exportExcel(toExport, t); toast.success(t("invoices.export.excelSuccess")); }}
-        >
-          {t("invoices.export.excel")}
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={() => { exportCSV(toExport, t); toast.success(t("invoices.export.csvSuccess")); }}
-        >
-          {t("invoices.export.csv")}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-function InvoiceCard({
-  inv,
-  onEdit,
-  onDelete,
-  onMarkPaid,
-  selected,
-  onSelect,
-}: {
-  inv: Invoice;
-  onEdit: (inv: Invoice) => void;
-  onDelete: (id: string) => void;
-  onMarkPaid: (id: string) => void;
-  selected: boolean;
-  onSelect: (id: string, checked: boolean) => void;
-}) {
-  const { t } = useTranslation();
-  const { total } = calcLineTotals(inv.linii);
-
-  return (
-    <Card className={selected ? "border-blue-500" : ""}>
-      <CardContent className="p-4 space-y-3">
-        <div className="flex justify-between items-start">
-          <Checkbox
-            checked={selected}
-            onCheckedChange={(checked) => onSelect(inv.id, !!checked)}
-          />
-          <Badge className={`border ${statusColor[inv.status]}`}>
-            {t(`invoices.statusLabels.${inv.status}`)}
-          </Badge>
-        </div>
-
-        <div className="space-y-1">
-          <div className="font-semibold">{inv.nr}</div>
-          <div className="text-sm text-muted-foreground">{inv.clientFurnizor}</div>
-          <div className="text-sm">{inv.data}</div>
-        </div>
-
-        <div className="text-sm font-medium">
-          {formatCurrency(total)}
-        </div>
-
-        <div className="flex justify-end gap-2">
-          {(inv.status === "neplatită" || inv.status === "parțial") && (
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={() => onMarkPaid(inv.id)}
-            >
-              <CheckCircle className="w-4 h-4" />
-            </Button>
-          )}
-
-          <Button size="icon" variant="ghost" onClick={() => onEdit(inv)}>
-            <Pencil className="w-4 h-4" />
-          </Button>
-
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => onDelete(inv.id)}
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
 
 export default function InvoicesPage() {
   const { t } = useTranslation();
-  const { log } = useAuditLog();
-  const { log: logAccounting } = useAccountingAuditLog();
 
-  const [invoices, setInvoices] = useState<Invoice[]>(() => getCollection(initialMock));
+  const [invoices, setInvoices] = useState<Invoice[]>(initialMock);
   const [tipFilter, setTipFilter] = useState("toate");
   const [statusFilter, setStatusFilter] = useState("toate");
   const [search, setSearch] = useState("");
@@ -253,19 +63,9 @@ export default function InvoicesPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState(defaultForm());
   const [deleteId, setDeleteId] = useState<string | null>(null);
-
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    initCollection(initialMock);
-  }, []);
-
-  useEffect(() => {
-    setCollection(invoices);
-  }, [invoices]);
-
   const filtered = useMemo(() => {
-
     const q = search.toLowerCase();
     return invoices.filter((inv) => {
       const matchTip = tipFilter === "toate" || inv.tip === tipFilter;
@@ -313,42 +113,33 @@ export default function InvoicesPage() {
     setDialogOpen(true);
   };
 
-const handleSave = () => {
-  if (form.linii.length === 0 || form.linii.every((l) => !l.descriere.trim())) {
-    toast.error(t("toasts.itemRequired"));
-    return;
-  }
+  const handleSave = () => {
+    // ← ADĂUGAT: validare factură fără articole
+    if (form.linii.length === 0 || form.linii.every((l) => !l.descriere.trim())) {
+      toast.error("Factura trebuie să conțină cel puțin un articol cu descriere");
+      return;
+    }
 
-  if (editId) {
-    setInvoices((prev) => prev.map((inv) => (inv.id === editId ? { ...inv, ...form } : inv)));
-    log({ action: "update", entity: "invoice", entityId: editId, entityLabel: `${form.nr} - ${form.clientFurnizor}`, detailKey: "activityLog.details.invoiceUpdated" });
-    logAccounting({ action: "update", entity: "invoice", entityId: editId, entityLabel: `${form.nr} - ${form.clientFurnizor}`, details: "Factură actualizată" });
-    toast.success(t("toasts.updated"));
-  } else {
-    const newId = crypto.randomUUID();
-    setInvoices((prev) => [...prev, { id: newId, ...form }]);
-    log({ action: "create", entity: "invoice", entityId: newId, entityLabel: `${form.nr} - ${form.clientFurnizor}`, detailKey: "activityLog.details.invoiceCreated", detailParams: { nr: form.nr } });
-    logAccounting({ action: "create", entity: "invoice", entityId: newId, entityLabel: `${form.nr} - ${form.clientFurnizor}`, details: `Factură creată: ${form.nr}` });
-    toast.success(t("toasts.added"));
-  }
-  setDialogOpen(false);
-};
+    if (editId) {
+      setInvoices((prev) => prev.map((inv) => (inv.id === editId ? { ...inv, ...form } : inv)));
+      toast.success("Factură actualizată cu succes");
+    } else {
+      setInvoices((prev) => [...prev, { id: crypto.randomUUID(), ...form }]);
+      toast.success("Factură adăugată cu succes");
+    }
+    setDialogOpen(false);
+  };
 
   const handleDelete = () => {
-    const inv = invoices.find((i) => i.id === deleteId);
-    log({ action: "delete", entity: "invoice", entityId: deleteId ?? "", entityLabel: inv ? `${inv.nr} - ${inv.clientFurnizor}` : (deleteId ?? ""), detailKey: "activityLog.details.invoiceDeleted" });
-    logAccounting({ action: "delete", entity: "invoice", entityId: deleteId ?? "", entityLabel: inv ? `${inv.nr} - ${inv.clientFurnizor}` : (deleteId ?? ""), details: "Factură ștearsă" });
-    setInvoices((prev) => prev.filter((i) => i.id !== deleteId));
+    setInvoices((prev) => prev.filter((inv) => inv.id !== deleteId));
     setDeleteId(null);
-    toast.success(t("toasts.deleted"));
+    toast.success("Factură ștearsă"); // ← ADĂUGAT
   };
 
   const handleMarkPaid = (id: string) => {
     setInvoices((prev) => prev.map((inv) => (inv.id === id ? { ...inv, status: "plătită" } : inv)));
-    toast.success(t("toasts.markedPaid"));
-    logAccounting({ action: "pay", entity: "invoice", entityId: id, entityLabel: invoices.find(i => i.id === id)?.nr ?? id, details: "Factură marcată ca plătită" });
+    toast.success("Factură marcată ca plătită"); // ← ADĂUGAT
   };
-  
 
   const updateLine = (idx: number, field: keyof InvoiceLine, value: string | number) => {
     setForm((prev) => {
@@ -421,24 +212,10 @@ const handleSave = () => {
               </div>
             )}
 
-            <div className="flex flex-col gap-3 md:hidden">
-              {filtered.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">{t("invoices.noResults")}</p>
-              ) : (
-                filtered.map((inv) => (
-                  <InvoiceCard
-                    key={inv.id}
-                    inv={inv}
-                    onEdit={openEdit}
-                    onDelete={(id) => setDeleteId(id)}
-                    onMarkPaid={handleMarkPaid}
-                    selected={selectedIds.has(inv.id)}
-                    onSelect={toggleSelect}
-                  />
-                ))
-              )}
-            </div>
+            {/* Mobile */}
+            <div className="flex flex-col gap-3 md:hidden">{filtered.length === 0 ? <p className="text-center text-muted-foreground py-8">{t("invoices.noResults")}</p> : filtered.map((inv) => <InvoiceCard key={inv.id} inv={inv} onEdit={openEdit} onDelete={(id) => setDeleteId(id)} onMarkPaid={handleMarkPaid} selected={selectedIds.has(inv.id)} onSelect={toggleSelect} />)}</div>
 
+            {/* Desktop */}
             <div className="hidden md:block rounded-md border">
               <Table>
                 <TableHeader>
@@ -492,7 +269,12 @@ const handleSave = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
-                              
+                              {/* ── D15: Buton PDF ── */}
+                              <InvoicePDFButton
+                                invoice={toInvoiceData(inv)}
+                                size="icon"
+                                variant="ghost"
+                              />
                               {(inv.status === "neplatită" || inv.status === "parțial") && (
                                 <Button size="icon" variant="ghost" className="text-green-400 hover:text-green-300" title={t("invoices.actions.markPaid")} onClick={() => handleMarkPaid(inv.id)}>
                                   <CheckCircle className="w-4 h-4" />
@@ -519,137 +301,7 @@ const handleSave = () => {
         </Card>
       </Main>
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editId ? t("invoices.form.editTitle") : t("invoices.form.addTitle")}</DialogTitle>
-          </DialogHeader>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-2">
-            <div className="space-y-1">
-              <Label>{t("invoices.form.type")}</Label>
-              <Select value={form.tip} onValueChange={(v) => setForm((prev) => ({ ...prev, tip: v as InvoiceType, nr: editId ? prev.nr : generateNr(v as InvoiceType) }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="venit">{t("invoices.typeLabels.income")}</SelectItem>
-                  <SelectItem value="cheltuială">{t("invoices.typeLabels.expense")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label>{t("invoices.form.invoiceNrAuto")}</Label>
-              <Input value={form.nr} readOnly className="bg-muted" />
-            </div>
-            <div className="space-y-1">
-              <Label>{t("invoices.form.date")}</Label>
-              <Input type="date" value={form.data} onChange={(e) => setForm((prev) => ({ ...prev, data: e.target.value }))} />
-            </div>
-            <div className="space-y-1">
-              <Label>{t("invoices.form.dueDate")}</Label>
-              <Input type="date" value={form.scadenta} onChange={(e) => setForm((prev) => ({ ...prev, scadenta: e.target.value }))} />
-            </div>
-            <div className="space-y-1 col-span-1 sm:col-span-2">
-              <Label>{t("invoices.form.clientSupplier")}</Label>
-              <Select value={form.clientFurnizor} onValueChange={(v) => setForm((prev) => ({ ...prev, clientFurnizor: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>{FURNIZORI.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1 col-span-1 sm:col-span-2">
-              <Label>{t("invoices.form.status")}</Label>
-              <Select value={form.status} onValueChange={(v) => setForm((prev) => ({ ...prev, status: v as InvoiceStatus }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="neplatită">{t("invoices.statusLabels.neplatită")}</SelectItem>
-                  <SelectItem value="parțial">{t("invoices.statusLabels.parțial")}</SelectItem>
-                  <SelectItem value="plătită">{t("invoices.statusLabels.plătită")}</SelectItem>
-                  <SelectItem value="anulată">{t("invoices.statusLabels.anulată")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-base">{t("invoices.form.items")}</Label>
-              <Button size="sm" variant="outline" onClick={addLine}><Plus className="w-3 h-3 mr-1" /> {t("invoices.form.addLine")}</Button>
-            </div>
-            <div className="flex flex-col gap-3 sm:hidden">
-              {form.linii.map((linie, idx) => (
-                <div key={linie.id} className="rounded-md border p-3 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">{t("invoices.form.itemNumber", { number: idx + 1 })}</span>
-                    <Button size="icon" variant="ghost" className="text-red-400 hover:text-red-300 h-6 w-6" disabled={form.linii.length === 1} onClick={() => removeLine(idx)}>
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                  <div className="space-y-1">
-                    <Label className="text-xs">{t("invoices.form.description")}</Label>
-                    <Input value={linie.descriere} placeholder={t("invoices.form.descriptionPlaceholder")} onChange={(e) => updateLine(idx, "descriere", e.target.value)} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="space-y-1">
-                      <Label className="text-xs">{t("invoices.form.quantity")}</Label>
-                      <Input type="number" min={1} value={linie.cantitate} onChange={(e) => updateLine(idx, "cantitate", Number(e.target.value))} />
-                    </div>
-                    <div className="space-y-1">
-                      <Label className="text-xs">{t("invoices.form.unitPrice")}</Label>
-                      <Input type="number" min={0} value={linie.pretUnitar} onChange={(e) => updateLine(idx, "pretUnitar", Number(e.target.value))} />
-                    </div>
-                  </div>
-                  <div className="flex justify-end text-sm font-semibold">{t("invoices.columns.total")}: {formatCurrency(linie.cantitate * linie.pretUnitar)}</div>
-                </div>
-              ))}
-            </div>
-            <div className="hidden sm:block rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t("invoices.form.description")}</TableHead>
-                    <TableHead className="w-24">{t("invoices.form.quantity")}</TableHead>
-                    <TableHead className="w-32">{t("invoices.form.unitPrice")}</TableHead>
-                    <TableHead className="w-32 text-right">{t("invoices.form.lineTotal")}</TableHead>
-                    <TableHead className="w-10"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {form.linii.map((linie, idx) => (
-                    <TableRow key={linie.id}>
-                      <TableCell><Input value={linie.descriere} placeholder={t("invoices.form.descriptionPlaceholder")} onChange={(e) => updateLine(idx, "descriere", e.target.value)} /></TableCell>
-                      <TableCell><Input type="number" min={1} value={linie.cantitate} onChange={(e) => updateLine(idx, "cantitate", Number(e.target.value))} /></TableCell>
-                      <TableCell><Input type="number" min={0} value={linie.pretUnitar} onChange={(e) => updateLine(idx, "pretUnitar", Number(e.target.value))} /></TableCell>
-                      <TableCell className="text-right font-medium">{formatCurrency(linie.cantitate * linie.pretUnitar)}</TableCell>
-                      <TableCell>
-                        <Button size="icon" variant="ghost" className="text-red-400 hover:text-red-300" disabled={form.linii.length === 1} onClick={() => removeLine(idx)}>
-                          <Trash2 className="w-3 h-3" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-            <div className="flex flex-col items-end gap-1 text-sm pr-2">
-              <div className="flex gap-4 sm:gap-8">
-                <span className="text-muted-foreground">{t("invoices.totals.subtotal")}:</span>
-                <span className="font-medium w-28 sm:w-32 text-right">{formatCurrency(totals.totalFaraTVA)}</span>
-              </div>
-              <div className="flex gap-4 sm:gap-8">
-                <span className="text-muted-foreground">{t("invoices.totals.vat")}:</span>
-                <span className="font-medium w-28 sm:w-32 text-right">{formatCurrency(totals.tva)}</span>
-              </div>
-              <div className="flex gap-4 sm:gap-8 text-base">
-                <span className="font-semibold">{t("invoices.totals.total")}:</span>
-                <span className="font-bold w-28 sm:w-32 text-right">{formatCurrency(totals.total)}</span>
-              </div>
-            </div>
-          </div>
-
-          <DialogFooter className="flex-col sm:flex-row gap-2">
-            <Button variant="outline" className="w-full sm:w-auto" onClick={() => setDialogOpen(false)}>{t("invoices.actions.cancel")}</Button>
-            <Button className="w-full sm:w-auto" onClick={handleSave}>{editId ? t("invoices.actions.saveChanges") : t("invoices.actions.addInvoice")}</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <InvoiceFormDialog dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} editId={editId} form={form} setForm={setForm} handleSave={handleSave} updateLine={updateLine} addLine={addLine} removeLine={removeLine} totals={totals} />
 
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
