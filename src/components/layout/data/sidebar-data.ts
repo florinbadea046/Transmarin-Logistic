@@ -80,6 +80,10 @@ export const sidebarData: SidebarData = {
               url: "/transport/trips",
               icon: Calendar,
             },
+            { title: "Comparatie Flota",
+              url: "/transport/fleet-comparison",
+              icon: BarChart3 
+            },
             {
               title: "Soferi & Camioane",
               url: "/transport/drivers",
@@ -100,6 +104,7 @@ export const sidebarData: SidebarData = {
               url: "/transport/fuel-log", 
               icon: Fuel 
             },
+
           ],
         },
         {

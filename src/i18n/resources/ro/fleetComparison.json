@@ -1,0 +1,37 @@
+{
+    "fleetComparison": {
+      "title": "Comparatie Performanta Flota",
+      "tableTitle": "Statistici per Camion",
+      "selectHint": "Max 3",
+      "selectedCount": "{{count}} selectate",
+      "selectMore": "selecteaza minim 2 pentru comparatie",
+      "noData": "Nu exista date disponibile.",
+      "bestTruck": {
+        "title": "Camionul Lunii (cel mai profitabil)"
+      },
+      "columns": {
+        "truck": "Camion",
+        "tripCount": "Nr. curse",
+        "totalKm": "Km total",
+        "consumption": "Consum L/100km",
+        "maintenanceCost": "Cost mentenanta",
+        "revenue": "Venit generat",
+        "profit": "Profit net"
+      },
+      "radar": {
+        "title": "Comparatie vizuala (scor normalizat 0-100)",
+        "note": "Scorurile sunt normalizate: 100 = cel mai bun din flota pentru acel indicator.",
+        "km": "Km",
+        "profit": "Profit",
+        "maintenance": "Mentenanta",
+        "trips": "Curse",
+        "consumption": "Consum"
+      },
+      "export": {
+        "excel": "Export Excel",
+        "pdf": "Export PDF",
+        "sheetName": "Comparatie Flota",
+        "filename": "comparatie-flota"
+      }
+    }
+  }
