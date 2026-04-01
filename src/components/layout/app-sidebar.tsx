@@ -18,6 +18,7 @@ const TITLE_KEYS: Record<string, string> = {
   // General
   "/": "dashboard.title",
   "/costs": "costs.title",
+  "/fleet-comparison": "fleetComparison.title",
   "/activity-log": "activityLog.title",
   // Transport
   "/transport": "sidebar.transport.overview",
@@ -77,6 +78,7 @@ const PARENT_KEYS: Record<string, string> = {
   Setari: "sidebar.settings.title",
   Dashboard: "dashboard.title",
   "Costs & Profitability": "costs.title",
+  "Comparatie Performanta Flota": "fleetComparison.title",
   "Istoric Activitati": "activityLog.title",
 };
 
@@ -96,7 +98,9 @@ export function AppSidebar() {
       items: group.items.map((item): import("./types").NavItem => {
         const translatedTitle = PARENT_KEYS[item.title]
           ? t(PARENT_KEYS[item.title])
-          : item.title;
+          : item.url && TITLE_KEYS[item.url]
+            ? t(TITLE_KEYS[item.url])
+            : item.title;
         if (item.items) {
           return {
             ...item,

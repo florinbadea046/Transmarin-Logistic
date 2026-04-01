@@ -52,6 +52,11 @@ export const sidebarData: SidebarData = {
           icon: DollarSign,
         },
         {
+          title: "Comparatie Performanta Flota",
+          url: "/fleet-comparison",
+          icon: BarChart3,
+        },
+        {
           title: "Istoric Activitati",
           url: "/activity-log",
           icon: History,
@@ -80,9 +85,10 @@ export const sidebarData: SidebarData = {
               url: "/transport/trips",
               icon: Calendar,
             },
-            { title: "Comparatie Flota",
+            {
+              title: "Comparatie Flota",
               url: "/transport/fleet-comparison",
-              icon: BarChart3 
+              icon: BarChart3,
             },
             {
               title: "Soferi & Camioane",
@@ -99,12 +105,11 @@ export const sidebarData: SidebarData = {
               url: "/transport/maintenance",
               icon: Wrench,
             },
-            { 
-              title: "Combustibil", 
-              url: "/transport/fuel-log", 
-              icon: Fuel 
+            {
+              title: "Combustibil",
+              url: "/transport/fuel-log",
+              icon: Fuel,
             },
-
           ],
         },
         {
