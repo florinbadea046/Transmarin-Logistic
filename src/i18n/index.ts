@@ -21,6 +21,7 @@ import roSettings from "./resources/ro/settings.json";
 import roMaintenance from "./resources/ro/maintenance.json";
 import roFuelLog from "./resources/ro/fuelLog.json";
 import roInvoiceGenerator from "./resources/ro/invoiceGenerator.json";
+import roFleetComparison from "./resources/ro/fleetComparison.json";
 
 // EN
 import enCommon from "./resources/en/common.json";
@@ -41,6 +42,7 @@ import enSettings from "./resources/en/settings.json";
 import enMaintenance from "./resources/en/maintenance.json";
 import enFuelLog from "./resources/en/fuelLog.json";
 import enInvoiceGenerator from "./resources/en/invoiceGenerator.json";
+import enFleetComparison from "./resources/en/fleetComparison.json";
 
 i18n
   .use(LanguageDetector)
@@ -70,6 +72,7 @@ i18n
           ...enMaintenance,
           ...enFuelLog,
           ...enInvoiceGenerator,
+          ...enFleetComparison,
         },
       },
       ro: {
@@ -92,6 +95,7 @@ i18n
           ...roMaintenance,
           ...roFuelLog,
           ...roInvoiceGenerator,
+          ...roFleetComparison,
         },
       },
     },

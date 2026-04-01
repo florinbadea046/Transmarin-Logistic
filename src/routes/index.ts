@@ -26,6 +26,7 @@ import DriversPage from "@/modules/transport/pages/drivers";
 import DriverProfilePage from "@/modules/transport/pages/_components/driver-profile";
 import MaintenancePage from "@/modules/transport/pages/maintenance";
 import FuelLogPage from "@/modules/transport/pages/fuel-log";
+import FleetComparisonPage from "@/modules/transport/pages/fleet-comparison";
 
 import FleetPage from "@/modules/fleet/index";
 import PartsPage from "@/modules/fleet/pages/parts";
@@ -159,6 +160,11 @@ const fuelLogRoute = createRoute({
   path: "/transport/fuel-log",
   component: FuelLogPage,
 });
+const fleetComparisonRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/transport/fleet-comparison",
+  component: FleetComparisonPage,
+});
 
 // Fleet
 const fleetRoute = createRoute({
@@ -205,7 +211,6 @@ const suppliersRoute = createRoute({
 });
 
 // HR
-
 const hrRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr",
@@ -226,9 +231,21 @@ const payrollRoute = createRoute({
   path: "/hr/payroll",
   component: PayrollPage,
 });
-const attendanceRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/attendance", component: AttendancePage });
-const hrActivityLogRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/activity-log", component: ActivityLogHRPage });
-const hrSettingsRoute = createRoute({ getParentRoute: () => authenticatedRoute, path: "/hr/settings", component: HRSettingsPage });
+const attendanceRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/attendance",
+  component: AttendancePage,
+});
+const hrActivityLogRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/activity-log",
+  component: ActivityLogHRPage,
+});
+const hrSettingsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/settings",
+  component: HRSettingsPage,
+});
 
 // Reports
 const reportsRoute = createRoute({
@@ -321,6 +338,7 @@ const routeTree = rootRoute.addChildren([
     driverProfileRoute,
     maintenanceRoute,
     fuelLogRoute,
+    fleetComparisonRoute,
 
     // Fleet
     fleetRoute,
@@ -342,6 +360,7 @@ const routeTree = rootRoute.addChildren([
     attendanceRoute,
     hrActivityLogRoute,
     hrSettingsRoute,
+
     // Reports
     reportsRoute,
     transportReportsRoute,
@@ -349,6 +368,7 @@ const routeTree = rootRoute.addChildren([
     fleetReportsRoute,
     advancedReportsRoute,
     hrReportsRoute,
+
     // Settings
     settingsRoute,
     settingsAccountRoute,
