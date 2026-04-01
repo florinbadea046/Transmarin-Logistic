@@ -22,6 +22,11 @@
       "title": "Monthly Profit – Last 6 Months",
       "profit": "Profit"
     },
+    "driverChart": {
+      "title": "Profitability by Driver",
+      "profit": "Profit",
+      "noData": "No data available for the selected filters."
+    },
     "table": {
       "title": "Trip Details",
       "trip": "Trip",
