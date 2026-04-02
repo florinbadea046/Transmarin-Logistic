@@ -50,6 +50,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
   const { t } = useTranslation();
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
+  const [statusChanging, setStatusChanging] = React.useState(false);
 
   const refreshData = React.useCallback(() => {
     const updated = getCollection<LeaveRequest>(
@@ -63,12 +64,22 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
   }, [employeeMap, setData, onRefreshCalendar, t]);
 
   const handleStatusChange = (newStatus: "approved" | "rejected") => {
+    if (statusChanging) return;
+    setStatusChanging(true);
     updateItem<LeaveRequest>(
       STORAGE_KEYS.leaveRequests,
       (lr) => lr.id === leave.id,
       (lr) => ({ ...lr, status: newStatus }),
     );
+    log({
+      action: newStatus === "approved" ? "approve" : "reject",
+      entity: "leave",
+      entityId: leave.id,
+      entityLabel: leave.employeeName,
+      details: `${leave.type}, ${leave.startDate} – ${leave.endDate}`,
+    });
     refreshData();
+    setStatusChanging(false);
     toast.success(
       newStatus === "approved"
         ? t("leaves.toast.approved", { name: leave.employeeName })
@@ -89,6 +100,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
                     size="icon"
                     className="h-8 w-8 text-green-600 hover:text-green-700 hover:bg-green-50"
                     aria-label={t("leaves.actions.approve")}
+                    disabled={statusChanging}
                     onClick={() => handleStatusChange("approved")}
                   >
                     <Check className="h-4 w-4" />
@@ -98,6 +110,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
                     size="icon"
                     className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
                     aria-label={t("leaves.actions.reject")}
+                    disabled={statusChanging}
                     onClick={() => handleStatusChange("rejected")}
                   >
                     <X className="h-4 w-4" />
@@ -154,6 +167,15 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
             (lr) => lr.id === updated.id,
             () => updated,
           );
+          log({
+            action: "update",
+            entity: "leave",
+            entityId: updated.id,
+            entityLabel: updated.employeeName ?? leave.employeeName,
+            details: `${updated.type}, ${updated.startDate} – ${updated.endDate}`,
+            oldValue: { type: leave.type, startDate: leave.startDate, endDate: leave.endDate, status: leave.status },
+            newValue: { type: updated.type, startDate: updated.startDate, endDate: updated.endDate, status: updated.status },
+          });
           refreshData();
           toast.success(t("leaves.calendar.updateSuccess"));
         }}

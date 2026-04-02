@@ -14,7 +14,7 @@ type HeaderProps = HTMLAttributes<HTMLElement> & {
 export function Header({ className, fixed, children, ...props }: HeaderProps) {
   const [offset, setOffset] = useState(0);
   const { pathname } = useLocation();
-  const isHRSection = pathname.startsWith("/hr");
+  const isHRSection = pathname === "/hr" || pathname.startsWith("/hr/");
 
   useEffect(() => {
     const onScroll = () => {
@@ -47,8 +47,7 @@ export function Header({ className, fixed, children, ...props }: HeaderProps) {
         <Separator orientation="vertical" className="h-6" />
         {children}
         <div className="ml-auto flex items-center gap-2">
-          {isHRSection && <HRNotificationsCenter />}
-          <NotificationsCenter />
+          {isHRSection ? <HRNotificationsCenter /> : <NotificationsCenter />}
         </div>
       </div>
     </header>
