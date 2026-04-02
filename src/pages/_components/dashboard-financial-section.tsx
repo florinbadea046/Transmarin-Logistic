@@ -5,42 +5,20 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer,
 } from "recharts";
-
-// ── Tipuri locale ─────────────────────────────────────────────────────────────
-interface InvoiceLine {
-  id: string;
-  descriere: string;
-  cantitate: number;
-  pretUnitar: number;
-}
-
-interface Invoice {
-  id: string;
-  nr: string;
-  tip: "venit" | "cheltuială";
-  data: string;
-  scadenta?: string;
-  clientFurnizor: string;
-  linii: InvoiceLine[];
-  status: "plătită" | "neplatită" | "parțial";
-}
+import type { Invoice } from "@/modules/accounting/types";
 
 interface Props {
   invoices: Invoice[];
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-function calcTotal(linii: InvoiceLine[]) {
-  const sub = linii.reduce((s, l) => s + l.cantitate * l.pretUnitar, 0);
-  return sub * 1.19;
-}
-
 function padTwo(n: number) {
   return String(n).padStart(2, "0");
 }
 
-function monthKey(ymd: string) {
-  return ymd.slice(0, 7);
+function monthKey(dateStr: string | undefined) {
+  if (!dateStr || dateStr.length < 7) return "";
+  return dateStr.slice(0, 7);
 }
 
 function shortMonth(ym: string) {
@@ -50,7 +28,6 @@ function shortMonth(ym: string) {
   return `${names[parseInt(m) - 1]} ${y.slice(2)}`;
 }
 
-// today e constant — scos afară din componentă ca să nu intre în deps useMemo
 const TODAY = new Date();
 const THIS_MONTH = `${TODAY.getFullYear()}-${padTwo(TODAY.getMonth() + 1)}`;
 
@@ -59,7 +36,7 @@ export function FinancialSection({ invoices }: Props) {
 
   // Card 1 — Facturi luna curenta
   const facturiLuna = useMemo(
-    () => invoices.filter((inv) => monthKey(inv.data) === THIS_MONTH),
+    () => invoices.filter((inv) => monthKey(inv.date) === THIS_MONTH),
     [invoices],
   );
 
@@ -68,9 +45,8 @@ export function FinancialSection({ invoices }: Props) {
     let venituri = 0;
     let cheltuieli = 0;
     for (const inv of invoices) {
-      const total = calcTotal(inv.linii);
-      if (inv.tip === "venit") venituri += total;
-      else cheltuieli += total;
+      if (inv.type === "income") venituri += inv.total;
+      else cheltuieli += inv.total;
     }
     return { venituri, cheltuieli, sold: venituri - cheltuieli };
   }, [invoices]);
@@ -83,13 +59,12 @@ export function FinancialSection({ invoices }: Props) {
       months.push(`${d.getFullYear()}-${padTwo(d.getMonth() + 1)}`);
     }
     return months.map((ym) => {
-      const slice = invoices.filter((inv) => monthKey(inv.data) === ym);
+      const slice = invoices.filter((inv) => monthKey(inv.date) === ym);
       let venituri = 0;
       let cheltuieli = 0;
       for (const inv of slice) {
-        const t = calcTotal(inv.linii);
-        if (inv.tip === "venit") venituri += t;
-        else cheltuieli += t;
+        if (inv.type === "income") venituri += inv.total;
+        else cheltuieli += inv.total;
       }
       return { luna: shortMonth(ym), venituri, cheltuieli };
     });
@@ -98,8 +73,9 @@ export function FinancialSection({ invoices }: Props) {
   // Alerte — facturi neplatite > 30 zile
   const overdueInvoices = useMemo(() => {
     return invoices.filter((inv) => {
-      if (inv.status === "plătită") return false;
-      const scadenta = inv.scadenta ?? inv.data;
+      if (inv.status === "paid") return false;
+      const scadenta = inv.dueDate ?? inv.date;
+      if (!scadenta) return false;
       const diffDays =
         (TODAY.getTime() - new Date(scadenta).getTime()) / (1000 * 60 * 60 * 24);
       return diffDays > 30;
@@ -111,15 +87,12 @@ export function FinancialSection({ invoices }: Props) {
 
   return (
     <div className="space-y-4">
-      {/* Titlu sectiune */}
       <div className="flex items-center gap-2">
         <BarChart3 className="h-5 w-5 text-muted-foreground" />
         <h2 className="text-base font-semibold">Financiar — Sumar</h2>
       </div>
 
-      {/* KPI Cards — 1 coloana pe mobile, 3 pe desktop */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {/* Card Facturi Luna */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -135,7 +108,6 @@ export function FinancialSection({ invoices }: Props) {
           </CardContent>
         </Card>
 
-        {/* Card Sold */}
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -157,7 +129,6 @@ export function FinancialSection({ invoices }: Props) {
           </CardContent>
         </Card>
 
-        {/* Card Facturi Restante */}
         <Card
           className={overdueInvoices.length > 0 ? "border-orange-500/50" : ""}
         >
@@ -188,7 +159,6 @@ export function FinancialSection({ invoices }: Props) {
         </Card>
       </div>
 
-      {/* Grafic trend 3 luni — full width, height adaptat */}
       <Card>
         <CardHeader>
           <CardTitle className="text-sm font-medium">
