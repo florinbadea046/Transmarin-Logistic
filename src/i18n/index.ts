@@ -22,6 +22,7 @@ import roMaintenance from "./resources/ro/maintenance.json";
 import roFuelLog from "./resources/ro/fuelLog.json";
 import roInvoiceGenerator from "./resources/ro/invoiceGenerator.json";
 import roFleetComparison from "./resources/ro/fleetComparison.json";
+import roRecurringExpenses from "./resources/ro/recurringExpenses.json";
 
 // EN
 import enCommon from "./resources/en/common.json";
@@ -43,6 +44,7 @@ import enMaintenance from "./resources/en/maintenance.json";
 import enFuelLog from "./resources/en/fuelLog.json";
 import enInvoiceGenerator from "./resources/en/invoiceGenerator.json";
 import enFleetComparison from "./resources/en/fleetComparison.json";
+import enRecurringExpenses from "./resources/en/recurringExpenses.json";
 
 i18n
   .use(LanguageDetector)
@@ -73,6 +75,7 @@ i18n
           ...enFuelLog,
           ...enInvoiceGenerator,
           ...enFleetComparison,
+          ...enRecurringExpenses,
         },
       },
       ro: {
@@ -96,23 +99,18 @@ i18n
           ...roFuelLog,
           ...roInvoiceGenerator,
           ...roFleetComparison,
+          ...roRecurringExpenses,
         },
       },
     },
 
-    interpolation: {
-      escapeValue: false,
-    },
-
+    interpolation: { escapeValue: false },
     detection: {
       order: ["localStorage", "navigator"],
       caches: ["localStorage"],
       lookupLocalStorage: "transmarin_lang",
     },
-
-    react: {
-      useSuspense: false,
-    },
+    react: { useSuspense: false },
   });
 
 export default i18n;
