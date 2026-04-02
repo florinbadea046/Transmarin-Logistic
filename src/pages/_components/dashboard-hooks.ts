@@ -34,3 +34,11 @@ export function useHRData() {
   }, []);
   return { employees, leaveRequests };
 }
+
+
+
+export function useFinancialData() {
+  const invoicesRaw = localStorage.getItem("transmarin_invoices");
+  const invoices = invoicesRaw ? JSON.parse(invoicesRaw) : [];
+  return { invoices };
+}
