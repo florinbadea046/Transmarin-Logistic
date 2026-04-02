@@ -254,6 +254,71 @@
       "generated": "Generated:"
     }
   },
+  "payroll": {
+    "title": "Payroll",
+    "cardTitle": "Payroll Calculation",
+    "bonusCardTitle": "Bonuses / Penalties",
+    "departmentPlaceholder": "Department",
+    "allDepartments": "All",
+    "allTypes": "All types",
+    "add": "Add",
+    "noRecords": "No records found.",
+    "noRecordsMonth": "No records for the selected month.",
+    "columns": {
+      "employee": "Employee",
+      "department": "Department",
+      "baseSalary": "Base salary",
+      "diurna": "Per diem",
+      "bonuses": "Bonuses",
+      "fines": "Fines",
+      "overtime": "Overtime",
+      "totalNet": "Total net",
+      "type": "Type",
+      "amount": "Amount",
+      "date": "Date",
+      "description": "Description"
+    },
+    "types": {
+      "diurna": "Per diem",
+      "bonus": "Bonus",
+      "amenda": "Fine",
+      "ore_suplimentare": "Overtime"
+    },
+    "export": {
+      "button": "Export",
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "pdfTitle": "Transmarin Logistic — Payroll",
+      "totalLabel": "Grand total",
+      "fileName": "payroll"
+    },
+    "bonusDialog": {
+      "addTitle": "Add bonus / penalty",
+      "editTitle": "Edit record",
+      "selectEmployee": "Select employee",
+      "selectType": "Select type",
+      "amountPlaceholder": "Amount",
+      "datePlaceholder": "Date",
+      "descriptionPlaceholder": "Description",
+      "cancel": "Cancel",
+      "save": "Save",
+      "validation": {
+        "employeeRequired": "Please select an employee",
+        "amountZero": "Amount cannot be 0",
+        "dateRequired": "Date is required",
+        "descriptionMin": "Description must be at least 5 characters"
+      }
+    },
+    "bonusRow": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteTitle": "Delete record",
+      "deleteDesc": "Are you sure you want to delete this record for",
+      "deleteDescSuffix": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "deleteSuccess": "Record deleted"
+    }
+  },
   "hrAuditLog": {
     "title": "HR Activity Log",
     "subtitle": "All CRUD actions performed on HR entities",
