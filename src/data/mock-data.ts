@@ -40,6 +40,7 @@ export const STORAGE_KEYS = {
   fuelLog: "transmarin_fuel_log",
   transport_settings: "transmarin_transport_settings",
   tripInvoices: "transmarin_trip_invoices",
+  recurringExpenses: "transmarin_recurring_expenses",
 } as const;
 
 // ──────────────────────────────────────────────────────────

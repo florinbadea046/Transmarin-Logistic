@@ -110,6 +110,10 @@ export const sidebarData: SidebarData = {
               url: "/transport/fuel-log",
               icon: Fuel,
             },
+            { title: "Cheltuieli Recurente",
+              url: "/transport/recurring-expenses", 
+              icon: Receipt
+            },
           ],
         },
         {

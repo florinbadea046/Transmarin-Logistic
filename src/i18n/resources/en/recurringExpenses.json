@@ -1,0 +1,73 @@
+{
+    "recurringExpenses": {
+      "title": "Recurring Transport Expenses",
+      "listTitle": "Expenses List",
+      "add": "Add expense",
+      "edit": "Edit expense",
+      "save": "Save",
+      "cancel": "Cancel",
+      "noResults": "No recurring expenses found.",
+      "toastAdded": "Expense added.",
+      "toastUpdated": "Expense updated.",
+      "toastDeleted": "Expense deleted.",
+      "toastMarkPaid": "Marked as paid.",
+      "confirmDeleteTitle": "Delete this expense?",
+      "confirmDelete": "This action cannot be undone.",
+      "dueIn": "due in {{days}} days",
+      "overdue": "overdue",
+      "fields": {
+        "category": "Category",
+        "truck": "Truck",
+        "description": "Description",
+        "monthlyAmount": "Monthly amount (RON)",
+        "nextPaymentDate": "Next payment date",
+        "status": "Status",
+        "notes": "Notes",
+        "optional": "optional"
+      },
+      "placeholders": {
+        "truck": "Select truck",
+        "description": "e.g. RCA Insurance CT-01-TML",
+        "notes": "Observations...",
+        "search": "Search expenses..."
+      },
+      "validation": {
+        "truckRequired": "Truck is required."
+      },
+      "categories": {
+        "asigurare": "Insurance",
+        "leasing": "Leasing",
+        "taxe": "Taxes",
+        "parcare": "Parking",
+        "altele": "Other"
+      },
+      "status": {
+        "platit": "Paid",
+        "neplatit": "Unpaid"
+      },
+      "actions": {
+        "add": "Add",
+        "markPaid": "Mark as paid",
+        "confirm": "Delete"
+      },
+      "columns": {
+        "category": "Category",
+        "truck": "Truck",
+        "description": "Description",
+        "monthlyAmount": "Monthly amount",
+        "nextPaymentDate": "Next payment",
+        "status": "Status"
+      },
+      "kpi": {
+        "totalMonth": "Total Fixed / Month",
+        "totalMonthDesc": "sum of all recurring expenses",
+        "paid": "Paid",
+        "paidDesc": "expenses marked as paid",
+        "unpaid": "Unpaid",
+        "unpaidDesc": "unpaid expenses"
+      },
+      "chart": {
+        "title": "Distribution by category"
+      }
+    }
+  }

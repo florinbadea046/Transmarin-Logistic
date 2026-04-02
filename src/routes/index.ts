@@ -55,6 +55,7 @@ import AdvancedReportsPage from "@/modules/reports/pages/reports";
 import HrReportsPage from "@/modules/reports/pages/reports-hr";
 
 import SettingsPage from "@/pages/settings";
+import RecurringExpensesPage from "@/modules/transport/pages/recurring-expenses";
 
 function isAuthenticated(): boolean {
   try {
@@ -171,6 +172,11 @@ const fleetComparisonRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/transport/fleet-comparison",
   component: FleetComparisonPage,
+});
+const recurringExpensesRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/transport/recurring-expenses",
+  component: RecurringExpensesPage,
 });
 
 // Fleet
@@ -347,6 +353,7 @@ const routeTree = rootRoute.addChildren([
     maintenanceRoute,
     fuelLogRoute,
     fleetComparisonRoute,
+    recurringExpensesRoute,
 
     // Fleet
     fleetRoute,

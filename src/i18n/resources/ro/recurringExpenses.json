@@ -1,0 +1,73 @@
+{
+    "recurringExpenses": {
+      "title": "Cheltuieli Recurente Transport",
+      "listTitle": "Lista Cheltuieli",
+      "add": "Adauga cheltuiala",
+      "edit": "Editeaza cheltuiala",
+      "save": "Salveaza",
+      "cancel": "Anuleaza",
+      "noResults": "Nu exista cheltuieli inregistrate.",
+      "toastAdded": "Cheltuiala adaugata.",
+      "toastUpdated": "Cheltuiala actualizata.",
+      "toastDeleted": "Cheltuiala stearsa.",
+      "toastMarkPaid": "Marcata ca platita.",
+      "confirmDeleteTitle": "Stergi aceasta cheltuiala?",
+      "confirmDelete": "Aceasta actiune este ireversibila.",
+      "dueIn": "scadent in {{days}} zile",
+      "overdue": "restant",
+      "fields": {
+        "category": "Categorie",
+        "truck": "Camion",
+        "description": "Descriere",
+        "monthlyAmount": "Suma lunara (RON)",
+        "nextPaymentDate": "Data urmatoare plata",
+        "status": "Status",
+        "notes": "Note",
+        "optional": "optional"
+      },
+      "placeholders": {
+        "truck": "Selecteaza camion",
+        "description": "ex: Asigurare RCA CT-01-TML",
+        "notes": "Observatii...",
+        "search": "Cauta cheltuiala..."
+      },
+      "validation": {
+        "truckRequired": "Camionul este obligatoriu."
+      },
+      "categories": {
+        "asigurare": "Asigurare",
+        "leasing": "Leasing",
+        "taxe": "Taxe",
+        "parcare": "Parcare",
+        "altele": "Altele"
+      },
+      "status": {
+        "platit": "Platit",
+        "neplatit": "Neplatit"
+      },
+      "actions": {
+        "add": "Adauga",
+        "markPaid": "Marcheaza platit",
+        "confirm": "Sterge"
+      },
+      "columns": {
+        "category": "Categorie",
+        "truck": "Camion",
+        "description": "Descriere",
+        "monthlyAmount": "Suma lunara",
+        "nextPaymentDate": "Urmatoarea plata",
+        "status": "Status"
+      },
+      "kpi": {
+        "totalMonth": "Total Fixe / Luna",
+        "totalMonthDesc": "suma tuturor cheltuielilor recurente",
+        "paid": "Platit",
+        "paidDesc": "cheltuieli marcate ca platite",
+        "unpaid": "Restant",
+        "unpaidDesc": "cheltuieli neplatite"
+      },
+      "chart": {
+        "title": "Distributie pe categorii"
+      }
+    }
+  }
