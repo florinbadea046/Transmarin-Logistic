@@ -67,7 +67,7 @@ export default function BonusDialog({
 
   const todayStr = React.useMemo(() => new Date().toISOString().slice(0, 10), []);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { log } = useHrAuditLog();
 
   const translatedSchema = React.useMemo(() => z.object({
@@ -78,7 +78,7 @@ export default function BonusDialog({
     }),
     date: z.string().min(1, t("payroll.bonusDialog.validation.dateRequired")),
     description: z.string().min(5, t("payroll.bonusDialog.validation.descriptionMin")),
-  }), [t]);
+  }), [t, i18n.language]);
 
   const form = useForm<BonusFormValues>({
     resolver: zodResolver(translatedSchema),

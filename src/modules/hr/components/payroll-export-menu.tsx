@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -66,8 +67,13 @@ const CURRENCY_KEYS = new Set<keyof PayrollRow>([
   "totalNet",
 ]);
 
-function exportPDF(rows: PayrollRow[], selectedMonth: string, t: TFunction, locale: string) {
-  const cols = getCols(t);
+function exportPDF(
+  rows: PayrollRow[],
+  selectedMonth: string,
+  t: TFunction,
+  locale: string,
+  cols: { key: keyof PayrollRow; label: string }[],
+) {
   const monthLabel = getMonthLabel(selectedMonth, locale);
   const title = `${t("payroll.export.pdfTitle")} ${monthLabel}`;
   const totalNet = rows.reduce((sum, r) => sum + r.totalNet, 0);
@@ -104,8 +110,13 @@ function exportPDF(rows: PayrollRow[], selectedMonth: string, t: TFunction, loca
   doc.save(`${t("payroll.export.fileName")}-${selectedMonth}.pdf`);
 }
 
-function exportExcel(rows: PayrollRow[], selectedMonth: string, t: TFunction, locale: string) {
-  const cols = getCols(t);
+function exportExcel(
+  rows: PayrollRow[],
+  selectedMonth: string,
+  t: TFunction,
+  locale: string,
+  cols: { key: keyof PayrollRow; label: string }[],
+) {
   const monthLabel = getMonthLabel(selectedMonth, locale);
   const headers = cols.map((c) => c.label);
 

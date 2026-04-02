@@ -36,7 +36,11 @@ import type { Bonus } from "@/modules/hr/types";
 import { BonusTableRow } from "../components/bonus-row";
 import BonusDialog from "../components/bonus-dialog";
 import { usePayrollData } from "../hooks/use-payroll-data";
-import { getMonthOptions, currentMonth } from "../payroll/payroll-shared";
+import {
+  BONUS_TYPE_KEYS,
+  currentMonth,
+  getMonthOptions,
+} from "../payroll/payroll-shared";
 import {
   createPayrollColumns,
   createBonusColumns,
@@ -44,6 +48,7 @@ import {
 import { PayrollExportMenu } from "../components/payroll-export-menu";
 
 const ALL = "__ALL__";
+const BONUS_FILTER_TYPES = Object.keys(BONUS_TYPE_KEYS) as Bonus["type"][];
 
 export default function PayrollPage() {
   const { t, i18n } = useTranslation();
@@ -211,11 +216,11 @@ export default function PayrollPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value={ALL}>{t("payroll.allTypes")}</SelectItem>
-                    {(Object.keys(t("payroll.types", { returnObjects: true })) as Bonus["type"][]).map(
-                      (val) => (
-                        <SelectItem key={val} value={val}>{t(`payroll.types.${val}`)}</SelectItem>
-                      ),
-                    )}
+                    {BONUS_FILTER_TYPES.map((val) => (
+                      <SelectItem key={val} value={val}>
+                        {t(`payroll.types.${val}`)}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <Button size="sm" onClick={() => setAddBonusOpen(true)}>
