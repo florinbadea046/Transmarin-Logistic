@@ -97,5 +97,25 @@
       "legendInvalid": "Invalid",
       "legendDuplicate": "Duplicat"
     }
+  },
+  "orgChart": {
+    "employees": "angajati",
+    "noRoot": "Nu exista Director General definit. Adauga un angajat fara manager.",
+    "expandAll": "Extinde tot",
+    "collapseAll": "Restringe tot",
+    "search": "Cauta dupa nume, functie...",
+    "noResults": "Niciun angajat gasit.",
+    "header": {
+      "name": "Angajat",
+      "department": "Departament"
+    },
+    "detail": {
+      "email": "Email",
+      "phone": "Telefon",
+      "hireDate": "Data angajarii",
+      "salary": "Salariu",
+      "manager": "Raporteaza la",
+      "directs": "Subordonati directi"
+    }
   }
 }

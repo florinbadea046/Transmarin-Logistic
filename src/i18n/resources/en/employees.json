@@ -96,5 +96,25 @@
       "legendInvalid": "Invalid",
       "legendDuplicate": "Duplicate"
     }
+  },
+  "orgChart": {
+    "employees": "employees",
+    "noRoot": "No CEO/root employee defined. Add an employee without a manager.",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "search": "Search by name, position...",
+    "noResults": "No employees match your search.",
+    "header": {
+      "name": "Employee",
+      "department": "Department"
+    },
+    "detail": {
+      "email": "Email",
+      "phone": "Phone",
+      "hireDate": "Hire Date",
+      "salary": "Salary",
+      "manager": "Reports to",
+      "directs": "Direct reports"
+    }
   }
 }
