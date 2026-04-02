@@ -22,6 +22,11 @@
       "title": "Profit lunar – ultimele 6 luni",
       "profit": "Profit"
     },
+    "driverChart": {
+      "title": "Profitabilitate per șofer",
+      "profit": "Profit",
+      "noData": "Nu există date pentru filtrele selectate."
+    },
     "table": {
       "title": "Detalii curse",
       "trip": "Cursa",

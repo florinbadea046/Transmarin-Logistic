@@ -3,11 +3,14 @@ import { useTranslation } from "react-i18next";
 import {
   AreaChart,
   Area,
+  BarChart,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
+  Cell,
 } from "recharts";
 import {
   Select,
@@ -96,7 +99,8 @@ export default function CostsPage() {
     0,
   );
 
-  // Build monthly map for ALL trips (for the last-6-months chart, unaffected by filters)
+  const finishedTrips = filtered.filter((tr) => tr.status === "finalizata");
+
   const last6MonthsKeys: string[] = [];
   for (let i = 5; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
@@ -127,6 +131,21 @@ export default function CostsPage() {
       fuelCost: vals.fuelCost,
     };
   });
+
+  const driverProfitMap: Record<string, { name: string; profit: number }> = {};
+  for (const trip of filtered) {
+    if (!driverProfitMap[trip.driverId]) {
+      driverProfitMap[trip.driverId] = {
+        name: getDriverName(trip.driverId),
+        profit: 0,
+      };
+    }
+    driverProfitMap[trip.driverId].profit +=
+      (trip.revenue ?? 0) - (trip.fuelCost ?? 0);
+  }
+  const driverChartData = Object.values(driverProfitMap).sort(
+    (a, b) => b.profit - a.profit,
+  );
 
   return (
     <>
@@ -236,29 +255,90 @@ export default function CostsPage() {
           </Card>
         </div>
 
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>{t("costs.chart.title")}</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={260}>
-              <AreaChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Area
-                  type="monotone"
-                  dataKey="profit"
-                  name={t("costs.chart.profit")}
-                  stroke="#22c55e"
-                  fill="#bbf7d0"
-                  strokeWidth={2}
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+        <div className="mb-6 grid gap-6 lg:grid-cols-2">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base">
+                {t("costs.chart.title")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-2 sm:px-6">
+              <ResponsiveContainer width="100%" height={220}>
+                <AreaChart
+                  data={chartData}
+                  margin={{ left: -10, right: 8, top: 4, bottom: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 10 }}
+                    interval="preserveStartEnd"
+                  />
+                  <YAxis tick={{ fontSize: 10 }} width={48} />
+                  <Tooltip />
+                  <Area
+                    type="monotone"
+                    dataKey="profit"
+                    name={t("costs.chart.profit")}
+                    stroke="#22c55e"
+                    fill="#bbf7d0"
+                    strokeWidth={2}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm sm:text-base">
+                {t("costs.driverChart.title")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="px-2 sm:px-6">
+              {driverChartData.length === 0 ? (
+                <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
+                  {t("costs.driverChart.noData")}
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={220}>
+                  <BarChart
+                    data={driverChartData}
+                    layout="vertical"
+                    margin={{ left: 0, right: 12, top: 4, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                    <XAxis type="number" tick={{ fontSize: 10 }} />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      width={72}
+                      tick={{ fontSize: 10 }}
+                    />
+                    <Tooltip
+                      formatter={(value) => [
+                        `${Number(value).toLocaleString()} RON`,
+                        t("costs.driverChart.profit"),
+                      ]}
+                    />
+                    <Bar
+                      dataKey="profit"
+                      name={t("costs.driverChart.profit")}
+                      radius={[0, 4, 4, 0]}
+                    >
+                      {driverChartData.map((entry, index) => (
+                        <Cell
+                          key={index}
+                          fill={entry.profit >= 0 ? "#22c55e" : "#ef4444"}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         <Card>
           <CardHeader>
@@ -284,7 +364,7 @@ export default function CostsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.length === 0 ? (
+                {finishedTrips.length === 0 ? (
                   <TableRow>
                     <TableCell
                       colSpan={7}
@@ -294,7 +374,7 @@ export default function CostsPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filtered.map((trip, i) => {
+                  finishedTrips.map((trip, i) => {
                     const profit = (trip.revenue ?? 0) - (trip.fuelCost ?? 0);
                     return (
                       <TableRow key={trip.id}>
