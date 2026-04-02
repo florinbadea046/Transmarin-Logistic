@@ -254,6 +254,71 @@
       "generated": "Generat:"
     }
   },
+  "payroll": {
+    "title": "Salarizare",
+    "cardTitle": "Calcul Salarizare",
+    "bonusCardTitle": "Bonusuri / Penalizări",
+    "departmentPlaceholder": "Departament",
+    "allDepartments": "Toate",
+    "allTypes": "Toate tipurile",
+    "add": "Adaugă",
+    "noRecords": "Nicio înregistrare.",
+    "noRecordsMonth": "Nicio înregistrare pentru luna selectată.",
+    "columns": {
+      "employee": "Angajat",
+      "department": "Departament",
+      "baseSalary": "Salariu bază",
+      "diurna": "Diurnă",
+      "bonuses": "Bonusuri",
+      "fines": "Amenzi",
+      "overtime": "Ore supl.",
+      "totalNet": "Total net",
+      "type": "Tip",
+      "amount": "Sumă",
+      "date": "Dată",
+      "description": "Descriere"
+    },
+    "types": {
+      "diurna": "Diurnă",
+      "bonus": "Bonus",
+      "amenda": "Amendă",
+      "ore_suplimentare": "Ore suplimentare"
+    },
+    "export": {
+      "button": "Export",
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "pdfTitle": "Transmarin Logistic — Stat de plata",
+      "totalLabel": "Total general",
+      "fileName": "stat-plata"
+    },
+    "bonusDialog": {
+      "addTitle": "Adaugă bonus / penalizare",
+      "editTitle": "Editează înregistrare",
+      "selectEmployee": "Selectați angajat",
+      "selectType": "Selectați tip",
+      "amountPlaceholder": "Sumă",
+      "datePlaceholder": "Dată",
+      "descriptionPlaceholder": "Descriere",
+      "cancel": "Anulează",
+      "save": "Salvează",
+      "validation": {
+        "employeeRequired": "Selectați un angajat",
+        "amountZero": "Suma nu poate fi 0",
+        "dateRequired": "Data este obligatorie",
+        "descriptionMin": "Descrierea trebuie să aibă cel puțin 5 caractere"
+      }
+    },
+    "bonusRow": {
+      "edit": "Editează",
+      "delete": "Șterge",
+      "deleteTitle": "Șterge înregistrarea",
+      "deleteDesc": "Ești sigur că vrei să ștergi această înregistrare pentru",
+      "deleteDescSuffix": "Acțiunea nu poate fi anulată.",
+      "cancel": "Anulează",
+      "deleteSuccess": "Înregistrare ștearsă"
+    }
+  },
   "hrAuditLog": {
     "title": "Istoric Activități HR",
     "subtitle": "Toate acțiunile CRUD efectuate pe entitățile HR",

@@ -23,19 +23,17 @@ import type { Employee, Bonus } from "@/modules/hr/types";
 import { addItem, updateItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
-import { BONUS_TYPE_LABELS } from "../payroll/payroll-shared";
 import { getHRSettings } from "../utils/get-hr-settings";
+import { useTranslation } from "react-i18next";
 
 const BONUS_FORM_TYPES = ["bonus", "amenda", "ore_suplimentare"] as const;
 
 const bonusSchema = z.object({
-  employeeId: z.string().min(1, "Selectați un angajat"),
+  employeeId: z.string().min(1),
   type: z.enum(BONUS_FORM_TYPES),
-  amount: z.number().refine((value) => value !== 0, {
-    message: "Suma nu poate fi 0",
-  }),
-  date: z.string().min(1, "Data este obligatorie"),
-  description: z.string().min(5, "Descrierea trebuie să aibă cel puțin 5 caractere"),
+  amount: z.number().refine((value) => value !== 0),
+  date: z.string().min(1),
+  description: z.string().min(5),
 });
 
 type BonusFormValues = z.infer<typeof bonusSchema>;
@@ -67,10 +65,23 @@ export default function BonusDialog({
     bonus?.date ? new Date(bonus.date) : new Date(),
   );
 
-  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayStr = React.useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  const { t } = useTranslation();
+  const { log } = useHrAuditLog();
+
+  const translatedSchema = React.useMemo(() => z.object({
+    employeeId: z.string().min(1, t("payroll.bonusDialog.validation.employeeRequired")),
+    type: z.enum(BONUS_FORM_TYPES),
+    amount: z.number().refine((value) => value !== 0, {
+      message: t("payroll.bonusDialog.validation.amountZero"),
+    }),
+    date: z.string().min(1, t("payroll.bonusDialog.validation.dateRequired")),
+    description: z.string().min(5, t("payroll.bonusDialog.validation.descriptionMin")),
+  }), [t]);
 
   const form = useForm<BonusFormValues>({
-    resolver: zodResolver(bonusSchema),
+    resolver: zodResolver(translatedSchema),
     defaultValues: {
       employeeId: bonus?.employeeId ?? "",
       type: initialType as BonusFormValues["type"],
@@ -80,8 +91,11 @@ export default function BonusDialog({
     },
   });
 
-  const { log } = useHrAuditLog();
+  React.useEffect(() => {
+    form.clearErrors();
+  }, [translatedSchema, form]);
   const currency = React.useMemo(() => getHRSettings().bonusCurrency, []);
+
   const employeeId = useWatch({ control: form.control, name: "employeeId" });
   const type = useWatch({ control: form.control, name: "type" });
 
@@ -146,7 +160,7 @@ export default function BonusDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Editează înregistrare" : "Adaugă bonus / penalizare"}
+            {isEdit ? t("payroll.bonusDialog.editTitle") : t("payroll.bonusDialog.addTitle")}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
@@ -157,7 +171,7 @@ export default function BonusDialog({
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selectați angajat" />
+              <SelectValue placeholder={t("payroll.bonusDialog.selectEmployee")} />
             </SelectTrigger>
             <SelectContent>
               {employees.map((e) => (
@@ -182,16 +196,12 @@ export default function BonusDialog({
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selectați tip" />
+              <SelectValue placeholder={t("payroll.bonusDialog.selectType")} />
             </SelectTrigger>
             <SelectContent>
-              {(
-                BONUS_FORM_TYPES.map(
-                  (val) => [val, BONUS_TYPE_LABELS[val]] as const,
-                )
-              ).map(([val, label]) => (
+              {BONUS_FORM_TYPES.map((val) => (
                 <SelectItem key={val} value={val}>
-                  {label}
+                  {t(`payroll.types.${val}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -204,7 +214,7 @@ export default function BonusDialog({
 
           <Input
             type="number"
-            placeholder={`Sumă (${currency})`}
+            placeholder={`${t("payroll.bonusDialog.amountPlaceholder")} (${currency})`}
             {...form.register("amount", { valueAsNumber: true })}
           />
           {form.formState.errors.amount && (
@@ -223,7 +233,7 @@ export default function BonusDialog({
                   date ? date.toISOString().slice(0, 10) : "",
                 );
               }}
-              placeholder="Dată"
+              placeholder={t("payroll.bonusDialog.datePlaceholder")}
             />
           </div>
           {form.formState.errors.date && (
@@ -232,7 +242,7 @@ export default function BonusDialog({
             </span>
           )}
 
-          <Input placeholder="Descriere" {...form.register("description")} />
+          <Input placeholder={t("payroll.bonusDialog.descriptionPlaceholder")} {...form.register("description")} />
           {form.formState.errors.description && (
             <span className="text-xs text-red-500">
               {form.formState.errors.description.message}
@@ -242,10 +252,10 @@ export default function BonusDialog({
           <div className="flex gap-2 justify-end pt-2">
             <DialogClose asChild>
               <Button type="button" variant="outline">
-                Anulează
+                {t("payroll.bonusDialog.cancel")}
               </Button>
             </DialogClose>
-            <Button type="submit">Salvează</Button>
+            <Button type="submit">{t("payroll.bonusDialog.save")}</Button>
           </div>
         </form>
       </DialogContent>

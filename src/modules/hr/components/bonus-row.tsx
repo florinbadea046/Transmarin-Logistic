@@ -26,6 +26,7 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, Bonus } from "@/modules/hr/types";
 import { toast } from "sonner";
 import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
+import { useTranslation } from "react-i18next";
 
 export type BonusRow = Bonus & { employeeName: string };
 
@@ -38,6 +39,7 @@ interface Props {
 export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) => {
   const bonus = row.original;
   const { log } = useHrAuditLog();
+  const { t } = useTranslation();
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
 
@@ -51,7 +53,7 @@ export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) =>
       details: `${bonus.type}: ${bonus.amount} RON`,
     });
     onRefresh();
-    toast.success("Înregistrare ștearsă");
+    toast.success(t("payroll.bonusRow.deleteSuccess"));
   };
 
   return (
@@ -71,7 +73,7 @@ export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) =>
                   onClick={() => setEditOpen(true)}
                 >
                   <Pencil className="mr-2 h-4 w-4" />
-                  Editează
+                  {t("payroll.bonusRow.edit")}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
@@ -79,7 +81,7 @@ export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) =>
                   onClick={() => setDeleteOpen(true)}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Șterge
+                  {t("payroll.bonusRow.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -101,14 +103,14 @@ export const BonusTableRow: React.FC<Props> = ({ row, employees, onRefresh }) =>
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Șterge înregistrarea</AlertDialogTitle>
+            <AlertDialogTitle>{t("payroll.bonusRow.deleteTitle")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Ești sigur că vrei să ștergi această înregistrare pentru{" "}
-              <strong>{bonus.employeeName}</strong>? Acțiunea nu poate fi anulată.
+              {t("payroll.bonusRow.deleteDesc")}{" "}
+              <strong>{bonus.employeeName}</strong>? {t("payroll.bonusRow.deleteDescSuffix")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Anulează</AlertDialogCancel>
+            <AlertDialogCancel>{t("payroll.bonusRow.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={handleDelete}

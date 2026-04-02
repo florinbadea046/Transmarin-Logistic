@@ -10,6 +10,9 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import type { PayrollRow } from "../payroll/payroll-shared";
+import { useTranslation } from "react-i18next";
+
+type TFunction = (key: string) => string;
 
 function toPdfSafe(value: unknown): string {
   return String(value ?? "")
@@ -31,26 +34,28 @@ function formatRON(value: number): string {
   );
 }
 
-function getMonthLabel(selectedMonth: string): string {
+function getMonthLabel(selectedMonth: string, locale: string): string {
   const [year, month] = selectedMonth.split("-");
   const y = Number(year);
   const m = Number(month);
   if (!selectedMonth || isNaN(y) || isNaN(m)) return selectedMonth;
   const d = new Date(y, m - 1, 1);
-  const label = d.toLocaleDateString("ro-RO", { month: "long", year: "numeric" });
+  const label = d.toLocaleDateString(locale, { month: "long", year: "numeric" });
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-const COLS: { key: keyof PayrollRow; label: string }[] = [
-  { key: "name", label: "Angajat" },
-  { key: "department", label: "Departament" },
-  { key: "salary", label: "Salariu baza" },
-  { key: "diurna", label: "Diurna" },
-  { key: "bonusuri", label: "Bonusuri" },
-  { key: "amenzi", label: "Amenzi" },
-  { key: "oreSuplimentare", label: "Ore supl." },
-  { key: "totalNet", label: "Total net" },
-];
+function getCols(t: TFunction): { key: keyof PayrollRow; label: string }[] {
+  return [
+    { key: "name", label: t("payroll.columns.employee") },
+    { key: "department", label: t("payroll.columns.department") },
+    { key: "salary", label: t("payroll.columns.baseSalary") },
+    { key: "diurna", label: t("payroll.columns.diurna") },
+    { key: "bonusuri", label: t("payroll.columns.bonuses") },
+    { key: "amenzi", label: t("payroll.columns.fines") },
+    { key: "oreSuplimentare", label: t("payroll.columns.overtime") },
+    { key: "totalNet", label: t("payroll.columns.totalNet") },
+  ];
+}
 
 const CURRENCY_KEYS = new Set<keyof PayrollRow>([
   "salary",
@@ -61,9 +66,10 @@ const CURRENCY_KEYS = new Set<keyof PayrollRow>([
   "totalNet",
 ]);
 
-function exportPDF(rows: PayrollRow[], selectedMonth: string) {
-  const monthLabel = getMonthLabel(selectedMonth);
-  const title = `Transmarin Logistic — Stat de plata ${monthLabel}`;
+function exportPDF(rows: PayrollRow[], selectedMonth: string, t: TFunction, locale: string) {
+  const cols = getCols(t);
+  const monthLabel = getMonthLabel(selectedMonth, locale);
+  const title = `${t("payroll.export.pdfTitle")} ${monthLabel}`;
   const totalNet = rows.reduce((sum, r) => sum + r.totalNet, 0);
 
   const doc = new jsPDF({ orientation: "landscape" });
@@ -71,9 +77,9 @@ function exportPDF(rows: PayrollRow[], selectedMonth: string) {
   doc.text(toPdfSafe(title), 14, 16);
 
   autoTable(doc, {
-    head: [COLS.map((c) => toPdfSafe(c.label))],
+    head: [cols.map((c) => toPdfSafe(c.label))],
     body: rows.map((row) =>
-      COLS.map((c) => {
+      cols.map((c) => {
         const val = row[c.key];
         return CURRENCY_KEYS.has(c.key) ? formatRON(Number(val)) : toPdfSafe(val);
       }),
@@ -81,8 +87,8 @@ function exportPDF(rows: PayrollRow[], selectedMonth: string) {
     foot: [
       [
         {
-          content: "Total general",
-          colSpan: COLS.length - 1,
+          content: t("payroll.export.totalLabel"),
+          colSpan: cols.length - 1,
           styles: { halign: "right" as const, fontStyle: "bold" as const },
         },
         { content: formatRON(totalNet), styles: { fontStyle: "bold" as const } },
@@ -95,29 +101,30 @@ function exportPDF(rows: PayrollRow[], selectedMonth: string) {
     showFoot: "lastPage",
   });
 
-  doc.save(`stat-plata-${selectedMonth}.pdf`);
+  doc.save(`${t("payroll.export.fileName")}-${selectedMonth}.pdf`);
 }
 
-function exportExcel(rows: PayrollRow[], selectedMonth: string) {
-  const monthLabel = getMonthLabel(selectedMonth);
-  const headers = COLS.map((c) => c.label);
+function exportExcel(rows: PayrollRow[], selectedMonth: string, t: TFunction, locale: string) {
+  const cols = getCols(t);
+  const monthLabel = getMonthLabel(selectedMonth, locale);
+  const headers = cols.map((c) => c.label);
 
   const data = rows.map((row) =>
-    COLS.map((c) => {
+    cols.map((c) => {
       const val = row[c.key];
       return CURRENCY_KEYS.has(c.key) ? Number(val) : String(val ?? "");
     }),
   );
 
   const totalNet = rows.reduce((sum, r) => sum + r.totalNet, 0);
-  const totalRow = Array(COLS.length).fill("");
-  totalRow[COLS.length - 2] = "Total general";
-  totalRow[COLS.length - 1] = totalNet;
+  const totalRow = Array(cols.length).fill("");
+  totalRow[cols.length - 2] = t("payroll.export.totalLabel");
+  totalRow[cols.length - 1] = totalNet;
 
   const ws = XLSX.utils.aoa_to_sheet([headers, ...data, totalRow]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, monthLabel);
-  XLSX.writeFile(wb, `stat-plata-${selectedMonth}.xlsx`);
+  XLSX.writeFile(wb, `${t("payroll.export.fileName")}-${selectedMonth}.xlsx`);
 }
 
 type Props = {
@@ -126,6 +133,9 @@ type Props = {
 };
 
 export function PayrollExportMenu({ rows, selectedMonth }: Props) {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language.startsWith("en") ? "en-GB" : "ro-RO";
+  const cols = React.useMemo(() => getCols(t), [t]);
   const isEmpty = rows.length === 0;
 
   return (
@@ -133,21 +143,21 @@ export function PayrollExportMenu({ rows, selectedMonth }: Props) {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="sm" disabled={isEmpty}>
           <Download className="h-3.5 w-3.5 mr-1.5" />
-          Export
+          {t("payroll.export.button")}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => exportPDF(rows, selectedMonth)}
+          onClick={() => exportPDF(rows, selectedMonth, t, locale, cols)}
         >
-          Export PDF
+          {t("payroll.export.pdf")}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => exportExcel(rows, selectedMonth)}
+          onClick={() => exportExcel(rows, selectedMonth, t, locale, cols)}
         >
-          Export Excel
+          {t("payroll.export.excel")}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
