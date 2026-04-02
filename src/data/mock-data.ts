@@ -418,6 +418,30 @@ const seedParts: Part[] = [
 
 const seedEmployees: Employee[] = [
   {
+    id: "e0",
+    name: "Alexandru Dumitru",
+    position: "Director General",
+    department: "Management",
+    phone: "0720000000",
+    email: "alexandru@transmarin.ro",
+    hireDate: "2015-06-01",
+    salary: 12000,
+    managerId: null,
+    documents: [],
+  },
+  {
+    id: "e6",
+    name: "Ioana Ionescu",
+    position: "Manager",
+    department: "Administrativ",
+    phone: "0724000001",
+    email: "ioana@transmarin.ro",
+    hireDate: "2024-01-15",
+    salary: 6000,
+    managerId: "e0",
+    documents: [],
+  },
+  {
     id: "e1",
     name: "Gheorghe Marin",
     position: "Sofer",
@@ -426,6 +450,7 @@ const seedEmployees: Employee[] = [
     email: "gheorghe@transmarin.ro",
     hireDate: "2019-03-01",
     salary: 5500,
+    managerId: "e6",
     documents: [
       {
         id: "doc1",
@@ -474,6 +499,7 @@ const seedEmployees: Employee[] = [
     email: "vasile@transmarin.ro",
     hireDate: "2020-07-15",
     salary: 5200,
+    managerId: "e6",
     documents: [],
   },
   {
@@ -485,6 +511,7 @@ const seedEmployees: Employee[] = [
     email: "ana@transmarin.ro",
     hireDate: "2021-01-10",
     salary: 4800,
+    managerId: "e6",
     documents: [],
   },
   {
@@ -496,6 +523,7 @@ const seedEmployees: Employee[] = [
     email: "andrei@transmarin.ro",
     hireDate: "2022-05-20",
     salary: 5300,
+    managerId: "e6",
     documents: [],
   },
   {
@@ -507,17 +535,7 @@ const seedEmployees: Employee[] = [
     email: "maria@transmarin.ro",
     hireDate: "2023-02-01",
     salary: 5000,
-    documents: [],
-  },
-  {
-    id: "e6",
-    name: "Ioana Ionescu",
-    position: "Manager",
-    department: "Administrativ",
-    phone: "0724000001",
-    email: "ioana@transmarin.ro",
-    hireDate: "2024-01-15",
-    salary: 6000,
+    managerId: "e6",
     documents: [],
   },
 ];
