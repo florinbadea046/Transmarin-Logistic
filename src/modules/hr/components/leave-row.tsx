@@ -60,7 +60,7 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
     }));
     setData(updated);
     onRefreshCalendar?.();
-  }, [employeeMap, setData, onRefreshCalendar]);
+  }, [employeeMap, setData, onRefreshCalendar, t]);
 
   const handleStatusChange = (newStatus: "approved" | "rejected") => {
     updateItem<LeaveRequest>(

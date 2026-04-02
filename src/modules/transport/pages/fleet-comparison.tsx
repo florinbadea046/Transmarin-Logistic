@@ -22,7 +22,6 @@ import {
   ResponsiveContainer, Legend, Tooltip,
 } from "recharts";
 import { Trophy, Download, FileText } from "lucide-react";
-import { useTranslation as useT } from "react-i18next";
 import type { TFunction } from "i18next";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
@@ -31,7 +30,6 @@ import * as XLSX from "xlsx";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -108,7 +106,7 @@ function buildStats(
 
 // ── Camionul Lunii ─────────────────────────────────────────
 
-function BestTruckCard({ stats }: { stats: TruckStats[] }) {
+function BestTruckCard({ stats: _stats }: { stats: TruckStats[] }) {
   const { t } = useTranslation();
   const today = new Date();
   const thisMonth = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}`;
