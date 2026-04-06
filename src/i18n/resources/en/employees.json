@@ -1,0 +1,121 @@
+{
+  "employees": {
+    "title": "Employees",
+    "listTitle": "Employee List",
+    "viewList": "List",
+    "viewOrgChart": "Org Chart",
+    "count_one": "{{count}} employee",
+    "count_few": "{{count}} employees",
+    "count_other": "{{count}} employees",
+    "empty": "No employees found.",
+    "fields": {
+      "name": "Name",
+      "position": "Position",
+      "department": "Department",
+      "phone": "Phone",
+      "email": "Email",
+      "hireDate": "Hire Date",
+      "salary": "Salary",
+      "salaryExport": "Salary (RON)"
+    },
+    "placeholders": {
+      "search": "Search by name, position or email..."
+    },
+    "filters": {
+      "all": "All"
+    },
+    "departments": {
+      "dispatch": "Dispatch",
+      "transport": "Transport",
+      "service": "Service",
+      "accounting": "Accounting",
+      "administrative": "Administrative"
+    },
+    "actions": {
+      "add": "Add Employee",
+      "edit": "Edit",
+      "delete": "Delete",
+      "documents": "Documents",
+      "save": "Save",
+      "cancel": "Cancel",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV",
+      "menu": "Employee actions"
+    },
+    "dialog": {
+      "addTitle": "Add Employee",
+      "editTitle": "Edit employee"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "positionRequired": "Position is required",
+      "departmentRequired": "Department is required",
+      "phoneInvalid": "Invalid phone",
+      "emailInvalid": "Invalid email",
+      "hireDateRequired": "Hire date is required",
+      "salaryRequired": "Salary is required"
+    },
+    "delete": {
+      "title": "Confirm deletion",
+      "description": "Are you sure you want to delete employee {{name}}?"
+    },
+    "documents": {
+      "title": "Documents - {{name}}"
+    },
+    "toast": {
+      "updated": "Employee updated successfully",
+      "deleted": "Employee deleted successfully",
+      "deleteBlockedActiveTrip": "Employee cannot be deleted: assigned as driver on an active trip.",
+      "deleteBlockedFutureLeave": "Employee cannot be deleted: has approved leave in the future."
+    },
+    "export": {
+      "pdfTitle": "Employee List",
+      "filename": "employees"
+    },
+    "import": {
+      "title": "Import Employees from CSV",
+      "button": "Import CSV",
+      "dropzone": "Drag & drop a CSV file or click to browse",
+      "dropzoneHint": "Accepted columns: Name, Position, Department, Phone, Email, HireDate (yyyy-MM-dd), Salary (RON)",
+      "validCount": "{{count}} valid row(s)",
+      "invalidCount": "{{count}} invalid row(s)",
+      "duplicateCount": "{{count}} duplicate(s)",
+      "errorsCol": "Errors",
+      "errorRequired": "Field {{field}} is required",
+      "errorDate": "Date must be in format yyyy-MM-dd",
+      "errorSalary": "Salary must be a positive number",
+      "duplicate": "Duplicate (name + department)",
+      "confirm": "Import {{count}} row(s)",
+      "toastSuccess": "{{count}} employee(s) imported successfully.",
+      "toastPartial": "{{added}} imported, {{skipped}} skipped (duplicates).",
+      "toastAllSkipped": "No employees imported - all rows are duplicates.",
+      "rowValid": "Valid",
+      "noValidRows": "No valid rows",
+      "legendValid": "Valid",
+      "legendInvalid": "Invalid",
+      "legendDuplicate": "Duplicate"
+    }
+  },
+  "orgChart": {
+    "employees": "employees",
+    "noRoot": "No CEO/root employee defined. Add an employee without a manager.",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
+    "search": "Search by name, position...",
+    "noResults": "No employees match your search.",
+    "header": {
+      "name": "Employee",
+      "department": "Department"
+    },
+    "detail": {
+      "email": "Email",
+      "phone": "Phone",
+      "hireDate": "Hire Date",
+      "salary": "Salary",
+      "manager": "Reports to",
+      "directs": "Direct reports"
+    }
+  }
+}

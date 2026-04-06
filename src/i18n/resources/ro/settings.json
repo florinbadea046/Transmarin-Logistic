@@ -1,0 +1,40 @@
+{
+  "settings": {
+    "title": "Setari",
+    "profileTitle": "Setari Profil",
+    "profilePlaceholder": "Sectiunea de setari profil va fi disponibila in curand.",
+    "tabs": {
+      "transport": "Transport",
+      "profile": "Profil"
+    },
+    "transport": {
+      "alertsTitle": "Alerte Expirare",
+      "alertsDesc": "Configurati cu cate zile inainte de expirare sa apara alertele pentru documente si certificate auto.",
+      "alertDays": "Zile inainte de expirare",
+      "alertDaysHint": "Alertele vor aparea cu aceasta perioada inainte de expirarea ITP, RCA, vignietei si documentelor.",
+      "days": "zile",
+      "plateTitle": "Format Numar Inmatriculare",
+      "plateDesc": "Personalizati pattern-ul regex folosit pentru validarea numerelor de inmatriculare.",
+      "plateRegex": "Pattern regex placuta",
+      "plateRegexHint": "Exemplu pentru Romania: ^[A-Z]{1,2}\\s?\\d{2,3}\\s?[A-Z]{3}$",
+      "plateRegexInvalid": "Pattern regex invalid.",
+      "unitsTitle": "Unitati si Moneda",
+      "unitsDesc": "Alegeti unitatea de distanta si moneda folosite in modulul transport.",
+      "kmUnit": "Unitate distanta",
+      "usingKm": "Se folosesc kilometri",
+      "usingMiles": "Se folosesc mile",
+      "km": "km",
+      "miles": "mile",
+      "currency": "Moneda",
+      "currencyHint": "Folosita pentru costuri combustibil, venituri si rapoarte.",
+      "tableTitle": "Afisare Tabel",
+      "tableDesc": "Numarul implicit de randuri afisate pe pagina in toate tabelele din transport.",
+      "defaultPageSize": "Randuri pe pagina",
+      "defaultPageSizeHint": "Aplicat implicit la deschiderea oricarui tabel din transport.",
+      "saveBtn": "Salveaza setarile",
+      "resetBtn": "Resetare la valori implicite",
+      "saved": "Setarile au fost salvate cu succes.",
+      "reset": "Setarile au fost resetate la valorile implicite."
+    }
+  }
+}

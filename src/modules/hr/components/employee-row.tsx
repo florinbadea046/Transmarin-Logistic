@@ -1,7 +1,7 @@
 import * as React from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { flexRender, type Row, type Cell } from "@tanstack/react-table";
-import { MoreVertical, Pencil, Trash2, FileText } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, FileText, BarChart2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -13,11 +13,14 @@ import {
 import EmployeeDialog from "./employee-dialog";
 import ConfirmDeleteDialog from "./confirm-delete-dialog";
 import { EmployeeDocumentsDialog } from "./employee-documents-dialog";
+import { EmployeeProfileDialog, EmployeeStatsDialog } from "./employee-profile-dialog";
 import { getCollection, updateItem, removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Trip } from "@/modules/transport/types";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 
 interface EmployeeRowProps {
   row: Row<Employee>;
@@ -25,20 +28,23 @@ interface EmployeeRowProps {
 }
 
 export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
+  const { t } = useTranslation();
+  const { log } = useHrAuditLog();
   const employee = row.original;
   const [editOpen, setEditOpen] = React.useState(false);
   const [deleteOpen, setDeleteOpen] = React.useState(false);
   const [docsOpen, setDocsOpen] = React.useState(false);
+  const [profileOpen, setProfileOpen] = React.useState(false);
+  const [statsOpen, setStatsOpen] = React.useState(false);
 
   const handleDeleteClick = () => {
     const trips = getCollection<Trip>(STORAGE_KEYS.trips);
     const isOnActiveTrip = trips.some(
-      (t) => t.driverId === employee.id && t.status === "active",
+      (trip) =>
+        trip.driverId === employee.id && trip.status === "in_desfasurare",
     );
     if (isOnActiveTrip) {
-      toast.warning(
-        "Angajatul nu poate fi șters: este șofer pe o cursă activă.",
-      );
+      toast.warning(t("employees.toast.deleteBlockedActiveTrip"));
       return;
     }
 
@@ -53,9 +59,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
         l.endDate >= today,
     );
     if (hasFutureLeave) {
-      toast.warning(
-        "Angajatul nu poate fi șters: are concediu aprobat în viitor.",
-      );
+      toast.warning(t("employees.toast.deleteBlockedFutureLeave"));
       return;
     }
 
@@ -65,11 +69,25 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
   return (
     <TableRow key={row.id}>
       {row.getVisibleCells().map((cell: Cell<Employee, unknown>) =>
-        cell.column.id === "actions" ? (
+        cell.column.id === "name" ? (
+          <TableCell key={cell.id}>
+            <button
+              className="font-medium text-foreground hover:underline hover:text-primary transition-colors text-left whitespace-nowrap"
+              onClick={() => setProfileOpen(true)}
+            >
+              {employee.name}
+            </button>
+          </TableCell>
+        ) : cell.column.id === "actions" ? (
           <TableCell key={cell.id} className="text-center">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 p-0"
+                  aria-label={t("employees.actions.menu")}
+                >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -79,22 +97,30 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
                   onClick={() => setEditOpen(true)}
                 >
                   <Pencil className="mr-2 h-4 w-4" />
-                  Editează
+                  {t("employees.actions.edit")}
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className="cursor-pointer"
                   onClick={() => setDocsOpen(true)}
                 >
                   <FileText className="mr-2 h-4 w-4" />
-                  Documente
+                  {t("employees.actions.documents")}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setStatsOpen(true)}
+                >
+                  <BarChart2 className="mr-2 h-4 w-4" />
+                  Statistici
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  variant="destructive"
+                  className="cursor-pointer"
                   onClick={handleDeleteClick}
                 >
                   <Trash2 className="mr-2 h-4 w-4" />
-                  Șterge
+                  {t("employees.actions.delete")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -106,6 +132,19 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
         ),
       )}
 
+      {statsOpen && (
+        <EmployeeStatsDialog
+          employee={employee}
+          open={statsOpen}
+          onOpenChange={setStatsOpen}
+        />
+      )}
+      <EmployeeProfileDialog
+        employee={employee}
+        open={profileOpen}
+        onOpenChange={setProfileOpen}
+        onUpdate={(updated) => setData((prev) => prev.map((e) => e.id === updated.id ? updated : e))}
+      />
       <EmployeeDialog
         mode="edit"
         employee={employee}
@@ -118,7 +157,15 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
             () => updated,
           );
           setData(getCollection<Employee>(STORAGE_KEYS.employees));
-          toast.success("Angajat actualizat cu succes");
+          log({
+            action: "update",
+            entity: "employee",
+            entityId: updated.id,
+            entityLabel: updated.name,
+            oldValue: { name: employee.name, position: employee.position, salary: employee.salary },
+            newValue: { name: updated.name, position: updated.position, salary: updated.salary },
+          });
+          toast.success(t("employees.toast.updated"));
         }}
 
       />
@@ -138,7 +185,14 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
             (e) => e.id === employee.id,
           );
           setData(getCollection<Employee>(STORAGE_KEYS.employees));
-          toast.success("Angajat șters cu succes");
+          log({
+            action: "delete",
+            entity: "employee",
+            entityId: employee.id,
+            entityLabel: employee.name,
+            details: `${employee.position}, ${employee.department}`,
+          });
+          toast.success(t("employees.toast.deleted"));
         }}
       />
     </TableRow>

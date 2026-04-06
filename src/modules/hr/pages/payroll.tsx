@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   flexRender,
   getCoreRowModel,
@@ -30,31 +31,37 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DataTablePagination } from "@/components/data-table/pagination";
-import { getCollection } from "@/utils/local-storage";
-import { STORAGE_KEYS, EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
-import type { Employee, Bonus } from "@/modules/hr/types";
-import { BonusTableRow, type BonusRow } from "../components/bonus-row";
+import { EMPLOYEE_DEPARTMENTS } from "@/data/mock-data";
+import type { Bonus } from "@/modules/hr/types";
+import { BonusTableRow } from "../components/bonus-row";
 import BonusDialog from "../components/bonus-dialog";
+import { usePayrollData } from "../hooks/use-payroll-data";
 import {
-  payrollColumns,
-  bonusColumns,
-  MONTH_OPTIONS,
+  BONUS_TYPE_KEYS,
   currentMonth,
-  BONUS_TYPE_LABELS,
-  type PayrollRow,
+  getMonthOptions,
+} from "../payroll/payroll-shared";
+import {
+  createPayrollColumns,
+  createBonusColumns,
 } from "../components/payroll-columns";
+import { PayrollExportMenu } from "../components/payroll-export-menu";
+
+const ALL = "__ALL__";
+const BONUS_FILTER_TYPES = Object.keys(BONUS_TYPE_KEYS) as Bonus["type"][];
 
 export default function PayrollPage() {
-  const [employees, setEmployees] = React.useState<Employee[]>(() =>
-    getCollection<Employee>(STORAGE_KEYS.employees),
+  const { t, i18n } = useTranslation();
+  const monthOptions = React.useMemo(
+    () => getMonthOptions(i18n.language.startsWith("en") ? "en-GB" : "ro-RO"),
+    [i18n.language],
   );
-  const [bonuses, setBonuses] = React.useState<Bonus[]>(() =>
-    getCollection<Bonus>(STORAGE_KEYS.bonuses),
-  );
+  const [selectedMonth, setSelectedMonth] = React.useState(currentMonth());
+  const { employees, payrollRows, bonusRows, refreshData } =
+    usePayrollData(selectedMonth);
 
-  const [selectedMonth, setSelectedMonth] = React.useState(currentMonth);
-  const [payrollDept, setPayrollDept] = React.useState("Toate");
-  const [bonusTypeFilter, setBonusTypeFilter] = React.useState("Toate");
+  const [payrollDept, setPayrollDept] = React.useState(ALL);
+  const [bonusTypeFilter, setBonusTypeFilter] = React.useState(ALL);
   const [addBonusOpen, setAddBonusOpen] = React.useState(false);
 
   const [payrollSorting, setPayrollSorting] = React.useState<SortingState>([]);
@@ -67,44 +74,8 @@ export default function PayrollPage() {
     [],
   );
 
-  const handleRefresh = () => {
-    setEmployees(getCollection<Employee>(STORAGE_KEYS.employees));
-    setBonuses(getCollection<Bonus>(STORAGE_KEYS.bonuses));
-  };
-
-  const payrollRows = React.useMemo<PayrollRow[]>(() => {
-    return employees.map((emp) => {
-      const empBonuses = bonuses.filter(
-        (b) => b.employeeId === emp.id && b.date.startsWith(selectedMonth),
-      );
-      const sum = (type: Bonus["type"]) =>
-        empBonuses.filter((b) => b.type === type).reduce((s, b) => s + b.amount, 0);
-      const diurna = sum("diurna");
-      const bonusuri = sum("bonus");
-      const amenzi = sum("amenda");
-      const oreSuplimentare = sum("ore_suplimentare");
-      return {
-        id: emp.id,
-        name: emp.name,
-        department: emp.department,
-        salary: emp.salary,
-        diurna,
-        bonusuri,
-        amenzi,
-        oreSuplimentare,
-        totalNet: emp.salary + diurna + bonusuri + oreSuplimentare - amenzi,
-      };
-    });
-  }, [employees, bonuses, selectedMonth]);
-
-  const bonusRows = React.useMemo<BonusRow[]>(() => {
-    return bonuses
-      .filter((b) => b.date.startsWith(selectedMonth))
-      .map((b) => ({
-        ...b,
-        employeeName: employees.find((e) => e.id === b.employeeId)?.name ?? "—",
-      }));
-  }, [employees, bonuses, selectedMonth]);
+  const payrollColumns = React.useMemo(() => createPayrollColumns(t), [t]);
+  const bonusColumns = React.useMemo(() => createBonusColumns(t), [t]);
 
   const payrollTable = useReactTable({
     data: payrollRows,
@@ -140,34 +111,35 @@ export default function PayrollPage() {
 
   const handlePayrollDeptChange = (v: string) => {
     setPayrollDept(v);
-    payrollTable.getColumn("department")?.setFilterValue(v === "Toate" ? undefined : v);
+    payrollTable.getColumn("department")?.setFilterValue(v === ALL ? undefined : v);
     payrollTable.setPageIndex(0);
   };
 
   const handleBonusTypeChange = (v: string) => {
     setBonusTypeFilter(v);
-    bonusTable.getColumn("type")?.setFilterValue(v === "Toate" ? undefined : v);
+    bonusTable.getColumn("type")?.setFilterValue(v === ALL ? undefined : v);
     bonusTable.setPageIndex(0);
   };
 
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold">Salarizare</h1>
+        <h1 className="text-lg font-semibold">{t("payroll.title")}</h1>
       </Header>
       <Main className="space-y-6">
         {/* Card 1: Calcul Salarizare */}
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <CardTitle>Calcul Salarizare</CardTitle>
+              <CardTitle>{t("payroll.cardTitle")}</CardTitle>
               <div className="flex flex-wrap items-center gap-2">
+                <PayrollExportMenu rows={payrollRows} selectedMonth={selectedMonth} />
                 <Select value={selectedMonth} onValueChange={handleMonthChange}>
                   <SelectTrigger className="flex-1 min-w-[140px] sm:w-44">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {MONTH_OPTIONS.map((opt) => (
+                    {monthOptions.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
                       </SelectItem>
@@ -176,11 +148,12 @@ export default function PayrollPage() {
                 </Select>
                 <Select value={payrollDept} onValueChange={handlePayrollDeptChange}>
                   <SelectTrigger className="flex-1 min-w-[140px] sm:w-44">
-                    <SelectValue placeholder="Departament" />
+                    <SelectValue placeholder={t("payroll.departmentPlaceholder")} />
                   </SelectTrigger>
                   <SelectContent>
-                    {["Toate", ...EMPLOYEE_DEPARTMENTS].map((d) => (
-                      <SelectItem key={d} value={d}>{d}</SelectItem>
+                    <SelectItem value={ALL}>{t("payroll.allDepartments")}</SelectItem>
+                    {EMPLOYEE_DEPARTMENTS.map((d) => (
+                      <SelectItem key={d} value={d}>{t(`departments.${d}`)}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -220,7 +193,7 @@ export default function PayrollPage() {
                         colSpan={payrollColumns.length}
                         className="h-24 text-center text-muted-foreground"
                       >
-                        Nicio înregistrare.
+                        {t("payroll.noRecords")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -235,24 +208,24 @@ export default function PayrollPage() {
         <Card>
           <CardHeader>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-              <CardTitle>Bonusuri / Penalizări</CardTitle>
+              <CardTitle>{t("payroll.bonusCardTitle")}</CardTitle>
               <div className="flex flex-wrap items-center gap-2">
                 <Select value={bonusTypeFilter} onValueChange={handleBonusTypeChange}>
                   <SelectTrigger className="flex-1 min-w-[140px] sm:w-44">
-                    <SelectValue placeholder="Tip" />
+                    <SelectValue placeholder={t("payroll.columns.type")} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Toate">Toate tipurile</SelectItem>
-                    {(Object.entries(BONUS_TYPE_LABELS) as [Bonus["type"], string][]).map(
-                      ([val, label]) => (
-                        <SelectItem key={val} value={val}>{label}</SelectItem>
-                      ),
-                    )}
+                    <SelectItem value={ALL}>{t("payroll.allTypes")}</SelectItem>
+                    {BONUS_FILTER_TYPES.map((val) => (
+                      <SelectItem key={val} value={val}>
+                        {t(`payroll.types.${val}`)}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <Button size="sm" onClick={() => setAddBonusOpen(true)}>
                   <Plus className="mr-2 h-4 w-4" />
-                  Adaugă
+                  {t("payroll.add")}
                 </Button>
               </div>
             </div>
@@ -280,7 +253,7 @@ export default function PayrollPage() {
                         key={row.id}
                         row={row}
                         employees={employees}
-                        onRefresh={handleRefresh}
+                        onRefresh={refreshData}
                       />
                     ))
                   ) : (
@@ -289,7 +262,7 @@ export default function PayrollPage() {
                         colSpan={bonusColumns.length}
                         className="h-24 text-center text-muted-foreground"
                       >
-                        Nicio înregistrare pentru luna selectată.
+                        {t("payroll.noRecordsMonth")}
                       </TableCell>
                     </TableRow>
                   )}
@@ -305,7 +278,7 @@ export default function PayrollPage() {
           employees={employees}
           open={addBonusOpen}
           onOpenChange={setAddBonusOpen}
-          onSave={handleRefresh}
+          onSave={refreshData}
         />
       </Main>
     </>

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import {
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { ExpiryDatePicker } from "./expiry-date-picker";
 import { generateId } from "@/utils/local-storage";
+import { getHRSettings } from "../utils/get-hr-settings";
 import type { EmployeeDocument } from "@/modules/hr/types";
 
 const TYPE_LABELS: Record<EmployeeDocument["type"], string> = {
@@ -25,13 +27,30 @@ const TYPE_LABELS: Record<EmployeeDocument["type"], string> = {
   other: "Altele",
 };
 
+// Parse a YYYY-MM-DD string as a local date (midnight in the user's timezone)
+function parseLocalYmdDate(dateStr: string): Date {
+  const [yearStr, monthStr, dayStr] = dateStr.split("-");
+  const year = Number(yearStr);
+  const monthIndex = Number(monthStr) - 1; // JS months are 0-based
+  const day = Number(dayStr);
+  return new Date(year, monthIndex, day);
+}
+
 function getExpiryBadge(expiryDate?: string) {
   if (!expiryDate) return <Badge variant="secondary">Fără expirare</Badge>;
-  const today = new Date().toISOString().slice(0, 10);
-  if (expiryDate < today) return <Badge variant="destructive">Expirat</Badge>;
+
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const expiry = parseLocalYmdDate(expiryDate);
+
+  if (expiry.getTime() < today.getTime()) {
+    return <Badge variant="destructive">Expirat</Badge>;
+  }
+
   const days = Math.floor(
-    (new Date(expiryDate).getTime() - new Date(today).getTime()) / 86400000,
+    (expiry.getTime() - today.getTime()) / 86400000,
   );
+
   if (days <= 30) {
     return (
       <Badge className="border-yellow-500 text-yellow-600 bg-yellow-50 dark:bg-yellow-950 dark:text-yellow-400" variant="outline">
@@ -61,6 +80,7 @@ interface Props {
 }
 
 export function DocumentsTab({ documents, onChange }: Props) {
+  const docNumberFormat = React.useMemo(() => getHRSettings().documentNumberFormat, []);
   const [showDocForm, setShowDocForm] = React.useState(false);
   const [editingDocId, setEditingDocId] = React.useState<string | null>(null);
   const [docForm, setDocForm] = React.useState(emptyDocForm);
@@ -85,8 +105,8 @@ export function DocumentsTab({ documents, onChange }: Props) {
       expiryDate: doc.expiryDate ?? "",
       notes: doc.notes ?? "",
     });
-    setIssueDate(doc.issueDate ? new Date(doc.issueDate) : undefined);
-    setDocDate(doc.expiryDate ? new Date(doc.expiryDate) : undefined);
+    setIssueDate(doc.issueDate ? parseLocalYmdDate(doc.issueDate) : undefined);
+    setDocDate(doc.expiryDate ? parseLocalYmdDate(doc.expiryDate) : undefined);
     setShowDocForm(true);
   };
 
@@ -216,7 +236,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
             </SelectContent>
           </Select>
           <Input
-            placeholder="Nr. document"
+            placeholder={`Nr. document (ex: ${docNumberFormat})`}
             value={docForm.documentNumber}
             onChange={(e) => setDocForm((f) => ({ ...f, documentNumber: e.target.value }))}
           />
@@ -231,7 +251,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
               setIssueDate(date);
               setDocForm((f) => ({
                 ...f,
-                issueDate: date ? date.toISOString().slice(0, 10) : "",
+                issueDate: date ? format(date, "yyyy-MM-dd") : "",
               }));
             }}
             placeholder="Data emitere"
@@ -242,7 +262,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
               setDocDate(date);
               setDocForm((f) => ({
                 ...f,
-                expiryDate: date ? date.toISOString().slice(0, 10) : "",
+                expiryDate: date ? format(date, "yyyy-MM-dd") : "",
               }));
             }}
             placeholder="Data expirare"

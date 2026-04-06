@@ -18,6 +18,10 @@ import {
   Bell,
   Palette,
   Monitor,
+  DollarSign,
+  History,
+  CalendarDays,
+  Gauge,
 } from "lucide-react";
 import { type SidebarData } from "../types";
 
@@ -43,6 +47,21 @@ export const sidebarData: SidebarData = {
           url: "/",
           icon: LayoutDashboard,
         },
+        {
+          title: "Costs & Profitability",
+          url: "/costs",
+          icon: DollarSign,
+        },
+        {
+          title: "Comparatie Performanta Flota",
+          url: "/fleet-comparison",
+          icon: BarChart3,
+        },
+        {
+          title: "Istoric Activitati",
+          url: "/activity-log",
+          icon: History,
+        },
       ],
     },
     {
@@ -53,7 +72,7 @@ export const sidebarData: SidebarData = {
           icon: Truck,
           items: [
             {
-              title: "Prezentare Generală",
+              title: "Prezentare Generala",
               url: "/transport",
               icon: ClipboardList,
             },
@@ -68,9 +87,39 @@ export const sidebarData: SidebarData = {
               icon: Calendar,
             },
             {
-              title: "Șoferi & Camioane",
+              title: "Comparatie Flota",
+              url: "/transport/fleet-comparison",
+              icon: BarChart3,
+            },
+            {
+              title: "Soferi & Camioane",
               url: "/transport/drivers",
               icon: Users,
+            },
+            {
+              title: "Analiza Soferi",
+              url: "/driver-performance",
+              icon: TrendingUp,
+            },
+            {
+              title: "Mentenanta Camioane",
+              url: "/transport/maintenance",
+              icon: Wrench,
+            },
+            {
+              title: "Combustibil",
+              url: "/transport/fuel-log",
+              icon: Fuel,
+            },
+            {
+              title: "Cheltuieli Recurente",
+              url: "/transport/recurring-expenses",
+              icon: Receipt,
+            },
+            {
+              title: "Registru Kilometraj",
+              url: "/transport/mileage-registry",
+              icon: Gauge,
             },
           ],
         },
@@ -79,7 +128,7 @@ export const sidebarData: SidebarData = {
           icon: Wrench,
           items: [
             {
-              title: "Prezentare Generală",
+              title: "Prezentare Generala",
               url: "/fleet",
               icon: Truck,
             },
@@ -89,7 +138,7 @@ export const sidebarData: SidebarData = {
               icon: Package,
             },
             {
-              title: "Service & Reparații",
+              title: "Service & Reparatii",
               url: "/fleet/service",
               icon: Wrench,
             },
@@ -98,6 +147,11 @@ export const sidebarData: SidebarData = {
               url: "/fleet/fuel",
               icon: Fuel,
             },
+            {
+              title: "Fisa Vehicul",
+              url: "/fleet/vehicles",
+              icon: FileText,
+            },
           ],
         },
         {
@@ -105,7 +159,7 @@ export const sidebarData: SidebarData = {
           icon: Receipt,
           items: [
             {
-              title: "Prezentare Generală",
+              title: "Prezentare Generala",
               url: "/accounting",
               icon: Receipt,
             },
@@ -126,12 +180,12 @@ export const sidebarData: SidebarData = {
           icon: UserCog,
           items: [
             {
-              title: "Prezentare Generală",
+              title: "Prezentare Generala",
               url: "/hr",
               icon: Users,
             },
             {
-              title: "Angajați",
+              title: "Angajati",
               url: "/hr/employees",
               icon: UserCog,
             },
@@ -144,6 +198,16 @@ export const sidebarData: SidebarData = {
               title: "Salarizare",
               url: "/hr/payroll",
               icon: Wallet,
+            },
+            {
+              title: "Pontaj Lunar",
+              url: "/hr/attendance",
+              icon: CalendarDays,
+            },
+            {
+              title: "Istoric",
+              url: "/hr/activity-log",
+              icon: History,
             },
           ],
         },
@@ -171,15 +235,25 @@ export const sidebarData: SidebarData = {
               url: "/reports/fleet",
               icon: Wrench,
             },
+            {
+              title: "Rapoarte Avansate",
+              url: "/reports/advanced",
+              icon: BarChart3,
+            },
+            {
+              title: "Rapoarte HR",
+              url: "/reports/hr",
+              icon: Users,
+            },
           ],
         },
       ],
     },
     {
-      title: "Setări",
+      title: "Setari",
       items: [
         {
-          title: "Setări",
+          title: "Setari",
           icon: Settings,
           items: [
             {
@@ -188,17 +262,17 @@ export const sidebarData: SidebarData = {
               icon: UserCog,
             },
             {
-              title: "Aparență",
+              title: "Aparenta",
               url: "/settings/appearance",
               icon: Palette,
             },
             {
-              title: "Notificări",
+              title: "Notificari",
               url: "/settings/notifications",
               icon: Bell,
             },
             {
-              title: "Afișare",
+              title: "Afisare",
               url: "/settings/display",
               icon: Monitor,
             },

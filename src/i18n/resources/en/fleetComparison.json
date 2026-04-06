@@ -1,0 +1,37 @@
+{
+    "fleetComparison": {
+      "title": "Fleet Performance Comparison",
+      "tableTitle": "Stats per Truck",
+      "selectHint": "Max 3",
+      "selectedCount": "{{count}} selected",
+      "selectMore": "select at least 2 to compare",
+      "noData": "No data available.",
+      "bestTruck": {
+        "title": "Truck of the Month (most profitable)"
+      },
+      "columns": {
+        "truck": "Truck",
+        "tripCount": "Trips",
+        "totalKm": "Total km",
+        "consumption": "Consumption L/100km",
+        "maintenanceCost": "Maintenance cost",
+        "revenue": "Revenue",
+        "profit": "Net profit"
+      },
+      "radar": {
+        "title": "Visual comparison (normalized score 0-100)",
+        "note": "Scores are normalized: 100 = best in fleet for that indicator.",
+        "km": "Km",
+        "profit": "Profit",
+        "maintenance": "Maintenance",
+        "trips": "Trips",
+        "consumption": "Consumption"
+      },
+      "export": {
+        "excel": "Export Excel",
+        "pdf": "Export PDF",
+        "sheetName": "Fleet Comparison",
+        "filename": "fleet-comparison"
+      }
+    }
+  }

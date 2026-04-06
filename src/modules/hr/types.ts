@@ -5,13 +5,14 @@
 export interface Employee {
   id: string;
   name: string;
-  position: string;
+  position: string; // ex: "CEO", "Manager", "Developer"
   department: string;
   phone: string;
   email: string;
   hireDate: string;
   salary: number;
   documents: EmployeeDocument[];
+  managerId?: string | null; // id-ul managerului direct, null pentru CEO
 }
 
 export interface EmployeeDocument {
@@ -43,4 +44,22 @@ export interface Bonus {
   amount: number;
   date: string;
   description: string;
+}
+
+export interface HRSettings {
+  defaultLeaveDays: number;        // nr. zile concediu/an, default 21
+  leaveTypes: string[];            // tipuri concediu configurabile
+  documentAlertDays: number;       // prag alertă documente în zile, default 30
+  departments: string[];           // departamente disponibile (CRUD)
+  documentNumberFormat: string;    // format nr. document
+  bonusCurrency: "RON" | "EUR";   // moneda bonusuri
+}
+
+export type AttendanceStatus = "P" | "CO" | "CM" | "A" | "LP";
+
+export interface AttendanceRecord {
+  id: string;
+  employeeId: string;
+  date: string; // YYYY-MM-DD
+  status: AttendanceStatus;
 }

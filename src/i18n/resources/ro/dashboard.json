@@ -1,0 +1,94 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "transport": {
+      "title": "Transport — Sumar",
+      "activeOrders": "Comenzi Active",
+      "activeOrdersDesc": "live din comenzi (pending + assigned + in tranzit)",
+      "fuelCostMonth": "Cost Combustibil Luna",
+      "fuelCostMonthDesc": "sumat din alimentari luna curenta",
+      "profitMonth": "Profit Estimat Luna",
+      "profitMonthDesc": "venit - cost combustibil (curse finalizate)",
+      "maintenanceAlert": "Camioane in service > 7 zile",
+      "maintenanceDays": "{{days}} zile",
+      "noMaintenanceAlerts": "Nicio alerta de mentenanta activa."
+    },
+    "cards": {
+      "activeOrders": "Comenzi Active",
+      "activeOrdersDesc": "pending + assigned + in tranzit",
+      "employees": "Angajati",
+      "employeesDesc": "21 activi",
+      "invoices": "Facturi Luna",
+      "invoicesDesc": "8 neachitate",
+      "kmMonth": "Km Luna Aceasta",
+      "kmMonthDesc": "incarcat + gol din toate cursele"
+    },
+    "charts": {
+      "kmPerDay": "Km / zi - ultimele 30 zile",
+      "costsVsRevenue": "Costuri vs. Venituri",
+      "costsVsRevenueTodo": "Graficul costuri vs venituri va fi disponibil in curand.",
+      "kmTooltip": "Km"
+    },
+    "alerts": {
+      "title": "Alerte ITP / RCA / Rovinieta (<30 zile)",
+      "expired": "EXPIRAT",
+      "expiresIn": "expira in {{days}} zile"
+    },
+    "months": [
+      "Ian", "Feb", "Mar", "Apr", "Mai", "Iun",
+      "Iul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ]
+  },
+  "hrDashboard": {
+    "title": "Resurse Umane — Sumar",
+    "cards": {
+      "totalEmployees": "Total Angajati",
+      "totalEmployeesDesc": "angajati activi in sistem",
+      "onLeave": "In Concediu",
+      "onLeaveDesc": "concedii aprobate luna curenta",
+      "expiredDocs": "Documente Expirate",
+      "expiredDocsDesc": "documente cu data expirare depasita",
+      "pendingLeaves": "Cereri in Asteptare",
+      "pendingLeavesDesc": "cereri de concediu neaprobate"
+    },
+    "charts": {
+      "newEmployees": "Angajati noi per luna (ultimele 6 luni)",
+      "newEmployeesTooltip": "Angajati noi"
+    },
+    "alerts": {
+      "expiredDocs": "Documente expirate",
+      "pendingLeaves": "Cereri de concediu neaprobate",
+      "allGood": "Nu exista alerte HR active.",
+      "days": "{{count}} z",
+      "days_one": "{{count}} zi",
+      "days_few": "{{count}} zile",
+      "days_other": "{{count}} zile"
+    }
+  },
+  "reportsDashboard": {
+    "totalIncome": "Total Venituri",
+    "totalExpenses": "Total Cheltuieli",
+    "balance": "Sold",
+    "margin": "marjă",
+    "unpaidInvoices": "Facturi Neplatite",
+    "unpaidSubtitle": "trimise / restante",
+    "trips": "Nr. Curse",
+    "completed": "finalizate",
+    "employees": "Angajați",
+    "top3Trucks": "Top 3 Camioane — Cost Total",
+    "top3Clients": "Top 3 Clienți — Venit Estimat",
+    "fuel": "Combustibil",
+    "service": "Service",
+    "order": "comandă",
+    "orders": "comenzi",
+    "incomeVsExpenses": "Venituri vs Cheltuieli — ultimele 6 luni",
+    "kmChart": "Km Parcurși — ultimele 6 luni",
+    "kmTooltip": "Km parcurși",
+    "fleetExpenses": "Distribuție Cheltuieli Parc Auto",
+    "revenueTrend": "Trend Venituri — ultimele 12 luni",
+    "income": "Venituri",
+    "expenses": "Cheltuieli",
+    "month": "Luna",
+    "noData": "Nu există date disponibile."
+  }
+}

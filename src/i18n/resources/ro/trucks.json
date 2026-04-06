@@ -1,0 +1,135 @@
+{
+  "trucks": {
+    "title": "Camioane",
+    "add": "Adauga Camion",
+    "edit": "Editeaza Camion",
+    "save": "Salveaza",
+    "cancel": "Anuleaza",
+    "noResults": "Nu exista camioane pentru filtrul curent.",
+    "toastAdded": "Camionul a fost adaugat.",
+    "toastUpdated": "Camionul a fost actualizat.",
+    "toastDeleted": "Camionul a fost sters.",
+    "confirmDelete": "Aceasta actiune este ireversibila. Camionul va fi sters definitiv, iar soferul asociat va fi dezasociat automat.",
+    "confirmDeleteTitle": "Esti sigur?",
+    "assignTitle": "Asociere Sofer - {{plateNumber}}",
+    "toastAssigned": "Asocierea a fost salvata.",
+    "toastUnassigned": "Camionul a fost dezasociat.",
+    "fields": {
+      "plateNumber": "Numar inmatriculare",
+      "brand": "Marca",
+      "model": "Model",
+      "year": "An fabricatie",
+      "mileage": "Kilometraj",
+      "status": "Status",
+      "itpExpiry": "Expirare ITP",
+      "rcaExpiry": "Expirare RCA",
+      "vignetteExpiry": "Expirare Vigneta"
+    },
+    "placeholders": {
+      "plateNumber": "ex. CT-01-TML",
+      "brand": "ex. Volvo",
+      "model": "ex. FH16",
+      "year": "ex. 2021",
+      "mileage": "ex. 320000",
+      "search": "Cauta camioane...",
+      "noDriver": "Fara sofer",
+      "selectDriver": "Fara sofer"
+    },
+    "validation": {
+      "plateNumberInvalid": "Format invalid. Exemplu: CT-01-TML",
+      "brandMin": "Marca trebuie sa aiba minim 2 caractere.",
+      "modelRequired": "Modelul este obligatoriu.",
+      "yearRange": "Anul trebuie sa fie intre 1990 si {{max}}.",
+      "mileagePositive": "Kilometrajul trebuie sa fie un numar pozitiv.",
+      "itpExpiryRequired": "Data expirarii ITP este obligatorie.",
+      "rcaExpiryRequired": "Data expirarii RCA este obligatorie.",
+      "vignetteExpiryRequired": "Data expirarii vignetei este obligatorie."
+    },
+    "status": {
+      "available": "Disponibil",
+      "on_trip": "In cursa",
+      "in_service": "In service"
+    },
+    "actions": {
+      "add": "Adauga",
+      "edit": "Editeaza camion",
+      "delete": "Sterge camion",
+      "assign": "Asociere sofer",
+      "cancel": "Anuleaza",
+      "confirm": "Sterge",
+      "save": "Salveaza",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV"
+    },
+    "columns": {
+      "plateNumber": "Camion",
+      "status": "Status",
+      "itpExpiry": "ITP",
+      "rcaExpiry": "RCA",
+      "vignetteExpiry": "Vigneta",
+      "driver": "Sofer",
+      "actions": "Actiuni"
+    },
+    "card": {
+      "status": "Status",
+      "driver": "Sofer",
+      "mileage": "Km",
+      "itp": "ITP",
+      "rca": "RCA",
+      "vignette": "Vigneta"
+    },
+    "assign": {
+      "selectDriver": "Selecteaza sofer",
+      "hasTrack": " (are camion)"
+    },
+    "deleteDisabledTooltip": "Nu poti sterge un camion aflat in cursa",
+    "export": {
+      "pdfTitle": "Lista Camioane",
+      "filename": "camioane"
+    },
+    "import": {
+      "title": "Import Camioane din CSV",
+      "button": "Import CSV",
+      "dropzone": "Trage un fisier CSV sau da click pentru a selecta",
+      "dropzoneHint": "Coloane: Numar inmatriculare (XX-NN-XXX), Marca, Model, An, Kilometraj, ITP (yyyy-MM-dd), RCA (yyyy-MM-dd), Vigneta (yyyy-MM-dd)",
+      "validCount": "{{count}} randuri valide",
+      "invalidCount": "{{count}} randuri invalide",
+      "duplicateCount": "{{count}} duplicate",
+      "errorsCol": "Erori",
+      "errorPlate": "Numar inmatriculare invalid (ex: CT-01-TML)",
+      "errorBrand": "Marca invalida (minim 2 caractere)",
+      "errorModel": "Modelul este obligatoriu",
+      "errorYear": "An invalid (1990 - anul curent)",
+      "errorMileage": "Kilometraj invalid",
+      "errorItp": "Data ITP invalida (yyyy-MM-dd)",
+      "errorRca": "Data RCA invalida (yyyy-MM-dd)",
+      "errorVignette": "Data Vigneta invalida (yyyy-MM-dd)",
+      "duplicate": "Duplicat (numar inmatriculare)",
+      "confirm": "Importa {{count}} camioane",
+      "toastSuccess": "{{count}} camion(oane) importat(e) cu succes.",
+      "toastPartial": "{{added}} importate, {{skipped}} ignorate (duplicate).",
+      "toastAllSkipped": "Niciun camion importat - toate randurile sunt duplicate.",
+      "rowValid": "Valid",
+      "noValidRows": "Niciun rand valid",
+      "legendValid": "Valid",
+      "legendInvalid": "Invalid",
+      "legendDuplicate": "Duplicat"
+    }
+  },
+  "expiry": {
+    "alerts": {
+      "driversTitle": "Permise de conducere expirate sau care expira curand:",
+      "trucksTitle": "Documente camion expirate sau care expira curand:",
+      "expired": "permis EXPIRAT",
+      "expiresIn": "expira in {{days}} zi{{plural}} ({{date}})",
+      "itpExpired": "ITP EXPIRAT",
+      "itpExpires": "ITP expira {{date}}",
+      "rcaExpired": "RCA EXPIRAT",
+      "rcaExpires": "RCA expira {{date}}",
+      "vignetteExpired": "Vigneta EXPIRATA",
+      "vignetteExpires": "Vigneta expira {{date}}"
+    }
+  }
+}

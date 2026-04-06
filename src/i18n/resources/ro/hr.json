@@ -1,0 +1,356 @@
+{
+  "hr": {
+    "title": "Resurse Umane",
+    "subtitle": "Angajati, concedii, salarizare si documente.",
+    "totalEmployees": "Total Angajati",
+    "totalEmployeesDesc": "Numar total de angajati in sistem",
+    "onLeave": "In Concediu",
+    "onLeaveDesc": "Cereri aprobate in luna curenta",
+    "expiredDocs": "Documente Expirate",
+    "expiredDocsDesc": "Documente depasite ca valabilitate",
+    "totalBonuses": "Total bonusuri (luna)",
+    "totalBonusesDesc": "Bonusuri − amenzi",
+    "chartDept": "Angajati per Departament",
+    "chartBonuses": "Bonusuri vs Amenzi (ultimele 6 luni)",
+    "chartBonusLabel": "Bonusuri",
+    "chartFinesLabel": "Amenzi",
+    "nav": {
+      "employees": "Angajati",
+      "leaves": "Concedii",
+      "payroll": "Salarizare",
+      "attendance": "Pontaj Lunar",
+      "activityLog": "Istoric"
+    },
+    "documentAlerts": {
+      "title": "Alerte Documente",
+      "empty": "Niciun document expirat sau care expira in urmatoarele 30 de zile.",
+      "columns": {
+        "employee": "Angajat",
+        "type": "Tip document",
+        "name": "Denumire",
+        "expiryDate": "Data expirare",
+        "status": "Status"
+      },
+      "types": {
+        "license": "Permis",
+        "tachograph": "Tahograf",
+        "adr": "ADR",
+        "medical": "Medical"
+      },
+      "expired": "Expirat",
+      "expiresToday": "Expira azi",
+      "daysLeft": "{{count}} zile"
+    }
+  },
+  "leaves": {
+    "title": "Concedii",
+    "manage": "Gestiune Concedii",
+    "requests": "{{count}} cereri",
+    "searchPlaceholder": "Cauta dupa angajat...",
+    "noResults": "Nicio cerere de concediu gasita.",
+    "tabs": {
+      "list": "Lista",
+      "calendar": "Calendar"
+    },
+    "columns": {
+      "employee": "Angajat",
+      "type": "Tip concediu",
+      "period": "Perioada",
+      "days": "Zile",
+      "daysValue": "{{count}} zile",
+      "status": "Status",
+      "reason": "Motiv",
+      "noReason": "—"
+    },
+    "types": {
+      "annual": "Odihna",
+      "sick": "Medical",
+      "unpaid": "Fara plata",
+      "other": "Personal"
+    },
+    "status": {
+      "pending": "In asteptare",
+      "approved": "Aprobat",
+      "rejected": "Respins",
+      "unknown": "Necunoscut"
+    },
+    "filters": {
+      "allTypes": "Toate tipurile",
+      "allStatuses": "Toate statusurile",
+      "type": "Tip concediu",
+      "status": "Status"
+    },
+    "actions": {
+      "add": "Adauga concediu",
+      "edit": "Editeaza",
+      "delete": "Sterge",
+      "approve": "Aproba concediu",
+      "reject": "Respinge concediu",
+      "actions": "Actiuni concediu"
+    },
+    "unknown": "Necunoscut",
+    "auditDays": "{{count}} zile",
+    "export": {
+      "button": "Export",
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "csv": "Export CSV"
+    },
+    "dialog": {
+      "addTitle": "Adauga concediu",
+      "editTitle": "Editare concediu"
+    },
+    "placeholders": {
+      "selectEmployee": "Selecteaza angajat",
+      "leaveType": "Tip concediu"
+    },
+    "validation": {
+      "employeeRequired": "Angajatul este obligatoriu",
+      "startDateRequired": "Data de start este obligatorie",
+      "endDateRequired": "Data de sfarsit este obligatorie",
+      "endDateAfterStart": "Data de sfarsit trebuie sa fie >= data de start"
+    },
+    "toast": {
+      "overlap": "Exista deja un concediu care se suprapune cu aceasta perioada.",
+      "approved": "Concediul lui {{name}} a fost aprobat",
+      "rejected": "Concediul lui {{name}} a fost respins"
+    },
+    "form": {
+      "dateStart": "Data de start",
+      "dateEnd": "Data de sfarsit",
+      "daysCount": "Numar zile:",
+      "reasonPlaceholder": "Motiv (optional)",
+      "cancel": "Anuleaza",
+      "save": "Salveaza"
+    },
+    "calendar": {
+      "noLeavesMonth": "Niciun concediu aprobat in aceasta luna.",
+      "deptSummary": "Sumar Departamente",
+      "noLeaves": "Niciun concediu aprobat.",
+      "days": "{{count}} zile",
+      "onLeave_one": "{{count}} angajat in concediu",
+      "onLeave_other": "{{count}} angajati in concediu",
+      "noLeaveDay": "Niciun angajat in concediu in aceasta zi.",
+      "editLeave": "Editeaza concediu",
+      "deleteLeave": "Sterge concediu",
+      "confirmDelete": "Confirma stergerea",
+      "confirmDeleteDesc": "Sigur doriti sa stergeti concediul lui",
+      "cancel": "Anuleaza",
+      "delete": "Sterge",
+      "updateSuccess": "Concediu actualizat cu succes",
+      "deleteSuccess": "Concediu sters cu succes",
+      "types": {
+        "annual": "Odihna",
+        "sick": "Medical",
+        "other": "Personal",
+        "unpaid": "Fara plata"
+      }
+    }
+  },
+  "documentAlerts": {
+    "title": "Alerte Documente",
+    "empty": "Niciun document expirat sau care expira in urmatoarele 30 de zile.",
+    "columns": {
+      "employee": "Angajat",
+      "type": "Tip document",
+      "name": "Denumire",
+      "expiryDate": "Data expirare",
+      "status": "Status"
+    },
+    "types": {
+      "license": "Permis",
+      "tachograph": "Tahograf",
+      "adr": "ADR",
+      "medical": "Medical"
+    },
+    "expired": "Expirat",
+    "expiresToday": "Expira azi",
+    "daysLeft": "{{count}} zile"
+  },
+  "hrSettings": {
+    "title": "Setări HR",
+    "nav": "Setări",
+    "saveButton": "Salvează setările",
+    "saveSuccess": "Setările au fost salvate.",
+    "leave": {
+      "title": "Concediu",
+      "defaultDays": "Zile concediu implicit / an",
+      "leaveTypes": "Tipuri de concediu",
+      "addType": "Adaugă tip",
+      "typePlaceholder": "Ex: Concediu special",
+      "typeExists": "Tipul există deja."
+    },
+    "documents": {
+      "title": "Documente",
+      "alertDays": "Prag alertă (zile înainte de expirare)",
+      "numberFormat": "Format număr document"
+    },
+    "departments": {
+      "title": "Departamente",
+      "addDept": "Adaugă departament",
+      "deptPlaceholder": "Ex: Marketing",
+      "deptExists": "Departamentul există deja."
+    },
+    "bonuses": {
+      "title": "Bonusuri",
+      "currency": "Monedă bonusuri"
+    }
+  },
+  "departments": {
+    "Dispecerat": "Dispecerat",
+    "Transport": "Transport",
+    "Service": "Service",
+    "Contabilitate": "Contabilitate",
+    "Administrativ": "Administrativ"
+  },
+  "leavesExport": {
+    "pdfTitle": "Transmarin Logistic — Concedii",
+    "fileName": "concedii",
+    "cols": {
+      "employee": "Angajat",
+      "type": "Tip",
+      "startDate": "Data inceput",
+      "endDate": "Data sfarsit",
+      "days": "Zile",
+      "status": "Status",
+      "reason": "Motiv"
+    },
+    "types": {
+      "annual": "Concediu anual",
+      "sick": "Medical",
+      "unpaid": "Neplata",
+      "other": "Altul"
+    },
+    "status": {
+      "pending": "In asteptare",
+      "approved": "Aprobat",
+      "rejected": "Respins"
+    }
+  },
+  "attendance": {
+    "title": "Pontaj Lunar",
+    "manage": "Gestiune Pontaj",
+    "allDepartments": "Toate departamentele",
+    "exportPdf": "Export PDF",
+    "noEmployees": "Niciun angajat găsit.",
+    "columns": {
+      "employee": "Angajat",
+      "present": "Prez.",
+      "leave": "Conc.",
+      "absent": "Abs.",
+      "paidLeave": "LP"
+    },
+    "status": {
+      "present": "Prezent",
+      "annualLeave": "Concediu Odihnă",
+      "sickLeave": "Concediu Medical",
+      "absent": "Absent",
+      "paidLeave": "Liber Plătit",
+      "setStatus": "Setează status",
+      "clickToSet": "Click pentru a seta"
+    },
+    "pdf": {
+      "title": "Pontaj Lunar",
+      "generated": "Generat:"
+    }
+  },
+  "payroll": {
+    "title": "Salarizare",
+    "cardTitle": "Calcul Salarizare",
+    "bonusCardTitle": "Bonusuri / Penalizări",
+    "departmentPlaceholder": "Departament",
+    "allDepartments": "Toate",
+    "allTypes": "Toate tipurile",
+    "add": "Adaugă",
+    "noRecords": "Nicio înregistrare.",
+    "noRecordsMonth": "Nicio înregistrare pentru luna selectată.",
+    "columns": {
+      "employee": "Angajat",
+      "department": "Departament",
+      "baseSalary": "Salariu bază",
+      "diurna": "Diurnă",
+      "bonuses": "Bonusuri",
+      "fines": "Amenzi",
+      "overtime": "Ore supl.",
+      "totalNet": "Total net",
+      "type": "Tip",
+      "amount": "Sumă",
+      "date": "Dată",
+      "description": "Descriere"
+    },
+    "types": {
+      "diurna": "Diurnă",
+      "bonus": "Bonus",
+      "amenda": "Amendă",
+      "ore_suplimentare": "Ore suplimentare"
+    },
+    "export": {
+      "button": "Export",
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "pdfTitle": "Transmarin Logistic — Stat de plata",
+      "totalLabel": "Total general",
+      "fileName": "stat-plata"
+    },
+    "bonusDialog": {
+      "addTitle": "Adaugă bonus / penalizare",
+      "editTitle": "Editează înregistrare",
+      "selectEmployee": "Selectați angajat",
+      "selectType": "Selectați tip",
+      "amountPlaceholder": "Sumă",
+      "datePlaceholder": "Dată",
+      "descriptionPlaceholder": "Descriere",
+      "cancel": "Anulează",
+      "save": "Salvează",
+      "validation": {
+        "employeeRequired": "Selectați un angajat",
+        "amountZero": "Suma nu poate fi 0",
+        "dateRequired": "Data este obligatorie",
+        "descriptionMin": "Descrierea trebuie să aibă cel puțin 5 caractere"
+      }
+    },
+    "bonusRow": {
+      "edit": "Editează",
+      "delete": "Șterge",
+      "deleteTitle": "Șterge înregistrarea",
+      "deleteDesc": "Ești sigur că vrei să ștergi această înregistrare pentru",
+      "deleteDescSuffix": "Acțiunea nu poate fi anulată.",
+      "cancel": "Anulează",
+      "deleteSuccess": "Înregistrare ștearsă"
+    }
+  },
+  "hrAuditLog": {
+    "title": "Istoric Activități HR",
+    "subtitle": "Toate acțiunile CRUD efectuate pe entitățile HR",
+    "filters": "Filtre:",
+    "resetFilters": "Resetează",
+    "noActivity": "Nicio activitate înregistrată",
+    "perPage": "/ pag.",
+    "allEntities": "Toate entitățile",
+    "allActions": "Toate acțiunile",
+    "allEmployees": "Toți angajații",
+    "entries_one": "{{count}} intrare",
+    "entries_other": "{{count}} intrări",
+    "page": "Pagina {{page}} din {{total}}",
+    "previous": "Anterior",
+    "next": "Următor",
+    "showDetails": "Arată detalii",
+    "hideDetails": "Ascunde detalii",
+    "before": "Înainte",
+    "after": "După",
+    "actions": {
+      "create": "Adăugat",
+      "update": "Modificat",
+      "delete": "Șters",
+      "approve": "Aprobat",
+      "reject": "Respins"
+    },
+    "entities": {
+      "employee": "Angajat",
+      "leave": "Concediu",
+      "bonus": "Bonus / Penalizare",
+      "document": "Document",
+      "attendance": "Pontaj"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "invoiceGenerator": {
+    "title": "Generare Factura",
+    "description": "Genereaza o factura pentru aceasta cursa finalizata.",
+    "companyName": "Transmarin Logistic",
+    "companyTagline": "Transport & Logistica",
+    "generate": "Genereaza & Salveaza",
+    "exportPdf": "Export PDF",
+    "cancel": "Anuleaza",
+    "existingInvoices": "Facturi existente pentru aceasta cursa",
+    "preview": {
+      "title": "FACTURA",
+      "number": "Nr. Factura",
+      "date": "Data",
+      "client": "Client",
+      "route": "Ruta",
+      "km": "Km total",
+      "billTo": "Catre",
+      "subtotal": "Subtotal",
+      "vat": "TVA (19%)",
+      "total": "TOTAL"
+    },
+    "table": {
+      "number": "Nr. Factura",
+      "date": "Data",
+      "total": "Total",
+      "status": "Status",
+      "description": "Descriere",
+      "km": "Km",
+      "unitPrice": "Pret transport",
+      "transportService": "Serviciu transport marfa"
+    },
+    "status": {
+      "emisa": "Emisa",
+      "platita": "Platita",
+      "anulata": "Anulata"
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "invoiceGenerator": {
+    "title": "Generate Invoice",
+    "description": "Generate an invoice for this completed trip.",
+    "companyName": "Transmarin Logistic",
+    "companyTagline": "Transport & Logistics",
+    "generate": "Generate & Save",
+    "exportPdf": "Export PDF",
+    "cancel": "Cancel",
+    "existingInvoices": "Existing invoices for this trip",
+    "preview": {
+      "title": "INVOICE",
+      "number": "Invoice No.",
+      "date": "Date",
+      "client": "Client",
+      "route": "Route",
+      "km": "Total km",
+      "billTo": "Bill To",
+      "subtotal": "Subtotal",
+      "vat": "VAT (19%)",
+      "total": "TOTAL"
+    },
+    "table": {
+      "number": "Invoice No.",
+      "date": "Date",
+      "total": "Total",
+      "status": "Status",
+      "description": "Description",
+      "km": "Km",
+      "unitPrice": "Transport price",
+      "transportService": "Freight transport service"
+    },
+    "status": {
+      "emisa": "Issued",
+      "platita": "Paid",
+      "anulata": "Cancelled"
+    }
+  }
+}

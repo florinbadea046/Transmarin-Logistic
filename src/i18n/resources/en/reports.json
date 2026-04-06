@@ -1,0 +1,229 @@
+{
+  "reports": {
+    "title": "Advanced Reports",
+    "selectInterval": "Select interval",
+    "reset": "Reset",
+    "exportPdf": "Export PDF",
+    "exporting": "Generating...",
+    "noData": "No data for the selected interval.",
+    "charts": {
+      "kmPerDriver": "Km per driver",
+      "fuelPerMonth": "Fuel costs per month",
+      "topRoutes": "Top 5 frequent routes",
+      "truckUtilization": "Truck utilization rate"
+    },
+    "pdf": {
+      "title": "Advanced Report - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generated",
+      "allData": "All data",
+      "kmPerDriver": "Km per driver",
+      "fuelPerMonth": "Fuel costs per month",
+      "topRoutes": "Top 5 frequent routes",
+      "truckUtilization": "Truck utilization rate",
+      "driver": "Driver",
+      "totalKm": "Total km",
+      "month": "Month",
+      "cost": "Cost (RON)",
+      "route": "Route",
+      "orderCount": "No. orders",
+      "truck": "Truck",
+      "utilization": "Utilization (%)",
+      "filename": "advanced-report"
+    },
+    "tooltip": {
+      "km": "Total km",
+      "cost": "Cost",
+      "utilization": "Utilization"
+    }
+  },
+  "transportReports": {
+    "title": "Transport Reports",
+    "subtitle": "Analysis of trips, drivers and fuel costs",
+    "exportPdf": "Export PDF",
+    "exporting": "Generating...",
+    "noData": "No data for the selected filters.",
+    "filters": {
+      "selectInterval": "Select interval",
+      "allDrivers": "All drivers",
+      "allTrucks": "All trucks",
+      "reset": "Reset filters",
+      "tripCount": "{{count}} trips"
+    },
+    "kpi": {
+      "totalKm": "Total km",
+      "avgCostPerTrip": "Avg cost/trip",
+      "completedTrips": "Completed trips",
+      "totalFuel": "Fuel cost"
+    },
+    "charts": {
+      "kmPerDriver": "Km per driver",
+      "fuelPerMonth": "Fuel cost per month",
+      "topRoutes": "Top 5 frequent routes",
+      "truckUtil": "Truck utilization rate"
+    },
+    "pdf": {
+      "title": "Transport Report - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generated",
+      "allData": "All data",
+      "driver": "Driver",
+      "totalKm": "Total km",
+      "month": "Month",
+      "cost": "Cost (RON)",
+      "route": "Route",
+      "tripCount": "No. trips",
+      "truck": "Truck",
+      "utilization": "Utilization (%)",
+      "filename": "transport-report"
+    }
+  },
+  "financialReports": {
+    "title": "Financial Reports",
+    "subtitle": "Analysis of income, expenses and invoices",
+    "filters": "Filters",
+    "from": "From",
+    "to": "To",
+    "pickDate": "Pick a date...",
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "balance": "Balance",
+    "invoiceCount": "No. Invoices",
+    "invoiceCountLabel": "{{count}} invoices",
+    "monthlyBreakdown": "Monthly Breakdown",
+    "month": "Month",
+    "income": "Income",
+    "expenses": "Expenses",
+    "noResults": "No results",
+    "invoiceNr": "Invoice No.",
+    "type": "Type",
+    "client": "Client",
+    "date": "Date",
+    "total": "Total",
+    "status": "Status",
+    "typeIncome": "Income",
+    "typeExpense": "Expense",
+    "typeFilter": "Type",
+    "allTypes": "All types",
+    "statusPaid": "Paid",
+    "statusPending": "Pending",
+    "status_paid": "Paid",
+    "status_sent": "Sent",
+    "status_overdue": "Overdue",
+    "status_draft": "Draft",
+    "exportPdf": "Export PDF",
+    "exporting": "Generating...",
+    "resetFilters": "Reset",
+    "searchPlaceholder": "Search invoice...",
+    "invoicesTable": "Invoices",
+    "pagination": "{{from}}-{{to}} of {{total}}",
+    "charts": {
+      "incomeVsExpenses": "Income vs Expenses per month",
+      "expenseBreakdown": "Expense breakdown"
+    },
+    "pie": {
+      "fuel": "Fuel",
+      "maintenance": "Maintenance",
+      "salaries": "Salaries",
+      "other": "Other"
+    },
+    "pdf": {
+      "title": "Financial Report - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generated",
+      "allData": "All data",
+      "filename": "financial-report"
+    }
+  },
+  "hrReports": {
+    "title": "HR Reports",
+    "subtitle": "Analysis of employees, leaves, bonuses and absences",
+    "exportPdf": "Export PDF",
+    "exporting": "Generating...",
+    "selectInterval": "Select interval",
+    "reset": "Reset",
+    "noData": "No data for the selected period.",
+    "kpi": {
+      "totalEmployees": "Total Employees",
+      "avgLeaveDays": "Avg Leave Days",
+      "avgLeaveDaysUnit": "days / employee",
+      "totalBonuses": "Total Bonuses",
+      "totalFines": "Total Fines"
+    },
+    "charts": {
+      "employeesPerDept": "Employees per department",
+      "leavesPerMonth": "Leaves per month and type",
+      "topBonuses": "Top 5 employees — Bonuses",
+      "absenceRate": "Absence rate per department (%)"
+    },
+    "tooltip": {
+      "days": "{{val}} days",
+      "annualLeave": "Annual Leave",
+      "sickLeave": "Sick Leave",
+      "bonuses": "Bonuses",
+      "absenceRate": "Absence rate"
+    },
+    "pdf": {
+      "title": "HR Report - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generated",
+      "allData": "All data",
+      "totalEmployees": "Total employees",
+      "avgLeaveDays": "Avg leave days/employee",
+      "totalBonuses": "Total bonuses",
+      "totalFines": "Total fines",
+      "employeesPerDept": "Employees per department",
+      "leavesPerMonth": "Leaves per month and type",
+      "topBonuses": "Top 5 employees — Bonuses",
+      "absenceRate": "Absence rate per department",
+      "department": "Department",
+      "numEmployees": "No. employees",
+      "employee": "Employee",
+      "totalBonusesLabel": "Total bonuses",
+      "absenceRatePercent": "Absence rate (%)",
+      "filename": "hr-report"
+    },
+    "departments": {
+      "Management": "Management",
+      "Administrativ": "Administrative",
+      "Transport": "Transport",
+      "Dispecerat": "Dispatch",
+      "Service": "Service",
+      "Contabilitate": "Accounting"
+    },
+    "nav": {
+      "transport": "Transport",
+      "financial": "Financial",
+      "fleet": "Fleet",
+      "hr": "HR"
+    }
+  },
+  "fleetReports": {
+    "title": "Fleet Reports",
+    "serviceCost": "Service Cost",
+    "fuelCost": "Fuel Cost",
+    "totalCost": "Total Cost",
+    "costPerVehicle": "Cost per Vehicle",
+    "searchTruck": "Search truck...",
+    "allTrucks": "All trucks",
+    "allMonths": "All months",
+    "sortBy": "Sort by...",
+    "sortTotalCost": "Sort: Total Cost",
+    "sortFuelCost": "Sort: Fuel Cost",
+    "sortServiceCost": "Sort: Service Cost",
+    "truck": "Truck",
+    "interventions": "Interventions",
+    "fuelLiters": "Fuel (L)",
+    "avgConsumption": "Avg Consumption",
+    "fuel": "Fuel",
+    "topCost": "Top cost",
+    "noData": "No data for the selected filters.",
+    "pagination": "{{from}}–{{to}} of {{total}} vehicles",
+    "months": {
+      "jan": "January", "feb": "February", "mar": "March",
+      "apr": "April", "may": "May", "jun": "June",
+      "jul": "July", "aug": "August", "sep": "September",
+      "oct": "October", "nov": "November", "dec": "December"
+    }
+  }
+}

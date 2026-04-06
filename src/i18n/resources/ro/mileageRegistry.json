@@ -1,0 +1,64 @@
+{
+  "mileageRegistry": {
+    "title": "Registru Kilometraj Camioane",
+    "tableTitle": "Tabel Kilometraj Lunar",
+    "save": "Salveaza",
+    "cancel": "Anuleaza",
+    "noResults": "Nu exista camioane.",
+    "columns": {
+      "truck": "Camion",
+      "brand": "Marca / Model",
+      "kmStart": "Km Inceput",
+      "kmEnd": "Km Sfarsit",
+      "kmDriven": "Km Parcursi",
+      "kmTrips": "Km din Curse",
+      "avgPerDay": "Medie / Zi",
+      "discrepancy": "Diferenta",
+      "actions": "Actiuni"
+    },
+    "fields": {
+      "kmStart": "Odometru la inceputul lunii (km)",
+      "kmEnd": "Odometru la sfarsitul lunii (km)"
+    },
+    "placeholders": {
+      "search": "Cauta camion..."
+    },
+    "actions": {
+      "update": "Actualizeaza",
+      "export": "Export Excel"
+    },
+    "kpi": {
+      "totalKm": "Total Km Parcursi",
+      "totalKmDesc": "Toate camioanele luna curenta",
+      "avgDaily": "Medie pe Zi",
+      "avgDailyDesc": "Media per camion",
+      "alerts": "Alerte Diferente",
+      "alertsDesc": "Odometru vs curse > 10%"
+    },
+    "chart": {
+      "title": "Evolutie Km/Luna per Camion (ultimele 12 luni)"
+    },
+    "alert": {
+      "discrepancy": "{{count}} camion(e) au o diferenta > 10% intre odometru si km din curse: {{trucks}}. Posibil curse neinregistrate."
+    },
+    "dialog": {
+      "title": "Actualizeaza Odometru",
+      "month": "Luna",
+      "preview": "Km parcursi in aceasta luna: {{km}} km"
+    },
+    "validation": {
+      "kmStartRequired": "Km start este obligatoriu",
+      "kmStartMin": "Km start trebuie sa fie >= 0",
+      "kmEndRequired": "Km final este obligatoriu",
+      "kmEndMin": "Km final trebuie sa fie >= 0",
+      "kmEndAfterStart": "Km final trebuie sa fie >= km start"
+    },
+    "toast": {
+      "saved": "Odometrul a fost actualizat!"
+    },
+    "export": {
+      "sheetName": "Kilometraj",
+      "filename": "registru-kilometraj"
+    }
+  }
+}

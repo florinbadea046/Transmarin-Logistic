@@ -18,21 +18,23 @@ import {
 import { useForm, useWatch } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DatePicker } from "@/components/date-picker";
+import { ExpiryDatePicker } from "./expiry-date-picker";
 import type { Employee, Bonus } from "@/modules/hr/types";
 import { addItem, updateItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import { BONUS_TYPE_LABELS } from "./payroll-columns";
+import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
+import { getHRSettings } from "../utils/get-hr-settings";
+import { useTranslation } from "react-i18next";
 
-const bonusSchema = z.object({
-  employeeId: z.string().min(1, "Selectați un angajat"),
-  type: z.enum(["diurna", "bonus", "amenda", "ore_suplimentare"]),
-  amount: z.number().min(0.01, "Suma trebuie să fie pozitivă"),
-  date: z.string().min(1, "Data este obligatorie"),
-  description: z.string().min(1, "Descrierea este obligatorie"),
-});
+const BONUS_FORM_TYPES = ["bonus", "amenda", "ore_suplimentare"] as const;
 
-type BonusFormValues = z.infer<typeof bonusSchema>;
+type BonusFormValues = {
+  employeeId: string;
+  type: (typeof BONUS_FORM_TYPES)[number];
+  amount: number;
+  date: string;
+  description: string;
+};
 
 interface Props {
   mode: "add" | "edit";
@@ -52,21 +54,45 @@ export default function BonusDialog({
   onSave,
 }: Props) {
   const isEdit = mode === "edit";
+  const initialType =
+    bonus?.type && BONUS_FORM_TYPES.includes(bonus.type as (typeof BONUS_FORM_TYPES)[number])
+      ? (bonus.type as (typeof BONUS_FORM_TYPES)[number])
+      : undefined;
 
   const [selectedDate, setSelectedDate] = React.useState<Date | undefined>(
-    bonus?.date ? new Date(bonus.date) : undefined,
+    bonus?.date ? new Date(bonus.date) : new Date(),
   );
 
+  const todayStr = React.useMemo(() => new Date().toISOString().slice(0, 10), []);
+
+  const { t } = useTranslation();
+  const { log } = useHrAuditLog();
+
+  const translatedSchema = React.useMemo(() => z.object({
+    employeeId: z.string().min(1, t("payroll.bonusDialog.validation.employeeRequired")),
+    type: z.enum(BONUS_FORM_TYPES),
+    amount: z.number().refine((value) => value !== 0, {
+      message: t("payroll.bonusDialog.validation.amountZero"),
+    }),
+    date: z.string().min(1, t("payroll.bonusDialog.validation.dateRequired")),
+    description: z.string().min(5, t("payroll.bonusDialog.validation.descriptionMin")),
+  }), [t]);
+
   const form = useForm<BonusFormValues>({
-    resolver: zodResolver(bonusSchema),
+    resolver: zodResolver(translatedSchema),
     defaultValues: {
       employeeId: bonus?.employeeId ?? "",
-      type: bonus?.type ?? "bonus",
+      type: initialType as BonusFormValues["type"],
       amount: bonus?.amount ?? 0,
-      date: bonus?.date ?? "",
+      date: bonus?.date ?? todayStr,
       description: bonus?.description ?? "",
     },
   });
+
+  React.useEffect(() => {
+    form.clearErrors();
+  }, [translatedSchema, form]);
+  const currency = React.useMemo(() => getHRSettings().bonusCurrency, []);
 
   const employeeId = useWatch({ control: form.control, name: "employeeId" });
   const type = useWatch({ control: form.control, name: "type" });
@@ -75,24 +101,47 @@ export default function BonusDialog({
     if (open) {
       form.reset({
         employeeId: bonus?.employeeId ?? "",
-        type: bonus?.type ?? "bonus",
+        type: initialType as BonusFormValues["type"],
         amount: bonus?.amount ?? 0,
-        date: bonus?.date ?? "",
+        date: bonus?.date ?? todayStr,
         description: bonus?.description ?? "",
       });
-      setSelectedDate(bonus?.date ? new Date(bonus.date) : undefined);
+      setSelectedDate(bonus?.date ? new Date(bonus.date) : new Date());
     }
-  }, [open, bonus, form]);
+  }, [open, bonus, form, initialType, todayStr]);
 
   const handleSubmit = (values: BonusFormValues) => {
+    const normalizedAmount =
+      values.type === "amenda" ? -Math.abs(values.amount) : Math.abs(values.amount);
+    const payload = { ...values, amount: normalizedAmount };
+
+    const empName = employees.find((e) => e.id === values.employeeId)?.name ?? values.employeeId;
     if (isEdit && bonus) {
       updateItem<Bonus>(
         STORAGE_KEYS.bonuses,
         (b) => b.id === bonus.id,
-        () => ({ ...bonus, ...values }),
+        () => ({ ...bonus, ...payload }),
       );
+      log({
+        action: "update",
+        entity: "bonus",
+        entityId: bonus.id,
+        entityLabel: empName,
+        details: `${values.type}: ${normalizedAmount} RON`,
+        oldValue: { amount: bonus.amount, type: bonus.type, description: bonus.description },
+        newValue: { amount: normalizedAmount, type: values.type, description: values.description },
+      });
     } else {
-      addItem<Bonus>(STORAGE_KEYS.bonuses, { ...values, id: generateId() });
+      const newId = generateId();
+      addItem<Bonus>(STORAGE_KEYS.bonuses, { ...payload, id: newId });
+      log({
+        action: "create",
+        entity: "bonus",
+        entityId: newId,
+        entityLabel: empName,
+        details: `${values.type}: ${normalizedAmount} RON`,
+        newValue: { amount: normalizedAmount, type: values.type, description: values.description },
+      });
     }
     onSave();
     onOpenChange(false);
@@ -109,7 +158,7 @@ export default function BonusDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {isEdit ? "Editează înregistrare" : "Adaugă bonus / penalizare"}
+            {isEdit ? t("payroll.bonusDialog.editTitle") : t("payroll.bonusDialog.addTitle")}
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-3">
@@ -120,7 +169,7 @@ export default function BonusDialog({
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Selectați angajat" />
+              <SelectValue placeholder={t("payroll.bonusDialog.selectEmployee")} />
             </SelectTrigger>
             <SelectContent>
               {employees.map((e) => (
@@ -139,20 +188,18 @@ export default function BonusDialog({
           <Select
             value={type}
             onValueChange={(val) =>
-              form.setValue("type", val as Bonus["type"], {
+              form.setValue("type", val as BonusFormValues["type"], {
                 shouldValidate: true,
               })
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Tip" />
+              <SelectValue placeholder={t("payroll.bonusDialog.selectType")} />
             </SelectTrigger>
             <SelectContent>
-              {(
-                Object.entries(BONUS_TYPE_LABELS) as [Bonus["type"], string][]
-              ).map(([val, label]) => (
+              {BONUS_FORM_TYPES.map((val) => (
                 <SelectItem key={val} value={val}>
-                  {label}
+                  {t(`payroll.types.${val}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -165,7 +212,7 @@ export default function BonusDialog({
 
           <Input
             type="number"
-            placeholder="Sumă (RON)"
+            placeholder={`${t("payroll.bonusDialog.amountPlaceholder")} (${currency})`}
             {...form.register("amount", { valueAsNumber: true })}
           />
           {form.formState.errors.amount && (
@@ -175,7 +222,7 @@ export default function BonusDialog({
           )}
 
           <div className="[&>button]:w-full">
-            <DatePicker
+            <ExpiryDatePicker
               selected={selectedDate}
               onSelect={(date) => {
                 setSelectedDate(date);
@@ -184,7 +231,7 @@ export default function BonusDialog({
                   date ? date.toISOString().slice(0, 10) : "",
                 );
               }}
-              placeholder="Dată"
+              placeholder={t("payroll.bonusDialog.datePlaceholder")}
             />
           </div>
           {form.formState.errors.date && (
@@ -193,7 +240,7 @@ export default function BonusDialog({
             </span>
           )}
 
-          <Input placeholder="Descriere" {...form.register("description")} />
+          <Input placeholder={t("payroll.bonusDialog.descriptionPlaceholder")} {...form.register("description")} />
           {form.formState.errors.description && (
             <span className="text-xs text-red-500">
               {form.formState.errors.description.message}
@@ -203,10 +250,10 @@ export default function BonusDialog({
           <div className="flex gap-2 justify-end pt-2">
             <DialogClose asChild>
               <Button type="button" variant="outline">
-                Anulează
+                {t("payroll.bonusDialog.cancel")}
               </Button>
             </DialogClose>
-            <Button type="submit">Salvează</Button>
+            <Button type="submit">{t("payroll.bonusDialog.save")}</Button>
           </div>
         </form>
       </DialogContent>

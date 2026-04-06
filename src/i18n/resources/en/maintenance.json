@@ -1,0 +1,80 @@
+{
+    "maintenance": {
+      "title": "Truck Maintenance",
+      "listTitle": "Maintenance Records",
+      "add": "Add Record",
+      "edit": "Edit Record",
+      "save": "Save",
+      "cancel": "Cancel",
+      "noResults": "No maintenance records found.",
+      "toastAdded": "Record has been added.",
+      "toastUpdated": "Record has been updated.",
+      "toastDeleted": "Record has been deleted.",
+      "confirmDeleteTitle": "Are you sure?",
+      "confirmDelete": "This action is irreversible. The record will be permanently deleted.",
+      "fields": {
+        "truck": "Truck",
+        "type": "Work type",
+        "description": "Description",
+        "entryDate": "Entry date",
+        "exitDate": "Exit date",
+        "cost": "Cost (RON)",
+        "mechanic": "Mechanic",
+        "status": "Status",
+        "notes": "Notes",
+        "optional": "optional"
+      },
+      "placeholders": {
+        "truck": "Select truck",
+        "description": "e.g. Oil change + filters",
+        "mechanic": "e.g. John Smith",
+        "notes": "Additional details...",
+        "search": "Search by truck, description, mechanic..."
+      },
+      "types": {
+        "revizie": "Revision",
+        "schimb_ulei": "Oil change",
+        "anvelope": "Tires",
+        "frane": "Brakes",
+        "altele": "Other"
+      },
+      "status": {
+        "programat": "Scheduled",
+        "in_lucru": "In progress",
+        "finalizat": "Completed"
+      },
+      "actions": {
+        "add": "Add",
+        "edit": "Edit",
+        "delete": "Delete",
+        "confirm": "Delete"
+      },
+      "columns": {
+        "truck": "Truck",
+        "type": "Type",
+        "description": "Description",
+        "entryDate": "Entry date",
+        "exitDate": "Exit date",
+        "cost": "Cost",
+        "mechanic": "Mechanic",
+        "status": "Status"
+      },
+      "validation": {
+        "truckRequired": "Select a truck"
+      },
+      "alerts": {
+        "longService": "Trucks in service for more than 7 days",
+        "daysInService": "{{days}} days in service"
+      },
+      "kpi": {
+        "totalCost": "Total maintenance cost",
+        "allRecords": "all records",
+        "completed": "Completed jobs",
+        "completedDesc": "completed jobs",
+        "inProgress": "In progress now",
+        "inProgressDesc": "active jobs",
+        "costPerTruck": "Maintenance cost per truck",
+        "interventions": "jobs"
+      }
+    }
+  }

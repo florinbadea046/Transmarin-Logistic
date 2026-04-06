@@ -1,0 +1,47 @@
+{
+  "activityLog": {
+    "title": "Activity Log",
+    "empty": "No activity recorded yet.",
+    "totalEntries": "{{count}} entries",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "before": "Before",
+    "after": "After",
+    "actions": {
+      "create": "Create",
+      "update": "Update",
+      "delete": "Delete"
+    },
+    "entities": {
+      "driver": "Driver",
+      "truck": "Truck",
+      "order": "Order",
+      "trip": "Trip"
+    },
+    "filters": {
+      "label": "Filter:",
+      "allEntities": "All entities",
+      "allActions": "All actions",
+      "reset": "Reset"
+    },
+    "pagination": {
+      "prev": "Previous",
+      "next": "Next",
+      "pageOf": "Page {{page}} of {{total}}"
+    },
+    "details": {
+      "driverCreated": "New driver added",
+      "driverUpdated": "Driver updated",
+      "driverDeleted": "Driver deleted",
+      "truckCreated": "New truck added",
+      "truckUpdated": "Truck updated",
+      "truckDeleted": "Truck deleted",
+      "orderCreated": "New order added",
+      "orderUpdated": "Order updated",
+      "orderDeleted": "Order deleted",
+      "tripCreated": "New trip added",
+      "tripUpdated": "Trip updated",
+      "tripDeleted": "Trip deleted"
+    }
+  }
+}

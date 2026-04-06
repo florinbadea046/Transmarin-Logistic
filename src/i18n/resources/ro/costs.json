@@ -1,0 +1,42 @@
+{
+  "costs": {
+    "title": "Costuri & Profitabilitate",
+    "filters": {
+      "driver": "Sofer",
+      "truck": "Camion",
+      "period": "Perioada",
+      "allDrivers": "Toti soferii",
+      "allTrucks": "Toate camioanele",
+      "allTime": "Toata perioada",
+      "thisMonth": "Luna curenta",
+      "lastMonth": "Luna trecuta",
+      "last3Months": "Ultimele 3 luni",
+      "reset": "Resetează filtrele"
+    },
+    "kpi": {
+      "totalFuelCost": "Cost total combustibil",
+      "costPerKm": "Cost mediu/km",
+      "totalProfit": "Profit total"
+    },
+    "chart": {
+      "title": "Profit lunar – ultimele 6 luni",
+      "profit": "Profit"
+    },
+    "driverChart": {
+      "title": "Profitabilitate per șofer",
+      "profit": "Profit",
+      "noData": "Nu există date pentru filtrele selectate."
+    },
+    "table": {
+      "title": "Detalii curse",
+      "trip": "Cursa",
+      "driver": "Sofer",
+      "truck": "Camion",
+      "date": "Data",
+      "revenue": "Venit estimat",
+      "fuelCost": "Cost combustibil",
+      "profit": "Profit",
+      "noResults": "Nu exista curse pentru filtrele selectate."
+    }
+  }
+}

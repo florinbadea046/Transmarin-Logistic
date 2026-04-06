@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   type ColumnDef,
   flexRender,
@@ -14,7 +15,9 @@ import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { X } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -32,111 +35,157 @@ import {
 } from "@/components/ui/table";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
+import { DataTableFacetedFilter } from "@/components/data-table/faceted-filter";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { getHRSettings } from "../utils/get-hr-settings";
 import type { LeaveRequest, Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
+import LeaveDialog from "../components/leave-dialog";
+import { LeaveTableRow } from "../components/leave-row";
+import LeaveCalendar from "./_components/leave-calendar";
+import { LeavesExportMenu } from "../components/leaves-export-menu";
 
-const LEAVE_TYPE_LABELS: Record<LeaveRequest["type"], string> = {
-  annual: "Anual",
-  sick: "Medical",
-  unpaid: "Fără plată",
-  other: "Altele",
-};
-
-const STATUS_LABELS: Record<LeaveRequest["status"], string> = {
-  pending: "În așteptare",
-  approved: "Aprobat",
-  rejected: "Respins",
-};
-
-function StatusBadge({ status }: { status: LeaveRequest["status"] }) {
-  const variant =
-    status === "approved"
-      ? "default"
-      : status === "rejected"
-        ? "destructive"
-        : "secondary";
-  return <Badge variant={variant}>{STATUS_LABELS[status]}</Badge>;
-}
-
+// ── Row type ─────────────────────────────────────────────────
 type LeaveRow = LeaveRequest & { employeeName: string };
 
-function buildColumns(): ColumnDef<LeaveRow>[] {
-  return [
-    {
-      accessorKey: "employeeName",
-      enableHiding: false,
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Angajat" />
-      ),
-      cell: ({ row }) => (
-        <div className="font-medium whitespace-nowrap">
-          {row.getValue("employeeName")}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "type",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Tip concediu" />
-      ),
-      cell: ({ row }) => (
-        <div className="whitespace-nowrap">
-          {LEAVE_TYPE_LABELS[row.getValue("type") as LeaveRequest["type"]]}
-        </div>
-      ),
-      filterFn: (row, id, value) => {
-        if (!value || value === "Toate") return true;
-        return row.getValue(id) === value;
-      },
-    },
-    {
-      id: "period",
-      header: "Perioadă",
-      cell: ({ row }) => (
-        <div className="whitespace-nowrap">
-          {formatDate(row.original.startDate)} – {formatDate(row.original.endDate)}
-        </div>
-      ),
-      enableSorting: false,
-    },
-    {
-      accessorKey: "days",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Zile" />
-      ),
-      cell: ({ row }) => (
-        <div className="whitespace-nowrap">{row.getValue("days")} zile</div>
-      ),
-    },
-    {
-      accessorKey: "status",
-      header: ({ column }) => (
-        <DataTableColumnHeader column={column} title="Status" />
-      ),
-      cell: ({ row }) => (
-        <StatusBadge status={row.getValue("status")} />
-      ),
-      filterFn: (row, id, value) => {
-        if (!value || value === "Toate") return true;
-        return row.getValue(id) === value;
-      },
-    },
-    {
-      accessorKey: "reason",
-      header: "Motiv",
-      cell: ({ row }) => (
-        <div className="text-muted-foreground">
-          {row.getValue("reason") || "—"}
-        </div>
-      ),
-      enableSorting: false,
-    },
-  ];
-}
-
+// ── Page ─────────────────────────────────────────────────────
 export default function LeavesPage() {
+  const { t } = useTranslation();
+  const defaultLeaveDays = React.useMemo(() => getHRSettings().defaultLeaveDays, []);
+
+  const LEAVE_TYPE_LABELS = React.useMemo<Record<LeaveRequest["type"], string>>(
+    () => ({
+      annual: t("leaves.types.annual"),
+      sick: t("leaves.types.sick"),
+      unpaid: t("leaves.types.unpaid"),
+      other: t("leaves.types.other"),
+    }),
+    [t],
+  );
+
+  const STATUS_LABELS = React.useMemo<Record<LeaveRequest["status"], string>>(
+    () => ({
+      pending: t("leaves.status.pending"),
+      approved: t("leaves.status.approved"),
+      rejected: t("leaves.status.rejected"),
+    }),
+    [t],
+  );
+
+  const columns: ColumnDef<LeaveRow>[] = React.useMemo(
+    () => [
+      {
+        accessorKey: "employeeName",
+        enableHiding: false,
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("leaves.columns.employee")}
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="font-medium whitespace-nowrap">
+            {row.getValue("employeeName")}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "type",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("leaves.columns.type")}
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="whitespace-nowrap">
+            {LEAVE_TYPE_LABELS[row.getValue("type") as LeaveRequest["type"]]}
+          </div>
+        ),
+        filterFn: (row, id, value) => {
+          if (!value || value === "all") return true;
+          return row.getValue(id) === value;
+        },
+      },
+      {
+        id: "period",
+        header: t("leaves.columns.period"),
+        cell: ({ row }) => (
+          <div className="whitespace-nowrap">
+            {formatDate(row.original.startDate)} –{" "}
+            {formatDate(row.original.endDate)}
+          </div>
+        ),
+        enableSorting: false,
+      },
+      {
+        accessorKey: "days",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("leaves.columns.days")}
+          />
+        ),
+        cell: ({ row }) => (
+          <div className="whitespace-nowrap">
+            {t("leaves.columns.daysValue", {
+              count: row.getValue("days") as number,
+            })}
+          </div>
+        ),
+      },
+      {
+        accessorKey: "status",
+        header: ({ column }) => (
+          <DataTableColumnHeader
+            column={column}
+            title={t("leaves.columns.status")}
+          />
+        ),
+        cell: ({ row }) => {
+          const status = row.getValue("status") as LeaveRequest["status"];
+          const variant =
+            status === "rejected" ? "destructive" : "secondary";
+          const className =
+            status === "approved"
+              ? "bg-green-600 text-white hover:bg-green-600"
+              : undefined;
+          return (
+            <Badge variant={variant} className={className}>
+              {STATUS_LABELS[status]}
+            </Badge>
+          );
+        },
+        filterFn: (row, id, value) => {
+          if (!value || (Array.isArray(value) && value.length === 0)) return true;
+          return Array.isArray(value)
+            ? value.includes(row.getValue(id))
+            : row.getValue(id) === value;
+        },
+      },
+      {
+        accessorKey: "reason",
+        header: t("leaves.columns.reason"),
+        cell: ({ row }) => (
+          <div className="text-muted-foreground">
+            {row.getValue("reason") || t("leaves.columns.noReason")}
+          </div>
+        ),
+        enableSorting: false,
+      },
+      {
+        id: "actions",
+        enableSorting: false,
+        enableHiding: false,
+        header: () => null,
+        cell: () => null,
+      },
+    ],
+    [LEAVE_TYPE_LABELS, STATUS_LABELS, t],
+  );
+
   const employees = React.useMemo(
     () => getCollection<Employee>(STORAGE_KEYS.employees),
     [],
@@ -148,12 +197,19 @@ export default function LeavesPage() {
     return map;
   }, [employees]);
 
-  const [data] = React.useState<LeaveRow[]>(() =>
-    getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests).map((lr) => ({
+  const toLeaveRow = React.useCallback(
+    (lr: LeaveRequest): LeaveRow => ({
       ...lr,
-      employeeName: employeeMap.get(lr.employeeId) ?? lr.employeeId,
-    })),
+      employeeName:
+        employeeMap.get(lr.employeeId) ?? t("leaves.status.unknown"),
+    }),
+    [employeeMap, t],
   );
+
+  const [data, setData] = React.useState<LeaveRow[]>(() =>
+    getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests).map(toLeaveRow),
+  );
+  const [calendarKey, setCalendarKey] = React.useState(0);
 
   const [sorting, setSorting] = React.useState<SortingState>([
     { id: "employeeName", desc: false },
@@ -162,10 +218,7 @@ export default function LeavesPage() {
     [],
   );
   const [search, setSearch] = React.useState("");
-  const [typeFilter, setTypeFilter] = React.useState("Toate");
-  const [statusFilter, setStatusFilter] = React.useState("Toate");
-
-  const columns = React.useMemo(() => buildColumns(), []);
+  const [typeFilter, setTypeFilter] = React.useState("all");
 
   const table = useReactTable({
     data,
@@ -193,13 +246,7 @@ export default function LeavesPage() {
 
   const handleTypeChange = (v: string) => {
     setTypeFilter(v);
-    table.getColumn("type")?.setFilterValue(v === "Toate" ? undefined : v);
-    table.setPageIndex(0);
-  };
-
-  const handleStatusChange = (v: string) => {
-    setStatusFilter(v);
-    table.getColumn("status")?.setFilterValue(v === "Toate" ? undefined : v);
+    table.getColumn("type")?.setFilterValue(v === "all" ? undefined : v);
     table.setPageIndex(0);
   };
 
@@ -208,103 +255,158 @@ export default function LeavesPage() {
     table.setPageIndex(0);
   };
 
+  const refreshData = React.useCallback(() => {
+    setData(
+      getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests).map(toLeaveRow),
+    );
+    setCalendarKey((k) => k + 1);
+  }, [toLeaveRow]);
+
   return (
     <>
       <Header>
-        <h1 className="text-lg font-semibold">Concedii</h1>
+        <h1 className="text-lg font-semibold">{t("leaves.title")}</h1>
       </Header>
       <Main>
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between flex-wrap gap-2">
-              <CardTitle>Gestiune Concedii</CardTitle>
-              <span className="text-sm text-muted-foreground">
-                {table.getFilteredRowModel().rows.length} cereri
-              </span>
+        <Tabs defaultValue="list">
+          <div className="flex items-center justify-between mb-4">
+            <TabsList>
+              <TabsTrigger value="list">{t("leaves.tabs.list")}</TabsTrigger>
+              <TabsTrigger value="calendar">
+                {t("leaves.tabs.calendar")}
+              </TabsTrigger>
+            </TabsList>
+            <div className="flex items-center gap-2">
+              <LeavesExportMenu rows={table.getFilteredRowModel().rows.map((r) => r.original)} />
+              <LeaveDialog mode="add" onAdd={refreshData} />
             </div>
-            <div className="flex flex-wrap gap-2 mt-3">
-              <Input
-                placeholder="Caută după angajat..."
-                value={search}
-                onChange={handleSearch}
-                className="max-w-xs"
-              />
-              <Select value={typeFilter} onValueChange={handleTypeChange}>
-                <SelectTrigger className="w-44">
-                  <SelectValue placeholder="Tip concediu" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Toate">Toate tipurile</SelectItem>
-                  <SelectItem value="annual">Anual</SelectItem>
-                  <SelectItem value="sick">Medical</SelectItem>
-                  <SelectItem value="unpaid">Fără plată</SelectItem>
-                  <SelectItem value="other">Altele</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={handleStatusChange}>
-                <SelectTrigger className="w-44">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Toate">Toate statusurile</SelectItem>
-                  <SelectItem value="pending">În așteptare</SelectItem>
-                  <SelectItem value="approved">Aprobat</SelectItem>
-                  <SelectItem value="rejected">Respins</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </CardHeader>
+          </div>
 
-          <CardContent className="space-y-4">
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                      {headerGroup.headers.map((header) => (
-                        <TableHead key={header.id}>
-                          {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext(),
-                              )}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  ))}
-                </TableHeader>
-                <TableBody>
-                  {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                      <TableRow key={row.id}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id}>
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext(),
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell
-                        colSpan={table.getVisibleLeafColumns().length}
-                        className="h-24 text-center text-muted-foreground"
-                      >
-                        Nicio cerere de concediu găsită.
-                      </TableCell>
-                    </TableRow>
+          <TabsContent value="list">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <CardTitle>{t("leaves.manage")}</CardTitle>
+                    <Badge variant="secondary" className="text-xs font-normal">
+                      {defaultLeaveDays} zile/an
+                    </Badge>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {t("leaves.requests", {
+                      count: table.getFilteredRowModel().rows.length,
+                    })}
+                  </span>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3">
+                  <Input
+                    placeholder={t("leaves.searchPlaceholder")}
+                    value={search}
+                    onChange={handleSearch}
+                    className="max-w-xs"
+                  />
+                  <Select value={typeFilter} onValueChange={handleTypeChange}>
+                    <SelectTrigger className="w-44">
+                      <SelectValue placeholder={t("leaves.filters.type")} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">
+                        {t("leaves.filters.allTypes")}
+                      </SelectItem>
+                      <SelectItem value="annual">
+                        {t("leaves.types.annual")}
+                      </SelectItem>
+                      <SelectItem value="sick">
+                        {t("leaves.types.sick")}
+                      </SelectItem>
+                      <SelectItem value="other">
+                        {t("leaves.types.other")}
+                      </SelectItem>
+                      <SelectItem value="unpaid">
+                        {t("leaves.types.unpaid")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <DataTableFacetedFilter
+                    column={table.getColumn("status")}
+                    title={t("leaves.filters.status")}
+                    options={[
+                      { value: "pending", label: t("leaves.status.pending") },
+                      { value: "approved", label: t("leaves.status.approved") },
+                      { value: "rejected", label: t("leaves.status.rejected") },
+                    ]}
+                  />
+                  {!!(table.getColumn("status")?.getFilterValue() as string[] | undefined)?.length && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 px-2"
+                      onClick={() => table.getColumn("status")?.setFilterValue(undefined)}
+                    >
+                      Resetare
+                      <X className="ml-1 h-4 w-4" />
+                    </Button>
                   )}
-                </TableBody>
-              </Table>
-            </div>
+                </div>
+              </CardHeader>
 
-            <DataTablePagination table={table} pageSizes={[5, 10, 20]} />
-          </CardContent>
-        </Card>
+              <CardContent className="space-y-4">
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      {table.getHeaderGroups().map((headerGroup) => (
+                        <TableRow key={headerGroup.id}>
+                          {headerGroup.headers.map((header) => (
+                            <TableHead key={header.id}>
+                              {header.isPlaceholder
+                                ? null
+                                : flexRender(
+                                    header.column.columnDef.header,
+                                    header.getContext(),
+                                  )}
+                            </TableHead>
+                          ))}
+                        </TableRow>
+                      ))}
+                    </TableHeader>
+                    <TableBody>
+                      {table.getRowModel().rows.length ? (
+                        table
+                          .getRowModel()
+                          .rows.map((row) => (
+                            <LeaveTableRow
+                              key={row.id}
+                              row={row}
+                              setData={setData}
+                              employeeMap={employeeMap}
+                              onRefreshCalendar={() =>
+                                setCalendarKey((k) => k + 1)
+                              }
+                            />
+                          ))
+                      ) : (
+                        <TableRow>
+                          <TableCell
+                            colSpan={table.getVisibleLeafColumns().length}
+                            className="h-24 text-center text-muted-foreground"
+                          >
+                            {t("leaves.noResults")}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                <DataTablePagination table={table} pageSizes={[5, 10, 20]} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="calendar">
+            <LeaveCalendar key={calendarKey} />
+          </TabsContent>
+        </Tabs>
       </Main>
     </>
   );

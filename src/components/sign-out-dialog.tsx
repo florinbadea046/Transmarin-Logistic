@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 
 interface SignOutDialogProps {
@@ -11,6 +12,7 @@ export function SignOutDialog({
   onOpenChange,
   onSignOut,
 }: SignOutDialogProps) {
+  const { t } = useTranslation();
   const handleSignOut = () => {
     onSignOut?.();
     onOpenChange(false);
@@ -20,9 +22,9 @@ export function SignOutDialog({
     <ConfirmDialog
       open={open}
       onOpenChange={onOpenChange}
-      title="Sign out"
-      desc="Are you sure you want to sign out? You will need to sign in again to access your account."
-      confirmText="Sign out"
+      title={t("auth.signOut")}
+      desc={t("auth.signOutDesc")}
+      confirmText={t("auth.signOut")}
       destructive
       handleConfirm={handleSignOut}
       className="sm:max-w-sm"

@@ -1,0 +1,356 @@
+{
+  "hr": {
+    "title": "Human Resources",
+    "subtitle": "Employees, leaves, payroll and documents.",
+    "totalEmployees": "Total Employees",
+    "totalEmployeesDesc": "Total number of employees",
+    "onLeave": "On Leave",
+    "onLeaveDesc": "Approved leaves this month",
+    "expiredDocs": "Expired Documents",
+    "expiredDocsDesc": "Documents past their expiry date",
+    "totalBonuses": "Total bonuses (month)",
+    "totalBonusesDesc": "Bonuses − fines",
+    "chartDept": "Employees per Department",
+    "chartBonuses": "Bonuses vs Fines (last 6 months)",
+    "chartBonusLabel": "Bonuses",
+    "chartFinesLabel": "Fines",
+    "nav": {
+      "employees": "Employees",
+      "leaves": "Leaves",
+      "payroll": "Payroll",
+      "attendance": "Monthly Timesheet",
+      "activityLog": "History"
+    },
+    "documentAlerts": {
+      "title": "Document Alerts",
+      "empty": "No expired documents or documents expiring in the next 30 days.",
+      "columns": {
+        "employee": "Employee",
+        "type": "Document Type",
+        "name": "Name",
+        "expiryDate": "Expiry Date",
+        "status": "Status"
+      },
+      "types": {
+        "license": "License",
+        "tachograph": "Tachograph",
+        "adr": "ADR",
+        "medical": "Medical"
+      },
+      "expired": "Expired",
+      "expiresToday": "Expires today",
+      "daysLeft": "{{count}} days"
+    }
+  },
+  "leaves": {
+    "title": "Leaves",
+    "manage": "Manage Leaves",
+    "requests": "{{count}} requests",
+    "searchPlaceholder": "Search by employee...",
+    "noResults": "No leave request found.",
+    "tabs": {
+      "list": "List",
+      "calendar": "Calendar"
+    },
+    "columns": {
+      "employee": "Employee",
+      "type": "Leave type",
+      "period": "Period",
+      "days": "Days",
+      "daysValue": "{{count}} days",
+      "status": "Status",
+      "reason": "Reason",
+      "noReason": "—"
+    },
+    "types": {
+      "annual": "Annual",
+      "sick": "Sick",
+      "unpaid": "Unpaid",
+      "other": "Other"
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "unknown": "Unknown"
+    },
+    "filters": {
+      "allTypes": "All types",
+      "allStatuses": "All statuses",
+      "type": "Leave type",
+      "status": "Status"
+    },
+    "actions": {
+      "add": "Add leave",
+      "edit": "Edit",
+      "delete": "Delete",
+      "approve": "Approve leave",
+      "reject": "Reject leave",
+      "actions": "Leave actions"
+    },
+    "unknown": "Unknown",
+    "auditDays": "{{count}} days",
+    "export": {
+      "button": "Export",
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "csv": "Export CSV"
+    },
+    "dialog": {
+      "addTitle": "Add leave",
+      "editTitle": "Edit leave"
+    },
+    "placeholders": {
+      "selectEmployee": "Select employee",
+      "leaveType": "Leave type"
+    },
+    "validation": {
+      "employeeRequired": "Employee is required",
+      "startDateRequired": "Start date is required",
+      "endDateRequired": "End date is required",
+      "endDateAfterStart": "End date must be after or equal to start date"
+    },
+    "toast": {
+      "overlap": "There is already a leave request overlapping this period.",
+      "approved": "Leave for {{name}} has been approved",
+      "rejected": "Leave for {{name}} has been rejected"
+    },
+    "form": {
+      "dateStart": "Start date",
+      "dateEnd": "End date",
+      "daysCount": "Days:",
+      "reasonPlaceholder": "Reason (optional)",
+      "cancel": "Cancel",
+      "save": "Save"
+    },
+    "calendar": {
+      "noLeavesMonth": "No approved leaves this month.",
+      "deptSummary": "Department Summary",
+      "noLeaves": "No approved leaves.",
+      "days": "{{count}} days",
+      "onLeave_one": "{{count}} employee on leave",
+      "onLeave_other": "{{count}} employees on leave",
+      "noLeaveDay": "No employees on leave today.",
+      "editLeave": "Edit leave",
+      "deleteLeave": "Delete leave",
+      "confirmDelete": "Confirm deletion",
+      "confirmDeleteDesc": "Are you sure you want to delete the leave for",
+      "cancel": "Cancel",
+      "delete": "Delete",
+      "updateSuccess": "Leave updated successfully",
+      "deleteSuccess": "Leave deleted successfully",
+      "types": {
+        "annual": "Annual",
+        "sick": "Sick",
+        "other": "Personal",
+        "unpaid": "Unpaid"
+      }
+    }
+  },
+  "documentAlerts": {
+    "title": "Document Alerts",
+    "empty": "No expired documents or documents expiring in the next 30 days.",
+    "columns": {
+      "employee": "Employee",
+      "type": "Document Type",
+      "name": "Name",
+      "expiryDate": "Expiry Date",
+      "status": "Status"
+    },
+    "types": {
+      "license": "License",
+      "tachograph": "Tachograph",
+      "adr": "ADR",
+      "medical": "Medical"
+    },
+    "expired": "Expired",
+    "expiresToday": "Expires today",
+    "daysLeft": "{{count}} days"
+  },
+  "hrSettings": {
+    "title": "HR Settings",
+    "nav": "Settings",
+    "saveButton": "Save settings",
+    "saveSuccess": "Settings saved.",
+    "leave": {
+      "title": "Leave",
+      "defaultDays": "Default leave days / year",
+      "leaveTypes": "Leave types",
+      "addType": "Add type",
+      "typePlaceholder": "E.g. Special leave",
+      "typeExists": "Type already exists."
+    },
+    "documents": {
+      "title": "Documents",
+      "alertDays": "Alert threshold (days before expiry)",
+      "numberFormat": "Document number format"
+    },
+    "departments": {
+      "title": "Departments",
+      "addDept": "Add department",
+      "deptPlaceholder": "E.g. Marketing",
+      "deptExists": "Department already exists."
+    },
+    "bonuses": {
+      "title": "Bonuses",
+      "currency": "Bonus currency"
+    }
+  },
+  "departments": {
+    "Dispecerat": "Dispatch",
+    "Transport": "Transport",
+    "Service": "Service",
+    "Contabilitate": "Accounting",
+    "Administrativ": "Administrative"
+  },
+  "leavesExport": {
+    "pdfTitle": "Transmarin Logistic — Leaves",
+    "fileName": "leaves",
+    "cols": {
+      "employee": "Employee",
+      "type": "Type",
+      "startDate": "Start date",
+      "endDate": "End date",
+      "days": "Days",
+      "status": "Status",
+      "reason": "Reason"
+    },
+    "types": {
+      "annual": "Annual leave",
+      "sick": "Sick leave",
+      "unpaid": "Unpaid",
+      "other": "Other"
+    },
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
+  },
+  "attendance": {
+    "title": "Monthly Timesheet",
+    "manage": "Attendance Management",
+    "allDepartments": "All departments",
+    "exportPdf": "Export PDF",
+    "noEmployees": "No employees found.",
+    "columns": {
+      "employee": "Employee",
+      "present": "Pres.",
+      "leave": "Leave",
+      "absent": "Abs.",
+      "paidLeave": "PL"
+    },
+    "status": {
+      "present": "Present",
+      "annualLeave": "Annual Leave",
+      "sickLeave": "Sick Leave",
+      "absent": "Absent",
+      "paidLeave": "Paid Leave",
+      "setStatus": "Set status",
+      "clickToSet": "Click to set"
+    },
+    "pdf": {
+      "title": "Monthly Timesheet",
+      "generated": "Generated:"
+    }
+  },
+  "payroll": {
+    "title": "Payroll",
+    "cardTitle": "Payroll Calculation",
+    "bonusCardTitle": "Bonuses / Penalties",
+    "departmentPlaceholder": "Department",
+    "allDepartments": "All",
+    "allTypes": "All types",
+    "add": "Add",
+    "noRecords": "No records found.",
+    "noRecordsMonth": "No records for the selected month.",
+    "columns": {
+      "employee": "Employee",
+      "department": "Department",
+      "baseSalary": "Base salary",
+      "diurna": "Per diem",
+      "bonuses": "Bonuses",
+      "fines": "Fines",
+      "overtime": "Overtime",
+      "totalNet": "Total net",
+      "type": "Type",
+      "amount": "Amount",
+      "date": "Date",
+      "description": "Description"
+    },
+    "types": {
+      "diurna": "Per diem",
+      "bonus": "Bonus",
+      "amenda": "Fine",
+      "ore_suplimentare": "Overtime"
+    },
+    "export": {
+      "button": "Export",
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "pdfTitle": "Transmarin Logistic — Payroll",
+      "totalLabel": "Grand total",
+      "fileName": "payroll"
+    },
+    "bonusDialog": {
+      "addTitle": "Add bonus / penalty",
+      "editTitle": "Edit record",
+      "selectEmployee": "Select employee",
+      "selectType": "Select type",
+      "amountPlaceholder": "Amount",
+      "datePlaceholder": "Date",
+      "descriptionPlaceholder": "Description",
+      "cancel": "Cancel",
+      "save": "Save",
+      "validation": {
+        "employeeRequired": "Please select an employee",
+        "amountZero": "Amount cannot be 0",
+        "dateRequired": "Date is required",
+        "descriptionMin": "Description must be at least 5 characters"
+      }
+    },
+    "bonusRow": {
+      "edit": "Edit",
+      "delete": "Delete",
+      "deleteTitle": "Delete record",
+      "deleteDesc": "Are you sure you want to delete this record for",
+      "deleteDescSuffix": "This action cannot be undone.",
+      "cancel": "Cancel",
+      "deleteSuccess": "Record deleted"
+    }
+  },
+  "hrAuditLog": {
+    "title": "HR Activity Log",
+    "subtitle": "All CRUD actions performed on HR entities",
+    "filters": "Filters:",
+    "resetFilters": "Reset",
+    "noActivity": "No activity recorded",
+    "perPage": "/ page",
+    "allEntities": "All entities",
+    "allActions": "All actions",
+    "allEmployees": "All employees",
+    "entries_one": "{{count}} entry",
+    "entries_other": "{{count}} entries",
+    "page": "Page {{page}} of {{total}}",
+    "previous": "Previous",
+    "next": "Next",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "before": "Before",
+    "after": "After",
+    "actions": {
+      "create": "Added",
+      "update": "Modified",
+      "delete": "Deleted",
+      "approve": "Approved",
+      "reject": "Rejected"
+    },
+    "entities": {
+      "employee": "Employee",
+      "leave": "Leave",
+      "bonus": "Bonus / Penalty",
+      "document": "Document",
+      "attendance": "Attendance"
+    }
+  }
+}

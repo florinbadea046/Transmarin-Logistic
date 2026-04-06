@@ -1,17 +1,14 @@
-// ──────────────────────────────────────────────────────────
-// Tipuri de date pentru modulul Transport & Dispecerat
-// Studenții vor extinde aceste tipuri pe măsură ce dezvoltă modulul.
-// ──────────────────────────────────────────────────────────
-
 export interface Order {
   id: string;
   clientName: string;
   origin: string;
   destination: string;
+  stops?: string[];
   date: string;
   status: "pending" | "assigned" | "in_transit" | "delivered" | "cancelled";
-  weight?: number; // tone
+  weight?: number;
   notes?: string;
+  invoices?: string[];
 }
 
 export interface Trip {
@@ -19,11 +16,13 @@ export interface Trip {
   orderId: string;
   driverId: string;
   truckId: string;
-  date: string;
+  departureDate: string;
+  estimatedArrivalDate: string;
   kmLoaded: number;
   kmEmpty: number;
   fuelCost: number;
-  status: "planned" | "active" | "completed";
+  revenue?: number;
+  status: "planned" | "in_desfasurare" | "finalizata" | "anulata";
 }
 
 export interface Driver {
@@ -32,7 +31,8 @@ export interface Driver {
   phone: string;
   licenseExpiry: string;
   status: "available" | "on_trip" | "off_duty";
-  truckId?: string; // optional — camionul asociat șoferului
+  truckId?: string;
+  employeeId?: string;
 }
 
 export interface Truck {
@@ -46,4 +46,54 @@ export interface Truck {
   itpExpiry: string;
   rcaExpiry: string;
   vignetteExpiry: string;
+}
+
+export type MaintenanceType =
+  | "revizie"
+  | "schimb_ulei"
+  | "anvelope"
+  | "frane"
+  | "altele";
+
+export type MaintenanceStatus = "programat" | "in_lucru" | "finalizat";
+
+export interface MaintenanceRecord {
+  id: string;
+  truckId: string;
+  type: MaintenanceType;
+  description: string;
+  entryDate: string;
+  exitDate?: string;
+  cost: number;
+  mechanic: string;
+  status: MaintenanceStatus;
+  notes?: string;
+}
+
+export interface FuelLog {
+  id: string;
+  truckId: string;
+  driverId: string;
+  date: string;
+  station: string;
+  liters: number;
+  pricePerLiter: number;
+  totalCost: number;
+  kmAtFueling: number;
+}
+
+export interface TripInvoice {
+  id: string;
+  number: string;
+  tripId: string;
+  orderId: string;
+  clientName: string;
+  route: string;
+  km: number;
+  transportCost: number;
+  vatRate: number;
+  vatAmount: number;
+  totalWithVat: number;
+  status: "emisa" | "platita" | "anulata";
+  createdAt: string;
 }

@@ -1,0 +1,94 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "transport": {
+      "title": "Transport — Summary",
+      "activeOrders": "Active Orders",
+      "activeOrdersDesc": "live from orders (pending + assigned + in transit)",
+      "fuelCostMonth": "Fuel Cost This Month",
+      "fuelCostMonthDesc": "sum of fuel logs this month",
+      "profitMonth": "Estimated Profit This Month",
+      "profitMonthDesc": "revenue - fuel cost (completed trips)",
+      "maintenanceAlert": "Trucks in service > 7 days",
+      "maintenanceDays": "{{days}} days",
+      "noMaintenanceAlerts": "No active maintenance alerts."
+    },
+    "cards": {
+      "activeOrders": "Active Orders",
+      "activeOrdersDesc": "pending + assigned + in transit",
+      "employees": "Employees",
+      "employeesDesc": "21 active",
+      "invoices": "Invoices This Month",
+      "invoicesDesc": "8 unpaid",
+      "kmMonth": "Km This Month",
+      "kmMonthDesc": "loaded + empty from all trips"
+    },
+    "charts": {
+      "kmPerDay": "Km / day - last 30 days",
+      "costsVsRevenue": "Costs vs. Revenue",
+      "costsVsRevenueTodo": "Costs vs revenue chart will be available soon.",
+      "kmTooltip": "Km"
+    },
+    "alerts": {
+      "title": "ITP / RCA / Vignette Alerts (<30 days)",
+      "expired": "EXPIRED",
+      "expiresIn": "expires in {{days}} days"
+    },
+    "months": [
+      "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ]
+  },
+  "hrDashboard": {
+    "title": "Human Resources — Summary",
+    "cards": {
+      "totalEmployees": "Total Employees",
+      "totalEmployeesDesc": "active employees in system",
+      "onLeave": "On Leave",
+      "onLeaveDesc": "approved leaves this month",
+      "expiredDocs": "Expired Documents",
+      "expiredDocsDesc": "documents past expiry date",
+      "pendingLeaves": "Pending Requests",
+      "pendingLeavesDesc": "leave requests awaiting approval"
+    },
+    "charts": {
+      "newEmployees": "New employees per month (last 6 months)",
+      "newEmployeesTooltip": "New employees"
+    },
+    "alerts": {
+      "expiredDocs": "Expired documents",
+      "pendingLeaves": "Pending leave requests",
+      "allGood": "No active HR alerts.",
+      "days": "{{count}} d",
+      "days_one": "{{count}} day",
+      "days_few": "{{count}} days",
+      "days_other": "{{count}} days"
+    }
+  },
+  "reportsDashboard": {
+    "totalIncome": "Total Income",
+    "totalExpenses": "Total Expenses",
+    "balance": "Balance",
+    "margin": "margin",
+    "unpaidInvoices": "Unpaid Invoices",
+    "unpaidSubtitle": "sent / overdue",
+    "trips": "No. Trips",
+    "completed": "completed",
+    "employees": "Employees",
+    "top3Trucks": "Top 3 Trucks — Total Cost",
+    "top3Clients": "Top 3 Clients — Estimated Revenue",
+    "fuel": "Fuel",
+    "service": "Service",
+    "order": "order",
+    "orders": "orders",
+    "incomeVsExpenses": "Income vs Expenses — last 6 months",
+    "kmChart": "Km Traveled — last 6 months",
+    "kmTooltip": "Km traveled",
+    "fleetExpenses": "Fleet Expense Breakdown",
+    "revenueTrend": "Revenue Trend — last 12 months",
+    "income": "Income",
+    "expenses": "Expenses",
+    "month": "Month",
+    "noData": "No data available."
+  }
+}

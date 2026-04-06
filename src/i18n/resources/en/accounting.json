@@ -1,0 +1,49 @@
+{
+  "accounting": {
+    "title": "Simplified Accounting",
+    "subtitle": "Invoices, suppliers, balance and cash flow.",
+    "revenueMonth": "Revenue this month",
+    "expensesMonth": "Expenses this month",
+    "balance": "Balance (Revenue − Expenses)",
+    "unpaidInvoices": "Unpaid invoices",
+    "chartTitle": "Revenue vs Expenses — last 6 months",
+    "noInvoices": "No invoices recorded.",
+    "chartRevenue": "Revenue",
+    "chartExpenses": "Expenses",
+    "nav": {
+      "invoices": "Invoices",
+      "suppliers": "Suppliers"
+    }
+  },
+  "suppliers": {
+    "title": "Suppliers",
+    "manage": "Manage Suppliers",
+    "add": "Add Supplier",
+    "search": "Search any field...",
+    "noResults": "No supplier found",
+    "confirmDelete": "Are you sure you want to delete this supplier?",
+    "rowsPerPage": "Rows per page",
+    "page": "Page {{current}} of {{total}}",
+    "prev": "Previous",
+    "next": "Next",
+    "fields": {
+      "name": "Name",
+      "cui": "Tax ID",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "bankAccount": "Bank account",
+      "actions": "Actions"
+    },
+    "actions": {
+      "edit": "Edit",
+      "delete": "Delete"
+    },
+    "modal": {
+      "editTitle": "Edit Supplier",
+      "addTitle": "Add Supplier",
+      "cancel": "Cancel",
+      "save": "Save"
+}
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "employees": {
+    "title": "Angajati",
+    "listTitle": "Lista Angajati",
+    "viewList": "Listă",
+    "viewOrgChart": "Organigramă",
+    "count_one": "{{count}} angajat",
+    "count_few": "{{count}} angajati",
+    "count_other": "{{count}} angajati",
+    "empty": "Niciun angajat gasit.",
+    "fields": {
+      "name": "Nume",
+      "position": "Functie",
+      "department": "Departament",
+      "phone": "Telefon",
+      "email": "Email",
+      "hireDate": "Data angajarii",
+      "salary": "Salariu",
+      "salaryExport": "Salariu (RON)"
+    },
+    "placeholders": {
+      "search": "Cauta dupa nume, functie sau email..."
+    },
+    "filters": {
+      "all": "Toate"
+    },
+    "departments": {
+      "dispatch": "Dispecerat",
+      "transport": "Transport",
+      "service": "Service",
+      "accounting": "Contabilitate",
+      "administrative": "Administrativ"
+    },
+    "actions": {
+      "add": "Adauga angajat",
+      "edit": "Editeaza",
+      "delete": "Sterge",
+      "documents": "Documente",
+      "save": "Salveaza",
+      "cancel": "Anuleaza",
+      "export": "Export",
+      "exportPdf": "Export PDF",
+      "exportExcel": "Export Excel",
+      "exportCsv": "Export CSV",
+      "menu": "Actiuni angajat"
+    },
+    "dialog": {
+      "addTitle": "Adauga angajat",
+      "editTitle": "Editare angajat"
+    },
+    "validation": {
+      "nameRequired": "Numele este obligatoriu",
+      "positionRequired": "Functia este obligatorie",
+      "departmentRequired": "Departamentul este obligatoriu",
+      "phoneInvalid": "Telefon invalid",
+      "emailInvalid": "Email invalid",
+      "hireDateRequired": "Data angajarii este obligatorie",
+      "salaryRequired": "Salariul este obligatoriu"
+    },
+    "delete": {
+      "title": "Confirma stergerea",
+      "description": "Sigur doriti sa stergeti angajatul {{name}}?"
+    },
+    "documents": {
+      "title": "Documente - {{name}}"
+    },
+    "toast": {
+      "updated": "Angajat actualizat cu succes",
+      "deleted": "Angajat sters cu succes",
+      "deleteBlockedActiveTrip": "Angajatul nu poate fi sters: este sofer pe o cursa activa.",
+      "deleteBlockedFutureLeave": "Angajatul nu poate fi sters: are concediu aprobat in viitor."
+    },
+    "export": {
+      "pdfTitle": "Lista angajati",
+      "filename": "angajati"
+    },
+    "import": {
+      "title": "Import Angajati din CSV",
+      "button": "Import CSV",
+      "dropzone": "Trage un fisier CSV aici sau da click pentru a selecta",
+      "dropzoneHint": "Coloane acceptate: Nume, Functie, Departament, Telefon, Email, Data angajarii (yyyy-MM-dd), Salariu (RON)",
+      "validCount": "{{count}} randuri valide",
+      "invalidCount": "{{count}} randuri invalide",
+      "duplicateCount": "{{count}} duplicate",
+      "errorsCol": "Erori",
+      "errorRequired": "Campul {{field}} este obligatoriu",
+      "errorDate": "Data trebuie sa fie in formatul yyyy-MM-dd",
+      "errorSalary": "Salariul trebuie sa fie un numar pozitiv",
+      "duplicate": "Duplicat (nume + departament)",
+      "confirm": "Importa {{count}} randuri",
+      "toastSuccess": "{{count}} angajat(i) importat(i) cu succes.",
+      "toastPartial": "{{added}} importati, {{skipped}} ignorati (duplicate).",
+      "toastAllSkipped": "Niciun angajat importat - toate randurile sunt duplicate.",
+      "rowValid": "Valid",
+      "noValidRows": "Niciun rand valid",
+      "legendValid": "Valid",
+      "legendInvalid": "Invalid",
+      "legendDuplicate": "Duplicat"
+    }
+  },
+  "orgChart": {
+    "employees": "angajati",
+    "noRoot": "Nu exista Director General definit. Adauga un angajat fara manager.",
+    "expandAll": "Extinde tot",
+    "collapseAll": "Restringe tot",
+    "search": "Cauta dupa nume, functie...",
+    "noResults": "Niciun angajat gasit.",
+    "header": {
+      "name": "Angajat",
+      "department": "Departament"
+    },
+    "detail": {
+      "email": "Email",
+      "phone": "Telefon",
+      "hireDate": "Data angajarii",
+      "salary": "Salariu",
+      "manager": "Raporteaza la",
+      "directs": "Subordonati directi"
+    }
+  }
+}

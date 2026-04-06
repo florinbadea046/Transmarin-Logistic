@@ -1,0 +1,89 @@
+{
+  "invoices": {
+    "title": "Facturi",
+    "cardTitle": "Gestiune Facturi",
+    "header": "Transmarin Logistic",
+    "noResults": "Nicio factura gasita.",
+    "columns": {
+      "nr": "Nr. Factura",
+      "clientSupplier": "Client / Furnizor",
+      "type": "Tip",
+      "date": "Data",
+      "dueDate": "Scadenta",
+      "subtotal": "Subtotal",
+      "vat": "TVA (19%)",
+      "total": "Total",
+      "status": "Status",
+      "actions": "Actiuni"
+    },
+    "typeLabels": {
+      "income": "Venit",
+      "expense": "Cheltuiala"
+    },
+    "statusLabels": {
+      "plătită": "Platita",
+      "neplatită": "Neplatita",
+      "parțial": "Partial",
+      "anulată": "Anulata"
+    },
+    "export": {
+      "export": "Export",
+      "pdf": "Export PDF",
+      "excel": "Export Excel",
+      "csv": "Export CSV",
+      "pdfSuccess": "PDF exportat cu succes.",
+      "excelSuccess": "Excel exportat cu succes.",
+      "csvSuccess": "CSV exportat cu succes.",
+      "invoiceList": "Lista Facturi"
+    },
+    "selection": {
+      "count": "{{count}} selectate"
+    },
+    "filters": {
+      "searchPlaceholder": "Cauta dupa numar, client, tip...",
+      "allTypes": "Toate tipurile",
+      "allStatuses": "Toate statusurile"
+    },
+    "form": {
+      "editTitle": "Editare Factura",
+      "addTitle": "Factura Noua",
+      "type": "Tip",
+      "invoiceNrAuto": "Nr. Factura (auto)",
+      "date": "Data",
+      "dueDate": "Scadenta",
+      "clientSupplier": "Client / Furnizor",
+      "status": "Status",
+      "items": "Linii Factura",
+      "addLine": "Adauga linie",
+      "itemNumber": "Linia #{{number}}",
+      "description": "Descriere",
+      "descriptionPlaceholder": "Descriere produs / serviciu...",
+      "quantity": "Cantitate",
+      "unitPrice": "Pret Unitar",
+      "lineTotal": "Total Linie"
+    },
+    "totals": {
+      "subtotal": "Subtotal",
+      "vat": "TVA (19%)",
+      "total": "TOTAL"
+    },
+    "actions": {
+      "add": "Adauga Factura",
+      "edit": "Editeaza",
+      "delete": "Sterge",
+      "cancel": "Anuleaza",
+      "saveChanges": "Salveaza Modificarile",
+      "addInvoice": "Adauga Factura",
+      "markPaid": "Marcheaza Platita",
+      "deselect": "Deselecteaza",
+      "selectAll": "Selecteaza tot"
+    },
+    "deleteDialog": {
+      "title": "Sterge Factura",
+      "description": "Esti sigur ca vrei sa stergi aceasta factura? Aceasta actiune nu poate fi anulata."
+    },
+    "pagination": {
+      "showing": "Se afiseaza {{filtered}} din {{total}} facturi"
+    }
+  }
+}

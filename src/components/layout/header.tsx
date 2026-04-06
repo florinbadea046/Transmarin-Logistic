@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { NotificationsCenter } from "@/components/notifications/notifications-center";
+import { HRNotificationsCenter } from "@/components/hr-notifications";
+import { useLocation } from "@tanstack/react-router";
 
 type HeaderProps = HTMLAttributes<HTMLElement> & {
   fixed?: boolean;
@@ -10,6 +13,8 @@ type HeaderProps = HTMLAttributes<HTMLElement> & {
 
 export function Header({ className, fixed, children, ...props }: HeaderProps) {
   const [offset, setOffset] = useState(0);
+  const { pathname } = useLocation();
+  const isHRSection = pathname.startsWith("/hr");
 
   useEffect(() => {
     const onScroll = () => {
@@ -41,6 +46,9 @@ export function Header({ className, fixed, children, ...props }: HeaderProps) {
         <SidebarTrigger variant="outline" className="max-md:scale-125" />
         <Separator orientation="vertical" className="h-6" />
         {children}
+        <div className="ml-auto flex items-center gap-2">
+          {isHRSection ? <HRNotificationsCenter /> : <NotificationsCenter />}
+        </div>
       </div>
     </header>
   );
