@@ -2,7 +2,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { ServiceRecord } from "@/modules/fleet/types";
 import { Truck } from "@/modules/transport/types";
-import { TYPE_LABELS } from "@/modules/fleet/utils/serviceUtils";
+import { getTypeLabels } from "@/modules/fleet/utils/serviceUtils";
 
 
 export interface ServiceExportFilters {
@@ -14,11 +14,14 @@ export interface ServiceExportFilters {
 export function exportServiceToPDF(
   records: ServiceRecord[],
   trucks: Truck[],
+  t: (k: string, opts?: Record<string, unknown>) => string,
   filters?: ServiceExportFilters
 ): void {
+  const typeLabels = getTypeLabels(t);
+
   const getTruckLabel = (id: string) => {
-    const t = trucks.find((t) => t.id === id);
-    return t ? `${t.plateNumber} — ${t.brand} ${t.model}` : id;
+    const tr = trucks.find((tr) => tr.id === id);
+    return tr ? `${tr.plateNumber} — ${tr.brand} ${tr.model}` : id;
   };
 
   let filtered = [...records];
@@ -34,28 +37,40 @@ export function exportServiceToPDF(
 
   doc.setFontSize(18);
   doc.setFont("helvetica", "bold");
-  doc.text("Registru Service", 14, 18);
+  doc.text(t("fleet.service.exportTitle"), 14, 18);
 
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(`Generat la: ${today}  |  Total înregistrări: ${filtered.length}`, 14, 26);
+  doc.text(
+    t("fleet.service.exportGenerated", { date: today, count: filtered.length } as Record<string, unknown>),
+    14,
+    26,
+  );
 
   if (filters?.truckId || filters?.fromDate || filters?.toDate) {
     const filterParts = [
-      filters.truckId ? `Camion: ${getTruckLabel(filters.truckId)}` : null,
-      filters.fromDate ? `De la: ${filters.fromDate}` : null,
-      filters.toDate ? `Până la: ${filters.toDate}` : null,
+      filters.truckId ? t("fleet.service.exportFilterTruck", { truck: getTruckLabel(filters.truckId) } as Record<string, unknown>) : null,
+      filters.fromDate ? t("fleet.service.exportFilterFrom", { date: filters.fromDate } as Record<string, unknown>) : null,
+      filters.toDate ? t("fleet.service.exportFilterTo", { date: filters.toDate } as Record<string, unknown>) : null,
     ].filter(Boolean).join("   |   ");
-    doc.text(`Filtre: ${filterParts}`, 14, 32);
+    doc.text(t("fleet.service.exportFilters", { filters: filterParts } as Record<string, unknown>), 14, 32);
   }
 
   autoTable(doc, {
     startY: filters?.truckId || filters?.fromDate || filters?.toDate ? 38 : 32,
-    head: [["Camion", "Dată", "Tip", "Descriere", "Km", "Cost (RON)", "Următor service"]],
+    head: [[
+      t("fleet.service.exportHeadTruck"),
+      t("fleet.service.exportHeadDate"),
+      t("fleet.service.exportHeadType"),
+      t("fleet.service.exportHeadDescription"),
+      t("fleet.service.exportHeadKm"),
+      t("fleet.service.exportHeadCost"),
+      t("fleet.service.exportHeadNext"),
+    ]],
     body: filtered.map((r) => [
       getTruckLabel(r.truckId),
       r.date,
-      TYPE_LABELS[r.type],
+      typeLabels[r.type],
       r.description,
       r.mileageAtService.toLocaleString("ro-RO"),
       r.cost.toLocaleString("ro-RO"),
@@ -64,7 +79,7 @@ export function exportServiceToPDF(
     styles: { fontSize: 9, cellPadding: 3 },
     headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: "bold" },
     alternateRowStyles: { fillColor: [248, 248, 248] },
-    foot: [["", "", "", "", "TOTAL", `${totalCost.toLocaleString("ro-RO")} RON`, ""]],
+    foot: [["", "", "", "", t("fleet.service.exportTotal"), `${totalCost.toLocaleString("ro-RO")} RON`, ""]],
     footStyles: { fontStyle: "bold", fillColor: [240, 240, 240] },
   });
 

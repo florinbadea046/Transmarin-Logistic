@@ -57,11 +57,11 @@ export function DriverDialog({ open, onOpenChange, editingDriver, form, errors, 
             </Select>
           </div>
           <div className="space-y-1">
-            <Label htmlFor="employee">{t("drivers.fields.employee", { defaultValue: "Angajat HR" })}</Label>
+            <Label htmlFor="employee">{t("drivers.fields.employee")}</Label>
             <Select value={form.employeeId || "none"} onValueChange={(val) => onFormChange({ employeeId: val === "none" ? "" : val })}>
-              <SelectTrigger id="employee"><SelectValue placeholder={t("drivers.placeholders.noEmployee", { defaultValue: "Fara legatura HR" })} /></SelectTrigger>
+              <SelectTrigger id="employee"><SelectValue placeholder={t("drivers.placeholders.noEmployee")} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">{t("drivers.placeholders.noEmployee", { defaultValue: "Fara legatura HR" })}</SelectItem>
+                <SelectItem value="none">{t("drivers.placeholders.noEmployee")}</SelectItem>
                 {employees.map((emp) => <SelectItem key={emp.id} value={emp.id}>{emp.name}</SelectItem>)}
               </SelectContent>
             </Select>

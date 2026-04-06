@@ -317,7 +317,7 @@ export default function LeaveDialog(props: Props) {
                 }
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Status" />
+                  <SelectValue placeholder={t("leaves.placeholders.status")} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="pending">{t("leaves.status.pending")}</SelectItem>

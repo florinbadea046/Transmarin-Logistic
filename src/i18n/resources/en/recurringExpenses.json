@@ -32,7 +32,9 @@
         "search": "Search expenses..."
       },
       "validation": {
-        "truckRequired": "Truck is required."
+        "truckRequired": "Truck is required.",
+        "invalidAmount": "Invalid amount",
+        "invalidDate": "Invalid date"
       },
       "categories": {
         "asigurare": "Insurance",

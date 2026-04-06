@@ -102,7 +102,8 @@
     },
     "placeholders": {
       "selectEmployee": "Selecteaza angajat",
-      "leaveType": "Tip concediu"
+      "leaveType": "Tip concediu",
+      "status": "Status"
     },
     "validation": {
       "employeeRequired": "Angajatul este obligatoriu",
@@ -318,6 +319,58 @@
       "cancel": "Anulează",
       "deleteSuccess": "Înregistrare ștearsă"
     }
+  },
+  "employeeInfo": {
+    "personalData": "Date personale",
+    "edit": "Editează",
+    "cancel": "Anulează",
+    "save": "Salvează",
+    "fields": {
+      "name": "Nume",
+      "position": "Funcție",
+      "phone": "Telefon",
+      "email": "Email",
+      "salary": "Salariu (RON)",
+      "department": "Departament",
+      "hireDate": "Data angajării"
+    },
+    "validation": {
+      "nameEmpty": "Numele nu poate fi gol.",
+      "salaryPositive": "Salariul trebuie să fie un număr pozitiv."
+    },
+    "toast": {
+      "updated": "Profil actualizat cu succes"
+    }
+  },
+  "documents": {
+    "empty": "Niciun document adăugat.",
+    "noExpiry": "Fără expirare",
+    "expired": "Expirat",
+    "expiresSoon": "Expiră curând",
+    "valid": "Valid",
+    "types": {
+      "contract": "Contract",
+      "license": "Permis conducere",
+      "medical": "Aviz medical",
+      "certificate": "Certificat",
+      "tachograph": "Tahograf",
+      "adr": "ADR",
+      "other": "Altele"
+    },
+    "editAriaLabel": "Editează document",
+    "deleteAriaLabel": "Șterge document",
+    "numberLabel": "Nr",
+    "issuedLabel": "Emis",
+    "expiresLabel": "Expiră",
+    "typePlaceholder": "Tip document",
+    "namePlaceholder": "Denumire (opțional)",
+    "issueDatePlaceholder": "Data emitere",
+    "expiryDatePlaceholder": "Data expirare",
+    "notesPlaceholder": "Notițe (opțional)",
+    "cancelButton": "Renunță",
+    "updateButton": "Actualizează document",
+    "addButton": "Adaugă document",
+    "addDocumentButton": "Adaugă document"
   },
   "hrAuditLog": {
     "title": "Istoric Activități HR",

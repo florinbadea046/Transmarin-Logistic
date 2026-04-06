@@ -51,7 +51,7 @@ export function exportTrucksExcel(trucks: Truck[], drivers: Driver[], t: (k: str
   });
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Camioane");
+  XLSX.utils.book_append_sheet(wb, ws, t("trucks.export.sheetName"));
   XLSX.writeFile(wb, `${t("trucks.export.filename")}.xlsx`);
 }
 

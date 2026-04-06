@@ -39,10 +39,61 @@
       "edit": "Editeaza",
       "delete": "Sterge"
     },
-    "modal": { 
-      "editTitle": "Editeaza Furnizor", 
-      "addTitle": "Adauga Furnizor", 
-      "cancel": "Anuleaza", 
-      "save": "Salveaza" }
+    "modal": {
+      "editTitle": "Editeaza Furnizor",
+      "addTitle": "Adauga Furnizor",
+      "cancel": "Anuleaza",
+      "save": "Salveaza" },
+    "validation": {
+      "nameMin": "Numele trebuie să aibă minim 3 caractere",
+      "cuiInvalid": "CUI invalid (ex: RO12345678)",
+      "addressRequired": "Adresa este obligatorie",
+      "phoneInvalid": "Telefonul trebuie să înceapă cu 07 și să aibă 10 cifre",
+      "emailInvalid": "Email invalid",
+      "bankAccountRequired": "Contul bancar este obligatoriu"
+    }
+  },
+  "pdf": {
+    "statusLabels": {
+      "draft": "Ciornă",
+      "sent": "Trimisă",
+      "paid": "Achitată",
+      "overdue": "Restantă",
+      "cancelled": "Anulată"
+    },
+    "table": {
+      "nr": "#",
+      "description": "Descriere",
+      "quantity": "Cant.",
+      "unitPrice": "Preț unitar",
+      "vatPercent": "TVA %",
+      "vat": "TVA",
+      "total": "Total"
+    },
+    "labels": {
+      "invoice": "FACTURĂ",
+      "invoiceNr": "Nr. {{nr}}",
+      "issueDate": "Data emiterii: {{date}}",
+      "dueDate": "Scadență: {{date}}",
+      "supplier": "FURNIZOR",
+      "client": "CLIENT",
+      "regCom": "Reg. Com.: {{value}}",
+      "subtotal": "Subtotal (fără TVA):",
+      "vat19": "TVA 19%:",
+      "totalLabel": "TOTAL:",
+      "paymentTerms": "CONDIȚII DE PLATĂ",
+      "bankDetails": "Date bancare:",
+      "iban": "IBAN: {{value}}",
+      "bank": "Bancă: {{value}}",
+      "footer": "Document generat automat · Transmarin Logistic SRL · Pagina 1",
+      "downloadPdf": "Descarcă PDF"
+    }
+  },
+  "toasts": {
+    "itemRequired": "Factura trebuie să conțină cel puțin un articol cu descriere",
+    "updated": "Factură actualizată cu succes",
+    "added": "Factură adăugată cu succes",
+    "deleted": "Factură ștearsă",
+    "markedPaid": "Factură marcată ca plătită"
   }
 }

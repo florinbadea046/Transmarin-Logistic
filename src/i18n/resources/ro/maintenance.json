@@ -60,7 +60,9 @@
         "status": "Status"
       },
       "validation": {
-        "truckRequired": "Selecteaza un camion"
+        "truckRequired": "Selecteaza un camion",
+        "invalidDate": "Data invalida",
+        "invalidCost": "Cost invalid"
       },
       "alerts": {
         "longService": "Camioane in service de peste 7 zile",

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,19 +15,21 @@ import {
 } from "@/components/ui/dialog";
 import type { Supplier } from "../types";
 
-const supplierSchema = z.object({
-  id: z.string(),
-  name: z.string().min(3, "Numele trebuie să aibă minim 3 caractere"),
-  cui: z.string().regex(/^RO[0-9]{2,10}$/, "CUI invalid (ex: RO12345678)"),
-  address: z.string().min(1, "Adresa este obligatorie"),
-  phone: z
-    .string()
-    .regex(/^07[0-9]{8}$/, "Telefonul trebuie să înceapă cu 07 și să aibă 10 cifre"),
-  email: z.string().email("Email invalid"),
-  bankAccount: z.string().min(1, "Contul bancar este obligatoriu"),
-});
+function makeSupplierSchema(t: (key: string) => string) {
+  return z.object({
+    id: z.string(),
+    name: z.string().min(3, t("suppliers.validation.nameMin")),
+    cui: z.string().regex(/^RO[0-9]{2,10}$/, t("suppliers.validation.cuiInvalid")),
+    address: z.string().min(1, t("suppliers.validation.addressRequired")),
+    phone: z
+      .string()
+      .regex(/^07[0-9]{8}$/, t("suppliers.validation.phoneInvalid")),
+    email: z.string().email(t("suppliers.validation.emailInvalid")),
+    bankAccount: z.string().min(1, t("suppliers.validation.bankAccountRequired")),
+  });
+}
 
-type SupplierFormData = z.infer<typeof supplierSchema>;
+type SupplierFormData = z.infer<ReturnType<typeof makeSupplierSchema>>;
 
 type SupplierModalProps = {
   isOpen: boolean;
@@ -53,6 +55,7 @@ export function SupplierModal({
   onSave,
 }: SupplierModalProps) {
   const { t } = useTranslation();
+  const supplierSchema = useMemo(() => makeSupplierSchema(t), [t]);
 
   const {
     register,

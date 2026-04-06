@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -57,28 +58,35 @@ import type { Part } from "@/modules/fleet/types";
 import { AllocatePart } from "@/modules/fleet/components/AllocatePart";
 import { savePart, deletePart, isLowStock } from "@/modules/fleet/utils/partsUtils";
 import { exportPartsToExcel } from "@/modules/fleet/utils/exportExcel";
-import { partSchema } from "@/modules/fleet/validation/fleetSchemas";
+import { makePartSchema } from "@/modules/fleet/validation/fleetSchemas";
 
-type PartFormValues = z.infer<typeof partSchema>;
-
-const CATEGORY_LABELS: Record<string, string> = {
-  engine: "Motor",
-  body: "Caroserie",
-  electrical: "Electric",
-  other: "Altele",
-};
-
-const defaultValues: PartFormValues = {
-  name: "",
-  code: "",
-  category: "other",
-  quantity: 0,
-  minStock: 0,
-  unitPrice: 0,
-  supplier: "",
-};
+function getCategoryLabels(t: (k: string) => string): Record<string, string> {
+  return {
+    engine: t("fleet.parts.categoryEngine"),
+    body: t("fleet.parts.categoryBody"),
+    electrical: t("fleet.parts.categoryElectrical"),
+    other: t("fleet.parts.categoryOther"),
+  };
+}
 
 export function PartsCRUD() {
+  const { t } = useTranslation();
+
+  const partSchema = useMemo(() => makePartSchema(t), [t]);
+  type PartFormValues = z.infer<typeof partSchema>;
+
+  const categoryLabels = getCategoryLabels(t);
+
+  const defaultValues: PartFormValues = {
+    name: "",
+    code: "",
+    category: "other",
+    quantity: 0,
+    minStock: 0,
+    unitPrice: 0,
+    supplier: "",
+  };
+
   const [parts, setParts] = useState<Part[]>([]);
   const [open, setOpen] = useState(false);
   const [editingPart, setEditingPart] = useState<Part | null>(null);
@@ -160,47 +168,47 @@ export function PartsCRUD() {
   const columns: ColumnDef<Part>[] = [
     {
       accessorKey: "name",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Nume" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("fleet.parts.columnName")} />,
     },
     {
       accessorKey: "code",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Cod" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("fleet.parts.columnCode")} />,
     },
     {
       accessorKey: "category",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Categorie" />,
-      cell: ({ row }) => CATEGORY_LABELS[row.original.category] ?? row.original.category,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("fleet.parts.columnCategory")} />,
+      cell: ({ row }) => categoryLabels[row.original.category] ?? row.original.category,
     },
     {
       accessorKey: "quantity",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Cantitate" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("fleet.parts.columnQuantity")} />,
       cell: ({ row }) => (
         <Badge variant={isLowStock(row.original) ? "destructive" : "secondary"}>
-          {row.original.quantity} buc.
+          {row.original.quantity} {t("fleet.parts.unit")}
         </Badge>
       ),
     },
     {
       accessorKey: "minStock",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Stoc minim" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("fleet.parts.columnMinStock")} />,
     },
     {
       accessorKey: "unitPrice",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Preț unitar" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("fleet.parts.columnUnitPrice")} />,
       cell: ({ row }) => <span>{row.original.unitPrice.toLocaleString("ro-RO")} RON</span>,
     },
     {
       accessorKey: "supplier",
-      header: ({ column }) => <DataTableColumnHeader column={column} title="Furnizor" />,
+      header: ({ column }) => <DataTableColumnHeader column={column} title={t("fleet.parts.columnSupplier")} />,
     },
     {
       id: "actions",
-      header: "Acțiuni",
+      header: t("fleet.parts.columnActions"),
       cell: ({ row }) => (
         <div className="flex flex-wrap gap-2 justify-center">
-          <Button size="sm" variant="outline" onClick={() => handleOpen(row.original)}>Editează</Button>
+          <Button size="sm" variant="outline" onClick={() => handleOpen(row.original)}>{t("fleet.parts.edit")}</Button>
           <AllocatePart part={row.original} />
-          <Button size="sm" variant="destructive" onClick={() => handleDelete(row.original.id)}>Șterge</Button>
+          <Button size="sm" variant="destructive" onClick={() => handleDelete(row.original.id)}>{t("fleet.parts.delete")}</Button>
         </div>
       ),
     },
@@ -221,51 +229,51 @@ export function PartsCRUD() {
   return (
     <div className="w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-start gap-2 mb-4">
-        <Button onClick={() => handleOpen()}>+ Adaugă piesă</Button>
-        <Button variant="outline" onClick={() => exportPartsToExcel(parts)}>⬇ Export Excel</Button>
+        <Button onClick={() => handleOpen()}>{t("fleet.parts.addPart")}</Button>
+        <Button variant="outline" onClick={() => exportPartsToExcel(parts, t)}>{t("fleet.parts.exportExcel")}</Button>
       </div>
 
       <div className="flex flex-wrap gap-4 items-end mb-4">
         <div>
-          <Label htmlFor="search-input">Caută</Label>
+          <Label htmlFor="search-input">{t("fleet.parts.searchLabel")}</Label>
           <Input
             id="search-input"
-            placeholder="Nume, cod sau furnizor..."
+            placeholder={t("fleet.parts.searchPlaceholder")}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
         </div>
         <div>
-          <Label htmlFor="category-filter">Categorie</Label>
+          <Label htmlFor="category-filter">{t("fleet.parts.categoryLabel")}</Label>
           <Select
             value={categoryFilter ?? "_ALL_"}
             onValueChange={(v) => setCategoryFilter(v === "_ALL_" ? null : v)}
           >
             <SelectTrigger id="category-filter" className="w-[180px]">
-              <SelectValue placeholder="Toate categoriile" />
+              <SelectValue placeholder={t("fleet.parts.allCategories")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="_ALL_">Toate</SelectItem>
+              <SelectItem value="_ALL_">{t("fleet.parts.allCategories")}</SelectItem>
               {categories.map((c) => (
-                <SelectItem key={c} value={c}>{CATEGORY_LABELS[c] ?? c}</SelectItem>
+                <SelectItem key={c} value={c}>{categoryLabels[c] ?? c}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div>
-          <Label htmlFor="stock-filter">Stoc</Label>
+          <Label htmlFor="stock-filter">{t("fleet.parts.stockLabel")}</Label>
           <Select
             value={stockFilter ?? "_ALL_"}
             onValueChange={(v: string) => setStockFilter(v === "_ALL_" ? null : v as "in_stock" | "low_stock" | "out_of_stock")}
           >
             <SelectTrigger id="stock-filter" className="w-[180px]">
-              <SelectValue placeholder="Toate statusurile" />
+              <SelectValue placeholder={t("fleet.parts.allStatuses")} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="_ALL_">Toate</SelectItem>
-              <SelectItem value="in_stock">În stoc</SelectItem>
-              <SelectItem value="low_stock">Stoc scăzut</SelectItem>
-              <SelectItem value="out_of_stock">Stoc epuizat</SelectItem>
+              <SelectItem value="_ALL_">{t("fleet.parts.allStatuses")}</SelectItem>
+              <SelectItem value="in_stock">{t("fleet.parts.inStock")}</SelectItem>
+              <SelectItem value="low_stock">{t("fleet.parts.lowStockFilter")}</SelectItem>
+              <SelectItem value="out_of_stock">{t("fleet.parts.outOfStock")}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -301,7 +309,7 @@ export function PartsCRUD() {
       <div className="flex items-center justify-between py-2">
         <DataTablePagination table={table} />
         <div className="flex items-center space-x-2">
-          <Label htmlFor="page-size-select">Rânduri / pagină</Label>
+          <Label htmlFor="page-size-select">{t("fleet.parts.rowsPerPage")}</Label>
           <Select
             value={pagination.pageSize.toString()}
             onValueChange={(v) => table.setPageSize(Number(v))}
@@ -321,21 +329,21 @@ export function PartsCRUD() {
       <Dialog open={open} onOpenChange={(v) => { if (!v) handleClose(); }}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>{editingPart ? "Editează piesă" : "Adaugă piesă"}</DialogTitle>
+            <DialogTitle>{editingPart ? t("fleet.parts.dialogTitleEdit") : t("fleet.parts.dialogTitleAdd")}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-4 py-4">
               <div className="grid grid-cols-2 gap-4">
                 <FormField control={form.control} name="name" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nume *</FormLabel>
+                    <FormLabel>{t("fleet.parts.labelName")}</FormLabel>
                     <FormControl><Input {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="code" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cod (opțional)</FormLabel>
+                    <FormLabel>{t("fleet.parts.labelCode")}</FormLabel>
                     <FormControl><Input {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -344,13 +352,13 @@ export function PartsCRUD() {
 
               <FormField control={form.control} name="category" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Categorie *</FormLabel>
+                  <FormLabel>{t("fleet.parts.labelCategory")}</FormLabel>
                   <Select onValueChange={field.onChange} value={field.value}>
                     <FormControl>
-                      <SelectTrigger><SelectValue placeholder="Selectează categorie..." /></SelectTrigger>
+                      <SelectTrigger><SelectValue placeholder={t("fleet.parts.selectCategory")} /></SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Object.entries(CATEGORY_LABELS).map(([val, label]) => (
+                      {Object.entries(categoryLabels).map(([val, label]) => (
                         <SelectItem key={val} value={val}>{label}</SelectItem>
                       ))}
                     </SelectContent>
@@ -361,7 +369,7 @@ export function PartsCRUD() {
 
               <FormField control={form.control} name="supplier" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Furnizor (opțional)</FormLabel>
+                  <FormLabel>{t("fleet.parts.labelSupplier")}</FormLabel>
                   <FormControl><Input {...field} /></FormControl>
                   <FormMessage />
                 </FormItem>
@@ -370,7 +378,7 @@ export function PartsCRUD() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <FormField control={form.control} name="quantity" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cantitate *</FormLabel>
+                    <FormLabel>{t("fleet.parts.labelQuantity")}</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                     </FormControl>
@@ -379,7 +387,7 @@ export function PartsCRUD() {
                 )} />
                 <FormField control={form.control} name="unitPrice" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Preț unitar *</FormLabel>
+                    <FormLabel>{t("fleet.parts.labelUnitPrice")}</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                     </FormControl>
@@ -388,7 +396,7 @@ export function PartsCRUD() {
                 )} />
                 <FormField control={form.control} name="minStock" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stoc minim *</FormLabel>
+                    <FormLabel>{t("fleet.parts.labelMinStock")}</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} onChange={(e) => field.onChange(Number(e.target.value))} />
                     </FormControl>
@@ -398,8 +406,8 @@ export function PartsCRUD() {
               </div>
 
               <DialogFooter>
-                <Button type="button" variant="outline" onClick={handleClose}>Anulează</Button>
-                <Button type="submit">{editingPart ? "Salvează" : "Adaugă"}</Button>
+                <Button type="button" variant="outline" onClick={handleClose}>{t("fleet.parts.cancel")}</Button>
+                <Button type="submit">{editingPart ? t("fleet.parts.save") : t("fleet.parts.add")}</Button>
               </DialogFooter>
             </form>
           </Form>

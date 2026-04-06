@@ -19,6 +19,7 @@ export interface ExportOptions {
   columns: ExportColumn[];
   rows: Record<string, unknown>[];
   companyName?: string;
+  sheetName?: string;
 }
 
 // ← ADĂUGAT: înlocuiește diacriticele românești cu echivalente compatibile PDF
@@ -72,7 +73,7 @@ export function useExport() {
   }
 
   // ── Excel ──
-  function exportExcel({ filename, title, columns, rows, companyName = "Transmarin Logistic SRL" }: ExportOptions) {
+  function exportExcel({ filename, title, columns, rows, companyName = "Transmarin Logistic SRL", sheetName }: ExportOptions) {
     const wsData = [
       [companyName],
       [title],
@@ -84,7 +85,7 @@ export function useExport() {
 
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Raport");
+    XLSX.utils.book_append_sheet(wb, ws, sheetName ?? "Report");
     XLSX.writeFile(wb, `${filename}.xlsx`);
   }
 

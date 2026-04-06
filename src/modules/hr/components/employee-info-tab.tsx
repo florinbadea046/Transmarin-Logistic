@@ -55,12 +55,12 @@ export function InfoTab({ employee, onUpdate }: InfoTabProps) {
 
   const handleSave = () => {
     if (!form.name.trim()) {
-      toast.error("Numele nu poate fi gol.");
+      toast.error(t("employeeInfo.validation.nameEmpty"));
       return;
     }
     const parsedSalary = parseFloat(form.salary);
     if (isNaN(parsedSalary) || parsedSalary < 0) {
-      toast.error("Salariul trebuie să fie un număr pozitiv.");
+      toast.error(t("employeeInfo.validation.salaryPositive"));
       return;
     }
     const updated: Employee = {
@@ -88,7 +88,7 @@ export function InfoTab({ employee, onUpdate }: InfoTabProps) {
     });
     onUpdate(updated);
     setEditing(false);
-    toast.success("Profil actualizat cu succes");
+    toast.success(t("employeeInfo.toast.updated"));
   };
 
   const handleCancel = () => {
@@ -105,31 +105,31 @@ export function InfoTab({ employee, onUpdate }: InfoTabProps) {
   };
 
   const fields: { label: string; key: keyof typeof form }[] = [
-    { label: "Nume", key: "name" },
-    { label: "Funcție", key: "position" },
-    { label: "Telefon", key: "phone" },
-    { label: "Email", key: "email" },
-    { label: "Salariu (RON)", key: "salary" },
+    { label: t("employeeInfo.fields.name"), key: "name" },
+    { label: t("employeeInfo.fields.position"), key: "position" },
+    { label: t("employeeInfo.fields.phone"), key: "phone" },
+    { label: t("employeeInfo.fields.email"), key: "email" },
+    { label: t("employeeInfo.fields.salary"), key: "salary" },
   ];
 
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">Date personale</p>
+        <p className="text-sm text-muted-foreground">{t("employeeInfo.personalData")}</p>
         {!editing ? (
           <Button variant="outline" size="sm" onClick={() => setEditing(true)}>
             <Pencil className="h-3.5 w-3.5 mr-1.5" />
-            Editează
+            {t("employeeInfo.edit")}
           </Button>
         ) : (
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleCancel}>
               <X className="h-3.5 w-3.5 mr-1.5" />
-              Anulează
+              {t("employeeInfo.cancel")}
             </Button>
             <Button size="sm" onClick={handleSave}>
               <Check className="h-3.5 w-3.5 mr-1.5" />
-              Salvează
+              {t("employeeInfo.save")}
             </Button>
           </div>
         )}
@@ -159,7 +159,7 @@ export function InfoTab({ employee, onUpdate }: InfoTabProps) {
         )}
 
         <div className="space-y-1">
-          <p className="text-xs text-muted-foreground">Departament</p>
+          <p className="text-xs text-muted-foreground">{t("employeeInfo.fields.department")}</p>
           {editing ? (
             <Select
               value={form.department}
@@ -184,7 +184,7 @@ export function InfoTab({ employee, onUpdate }: InfoTabProps) {
         </div>
 
         <div className="space-y-0.5">
-          <p className="text-xs text-muted-foreground">Data angajării</p>
+          <p className="text-xs text-muted-foreground">{t("employeeInfo.fields.hireDate")}</p>
           <p className="text-sm font-medium">{formatDate(employee.hireDate)}</p>
         </div>
       </div>

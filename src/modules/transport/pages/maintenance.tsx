@@ -60,19 +60,21 @@ import { cn } from "@/lib/utils";
 
 // ── Zod schema ─────────────────────────────────────────────
 
-const maintenanceSchema = z.object({
-  truckId: z.string().min(1),
-  type: z.enum(["revizie", "schimb_ulei", "anvelope", "frane", "altele"]),
-  description: z.string().min(3),
-  entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data invalida"),
-  exitDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal("")),
-  cost: z.number({ message: "Cost invalid" }).min(0),
-  mechanic: z.string().min(2),
-  status: z.enum(["programat", "in_lucru", "finalizat"]),
-  notes: z.string().optional(),
-});
+function makeMaintenanceSchema(t: (k: string) => string) {
+  return z.object({
+    truckId: z.string().min(1),
+    type: z.enum(["revizie", "schimb_ulei", "anvelope", "frane", "altele"]),
+    description: z.string().min(3),
+    entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, t("maintenance.validation.invalidDate")),
+    exitDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal("")),
+    cost: z.number({ message: t("maintenance.validation.invalidCost") }).min(0),
+    mechanic: z.string().min(2),
+    status: z.enum(["programat", "in_lucru", "finalizat"]),
+    notes: z.string().optional(),
+  });
+}
 
-type MaintenanceFormData = z.infer<typeof maintenanceSchema>;
+type MaintenanceFormData = z.infer<ReturnType<typeof makeMaintenanceSchema>>;
 type MaintenanceFormErrors = Partial<Record<keyof MaintenanceFormData, string>>;
 
 const EMPTY_FORM: MaintenanceFormData = {
@@ -236,6 +238,7 @@ function MaintenanceDialog({
   onSave: () => void;
 }) {
   const { t } = useTranslation();
+  const maintenanceSchema = React.useMemo(() => makeMaintenanceSchema(t), [t]);
   const [form, setForm] = React.useState<MaintenanceFormData>(EMPTY_FORM);
   const [errors, setErrors] = React.useState<MaintenanceFormErrors>({});
 

@@ -413,16 +413,16 @@ export default function InvoicesPage() {
 
   const handleSave = () => {
     if (form.linii.length === 0 || form.linii.every((l) => !l.descriere.trim())) {
-      toast.error("Factura trebuie să conțină cel puțin un articol cu descriere");
+      toast.error(t("toasts.itemRequired"));
       return;
     }
 
     if (editId) {
       setInvoices((prev) => prev.map((inv) => (inv.id === editId ? { ...inv, ...form } : inv)));
-      toast.success("Factură actualizată cu succes");
+      toast.success(t("toasts.updated"));
     } else {
       setInvoices((prev) => [...prev, { id: crypto.randomUUID(), ...form }]);
-      toast.success("Factură adăugată cu succes");
+      toast.success(t("toasts.added"));
     }
     setDialogOpen(false);
   };
@@ -430,12 +430,12 @@ export default function InvoicesPage() {
   const handleDelete = () => {
     setInvoices((prev) => prev.filter((inv) => inv.id !== deleteId));
     setDeleteId(null);
-    toast.success("Factură ștearsă"); // ← ADĂUGAT
+    toast.success(t("toasts.deleted"));
   };
 
   const handleMarkPaid = (id: string) => {
     setInvoices((prev) => prev.map((inv) => (inv.id === id ? { ...inv, status: "plătită" } : inv)));
-    toast.success("Factură marcată ca plătită"); // ← ADĂUGAT
+    toast.success(t("toasts.markedPaid"));
   };
 
   const updateLine = (idx: number, field: keyof InvoiceLine, value: string | number) => {
