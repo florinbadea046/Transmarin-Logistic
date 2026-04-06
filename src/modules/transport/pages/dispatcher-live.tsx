@@ -371,9 +371,6 @@ export default function DispatcherLivePage() {
   const isMobile = useMobile(640);
   const navigate = useNavigate();
 
-  const [lastRefresh, setLastRefresh] = React.useState(new Date());
-  const [data, setData] = React.useState(() => loadData());
-
   function loadData() {
     const trips = getCollection<Trip>(STORAGE_KEYS.trips);
     const orders = getCollection<Order>(STORAGE_KEYS.orders);
@@ -381,6 +378,9 @@ export default function DispatcherLivePage() {
     const drivers = getCollection<Driver>(STORAGE_KEYS.drivers);
     return { trips, orders, trucks, drivers };
   }
+
+  const [lastRefresh, setLastRefresh] = React.useState(new Date());
+  const [data, setData] = React.useState(() => loadData());
 
   React.useEffect(() => {
     const interval = setInterval(() => {
@@ -408,17 +408,21 @@ export default function DispatcherLivePage() {
   const availableTrucks = trucks.filter((tr) => tr.status === "available").length;
 
   // Alerte: camioane cu documente < 30 zile
-  const nowMs = Date.now();
-  let alertCount = 0;
-  for (const truck of trucks) {
-    for (const field of [truck.itpExpiry, truck.rcaExpiry, truck.vignetteExpiry]) {
-      if (!field) continue;
-      try {
-        const daysLeft = Math.ceil((new Date(field).getTime() - nowMs) / 86400000);
-        if (daysLeft < 30) alertCount++;
-      } catch { void 0; }
+  const [alertCount, setAlertCount] = React.useState(0);
+  React.useEffect(() => {
+    const now = Date.now();
+    let count = 0;
+    for (const truck of trucks) {
+      for (const field of [truck.itpExpiry, truck.rcaExpiry, truck.vignetteExpiry]) {
+        if (!field) continue;
+        try {
+          const daysLeft = Math.ceil((new Date(field).getTime() - now) / 86400000);
+          if (daysLeft < 30) count++;
+        } catch { /* skip invalid dates */ }
+      }
     }
-  }
+    setAlertCount(count);
+  }, [trucks]);
 
   return (
     <>
