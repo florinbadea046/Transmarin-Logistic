@@ -20,6 +20,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Trash2, Pencil, Plus, Search, CheckCircle, X } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
+
+import { Label } from "@/components/ui/label";
+
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
+
+import { Download } from "lucide-react";
 
 type InvoiceType = "venit" | "cheltuială";
 type InvoiceStatus = "plătită" | "neplatită" | "parțial" | "anulată";
@@ -253,7 +272,12 @@ function ExportMenu({
 }
 
 function InvoiceCard({
-  inv, onEdit, onDelete, onMarkPaid, selected, onSelect,
+  inv,
+  onEdit,
+  onDelete,
+  onMarkPaid,
+  selected,
+  onSelect,
 }: {
   inv: Invoice;
   onEdit: (inv: Invoice) => void;
@@ -265,29 +289,55 @@ function InvoiceCard({
   const { t } = useTranslation();
   const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii);
 
-  // Mapare status
-  const statusMap: Record<string, InvoiceData["status"]> = {
-    "plătită":  "paid",
-    "neplatită": "overdue",
-    "parțial":  "sent",
-    "anulată":  "cancelled",
-  };
+  return (
+    <Card className={selected ? "border-blue-500" : ""}>
+      <CardContent className="p-4 space-y-3">
+        <div className="flex justify-between items-start">
+          <Checkbox
+            checked={selected}
+            onCheckedChange={(checked) => onSelect(inv.id, !!checked)}
+          />
+          <Badge className={`border ${statusColor[inv.status]}`}>
+            {t(`invoices.statusLabels.${inv.status}`)}
+          </Badge>
+        </div>
 
-  return {
-    invoiceNumber: inv.nr,
-    invoiceDate:   inv.data,
-    dueDate:       inv.scadenta,
-    status:        statusMap[inv.status] ?? "draft",
-    clientName:    inv.clientFurnizor,
-    lineItems: inv.linii.map((l) => ({
-      description: l.descriere,
-      quantity:    l.cantitate,
-      unitPrice:   l.pretUnitar,
-      vatRate:     19,
-    })),
-    // Câmpuri calculate (opționale – folosite în secțiunea totale)
-    paymentTerms: `Subtotal: ${formatCurrency(totalFaraTVA)} | TVA: ${formatCurrency(tva)} | Total: ${formatCurrency(total)}`,
-  };
+        <div className="space-y-1">
+          <div className="font-semibold">{inv.nr}</div>
+          <div className="text-sm text-muted-foreground">{inv.clientFurnizor}</div>
+          <div className="text-sm">{inv.data}</div>
+        </div>
+
+        <div className="text-sm font-medium">
+          {formatCurrency(total)}
+        </div>
+
+        <div className="flex justify-end gap-2">
+          {(inv.status === "neplatită" || inv.status === "parțial") && (
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={() => onMarkPaid(inv.id)}
+            >
+              <CheckCircle className="w-4 h-4" />
+            </Button>
+          )}
+
+          <Button size="icon" variant="ghost" onClick={() => onEdit(inv)}>
+            <Pencil className="w-4 h-4" />
+          </Button>
+
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={() => onDelete(inv.id)}
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function InvoicesPage() {
@@ -362,7 +412,6 @@ export default function InvoicesPage() {
   };
 
   const handleSave = () => {
-    // ← ADĂUGAT: validare factură fără articole
     if (form.linii.length === 0 || form.linii.every((l) => !l.descriere.trim())) {
       toast.error("Factura trebuie să conțină cel puțin un articol cu descriere");
       return;
@@ -531,12 +580,7 @@ export default function InvoicesPage() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
-                              {/* ── D15: Buton PDF ── */}
-                              <InvoicePDFButton
-                                invoice={toInvoiceData(inv)}
-                                size="icon"
-                                variant="ghost"
-                              />
+                              
                               {(inv.status === "neplatită" || inv.status === "parțial") && (
                                 <Button size="icon" variant="ghost" className="text-green-400 hover:text-green-300" title={t("invoices.actions.markPaid")} onClick={() => handleMarkPaid(inv.id)}>
                                   <CheckCircle className="w-4 h-4" />
