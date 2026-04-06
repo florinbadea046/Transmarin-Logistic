@@ -69,11 +69,11 @@ export const LeaveTableRow: React.FC<LeaveRowProps> = ({
       (lr) => ({ ...lr, status: newStatus }),
     );
     log({
-      action: "update",
+      action: newStatus === "approved" ? "approve" : "reject",
       entity: "leave",
       entityId: leave.id,
       entityLabel: leave.employeeName,
-      details: `${leave.type}, ${leave.startDate} – ${leave.endDate} → ${newStatus}`,
+      details: `${leave.type}, ${leave.startDate} – ${leave.endDate}`,
     });
     refreshData();
     toast.success(

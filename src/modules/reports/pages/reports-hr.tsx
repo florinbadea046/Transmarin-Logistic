@@ -24,7 +24,7 @@ import autoTable from "jspdf-autotable";
 import html2canvas from "html2canvas";
 
 import { useTranslation } from "react-i18next";
-import type { TFunction, i18n as I18nType } from "i18next";
+import type { TFunction } from "i18next";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
@@ -79,7 +79,7 @@ function buildDeptPie(employees: Employee[], t: TFunction) {
     map[emp.department] = (map[emp.department] ?? 0) + 1;
   }
   return Object.entries(map).map(([name, value]) => ({
-    name: t(`hrReports.departments.${name}`, name),
+    name: t(`hrReports.departments.${name}`, { defaultValue: name }),
     value,
   }));
 }
@@ -140,7 +140,7 @@ function buildAbsenceRate(employees: Employee[], attendance: AttendanceRecord[],
 
   return Object.entries(deptMap)
     .map(([name, { total, absent, fill }]) => ({
-      name: t(`hrReports.departments.${name}`, name),
+      name: t(`hrReports.departments.${name}`, { defaultValue: name }),
       rata: total > 0 ? Math.round((absent / total) * 100) : 0,
       fill,
     }))
@@ -311,6 +311,7 @@ function DateRangePicker({
           selected={value}
           onSelect={onChange}
           numberOfMonths={isMobile ? 1 : 2}
+          locale={dateLocale}
           initialFocus
         />
       </PopoverContent>
@@ -332,7 +333,8 @@ export default function HRReportsPage() {
   const { t, i18n } = useTranslation();
   const isMobile = useMobile(640);
   const { pathname } = useLocation();
-  const dateLocale = i18n.language === "en" ? enGB : ro;
+  const activeLanguage = i18n.resolvedLanguage ?? i18n.language;
+  const dateLocale = activeLanguage.startsWith("en") ? enGB : ro;
 
   const employees = React.useMemo(() => getCollection<Employee>(STORAGE_KEYS.employees), []);
   const leaves = React.useMemo(() => getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests), []);
