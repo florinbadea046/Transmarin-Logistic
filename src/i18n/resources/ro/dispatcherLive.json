@@ -1,0 +1,40 @@
+{
+    "dispatcherLive": {
+      "title": "Dashboard Dispecer Live",
+      "lastRefresh": "Ultima actualizare",
+      "refresh": "Actualizeaza",
+      "allocateTrip": "Aloca Cursa Noua",
+      "kpi": {
+        "activeTrips": "Curse Active",
+        "unassignedOrders": "Comenzi Neasignate",
+        "availableTrucks": "Camioane Disponibile",
+        "alerts": "Alerte Noi"
+      },
+      "trips": {
+        "title": "Curse Active",
+        "noActive": "Nu exista curse active momentan.",
+        "progress": "Progres",
+        "eta": "ETA",
+        "status": {
+          "in_desfasurare": "In desfasurare",
+          "planned": "Planificata",
+          "finalizata": "Finalizata",
+          "anulata": "Anulata"
+        }
+      },
+      "map": {
+        "title": "Harta Curse Active",
+        "origin": "Origine",
+        "destination": "Destinatie"
+      },
+      "feed": {
+        "title": "Ultimele Evenimente",
+        "noEvents": "Nu exista evenimente recente.",
+        "action": {
+          "create": "Adaugat",
+          "update": "Actualizat",
+          "delete": "Sters"
+        }
+      }
+    }
+  }

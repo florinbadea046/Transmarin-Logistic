@@ -53,6 +53,7 @@ import SettingsPage from "@/pages/settings";
 import RecurringExpensesPage from "@/modules/transport/pages/recurring-expenses";
 import MileageRegistryPage from "@/modules/transport/pages/mileage-registry";
 import BudgetPage from "@/pages/budget";
+import DispatcherLivePage from "@/modules/transport/pages/dispatcher-live";
 
 function isAuthenticated(): boolean {
   try {
@@ -179,6 +180,12 @@ const mileageRegistryRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/transport/mileage-registry",
   component: MileageRegistryPage,
+});
+
+const dispatcherLiveRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/dispatcher-live",
+  component: DispatcherLivePage,
 });
 
 // Fleet
@@ -373,6 +380,7 @@ const routeTree = rootRoute.addChildren([
     fleetComparisonRoute,
     recurringExpensesRoute,
     mileageRegistryRoute,
+    dispatcherLiveRoute,
 
     // Fleet
     fleetRoute,
