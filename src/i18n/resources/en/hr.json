@@ -409,6 +409,8 @@
       "averageScore": "Average score",
       "cancel": "Cancel",
       "save": "Save",
+      "saveSuccess": "Evaluation saved successfully",
+      "updateSuccess": "Evaluation updated successfully",
       "status": "Status",
       "validation": {
         "employeeRequired": "Employee is required",

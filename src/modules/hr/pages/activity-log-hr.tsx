@@ -340,6 +340,7 @@ export default function ActivityLogHRPage() {
       { value: "bonus", label: t("hrAuditLog.entities.bonus") },
       { value: "document", label: t("hrAuditLog.entities.document") },
       { value: "attendance", label: t("hrAuditLog.entities.attendance") },
+      { value: "evaluation", label: t("hrAuditLog.entities.evaluation") },
     ],
     [t],
   );

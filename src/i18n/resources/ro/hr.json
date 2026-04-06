@@ -409,6 +409,8 @@
       "averageScore": "Scor mediu",
       "cancel": "Anulează",
       "save": "Salvează",
+      "saveSuccess": "Evaluare salvată cu succes",
+      "updateSuccess": "Evaluare actualizată cu succes",
       "status": "Status",
       "validation": {
         "employeeRequired": "Angajatul este obligatoriu",

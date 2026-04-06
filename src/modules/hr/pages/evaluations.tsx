@@ -239,8 +239,8 @@ function EvaluationDialog({
 
     toast.success(
       isEdit
-        ? t("evaluations.dialog.editTitle")
-        : t("evaluations.dialog.addTitle"),
+        ? t("evaluations.dialog.updateSuccess")
+        : t("evaluations.dialog.saveSuccess"),
     );
     onSave();
     onOpenChange(false);
@@ -399,16 +399,16 @@ function RadarDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md sm:max-w-lg max-h-[90vh] overflow-y-auto p-4 sm:p-6">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-base sm:text-lg">
             {t("evaluations.radarTitle")} — {getEmpName(employees, evaluation.employeeId)}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {/* Info */}
-          <div className="flex flex-wrap gap-3 text-sm">
+          <div className="flex flex-col sm:flex-row flex-wrap gap-1.5 sm:gap-3 text-xs sm:text-sm">
             <span>
               <strong>{t("evaluations.columns.evaluator")}:</strong>{" "}
               {getEmpName(employees, evaluation.evaluatorId)}
@@ -422,11 +422,11 @@ function RadarDialog({
           </div>
 
           {/* Radar */}
-          <ResponsiveContainer width="100%" height={280}>
-            <RadarChart data={radarData}>
+          <ResponsiveContainer width="100%" height={220}>
+            <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="65%">
               <PolarGrid />
-              <PolarAngleAxis dataKey="criterion" tick={{ fontSize: 11 }} />
-              <PolarRadiusAxis domain={[0, 5]} tickCount={6} tick={{ fontSize: 10 }} />
+              <PolarAngleAxis dataKey="criterion" tick={{ fontSize: 9 }} />
+              <PolarRadiusAxis domain={[0, 5]} tickCount={6} tick={{ fontSize: 8 }} />
               <Radar
                 dataKey="score"
                 stroke="#3b82f6"
@@ -438,15 +438,17 @@ function RadarDialog({
           </ResponsiveContainer>
 
           {/* Detalii criterii */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {evaluation.criteria.map((c) => (
-              <div key={c.criterion} className="flex items-start gap-2 text-sm">
-                <span className="font-medium min-w-[100px]">
-                  {t(`evaluations.criteria.${c.criterion}`)}:
-                </span>
-                <StarRating value={c.score} readonly />
+              <div key={c.criterion} className="rounded-md border p-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs sm:text-sm font-medium">
+                    {t(`evaluations.criteria.${c.criterion}`)}
+                  </span>
+                  <StarRating value={c.score} readonly />
+                </div>
                 {c.comment && (
-                  <span className="text-muted-foreground italic ml-1">— {c.comment}</span>
+                  <p className="text-xs text-muted-foreground italic mt-1">{c.comment}</p>
                 )}
               </div>
             ))}
@@ -761,7 +763,7 @@ export default function EvaluationsPage() {
                             <TableCell key={cell.id}>
                               <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" aria-label={t("evaluations.actions.menu", "Evaluation actions")}>
                                     <MoreHorizontal className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
@@ -775,7 +777,7 @@ export default function EvaluationsPage() {
                                     {t("evaluations.actions.edit")}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem
-                                    className="text-red-600"
+                                    variant="destructive"
                                     onClick={() => confirmDelete(row.original)}
                                   >
                                     <Trash2 className="h-4 w-4 mr-2" />
