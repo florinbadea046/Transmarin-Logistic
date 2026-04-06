@@ -30,9 +30,13 @@ function getExportTripCols(t: (k: string) => string) {
   ];
 }
 
+function getField(item: Record<string, unknown>, key: string): unknown {
+  return item[key as keyof typeof item] ?? "";
+}
+
 function toRows<T>(items: T[], cols: { key: string; label: string }[]) {
   return items.map((item) =>
-    Object.fromEntries(cols.map((c) => [c.label, (item as any)[c.key] ?? ""])),
+    Object.fromEntries(cols.map((c) => [c.label, getField(item as Record<string, unknown>, c.key)])),
   );
 }
 
@@ -43,7 +47,7 @@ export function exportOrdersPDF(orders: Order[], t: (k: string) => string) {
   doc.text(t("orders.manage"), 14, 16);
   autoTable(doc, {
     head: [cols.map((c) => c.label)],
-    body: orders.map((o) => cols.map((c) => String((o as any)[c.key] ?? ""))),
+    body: orders.map((o) => cols.map((c) => String(getField(o as unknown as Record<string, unknown>, c.key)))),
     startY: 22,
     styles: { fontSize: 8 },
     headStyles: { fillColor: [30, 30, 30] },
@@ -78,7 +82,7 @@ export function exportTripsPDF(trips: Trip[], t: (k: string) => string) {
   doc.text(t("trips.title"), 14, 16);
   autoTable(doc, {
     head: [cols.map((c) => c.label)],
-    body: trips.map((tr) => cols.map((c) => String((tr as any)[c.key] ?? ""))),
+    body: trips.map((tr) => cols.map((c) => String(getField(tr as unknown as Record<string, unknown>, c.key)))),
     startY: 22,
     styles: { fontSize: 7 },
     headStyles: { fillColor: [30, 30, 30] },

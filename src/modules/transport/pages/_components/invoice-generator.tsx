@@ -171,7 +171,7 @@ export function InvoiceGenerator({
       styles: { fontSize: 10 },
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    const finalY = doc.lastAutoTable.finalY + 10;
 
     doc.setFontSize(10);
     doc.text(`${t("invoiceGenerator.preview.subtotal")}:`, 130, finalY);

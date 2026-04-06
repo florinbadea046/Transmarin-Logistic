@@ -106,7 +106,7 @@ export function PartsCRUD() {
       setEditingPart(part);
       form.reset({
         name: part.name,
-        code: (part as any).code ?? "",
+        code: part.code ?? "",
         category: part.category as PartFormValues["category"],
         quantity: part.quantity,
         minStock: part.minStock,

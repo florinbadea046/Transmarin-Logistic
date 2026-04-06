@@ -287,7 +287,7 @@ function InvoiceCard({
   onSelect: (id: string, checked: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii);
+  const { total } = calcLineTotals(inv.linii);
 
   return (
     <Card className={selected ? "border-blue-500" : ""}>
