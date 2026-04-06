@@ -135,6 +135,69 @@
       "filename": "raport-financiar"
     }
   },
+  "hrReports": {
+    "title": "Rapoarte Resurse Umane",
+    "subtitle": "Analiza angajati, concedii, bonusuri si absente",
+    "exportPdf": "Export PDF",
+    "exporting": "Se exporta...",
+    "selectInterval": "Selecteaza interval",
+    "reset": "Reseteaza",
+    "noData": "Nu exista date pentru perioada selectata.",
+    "kpi": {
+      "totalEmployees": "Total Angajati",
+      "avgLeaveDays": "Medie Zile Concediu",
+      "avgLeaveDaysUnit": "zile / angajat",
+      "totalBonuses": "Total Bonusuri",
+      "totalFines": "Total Amenzi"
+    },
+    "charts": {
+      "employeesPerDept": "Angajati pe departament",
+      "leavesPerMonth": "Concedii pe luna si tip",
+      "topBonuses": "Top 5 angajati — Bonusuri",
+      "absenceRate": "Rata absente pe departament (%)"
+    },
+    "tooltip": {
+      "days": "{{val}} zile",
+      "annualLeave": "Concediu Odihna",
+      "sickLeave": "Concediu Medical",
+      "bonuses": "Bonusuri",
+      "absenceRate": "Rata absente"
+    },
+    "pdf": {
+      "title": "Raport Resurse Umane - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generat",
+      "allData": "Toate datele",
+      "totalEmployees": "Total angajati",
+      "avgLeaveDays": "Medie zile concediu/angajat",
+      "totalBonuses": "Total bonusuri",
+      "totalFines": "Total amenzi",
+      "employeesPerDept": "Angajati pe departament",
+      "leavesPerMonth": "Concedii pe luna si tip",
+      "topBonuses": "Top 5 angajati — Bonusuri",
+      "absenceRate": "Rata absente pe departament",
+      "department": "Departament",
+      "numEmployees": "Nr. angajati",
+      "employee": "Angajat",
+      "totalBonusesLabel": "Total bonusuri",
+      "absenceRatePercent": "Rata absente (%)",
+      "filename": "raport-hr"
+    },
+    "departments": {
+      "Management": "Management",
+      "Administrativ": "Administrativ",
+      "Transport": "Transport",
+      "Dispecerat": "Dispecerat",
+      "Service": "Service",
+      "Contabilitate": "Contabilitate"
+    },
+    "nav": {
+      "transport": "Transport",
+      "financial": "Financiar",
+      "fleet": "Parc Auto",
+      "hr": "HR"
+    }
+  },
   "fleetReports": {
     "title": "Rapoarte Parc Auto",
     "serviceCost": "Cost Service",
