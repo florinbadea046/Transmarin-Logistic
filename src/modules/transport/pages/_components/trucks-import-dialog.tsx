@@ -17,6 +17,7 @@ import type { Truck } from "@/modules/transport/types";
 import { addItem, generateId, getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { cn } from "@/lib/utils";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 import { type TruckParsedRow, parseTruckRows } from "./trucks-import-utils";
 
@@ -26,6 +27,7 @@ export function TruckImportDialog({
   open: boolean; onOpenChange: (v: boolean) => void; onImported: () => void; isMobile: boolean;
 }) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [rows, setRows] = React.useState<TruckParsedRow[]>([]);
   const [fileName, setFileName] = React.useState("");
@@ -66,6 +68,16 @@ export function TruckImportDialog({
       added++;
     }
     const skipped = duplicateRows.length;
+    if (added > 0) {
+      log({
+        action: "create",
+        entity: "truck",
+        entityId: "bulk-import",
+        entityLabel: `${added} trucks`,
+        detailKey: "activityLog.details.trucksImported",
+        detailParams: { count: String(added) },
+      });
+    }
     if (added > 0 && skipped > 0) toast.success(t("trucks.import.toastPartial", { added, skipped }));
     else if (added > 0) toast.success(t("trucks.import.toastSuccess", { count: added }));
     else toast.info(t("trucks.import.toastAllSkipped"));

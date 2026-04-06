@@ -1,5 +1,6 @@
 import { useState, useMemo, type ChangeEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,6 +60,7 @@ const emptyForm = {
 
 export function FuelCRUD() {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const [records, setRecords] = useState<FuelRecord[]>(() =>
     getCollection<FuelRecord>(STORAGE_KEYS.fuelRecords),
   );
@@ -85,14 +87,20 @@ export function FuelCRUD() {
 
   const handleSubmit = () => {
     if (!form.truckId || !form.date) return;
-    const newRecord: FuelRecord = { id: crypto.randomUUID(), ...form };
+    const newId = crypto.randomUUID();
+    const newRecord: FuelRecord = { id: newId, ...form };
+    const truckLabel = trucks.find((tr) => tr.id === form.truckId)?.plateNumber ?? form.truckId;
     save([...records, newRecord]);
+    log({ action: "create", entity: "fuelLog", entityId: newId, entityLabel: truckLabel, detailKey: "activityLog.details.fuelLogCreated", detailParams: { truck: truckLabel } });
     setForm(emptyForm);
     setOpen(false);
   };
 
   const handleDelete = (id: string) => {
+    const record = records.find((r) => r.id === id);
+    const truckLabel = record ? (trucks.find((tr) => tr.id === record.truckId)?.plateNumber ?? record.truckId) : id;
     save(records.filter((r) => r.id !== id));
+    log({ action: "delete", entity: "fuelLog", entityId: id, entityLabel: truckLabel, detailKey: "activityLog.details.fuelLogDeleted" });
   };
 
   const truckRecordsMap = useMemo(

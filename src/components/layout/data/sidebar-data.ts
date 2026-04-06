@@ -22,6 +22,8 @@ import {
   History,
   CalendarDays,
   Gauge,
+  Briefcase,
+  CreditCard,
 } from "lucide-react";
 import { type SidebarData } from "../types";
 
@@ -275,6 +277,16 @@ export const sidebarData: SidebarData = {
               title: "Afisare",
               url: "/settings/display",
               icon: Monitor,
+            },
+            {
+              title: "Resurse Umane",
+              url: "/settings/hr",
+              icon: Briefcase,
+            },
+            {
+              title: "Facturare",
+              url: "/settings/invoicing",
+              icon: CreditCard,
             },
           ],
         },

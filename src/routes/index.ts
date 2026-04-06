@@ -320,6 +320,16 @@ const settingsDisplayRoute = createRoute({
   path: "/settings/display",
   component: SettingsPage,
 });
+const settingsHRRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/settings/hr",
+  component: SettingsPage,
+});
+const settingsInvoicingRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/settings/invoicing",
+  component: SettingsPage,
+});
 
 const budgetRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
@@ -400,6 +410,8 @@ const routeTree = rootRoute.addChildren([
     settingsAppearanceRoute,
     settingsNotificationsRoute,
     settingsDisplayRoute,
+    settingsHRRoute,
+    settingsInvoicingRoute,
 
     driverPerformanceRoute,
   ]),

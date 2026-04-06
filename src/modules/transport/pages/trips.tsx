@@ -38,6 +38,7 @@ import { DataTableToolbar } from "@/components/data-table/toolbar";
 import type { Trip, Driver, Truck, Order } from "@/modules/transport/types";
 import { getCollection, updateItem, removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 import { TripsExportMenu } from "./_components/trips-export-menu";
 import { buildColumns } from "./_components/trips-table-columns";
@@ -58,6 +59,7 @@ function useWindowWidth() {
 
 export default function TripsPage() {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const navigate = useNavigate();
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth < 768;
@@ -151,9 +153,10 @@ export default function TripsPage() {
       } else if (updatedTrip.status === "in_desfasurare") {
         toast.success(t("trips.toast.started"));
       }
+      log({ action: "update", entity: "trip", entityId: updatedTrip.id, entityLabel: updatedTrip.orderId, detailKey: "activityLog.details.tripStatusChanged", detailParams: { status: updatedTrip.status } });
       loadData();
     },
-    [loadData, t],
+    [loadData, log, t],
   );
 
   const handleDeleteRequest = React.useCallback((trip: Trip) => {
@@ -164,11 +167,12 @@ export default function TripsPage() {
   const handleDeleteConfirm = React.useCallback(() => {
     if (!deletingTrip) return;
     removeItem<Trip>(STORAGE_KEYS.trips, (tr) => tr.id === deletingTrip.id);
+    log({ action: "delete", entity: "trip", entityId: deletingTrip.id, entityLabel: deletingTrip.orderId, detailKey: "activityLog.details.tripDeleted" });
     toast.success(t("trips.toast.deleted"));
     setDeleteDialogOpen(false);
     setDeletingTrip(null);
     loadData();
-  }, [deletingTrip, loadData, t]);
+  }, [deletingTrip, loadData, log, t]);
 
   const handleEdit = React.useCallback((trip: Trip) => {
     setEditingTrip(trip);

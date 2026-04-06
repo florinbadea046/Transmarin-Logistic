@@ -39,6 +39,7 @@ import { getCollection, updateItem, removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Truck } from "@/modules/transport/types";
 import { useMobile } from "@/hooks/use-mobile";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import { cn } from "@/lib/utils";
 
 import type { RecurringExpense } from "./_components/recurring-expenses-utils";
@@ -54,6 +55,7 @@ export type { RecurringCategory, RecurringStatus, RecurringExpense } from "./_co
 
 export default function RecurringExpensesPage() {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const isMobile = useMobile(640);
 
   const [expenses, setExpenses] = React.useState<RecurringExpense[]>(() =>
@@ -83,7 +85,10 @@ export default function RecurringExpensesPage() {
 
   const handleDelete = () => {
     if (!deleteId) return;
+    const expense = expenses.find((e) => e.id === deleteId);
+    const truckLabel = expense ? (getTruck(expense.truckId)?.plateNumber ?? expense.truckId) : deleteId;
     removeItem<RecurringExpense>(STORAGE_KEYS.recurringExpenses, (e) => e.id === deleteId);
+    log({ action: "delete", entity: "recurringExpense", entityId: deleteId, entityLabel: expense ? `${expense.category} - ${truckLabel}` : deleteId, detailKey: "activityLog.details.recurringExpenseDeleted" });
     toast.success(t("recurringExpenses.toastDeleted"));
     setDeleteId(null);
     refresh();

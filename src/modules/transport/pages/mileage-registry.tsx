@@ -48,6 +48,7 @@ import { DataTablePagination } from "@/components/data-table/pagination";
 import type { Truck, Trip } from "@/modules/transport/types";
 import { getCollection, updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 import {
   type MileageEntry,
@@ -78,6 +79,7 @@ function useWindowWidth() {
 
 export default function MileageRegistryPage() {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth < 640;
 
@@ -271,6 +273,7 @@ export default function MileageRegistryPage() {
         (tr) => ({ ...tr, mileage: kmEnd }),
       );
     }
+    log({ action: "update", entity: "mileage", entityId: `${editRow!.truck.id}-${selectedMonth}`, entityLabel: editRow!.truck.plateNumber, detailKey: "activityLog.details.mileageUpdated", detailParams: { truck: editRow!.truck.plateNumber, month: selectedMonth }, oldValue: { kmStart: editRow!.kmStart, kmEnd: editRow!.kmEnd }, newValue: { kmStart, kmEnd } });
     toast.success(t("mileageRegistry.toast.saved"));
     setEditRow(null);
     loadData();

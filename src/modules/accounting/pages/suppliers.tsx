@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import type { Supplier } from "@/modules/accounting/types";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import { SupplierModal } from "../components/SupplierModal";
 import { getCollection, setCollection } from "@/utils/local-storage";
 
@@ -33,6 +34,7 @@ const columnHelper = createColumnHelper<Supplier>();
 
 export default function SuppliersPage() {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [search, setSearch] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -60,8 +62,11 @@ export default function SuppliersPage() {
 
     if (selectedSupplier) {
       updated = suppliers.map((s) => (s.id === supplier.id ? supplier : s));
+      log({ action: "update", entity: "supplier", entityId: supplier.id, entityLabel: supplier.name, detailKey: "activityLog.details.supplierUpdated", oldValue: { name: selectedSupplier.name, cui: selectedSupplier.cui }, newValue: { name: supplier.name, cui: supplier.cui } });
     } else {
-      updated = [...suppliers, { ...supplier, id: crypto.randomUUID() }];
+      const newId = crypto.randomUUID();
+      updated = [...suppliers, { ...supplier, id: newId }];
+      log({ action: "create", entity: "supplier", entityId: newId, entityLabel: supplier.name, detailKey: "activityLog.details.supplierCreated", detailParams: { name: supplier.name } });
     }
 
     setSuppliers(updated);
@@ -72,11 +77,13 @@ export default function SuppliersPage() {
   const confirmDelete = useCallback(() => {
     if (!deleteId) return;
 
+    const supplier = suppliers.find((s) => s.id === deleteId);
+    log({ action: "delete", entity: "supplier", entityId: deleteId, entityLabel: supplier?.name ?? deleteId, detailKey: "activityLog.details.supplierDeleted" });
     const updated = suppliers.filter((s) => s.id !== deleteId);
     setSuppliers(updated);
     setCollection(STORAGE_KEYS.suppliers, updated);
     setDeleteId(null);
-  }, [deleteId, suppliers]);
+  }, [deleteId, log, suppliers]);
 
   const columns = useMemo(
     () => [

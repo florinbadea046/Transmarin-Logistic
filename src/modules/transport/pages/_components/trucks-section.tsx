@@ -27,6 +27,7 @@ import type { Driver, Truck } from "@/modules/transport/types";
 import { addItem, generateId, removeItem, updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import useDialogState from "@/hooks/use-dialog-state";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import { useMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +47,7 @@ export function TrucksSection({ drivers, trucks, onDataChange }: {
   drivers: Driver[]; trucks: Truck[]; onDataChange: () => void;
 }) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const isMobile = useMobile(640);
 
   const statusFilterOptions = (["available", "on_trip", "in_service"] as Truck["status"][]).map(
@@ -96,10 +98,14 @@ export function TrucksSection({ drivers, trucks, onDataChange }: {
     const errs = validateTruckForm(form);
     if (Object.keys(errs).length > 0) { setErrors(errs); return; }
     if (editingTruck) {
+      const old = { ...editingTruck };
       updateItem<Truck>(STORAGE_KEYS.trucks, (tr) => tr.id === editingTruck.id, (tr) => ({ ...tr, plateNumber: form.plateNumber.trim().toUpperCase(), brand: form.brand.trim(), model: form.model.trim(), year: Number(form.year), mileage: Number(form.mileage), status: form.status, itpExpiry: form.itpExpiry, rcaExpiry: form.rcaExpiry, vignetteExpiry: form.vignetteExpiry }));
+      log({ action: "update", entity: "truck", entityId: editingTruck.id, entityLabel: form.plateNumber.trim().toUpperCase(), detailKey: "activityLog.details.truckUpdated", oldValue: { plateNumber: old.plateNumber, status: old.status }, newValue: { plateNumber: form.plateNumber.trim().toUpperCase(), status: form.status } });
       toast.success(t("trucks.toastUpdated"));
     } else {
-      addItem<Truck>(STORAGE_KEYS.trucks, { id: generateId(), plateNumber: form.plateNumber.trim().toUpperCase(), brand: form.brand.trim(), model: form.model.trim(), year: Number(form.year), mileage: Number(form.mileage), status: form.status, itpExpiry: form.itpExpiry, rcaExpiry: form.rcaExpiry, vignetteExpiry: form.vignetteExpiry });
+      const newId = generateId();
+      addItem<Truck>(STORAGE_KEYS.trucks, { id: newId, plateNumber: form.plateNumber.trim().toUpperCase(), brand: form.brand.trim(), model: form.model.trim(), year: Number(form.year), mileage: Number(form.mileage), status: form.status, itpExpiry: form.itpExpiry, rcaExpiry: form.rcaExpiry, vignetteExpiry: form.vignetteExpiry });
+      log({ action: "create", entity: "truck", entityId: newId, entityLabel: form.plateNumber.trim().toUpperCase(), detailKey: "activityLog.details.truckCreated", detailParams: { plate: form.plateNumber.trim().toUpperCase() } });
       toast.success(t("trucks.toastAdded"));
     }
     setTruckDialogOpen(false); onDataChange();
@@ -107,8 +113,10 @@ export function TrucksSection({ drivers, trucks, onDataChange }: {
 
   const handleDelete = () => {
     if (!deleteTruckId) return;
+    const truck = trucks.find((tr) => tr.id === deleteTruckId);
     updateItem<Driver>(STORAGE_KEYS.drivers, (d) => d.truckId === deleteTruckId, (d) => ({ ...d, truckId: undefined }));
     removeItem<Truck>(STORAGE_KEYS.trucks, (tr) => tr.id === deleteTruckId);
+    if (truck) log({ action: "delete", entity: "truck", entityId: deleteTruckId, entityLabel: truck.plateNumber, detailKey: "activityLog.details.truckDeleted" });
     toast.success(t("trucks.toastDeleted"));
     setDeleteTruckId(null); onDataChange();
   };
