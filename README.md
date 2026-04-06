@@ -212,23 +212,3 @@ All data is stored in browser localStorage. Storage keys are defined in `src/dat
 | `transmarin_audit_log` | System | General audit trail |
 
 Seed data loads automatically on first run when localStorage is empty.
-
----
-
-## Code Quality
-
-| Metric | Status |
-|--------|--------|
-| TypeScript | 0 errors (strict mode) |
-| ESLint | 0 errors, 0 warnings |
-| `console.log` in production code | 0 |
-| `dangerouslySetInnerHTML` | 0 |
-| `@ts-ignore` / `@ts-expect-error` | 0 |
-| `as any` | 3 (Leaflet icon workaround + zod/RHF type gap — unavoidable) |
-| Translation parity | 1,700+ keys, EN = RO (100%) |
-
----
-
-## License
-
-Educational project. Not licensed for commercial use.
