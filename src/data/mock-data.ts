@@ -40,6 +40,7 @@ export const STORAGE_KEYS = {
   fuelLog: "transmarin_fuel_log",
   transport_settings: "transmarin_transport_settings",
   tripInvoices: "transmarin_trip_invoices",
+  budgets: "transmarin_budgets",
   recurringExpenses: "transmarin_recurring_expenses",
 } as const;
 
@@ -879,9 +880,7 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(0, 25),
     supplierId: "s1",
     clientName: "Auto Parts SRL",
-    items: [
-      { description: "Piese auto", quantity: 3, unitPrice: 800, total: 2400 },
-    ],
+    items: [{ description: "Piese auto", quantity: 3, unitPrice: 800, total: 2400 }],
     totalWithoutVAT: 2400,
     vat: 456,
     total: 2856,
@@ -956,9 +955,7 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(-1, 5),
     supplierId: "s1",
     clientName: "Auto Parts SRL",
-    items: [
-      { description: "Filtre ulei", quantity: 10, unitPrice: 45, total: 450 },
-    ],
+    items: [{ description: "Filtre ulei", quantity: 10, unitPrice: 45, total: 450 }],
     totalWithoutVAT: 450,
     vat: 85,
     total: 535,
@@ -1290,10 +1287,4 @@ export function seedMockData(): void {
 }
 
 export { seedEmployees };
-export const EMPLOYEE_DEPARTMENTS = [
-  "Dispecerat",
-  "Transport",
-  "Service",
-  "Contabilitate",
-  "Administrativ",
-] as const;
+export const EMPLOYEE_DEPARTMENTS = ["Dispecerat", "Transport", "Service", "Contabilitate", "Administrativ"] as const;
