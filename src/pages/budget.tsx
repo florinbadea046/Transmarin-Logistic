@@ -57,7 +57,7 @@ export default function BudgetPage() {
     invoices
       .filter((inv) => inv.type === "expense")
       .forEach((inv) => {
-        const cat = (inv as any).category ?? "altele";
+        const cat = (inv as unknown as Record<string, string>).category ?? "altele";
         map[cat] = (map[cat] ?? 0) + inv.total;
       });
     return map;

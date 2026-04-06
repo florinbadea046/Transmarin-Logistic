@@ -250,7 +250,7 @@ async function exportPDF(
           data.cell.text[0] = stripDiacritics(data.cell.text[0]);
       },
     });
-    y = (doc as any).lastAutoTable.finalY + 8;
+    y = doc.lastAutoTable.finalY + 8;
   }
 
   addTable(

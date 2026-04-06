@@ -28,15 +28,13 @@ import { useTranslation } from "react-i18next";
 
 const BONUS_FORM_TYPES = ["bonus", "amenda", "ore_suplimentare"] as const;
 
-const bonusSchema = z.object({
-  employeeId: z.string().min(1),
-  type: z.enum(BONUS_FORM_TYPES),
-  amount: z.number().refine((value) => value !== 0),
-  date: z.string().min(1),
-  description: z.string().min(5),
-});
-
-type BonusFormValues = z.infer<typeof bonusSchema>;
+type BonusFormValues = {
+  employeeId: string;
+  type: (typeof BONUS_FORM_TYPES)[number];
+  amount: number;
+  date: string;
+  description: string;
+};
 
 interface Props {
   mode: "add" | "edit";
@@ -67,7 +65,7 @@ export default function BonusDialog({
 
   const todayStr = React.useMemo(() => new Date().toISOString().slice(0, 10), []);
 
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { log } = useHrAuditLog();
 
   const translatedSchema = React.useMemo(() => z.object({
@@ -78,7 +76,7 @@ export default function BonusDialog({
     }),
     date: z.string().min(1, t("payroll.bonusDialog.validation.dateRequired")),
     description: z.string().min(5, t("payroll.bonusDialog.validation.descriptionMin")),
-  }), [t, i18n.language]);
+  }), [t]);
 
   const form = useForm<BonusFormValues>({
     resolver: zodResolver(translatedSchema),
