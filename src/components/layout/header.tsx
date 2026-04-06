@@ -47,8 +47,7 @@ export function Header({ className, fixed, children, ...props }: HeaderProps) {
         <Separator orientation="vertical" className="h-6" />
         {children}
         <div className="ml-auto flex items-center gap-2">
-          {isHRSection && <HRNotificationsCenter />}
-          <NotificationsCenter />
+          {isHRSection ? <HRNotificationsCenter /> : <NotificationsCenter />}
         </div>
       </div>
     </header>

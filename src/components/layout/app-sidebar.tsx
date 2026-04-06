@@ -56,6 +56,7 @@ const TITLE_KEYS: Record<string, string> = {
   "/reports/financial": "sidebar.reports.financial",
   "/reports/fleet": "sidebar.reports.fleet",
   "/reports/advanced": "reports.title",
+  "/reports/hr": "sidebar.reports.hr",
   // Settings
   "/settings": "sidebar.settings.profile",
   "/settings/appearance": "sidebar.settings.appearance",
