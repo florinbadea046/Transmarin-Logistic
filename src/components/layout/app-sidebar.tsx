@@ -32,6 +32,7 @@ const TITLE_KEYS: Record<string, string> = {
   "/transport/fuel-log": "fuelLog.title",
   "/transport/fleet-comparison": "fleetComparison.title",
   "/transport/recurring-expenses": "recurringExpenses.title",
+  "/transport/mileage-registry": "mileageRegistry.title",
   // Fleet
   "/fleet": "sidebar.fleet.overview",
   "/fleet/parts": "sidebar.fleet.parts",

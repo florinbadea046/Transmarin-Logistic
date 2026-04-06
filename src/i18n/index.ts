@@ -23,6 +23,7 @@ import roFuelLog from "./resources/ro/fuelLog.json";
 import roInvoiceGenerator from "./resources/ro/invoiceGenerator.json";
 import roFleetComparison from "./resources/ro/fleetComparison.json";
 import roRecurringExpenses from "./resources/ro/recurringExpenses.json";
+import roMileageRegistry from "./resources/ro/mileageRegistry.json";
 
 // EN
 import enCommon from "./resources/en/common.json";
@@ -45,6 +46,7 @@ import enFuelLog from "./resources/en/fuelLog.json";
 import enInvoiceGenerator from "./resources/en/invoiceGenerator.json";
 import enFleetComparison from "./resources/en/fleetComparison.json";
 import enRecurringExpenses from "./resources/en/recurringExpenses.json";
+import enMileageRegistry from "./resources/en/mileageRegistry.json";
 
 i18n
   .use(LanguageDetector)
@@ -76,6 +78,7 @@ i18n
           ...enInvoiceGenerator,
           ...enFleetComparison,
           ...enRecurringExpenses,
+          ...enMileageRegistry,
         },
       },
       ro: {
@@ -100,6 +103,7 @@ i18n
           ...roInvoiceGenerator,
           ...roFleetComparison,
           ...roRecurringExpenses,
+          ...roMileageRegistry,
         },
       },
     },

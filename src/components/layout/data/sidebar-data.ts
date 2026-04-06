@@ -21,6 +21,7 @@ import {
   DollarSign,
   History,
   CalendarDays,
+  Gauge,
 } from "lucide-react";
 import { type SidebarData } from "../types";
 
@@ -110,9 +111,15 @@ export const sidebarData: SidebarData = {
               url: "/transport/fuel-log",
               icon: Fuel,
             },
-            { title: "Cheltuieli Recurente",
-              url: "/transport/recurring-expenses", 
-              icon: Receipt
+            {
+              title: "Cheltuieli Recurente",
+              url: "/transport/recurring-expenses",
+              icon: Receipt,
+            },
+            {
+              title: "Registru Kilometraj",
+              url: "/transport/mileage-registry",
+              icon: Gauge,
             },
           ],
         },

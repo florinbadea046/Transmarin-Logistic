@@ -1,0 +1,64 @@
+{
+  "mileageRegistry": {
+    "title": "Truck Mileage Registry",
+    "tableTitle": "Monthly Mileage Table",
+    "save": "Save",
+    "cancel": "Cancel",
+    "noResults": "No trucks found.",
+    "columns": {
+      "truck": "Truck",
+      "brand": "Brand / Model",
+      "kmStart": "Km Start",
+      "kmEnd": "Km End",
+      "kmDriven": "Km Driven",
+      "kmTrips": "Km from Trips",
+      "avgPerDay": "Avg / Day",
+      "discrepancy": "Discrepancy",
+      "actions": "Actions"
+    },
+    "fields": {
+      "kmStart": "Odometer at month start (km)",
+      "kmEnd": "Odometer at month end (km)"
+    },
+    "placeholders": {
+      "search": "Search truck..."
+    },
+    "actions": {
+      "update": "Update",
+      "export": "Export Excel"
+    },
+    "kpi": {
+      "totalKm": "Total Km Driven",
+      "totalKmDesc": "All trucks this month",
+      "avgDaily": "Average per Day",
+      "avgDailyDesc": "Per truck average",
+      "alerts": "Discrepancy Alerts",
+      "alertsDesc": "Odometer vs trips > 10%"
+    },
+    "chart": {
+      "title": "Monthly Km Evolution per Truck (last 12 months)"
+    },
+    "alert": {
+      "discrepancy": "{{count}} truck(s) have a discrepancy > 10% between odometer and trip km: {{trucks}}. Possible unregistered trips."
+    },
+    "dialog": {
+      "title": "Update Odometer",
+      "month": "Month",
+      "preview": "Km driven this month: {{km}} km"
+    },
+    "validation": {
+      "kmStartRequired": "Km start is required",
+      "kmStartMin": "Km start must be >= 0",
+      "kmEndRequired": "Km end is required",
+      "kmEndMin": "Km end must be >= 0",
+      "kmEndAfterStart": "Km end must be >= km start"
+    },
+    "toast": {
+      "saved": "Odometer updated successfully!"
+    },
+    "export": {
+      "sheetName": "Mileage",
+      "filename": "mileage-registry"
+    }
+  }
+}
