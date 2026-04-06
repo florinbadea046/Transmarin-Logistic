@@ -59,7 +59,8 @@
       "overview": "Reports Dashboard",
       "transport": "Transport Reports",
       "financial": "Financial Reports",
-      "fleet": "Fleet Reports"
+      "fleet": "Fleet Reports",
+      "hr": "HR Reports"
     },
     "settings": {
       "title": "Settings",

@@ -6,7 +6,7 @@
 
 import * as React from "react";
 import { format, parseISO, startOfDay, endOfDay, isWithinInterval } from "date-fns";
-import { ro } from "date-fns/locale";
+import { ro, enGB, type Locale } from "date-fns/locale";
 import type { DateRange } from "react-day-picker";
 import {
   PieChart, Pie, Cell,
@@ -22,6 +22,9 @@ import {
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import html2canvas from "html2canvas";
+
+import { useTranslation } from "react-i18next";
+import type { TFunction, i18n as I18nType } from "i18next";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
@@ -70,15 +73,18 @@ function inRange(dateStr: string, range: DateRange | undefined): boolean {
 
 // ── Builders ───────────────────────────────────────────────
 
-function buildDeptPie(employees: Employee[]) {
+function buildDeptPie(employees: Employee[], t: TFunction) {
   const map: Record<string, number> = {};
   for (const emp of employees) {
     map[emp.department] = (map[emp.department] ?? 0) + 1;
   }
-  return Object.entries(map).map(([name, value]) => ({ name, value }));
+  return Object.entries(map).map(([name, value]) => ({
+    name: t(`hrReports.departments.${name}`, name),
+    value,
+  }));
 }
 
-function buildLeavesPerMonth(leaves: LeaveRequest[], range: DateRange | undefined) {
+function buildLeavesPerMonth(leaves: LeaveRequest[], range: DateRange | undefined, dateLocale: Locale) {
   const map: Record<string, { luna: string; CO: number; CM: number }> = {};
   for (const l of leaves) {
     if (l.status !== "approved") continue;
@@ -88,7 +94,7 @@ function buildLeavesPerMonth(leaves: LeaveRequest[], range: DateRange | undefine
     if (!map[month]) {
       const [year, m] = month.split("-");
       const d = new Date(Number(year), Number(m) - 1, 1);
-      map[month] = { luna: format(d, "MMM yyyy", { locale: ro }), CO: 0, CM: 0 };
+      map[month] = { luna: format(d, "MMM yyyy", { locale: dateLocale }), CO: 0, CM: 0 };
     }
     if (l.type === "annual") map[month].CO += l.days;
     else map[month].CM += l.days;
@@ -114,7 +120,7 @@ function buildTopBonuses(employees: Employee[], bonuses: Bonus[], range: DateRan
     .slice(0, 5);
 }
 
-function buildAbsenceRate(employees: Employee[], attendance: AttendanceRecord[], range: DateRange | undefined) {
+function buildAbsenceRate(employees: Employee[], attendance: AttendanceRecord[], range: DateRange | undefined, t: TFunction) {
   const empDept: Record<string, string> = {};
   employees.forEach((e) => { empDept[e.id] = e.department; });
 
@@ -134,7 +140,7 @@ function buildAbsenceRate(employees: Employee[], attendance: AttendanceRecord[],
 
   return Object.entries(deptMap)
     .map(([name, { total, absent, fill }]) => ({
-      name,
+      name: t(`hrReports.departments.${name}`, name),
       rata: total > 0 ? Math.round((absent / total) * 100) : 0,
       fill,
     }))
@@ -176,6 +182,7 @@ async function exportPDF(
   absenceData: ReturnType<typeof buildAbsenceRate>,
   range: DateRange | undefined,
   chartRefs: Record<string, HTMLDivElement | null>,
+  t: TFunction,
 ) {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageW = doc.internal.pageSize.getWidth();
@@ -185,28 +192,28 @@ async function exportPDF(
 
   const rangeLabel = range?.from
     ? `${format(range.from, "dd.MM.yyyy")}${range.to ? ` - ${format(range.to, "dd.MM.yyyy")}` : ""}`
-    : "Toate datele";
+    : t("hrReports.pdf.allData");
 
   doc.setFontSize(16);
   doc.setFont("helvetica", "bold");
-  doc.text("Raport Resurse Umane", margin, 16);
+  doc.text(stripDiacritics(t("hrReports.pdf.title")), margin, 16);
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(`Interval: ${rangeLabel}`, margin, 24);
-  doc.text(`Generat: ${format(new Date(), "dd.MM.yyyy HH:mm")}`, margin, 30);
+  doc.text(`${t("hrReports.pdf.interval")}: ${rangeLabel}`, margin, 24);
+  doc.text(`${t("hrReports.pdf.generated")}: ${format(new Date(), "dd.MM.yyyy HH:mm")}`, margin, 30);
 
   let y = 40;
   doc.setFontSize(11);
-  doc.text(`Total angajati: ${kpis.totalAngajati}`, margin, y); y += 6;
-  doc.text(`Medie zile concediu/angajat: ${kpis.avgLeaveDays.toFixed(1)}`, margin, y); y += 6;
-  doc.text(`Total bonusuri: ${stripDiacritics(formatCurrency(kpis.totalBonusuri))}`, margin, y); y += 6;
-  doc.text(`Total amenzi: ${stripDiacritics(formatCurrency(kpis.totalAmenzi))}`, margin, y); y += 10;
+  doc.text(`${stripDiacritics(t("hrReports.pdf.totalEmployees"))}: ${kpis.totalAngajati}`, margin, y); y += 6;
+  doc.text(`${stripDiacritics(t("hrReports.pdf.avgLeaveDays"))}: ${kpis.avgLeaveDays.toFixed(1)}`, margin, y); y += 6;
+  doc.text(`${stripDiacritics(t("hrReports.pdf.totalBonuses"))}: ${stripDiacritics(formatCurrency(kpis.totalBonusuri))}`, margin, y); y += 6;
+  doc.text(`${stripDiacritics(t("hrReports.pdf.totalFines"))}: ${stripDiacritics(formatCurrency(kpis.totalAmenzi))}`, margin, y); y += 10;
 
   const charts: { ref: HTMLDivElement | null; title: string }[] = [
-    { ref: chartRefs.dept, title: "Angajati pe departament" },
-    { ref: chartRefs.leaves, title: "Concedii pe luna si tip" },
-    { ref: chartRefs.bonuses, title: "Top 5 angajati - Bonusuri" },
-    { ref: chartRefs.absence, title: "Rata absente pe departament" },
+    { ref: chartRefs.dept, title: t("hrReports.pdf.employeesPerDept") },
+    { ref: chartRefs.leaves, title: t("hrReports.pdf.leavesPerMonth") },
+    { ref: chartRefs.bonuses, title: t("hrReports.pdf.topBonuses") },
+    { ref: chartRefs.absence, title: t("hrReports.pdf.absenceRate") },
   ];
 
   for (const { ref, title } of charts) {
@@ -247,35 +254,37 @@ async function exportPDF(
   }
 
   addTable(
-    "Angajati pe departament",
-    ["Departament", "Nr. angajati"],
+    t("hrReports.pdf.employeesPerDept"),
+    [t("hrReports.pdf.department"), t("hrReports.pdf.numEmployees")],
     deptData.map((r) => [r.name, String(r.value)]),
   );
 
   addTable(
-    "Top 5 angajati - Bonusuri",
-    ["Angajat", "Total bonusuri"],
+    t("hrReports.pdf.topBonuses"),
+    [t("hrReports.pdf.employee"), t("hrReports.pdf.totalBonusesLabel")],
     bonusData.map((r) => [r.name, stripDiacritics(formatCurrency(r.total))]),
   );
 
   addTable(
-    "Rata absente pe departament",
-    ["Departament", "Rata absente (%)"],
+    t("hrReports.pdf.absenceRate"),
+    [t("hrReports.pdf.department"), t("hrReports.pdf.absenceRatePercent")],
     absenceData.map((r) => [r.name, `${r.rata}%`]),
   );
 
-  doc.save(`raport-hr-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+  doc.save(`${t("hrReports.pdf.filename")}-${format(new Date(), "yyyy-MM-dd")}.pdf`);
 }
 
 // ── DateRangePicker ────────────────────────────────────────
 
 function DateRangePicker({
-  value, onChange, isMobile,
+  value, onChange, isMobile, dateLocale,
 }: {
   value: DateRange | undefined;
   onChange: (r: DateRange | undefined) => void;
   isMobile: boolean;
+  dateLocale: Locale;
 }) {
+  const { t } = useTranslation();
   const [open, setOpen] = React.useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -291,9 +300,9 @@ function DateRangePicker({
           <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
           {value?.from
             ? value.to
-              ? <>{format(value.from, "dd MMM yyyy", { locale: ro })} - {format(value.to, "dd MMM yyyy", { locale: ro })}</>
-              : format(value.from, "dd MMM yyyy", { locale: ro })
-            : "Selectează interval"}
+              ? <>{format(value.from, "dd MMM yyyy", { locale: dateLocale })} - {format(value.to, "dd MMM yyyy", { locale: dateLocale })}</>
+              : format(value.from, "dd MMM yyyy", { locale: dateLocale })
+            : t("hrReports.selectInterval")}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align={isMobile ? "center" : "start"}>
@@ -309,10 +318,10 @@ function DateRangePicker({
   );
 }
 
-function EmptyChart() {
+function EmptyChart({ label }: { label: string }) {
   return (
     <p className="py-10 text-center text-sm text-muted-foreground">
-      Nu există date pentru perioada selectată.
+      {label}
     </p>
   );
 }
@@ -320,8 +329,10 @@ function EmptyChart() {
 // ── Pagina ─────────────────────────────────────────────────
 
 export default function HRReportsPage() {
+  const { t, i18n } = useTranslation();
   const isMobile = useMobile(640);
   const { pathname } = useLocation();
+  const dateLocale = i18n.language === "en" ? enGB : ro;
 
   const employees = React.useMemo(() => getCollection<Employee>(STORAGE_KEYS.employees), []);
   const leaves = React.useMemo(() => getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests), []);
@@ -335,29 +346,29 @@ export default function HRReportsPage() {
     dept: null, leaves: null, bonuses: null, absence: null,
   });
 
-  const deptData = React.useMemo(() => buildDeptPie(employees), [employees]);
-  const leavesData = React.useMemo(() => buildLeavesPerMonth(leaves, range), [leaves, range]);
+  const deptData = React.useMemo(() => buildDeptPie(employees, t), [employees, t]);
+  const leavesData = React.useMemo(() => buildLeavesPerMonth(leaves, range, dateLocale), [leaves, range, dateLocale]);
   const bonusData = React.useMemo(() => buildTopBonuses(employees, bonuses, range), [employees, bonuses, range]);
-  const absenceData = React.useMemo(() => buildAbsenceRate(employees, attendance, range), [employees, attendance, range]);
+  const absenceData = React.useMemo(() => buildAbsenceRate(employees, attendance, range, t), [employees, attendance, range, t]);
   const kpis = React.useMemo(() => buildKPIs(employees, leaves, bonuses, range), [employees, leaves, bonuses, range]);
 
   const chartH = isMobile ? 200 : 260;
-  const noData = <EmptyChart />;
+  const noData = <EmptyChart label={t("hrReports.noData")} />;
 
   const handleExport = async () => {
     setExporting(true);
     try {
-      await exportPDF(kpis, deptData, leavesData, bonusData, absenceData, range, chartRefs.current);
+      await exportPDF(kpis, deptData, leavesData, bonusData, absenceData, range, chartRefs.current, t);
     } finally {
       setExporting(false);
     }
   };
 
   const topNavLinks = [
-    { title: "Transport", href: "/reports/transport", isActive: pathname === "/reports/transport" },
-    { title: "Financiar", href: "/reports/financial", isActive: pathname === "/reports/financial" },
-    { title: "Parc Auto", href: "/reports/fleet", isActive: pathname === "/reports/fleet" },
-    { title: "HR", href: "/reports/hr", isActive: pathname === "/reports/hr" },
+    { title: t("sidebar.reports.transport"), href: "/reports/transport", isActive: pathname === "/reports/transport" },
+    { title: t("sidebar.reports.financial"), href: "/reports/financial", isActive: pathname === "/reports/financial" },
+    { title: t("sidebar.reports.fleet"), href: "/reports/fleet", isActive: pathname === "/reports/fleet" },
+    { title: t("sidebar.reports.hr"), href: "/reports/hr", isActive: pathname === "/reports/hr" },
   ];
 
   return (
@@ -369,9 +380,9 @@ export default function HRReportsPage() {
         {/* Titlu + Export */}
         <div className={cn("mb-6 flex gap-3", isMobile ? "flex-col" : "items-center justify-between")}>
           <div>
-            <h1 className="text-xl font-bold">Rapoarte Resurse Umane</h1>
+            <h1 className="text-xl font-bold">{t("hrReports.title")}</h1>
             <p className="text-sm text-muted-foreground">
-              Analiză angajați, concedii, bonusuri și absențe
+              {t("hrReports.subtitle")}
             </p>
           </div>
           <Button
@@ -383,13 +394,13 @@ export default function HRReportsPage() {
             {exporting
               ? <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               : <Download className="mr-2 h-4 w-4" />}
-            {exporting ? "Se exportă..." : "Export PDF"}
+            {exporting ? t("hrReports.exporting") : t("hrReports.exportPdf")}
           </Button>
         </div>
 
         {/* Filtre */}
         <div className={cn("mb-6 flex gap-3", isMobile ? "flex-col" : "flex-wrap items-center")}>
-          <DateRangePicker value={range} onChange={setRange} isMobile={isMobile} />
+          <DateRangePicker value={range} onChange={setRange} isMobile={isMobile} dateLocale={dateLocale} />
           {range && (
             <Button
               variant="ghost"
@@ -397,7 +408,7 @@ export default function HRReportsPage() {
               onClick={() => setRange(undefined)}
               className={isMobile ? "w-full" : ""}
             >
-              Resetează
+              {t("hrReports.reset")}
             </Button>
           )}
         </div>
@@ -406,7 +417,7 @@ export default function HRReportsPage() {
         <div className={cn("mb-6 grid gap-4", isMobile ? "grid-cols-2" : "grid-cols-4")}>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">Total Angajați</CardTitle>
+              <CardTitle className="text-xs font-medium text-muted-foreground">{t("hrReports.kpi.totalEmployees")}</CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -415,17 +426,17 @@ export default function HRReportsPage() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">Medie Zile Concediu</CardTitle>
+              <CardTitle className="text-xs font-medium text-muted-foreground">{t("hrReports.kpi.avgLeaveDays")}</CardTitle>
               <CalendarDays className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <p className="text-xl font-bold">{kpis.avgLeaveDays.toFixed(1)}</p>
-              <p className="text-xs text-muted-foreground">zile / angajat</p>
+              <p className="text-xs text-muted-foreground">{t("hrReports.kpi.avgLeaveDaysUnit")}</p>
             </CardContent>
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">Total Bonusuri</CardTitle>
+              <CardTitle className="text-xs font-medium text-muted-foreground">{t("hrReports.kpi.totalBonuses")}</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -434,7 +445,7 @@ export default function HRReportsPage() {
           </Card>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-xs font-medium text-muted-foreground">Total Amenzi</CardTitle>
+              <CardTitle className="text-xs font-medium text-muted-foreground">{t("hrReports.kpi.totalFines")}</CardTitle>
               <TrendingDown className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -451,7 +462,7 @@ export default function HRReportsPage() {
           {/* 1. PieChart — Angajați pe departament */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-medium">Angajați pe departament</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("hrReports.charts.employeesPerDept")}</CardTitle>
             </CardHeader>
             <CardContent>
               {deptData.length === 0 ? noData : (
@@ -487,7 +498,7 @@ export default function HRReportsPage() {
           {/* 2. StackedBarChart — Concedii pe lună/tip */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-medium">Concedii pe lună și tip</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("hrReports.charts.leavesPerMonth")}</CardTitle>
             </CardHeader>
             <CardContent>
               {leavesData.length === 0 ? noData : (
@@ -508,8 +519,8 @@ export default function HRReportsPage() {
                       <YAxis tick={{ fontSize: isMobile ? 10 : 11 }} width={35} />
                       <Tooltip
                         formatter={(val, name) => [
-                          `${val} zile`,
-                          name === "CO" ? "Concediu Odihnă" : "Concediu Medical",
+                          t("hrReports.tooltip.days", { val }),
+                          name === "CO" ? t("hrReports.tooltip.annualLeave") : t("hrReports.tooltip.sickLeave"),
                         ]}
                       />
                       <Legend iconSize={8} wrapperStyle={{ fontSize: isMobile ? "10px" : "11px" }} />
@@ -525,7 +536,7 @@ export default function HRReportsPage() {
           {/* 3. BarChart — Top 5 angajați bonusuri */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-medium">Top 5 angajați — Bonusuri</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("hrReports.charts.topBonuses")}</CardTitle>
             </CardHeader>
             <CardContent>
               {bonusData.length === 0 ? noData : (
@@ -548,7 +559,7 @@ export default function HRReportsPage() {
                         tick={{ fontSize: isMobile ? 10 : 11 }}
                         width={isMobile ? 80 : 110}
                       />
-                      <Tooltip formatter={(val) => [formatCurrency(Number(val)), "Bonusuri"]} />
+                      <Tooltip formatter={(val) => [formatCurrency(Number(val)), t("hrReports.tooltip.bonuses")]} />
                       <Bar dataKey="total" fill={COLORS[1]} radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -560,7 +571,7 @@ export default function HRReportsPage() {
           {/* 4. RadialBarChart — Rata absențe pe departament */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm font-medium">Rata absențe pe departament (%)</CardTitle>
+              <CardTitle className="text-sm font-medium">{t("hrReports.charts.absenceRate")}</CardTitle>
             </CardHeader>
             <CardContent>
               {absenceData.every((d) => d.rata === 0) ? noData : (
@@ -578,7 +589,7 @@ export default function HRReportsPage() {
                         label={{ position: "insideStart", fill: "#fff", fontSize: isMobile ? 9 : 11 }}
                         background
                       />
-                      <Tooltip formatter={(val) => [`${val}%`, "Rata absențe"]} />
+                      <Tooltip formatter={(val) => [`${val}%`, t("hrReports.tooltip.absenceRate")]} />
                       <Legend
                         iconSize={isMobile ? 8 : 10}
                         formatter={(value) => (

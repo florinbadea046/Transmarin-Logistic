@@ -135,6 +135,69 @@
       "filename": "financial-report"
     }
   },
+  "hrReports": {
+    "title": "HR Reports",
+    "subtitle": "Analysis of employees, leaves, bonuses and absences",
+    "exportPdf": "Export PDF",
+    "exporting": "Generating...",
+    "selectInterval": "Select interval",
+    "reset": "Reset",
+    "noData": "No data for the selected period.",
+    "kpi": {
+      "totalEmployees": "Total Employees",
+      "avgLeaveDays": "Avg Leave Days",
+      "avgLeaveDaysUnit": "days / employee",
+      "totalBonuses": "Total Bonuses",
+      "totalFines": "Total Fines"
+    },
+    "charts": {
+      "employeesPerDept": "Employees per department",
+      "leavesPerMonth": "Leaves per month and type",
+      "topBonuses": "Top 5 employees — Bonuses",
+      "absenceRate": "Absence rate per department (%)"
+    },
+    "tooltip": {
+      "days": "{{val}} days",
+      "annualLeave": "Annual Leave",
+      "sickLeave": "Sick Leave",
+      "bonuses": "Bonuses",
+      "absenceRate": "Absence rate"
+    },
+    "pdf": {
+      "title": "HR Report - Transmarin Logistic",
+      "interval": "Interval",
+      "generated": "Generated",
+      "allData": "All data",
+      "totalEmployees": "Total employees",
+      "avgLeaveDays": "Avg leave days/employee",
+      "totalBonuses": "Total bonuses",
+      "totalFines": "Total fines",
+      "employeesPerDept": "Employees per department",
+      "leavesPerMonth": "Leaves per month and type",
+      "topBonuses": "Top 5 employees — Bonuses",
+      "absenceRate": "Absence rate per department",
+      "department": "Department",
+      "numEmployees": "No. employees",
+      "employee": "Employee",
+      "totalBonusesLabel": "Total bonuses",
+      "absenceRatePercent": "Absence rate (%)",
+      "filename": "hr-report"
+    },
+    "departments": {
+      "Management": "Management",
+      "Administrativ": "Administrative",
+      "Transport": "Transport",
+      "Dispecerat": "Dispatch",
+      "Service": "Service",
+      "Contabilitate": "Accounting"
+    },
+    "nav": {
+      "transport": "Transport",
+      "financial": "Financial",
+      "fleet": "Fleet",
+      "hr": "HR"
+    }
+  },
   "fleetReports": {
     "title": "Fleet Reports",
     "serviceCost": "Service Cost",
