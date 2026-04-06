@@ -5,6 +5,7 @@
     "viewList": "List",
     "viewOrgChart": "Org Chart",
     "count_one": "{{count}} employee",
+    "count_few": "{{count}} employees",
     "count_other": "{{count}} employees",
     "empty": "No employees found.",
     "fields": {
