@@ -24,6 +24,7 @@ import {
   Gauge,
   Briefcase,
   CreditCard,
+  Activity
 } from "lucide-react";
 import { type SidebarData } from "../types";
 
@@ -122,6 +123,10 @@ export const sidebarData: SidebarData = {
               title: "Registru Kilometraj",
               url: "/transport/mileage-registry",
               icon: Gauge,
+            },
+            { title: "Dispecer Live",
+              url: "/dispatcher-live",
+              icon: Activity 
             },
           ],
         },
