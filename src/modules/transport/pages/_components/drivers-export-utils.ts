@@ -39,7 +39,7 @@ export function exportDriversExcel(drivers: Driver[], trucks: Truck[], t: (k: st
   });
   const ws = XLSX.utils.json_to_sheet(rows);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Soferi");
+  XLSX.utils.book_append_sheet(wb, ws, t("drivers.export.sheetName"));
   XLSX.writeFile(wb, `${t("drivers.export.filename")}.xlsx`);
 }
 

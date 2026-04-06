@@ -49,7 +49,7 @@ export default function VehiclesPage() {
     <>
       <Header>
         <h1 className="text-lg font-semibold">
-          {t("fleet.vehicles.pageTitle", "Fișa Vehiculului")}
+          {t("fleet.vehicles.pageTitle")}
         </h1>
       </Header>
       <Main>
@@ -58,7 +58,7 @@ export default function VehiclesPage() {
           <Card>
             <CardHeader>
               <CardTitle>
-                {t("fleet.vehicles.costChartTitle", "Costuri Service în Timp")}
+                {t("fleet.vehicles.costChartTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -84,7 +84,7 @@ export default function VehiclesPage() {
           <Card>
             <CardHeader>
               <CardTitle>
-                {t("fleet.vehicles.serviceHistoryTitle", "Istoric Service")}
+                {t("fleet.vehicles.serviceHistoryTitle")}
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0 pt-4">

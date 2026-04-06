@@ -2,18 +2,22 @@ import Papa from "papaparse";
 import { FuelRecord } from "@/modules/fleet/types";
 import { Truck } from "@/modules/transport/types";
 
-export function exportFuelToCSV(records: FuelRecord[], trucks: Truck[]): void {
+export function exportFuelToCSV(
+  records: FuelRecord[],
+  trucks: Truck[],
+  t: (k: string) => string,
+): void {
   const getTruckLabel = (id: string) => {
-    const t = trucks.find((t) => t.id === id);
-    return t ? `${t.plateNumber} - ${t.brand} ${t.model}` : id;
+    const tr = trucks.find((tr) => tr.id === id);
+    return tr ? `${tr.plateNumber} - ${tr.brand} ${tr.model}` : id;
   };
 
   const data = records.map((r) => ({
-    Camion: getTruckLabel(r.truckId),
-    Dată: r.date,
-    Litri: r.liters,
-    "Cost (RON)": r.cost,
-    Km: r.mileage,
+    [t("fleet.fuel.exportColumnTruck")]: getTruckLabel(r.truckId),
+    [t("fleet.fuel.exportColumnDate")]: r.date,
+    [t("fleet.fuel.exportColumnLiters")]: r.liters,
+    [t("fleet.fuel.exportColumnCost")]: r.cost,
+    [t("fleet.fuel.exportColumnKm")]: r.mileage,
   }));
 
   const csv = Papa.unparse(data);

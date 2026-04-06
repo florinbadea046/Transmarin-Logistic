@@ -20,7 +20,7 @@ import type { Truck } from "@/modules/transport/types";
 import { cn } from "@/lib/utils";
 
 import type { RecurringCategory, RecurringStatus, RecurringExpense, ExpenseFormData, ExpenseFormErrors } from "./recurring-expenses-utils";
-import { expenseSchema, EMPTY_FORM } from "./recurring-expenses-utils";
+import { makeExpenseSchema, EMPTY_FORM } from "./recurring-expenses-utils";
 
 // ── Dialog CRUD ────────────────────────────────────────────
 
@@ -35,6 +35,7 @@ export function ExpenseDialog({
   onSave: () => void;
 }) {
   const { t } = useTranslation();
+  const expenseSchema = React.useMemo(() => makeExpenseSchema(t), [t]);
   const [form, setForm] = React.useState<ExpenseFormData>(EMPTY_FORM);
   const [errors, setErrors] = React.useState<ExpenseFormErrors>({});
 

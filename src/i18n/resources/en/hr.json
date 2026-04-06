@@ -102,7 +102,8 @@
     },
     "placeholders": {
       "selectEmployee": "Select employee",
-      "leaveType": "Leave type"
+      "leaveType": "Leave type",
+      "status": "Status"
     },
     "validation": {
       "employeeRequired": "Employee is required",
@@ -318,6 +319,58 @@
       "cancel": "Cancel",
       "deleteSuccess": "Record deleted"
     }
+  },
+  "employeeInfo": {
+    "personalData": "Personal data",
+    "edit": "Edit",
+    "cancel": "Cancel",
+    "save": "Save",
+    "fields": {
+      "name": "Name",
+      "position": "Position",
+      "phone": "Phone",
+      "email": "Email",
+      "salary": "Salary (RON)",
+      "department": "Department",
+      "hireDate": "Hire date"
+    },
+    "validation": {
+      "nameEmpty": "Name cannot be empty.",
+      "salaryPositive": "Salary must be a positive number."
+    },
+    "toast": {
+      "updated": "Profile updated successfully"
+    }
+  },
+  "documents": {
+    "empty": "No documents added.",
+    "noExpiry": "No expiry",
+    "expired": "Expired",
+    "expiresSoon": "Expires soon",
+    "valid": "Valid",
+    "types": {
+      "contract": "Contract",
+      "license": "Driving license",
+      "medical": "Medical certificate",
+      "certificate": "Certificate",
+      "tachograph": "Tachograph",
+      "adr": "ADR",
+      "other": "Other"
+    },
+    "editAriaLabel": "Edit document",
+    "deleteAriaLabel": "Delete document",
+    "numberLabel": "No",
+    "issuedLabel": "Issued",
+    "expiresLabel": "Expires",
+    "typePlaceholder": "Document type",
+    "namePlaceholder": "Name (optional)",
+    "issueDatePlaceholder": "Issue date",
+    "expiryDatePlaceholder": "Expiry date",
+    "notesPlaceholder": "Notes (optional)",
+    "cancelButton": "Cancel",
+    "updateButton": "Update document",
+    "addButton": "Add document",
+    "addDocumentButton": "Add document"
   },
   "hrAuditLog": {
     "title": "HR Activity Log",

@@ -44,6 +44,57 @@
       "addTitle": "Add Supplier",
       "cancel": "Cancel",
       "save": "Save"
-}
+    },
+    "validation": {
+      "nameMin": "Name must be at least 3 characters",
+      "cuiInvalid": "Invalid Tax ID (e.g. RO12345678)",
+      "addressRequired": "Address is required",
+      "phoneInvalid": "Phone must start with 07 and have 10 digits",
+      "emailInvalid": "Invalid email",
+      "bankAccountRequired": "Bank account is required"
+    }
+  },
+  "pdf": {
+    "statusLabels": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "cancelled": "Cancelled"
+    },
+    "table": {
+      "nr": "#",
+      "description": "Description",
+      "quantity": "Qty.",
+      "unitPrice": "Unit price",
+      "vatPercent": "VAT %",
+      "vat": "VAT",
+      "total": "Total"
+    },
+    "labels": {
+      "invoice": "INVOICE",
+      "invoiceNr": "No. {{nr}}",
+      "issueDate": "Issue date: {{date}}",
+      "dueDate": "Due date: {{date}}",
+      "supplier": "SUPPLIER",
+      "client": "CLIENT",
+      "regCom": "Reg. No.: {{value}}",
+      "subtotal": "Subtotal (excl. VAT):",
+      "vat19": "VAT 19%:",
+      "totalLabel": "TOTAL:",
+      "paymentTerms": "PAYMENT TERMS",
+      "bankDetails": "Bank details:",
+      "iban": "IBAN: {{value}}",
+      "bank": "Bank: {{value}}",
+      "footer": "Auto-generated document · Transmarin Logistic SRL · Page 1",
+      "downloadPdf": "Download PDF"
+    }
+  },
+  "toasts": {
+    "itemRequired": "Invoice must contain at least one item with a description",
+    "updated": "Invoice updated successfully",
+    "added": "Invoice added successfully",
+    "deleted": "Invoice deleted",
+    "markedPaid": "Invoice marked as paid"
   }
 }

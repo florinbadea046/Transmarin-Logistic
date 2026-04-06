@@ -26,17 +26,19 @@ export interface RecurringExpense {
 
 // ── Zod schema ─────────────────────────────────────────────
 
-export const expenseSchema = z.object({
-  category: z.enum(["asigurare", "leasing", "taxe", "parcare", "altele"]),
-  truckId: z.string().min(1),
-  description: z.string().min(2),
-  monthlyAmount: z.number({ message: "Suma invalida" }).positive(),
-  nextPaymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data invalida"),
-  status: z.enum(["platit", "neplatit"]),
-  notes: z.string().optional(),
-});
+export function makeExpenseSchema(t: (k: string) => string) {
+  return z.object({
+    category: z.enum(["asigurare", "leasing", "taxe", "parcare", "altele"]),
+    truckId: z.string().min(1),
+    description: z.string().min(2),
+    monthlyAmount: z.number({ message: t("recurringExpenses.validation.invalidAmount") }).positive(),
+    nextPaymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, t("recurringExpenses.validation.invalidDate")),
+    status: z.enum(["platit", "neplatit"]),
+    notes: z.string().optional(),
+  });
+}
 
-export type ExpenseFormData = z.infer<typeof expenseSchema>;
+export type ExpenseFormData = z.infer<ReturnType<typeof makeExpenseSchema>>;
 export type ExpenseFormErrors = Partial<Record<keyof ExpenseFormData, string>>;
 
 export const EMPTY_FORM: ExpenseFormData = {

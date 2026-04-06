@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
 import type { Truck } from "@/modules/transport/types";
@@ -9,10 +10,10 @@ const ALERT_DAYS = 30;
 type DocType =
   | "ITP"
   | "RCA"
-  | "Vignetă"
+  | "Vignette"
   | "Service ITP"
   | "Service RCA"
-  | "Service Vignetă";
+  | "Service Vignette";
 
 interface DocAlert {
   truckId: string;
@@ -41,11 +42,10 @@ function getAlerts(
   const alerts: DocAlert[] = [];
 
   for (const truck of trucks) {
-    // Verifică documentele camionului (ITP, RCA, Vignetă)
     const docs: { type: DocType; date: string }[] = [
       { type: "ITP", date: truck.itpExpiry },
       { type: "RCA", date: truck.rcaExpiry },
-      { type: "Vignetă", date: truck.vignetteExpiry },
+      { type: "Vignette", date: truck.vignetteExpiry },
     ];
 
     for (const doc of docs) {
@@ -63,11 +63,10 @@ function getAlerts(
       }
     }
 
-    // Verifică nextServiceDate din serviceRecords pentru ITP, RCA, Vignetă
     const serviceDocMap: { type: ServiceRecord["type"]; label: DocType }[] = [
       { type: "itp", label: "Service ITP" },
       { type: "revision", label: "Service RCA" },
-      { type: "other", label: "Service Vignetă" },
+      { type: "other", label: "Service Vignette" },
     ];
 
     for (const { type, label } of serviceDocMap) {
@@ -97,11 +96,11 @@ function getAlerts(
     }
   }
 
-  // Sortare după urgență: expirate primul, apoi cele mai apropiate
   return alerts.sort((a, b) => a.daysUntil - b.daysUntil);
 }
 
 function AlertRow({ alert }: { alert: DocAlert }) {
+  const { t } = useTranslation();
   const isExpired = alert.daysUntil < 0;
   const isUrgent = alert.daysUntil >= 0 && alert.daysUntil <= 7;
 
@@ -119,11 +118,12 @@ function AlertRow({ alert }: { alert: DocAlert }) {
 
   const icon = isExpired ? "🔴" : isUrgent ? "🟠" : "🟡";
 
+  const absDays = Math.abs(alert.daysUntil);
   const daysLabel = isExpired
-    ? `Expirat de ${Math.abs(alert.daysUntil)} ${Math.abs(alert.daysUntil) === 1 ? "zi" : "zile"}`
+    ? t("fleet.docs.expiredSince", { count: absDays })
     : alert.daysUntil === 0
-      ? "Expiră azi"
-      : `Expiră în ${alert.daysUntil} ${alert.daysUntil === 1 ? "zi" : "zile"}`;
+      ? t("fleet.docs.expiresToday")
+      : t("fleet.docs.expiresIn", { count: alert.daysUntil });
 
   return (
     <div
@@ -142,7 +142,7 @@ function AlertRow({ alert }: { alert: DocAlert }) {
       </div>
       <div className="flex items-center gap-4">
         <span className={`text-sm font-medium ${textClass}`}>
-          {alert.docType}
+          {t(`fleet.docs.type_${alert.docType.replace(/\s/g, "_")}`)}
         </span>
         <span className="text-xs text-muted-foreground">
           {alert.expiryDate}
@@ -154,6 +154,7 @@ function AlertRow({ alert }: { alert: DocAlert }) {
 }
 
 export function DocExpiryAlerts() {
+  const { t } = useTranslation();
   const alerts = useMemo(() => {
     const trucks = getCollection<Truck>(STORAGE_KEYS.trucks);
     const serviceRecords = getCollection<ServiceRecord>(
@@ -170,15 +171,15 @@ export function DocExpiryAlerts() {
   return (
     <div className="mt-6 space-y-3">
       <div className="flex items-center gap-2">
-        <h2 className="text-lg font-semibold">Alerte Documente</h2>
+        <h2 className="text-lg font-semibold">{t("fleet.docs.alertsTitle")}</h2>
         {expiredCount > 0 && (
           <span className="rounded-full bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 text-xs font-bold px-2 py-0.5">
-            {expiredCount} expirate
+            {t("fleet.docs.expiredCount", { count: expiredCount })}
           </span>
         )}
         {soonCount > 0 && (
           <span className="rounded-full bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 text-xs font-bold px-2 py-0.5">
-            {soonCount} în {ALERT_DAYS} zile
+            {t("fleet.docs.soonCount", { count: soonCount, days: ALERT_DAYS })}
           </span>
         )}
       </div>

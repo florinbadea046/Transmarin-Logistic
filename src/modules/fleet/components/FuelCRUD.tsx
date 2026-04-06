@@ -117,7 +117,7 @@ export function FuelCRUD() {
         </Button>
         <Button
           variant="outline"
-          onClick={() => exportFuelToCSV(records, trucks)}
+          onClick={() => exportFuelToCSV(records, trucks, t)}
         >
           {t("fleet.fuel.exportCSV")}
         </Button>

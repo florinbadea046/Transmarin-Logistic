@@ -87,7 +87,8 @@
     "deleteDisabledTooltip": "Cannot delete a truck that is on a trip",
     "export": {
       "pdfTitle": "Trucks List",
-      "filename": "trucks"
+      "filename": "trucks",
+      "sheetName": "Trucks"
     },
     "import": {
       "title": "Import Trucks from CSV",

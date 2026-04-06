@@ -87,7 +87,8 @@
     "deleteDisabledTooltip": "Nu poti sterge un camion aflat in cursa",
     "export": {
       "pdfTitle": "Lista Camioane",
-      "filename": "camioane"
+      "filename": "camioane",
+      "sheetName": "Camioane"
     },
     "import": {
       "title": "Import Camioane din CSV",
