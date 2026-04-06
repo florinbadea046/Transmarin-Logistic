@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { getCollection, setCollection, initCollection } from "../components/invoices-utils";
 
 import { toast } from "sonner";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
@@ -342,6 +343,7 @@ function InvoiceCard({
 
 export default function InvoicesPage() {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
 
   const [invoices, setInvoices] = useState<Invoice[]>(() => getCollection(initialMock));
   const [tipFilter, setTipFilter] = useState("toate");
@@ -419,16 +421,21 @@ export default function InvoicesPage() {
 
     if (editId) {
       setInvoices((prev) => prev.map((inv) => (inv.id === editId ? { ...inv, ...form } : inv)));
+      log({ action: "update", entity: "invoice", entityId: editId, entityLabel: `${form.nr} - ${form.clientFurnizor}`, detailKey: "activityLog.details.invoiceUpdated" });
       toast.success(t("toasts.updated"));
     } else {
-      setInvoices((prev) => [...prev, { id: crypto.randomUUID(), ...form }]);
+      const newId = crypto.randomUUID();
+      setInvoices((prev) => [...prev, { id: newId, ...form }]);
+      log({ action: "create", entity: "invoice", entityId: newId, entityLabel: `${form.nr} - ${form.clientFurnizor}`, detailKey: "activityLog.details.invoiceCreated", detailParams: { nr: form.nr } });
       toast.success(t("toasts.added"));
     }
     setDialogOpen(false);
   };
 
   const handleDelete = () => {
-    setInvoices((prev) => prev.filter((inv) => inv.id !== deleteId));
+    const inv = invoices.find((i) => i.id === deleteId);
+    log({ action: "delete", entity: "invoice", entityId: deleteId ?? "", entityLabel: inv ? `${inv.nr} - ${inv.clientFurnizor}` : (deleteId ?? ""), detailKey: "activityLog.details.invoiceDeleted" });
+    setInvoices((prev) => prev.filter((i) => i.id !== deleteId));
     setDeleteId(null);
     toast.success(t("toasts.deleted"));
   };

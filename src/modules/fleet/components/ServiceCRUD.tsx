@@ -21,6 +21,7 @@ import {
 
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import { toast } from "sonner";
 
 import type { ServiceRecord, Part } from "@/modules/fleet/types";
@@ -78,6 +79,7 @@ export function ServiceCRUD({
   onRecordsChange,
 }: ServiceCRUDProps) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const typeLabels = getTypeLabels(t);
 
   const [parts] = useState<Part[]>(() =>
@@ -139,12 +141,15 @@ export function ServiceCRUD({
       nextServiceDate: form.nextServiceDate || undefined,
     };
 
+    const truckLabel = getTruckLabel(form.truckId);
     let updated: ServiceRecord[];
     if (editingId) {
       updated = records.map((r) => (r.id === editingId ? payload : r));
+      log({ action: "update", entity: "service", entityId: editingId, entityLabel: truckLabel, detailKey: "activityLog.details.serviceUpdated", oldValue: { type: records.find((r) => r.id === editingId)?.type, cost: records.find((r) => r.id === editingId)?.cost }, newValue: { type: payload.type, cost: payload.cost } });
       toast.success(t("fleet.service.toastUpdated"));
     } else {
       updated = [...records, payload];
+      log({ action: "create", entity: "service", entityId: payload.id, entityLabel: truckLabel, detailKey: "activityLog.details.serviceCreated", detailParams: { truck: truckLabel } });
       toast.success(t("fleet.service.toastAdded"));
     }
 
@@ -156,6 +161,8 @@ export function ServiceCRUD({
 
   const handleDelete = (id: string) => {
     const record = records.find((r) => r.id === id);
+    const truckLabel = record ? getTruckLabel(record.truckId) : id;
+    log({ action: "delete", entity: "service", entityId: id, entityLabel: truckLabel, detailKey: "activityLog.details.serviceDeleted" });
     const updated = records.filter((r) => r.id !== id);
     persist(updated, record?.truckId);
   };

@@ -21,6 +21,7 @@ import {
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 import { type DriverParsedRow, parseDriverRows } from "./drivers-import-utils";
 
@@ -33,6 +34,7 @@ export function DriverImportDialog({
   onImported: () => void; isMobile: boolean;
 }) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [rows, setRows] = React.useState<DriverParsedRow[]>([]);
   const [fileName, setFileName] = React.useState("");
@@ -68,6 +70,16 @@ export function DriverImportDialog({
       added++;
     }
     const skipped = duplicateRows.length;
+    if (added > 0) {
+      log({
+        action: "create",
+        entity: "driver",
+        entityId: "bulk-import",
+        entityLabel: `${added} drivers`,
+        detailKey: "activityLog.details.driversImported",
+        detailParams: { count: String(added) },
+      });
+    }
     if (added > 0 && skipped > 0) toast.success(t("drivers.import.toastPartial", { added, skipped }));
     else if (added > 0) toast.success(t("drivers.import.toastSuccess", { count: added }));
     else toast.info(t("drivers.import.toastAllSkipped"));

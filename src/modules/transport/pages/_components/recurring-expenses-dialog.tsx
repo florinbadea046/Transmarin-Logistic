@@ -17,6 +17,7 @@ import {
 import { addItem, updateItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Truck } from "@/modules/transport/types";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import { cn } from "@/lib/utils";
 
 import type { RecurringCategory, RecurringStatus, RecurringExpense, ExpenseFormData, ExpenseFormErrors } from "./recurring-expenses-utils";
@@ -35,6 +36,7 @@ export function ExpenseDialog({
   onSave: () => void;
 }) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const expenseSchema = React.useMemo(() => makeExpenseSchema(t), [t]);
   const [form, setForm] = React.useState<ExpenseFormData>(EMPTY_FORM);
   const [errors, setErrors] = React.useState<ExpenseFormErrors>({});
@@ -71,17 +73,21 @@ export function ExpenseDialog({
       return;
     }
     const data = result.data;
+    const truckLabel = trucks.find((tr) => tr.id === data.truckId)?.plateNumber ?? data.truckId;
     if (editing) {
       updateItem<RecurringExpense>(
         STORAGE_KEYS.recurringExpenses,
         (e) => e.id === editing.id,
         (e) => ({ ...e, ...data }),
       );
+      log({ action: "update", entity: "recurringExpense", entityId: editing.id, entityLabel: `${data.category} - ${truckLabel}`, detailKey: "activityLog.details.recurringExpenseUpdated", oldValue: { monthlyAmount: editing.monthlyAmount, status: editing.status }, newValue: { monthlyAmount: data.monthlyAmount, status: data.status } });
       toast.success(t("recurringExpenses.toastUpdated"));
     } else {
+      const newId = generateId();
       addItem<RecurringExpense>(STORAGE_KEYS.recurringExpenses, {
-        id: generateId(), ...data,
+        id: newId, ...data,
       });
+      log({ action: "create", entity: "recurringExpense", entityId: newId, entityLabel: `${data.category} - ${truckLabel}`, detailKey: "activityLog.details.recurringExpenseCreated", detailParams: { truck: truckLabel } });
       toast.success(t("recurringExpenses.toastAdded"));
     }
     onSave();

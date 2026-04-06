@@ -16,6 +16,7 @@ export interface AuthUser {
   id: string;
   name: string;
   email: string;
+  phone?: string;
   role: UserRole;
   avatar?: string;
 }
@@ -28,6 +29,7 @@ const MOCK_USERS: AuthUser[] = [
     id: "1",
     name: "Admin Transmarin",
     email: "admin@transmarin.ro",
+    phone: "+40 721 000 001",
     role: "admin",
     avatar: "/avatars/admin.jpg",
   },
@@ -35,6 +37,7 @@ const MOCK_USERS: AuthUser[] = [
     id: "2",
     name: "Ion Popescu",
     email: "dispecer@transmarin.ro",
+    phone: "+40 721 000 002",
     role: "dispecer",
     avatar: "/avatars/dispecer.jpg",
   },
@@ -42,6 +45,7 @@ const MOCK_USERS: AuthUser[] = [
     id: "3",
     name: "Maria Ionescu",
     email: "hr@transmarin.ro",
+    phone: "+40 721 000 003",
     role: "hr",
     avatar: "/avatars/hr.jpg",
   },
@@ -49,6 +53,7 @@ const MOCK_USERS: AuthUser[] = [
     id: "4",
     name: "Elena Dumitrescu",
     email: "contabil@transmarin.ro",
+    phone: "+40 721 000 004",
     role: "contabil",
     avatar: "/avatars/contabil.jpg",
   },
@@ -73,6 +78,7 @@ interface AuthContextValue {
   login: (email: string, password: string) => boolean;
   loginAs: (role: UserRole) => void;
   logout: () => void;
+  updateUser: (updates: Partial<AuthUser>) => void;
   hasAccess: (module: string) => boolean;
 }
 
@@ -113,6 +119,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(AUTH_STORAGE_KEY);
   }, []);
 
+  const updateUser = useCallback((updates: Partial<AuthUser>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...updates };
+      localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   const hasAccess = useCallback(
     (module: string): boolean => {
       if (!user) return false;
@@ -128,9 +143,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       loginAs,
       logout,
+      updateUser,
       hasAccess,
     }),
-    [user, login, loginAs, logout, hasAccess],
+    [user, login, loginAs, logout, updateUser, hasAccess],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

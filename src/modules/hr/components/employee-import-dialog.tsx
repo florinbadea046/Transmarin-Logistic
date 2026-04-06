@@ -15,6 +15,7 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee } from "@/modules/hr/types";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 // ── Validare CSV ───────────────────────────────────────────
 
@@ -114,6 +115,7 @@ export function EmployeeImportDialog({
   isMobile: boolean;
 }) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const inputRef = React.useRef<HTMLInputElement>(null);
   const [rows, setRows] = React.useState<ParsedRow[]>([]);
   const [fileName, setFileName] = React.useState("");
@@ -170,6 +172,16 @@ export function EmployeeImportDialog({
     }
 
     const skipped = duplicateRows.length;
+    if (added > 0) {
+      log({
+        action: "create",
+        entity: "employee",
+        entityId: "bulk-import",
+        entityLabel: `${added} employees`,
+        detailKey: "activityLog.details.employeesImported",
+        detailParams: { count: String(added) },
+      });
+    }
     if (added > 0 && skipped > 0) {
       toast.success(t("employees.import.toastPartial", { added, skipped }));
     } else if (added > 0) {

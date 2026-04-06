@@ -54,6 +54,7 @@ import {
 
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import type { Part } from "@/modules/fleet/types";
 import { AllocatePart } from "@/modules/fleet/components/AllocatePart";
 import { savePart, deletePart, isLowStock } from "@/modules/fleet/utils/partsUtils";
@@ -71,6 +72,7 @@ function getCategoryLabels(t: (k: string) => string): Record<string, string> {
 
 export function PartsCRUD() {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
 
   const partSchema = useMemo(() => makePartSchema(t), [t]);
   type PartFormValues = z.infer<typeof partSchema>;
@@ -135,11 +137,20 @@ export function PartsCRUD() {
   };
 
   const onSubmit = (values: PartFormValues) => {
-    persist(savePart(parts, values as Omit<Part, "id">, editingPart));
+    const updated = savePart(parts, values as Omit<Part, "id">, editingPart);
+    persist(updated);
+    if (editingPart) {
+      log({ action: "update", entity: "part", entityId: editingPart.id, entityLabel: values.name, detailKey: "activityLog.details.partUpdated", oldValue: { name: editingPart.name, quantity: editingPart.quantity }, newValue: { name: values.name, quantity: values.quantity } });
+    } else {
+      const newPart = updated.find((p) => p.name === values.name && !parts.some((ep) => ep.id === p.id));
+      log({ action: "create", entity: "part", entityId: newPart?.id ?? "new", entityLabel: values.name, detailKey: "activityLog.details.partCreated", detailParams: { name: values.name } });
+    }
     handleClose();
   };
 
   const handleDelete = (id: string) => {
+    const part = parts.find((p) => p.id === id);
+    log({ action: "delete", entity: "part", entityId: id, entityLabel: part?.name ?? id, detailKey: "activityLog.details.partDeleted" });
     persist(deletePart(parts, id));
   };
 

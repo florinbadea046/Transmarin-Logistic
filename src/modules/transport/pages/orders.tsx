@@ -36,6 +36,7 @@ import { DataTableToolbar } from "@/components/data-table/toolbar";
 import type { Order } from "@/modules/transport/types";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 import {
   getStatusMeta,
@@ -55,6 +56,7 @@ import { getOrderColumns } from "./_components/order-columns";
 
 export default function OrdersPage() {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const statusMeta = getStatusMeta(t);
   const statusFilterOptions = (
     Object.keys(statusMeta) as Order["status"][]
@@ -143,6 +145,7 @@ export default function OrdersPage() {
     const next = [newOrder, ...data];
     setData(next);
     setOrdersToStorage(next);
+    log({ action: "create", entity: "order", entityId: newOrder.id, entityLabel: values.clientName, detailKey: "activityLog.details.orderCreated", detailParams: { client: values.clientName } });
     return null;
   }
 
@@ -170,6 +173,7 @@ export default function OrdersPage() {
     );
     setData(next);
     setOrdersToStorage(next);
+    log({ action: "update", entity: "order", entityId: editingOrder.id, entityLabel: values.clientName, detailKey: "activityLog.details.orderUpdated", oldValue: { clientName: editingOrder.clientName, origin: editingOrder.origin, destination: editingOrder.destination }, newValue: { clientName: values.clientName, origin: values.origin, destination: values.destination } });
     setEditingOrder(null);
     return null;
   }
@@ -179,6 +183,7 @@ export default function OrdersPage() {
     const next = data.filter((o) => o.id !== deletingOrder.id);
     setData(next);
     setOrdersToStorage(next);
+    log({ action: "delete", entity: "order", entityId: deletingOrder.id, entityLabel: deletingOrder.clientName, detailKey: "activityLog.details.orderDeleted" });
     setDeleteOpen(false);
     setDeletingOrder(null);
   }
@@ -220,6 +225,9 @@ export default function OrdersPage() {
       toast.success(t("orders.import.toastPartial", { added, skipped }));
     } else {
       toast.error(t("orders.import.toastAllSkipped"));
+    }
+    if (added > 0) {
+      log({ action: "create", entity: "order", entityId: "import", entityLabel: `Import (${added})`, detailKey: "activityLog.details.orderImported", detailParams: { count: String(added) } });
     }
   }
 

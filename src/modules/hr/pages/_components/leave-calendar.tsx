@@ -33,6 +33,7 @@ import type { LeaveRequest, Employee } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
 import LeaveDialog from "@/modules/hr/components/leave-dialog";
 import { toast } from "sonner";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 // ── Constants ────────────────────────────────────────────────
 const MAX_VISIBLE_NAMES = 2;
@@ -80,6 +81,7 @@ function LeaveTypePill({
 // ── Component ────────────────────────────────────────────────
 export default function LeaveCalendar() {
   const { t, i18n } = useTranslation();
+  const { log } = useAuditLog();
   const locale = i18n.language.startsWith("en") ? enGB : ro;
   const calendarFormatters = React.useMemo(() => ({
     formatCaption: (date: Date) =>
@@ -372,6 +374,13 @@ export default function LeaveCalendar() {
               (lr) => lr.id === updated.id,
               () => updated,
             );
+            log({
+              action: "update",
+              entity: "leaveRequest",
+              entityId: updated.id,
+              entityLabel: editLeave.employeeName,
+              detailKey: "activityLog.details.leaveRequestUpdated",
+            });
             setEditLeave(null);
             refresh();
             toast.success(t("leaves.calendar.updateSuccess"));
@@ -402,6 +411,13 @@ export default function LeaveCalendar() {
                   STORAGE_KEYS.leaveRequests,
                   (lr) => lr.id === deleteLeave.id,
                 );
+                log({
+                  action: "delete",
+                  entity: "leaveRequest",
+                  entityId: deleteLeave.id,
+                  entityLabel: deleteLeave.employeeName,
+                  detailKey: "activityLog.details.leaveRequestDeleted",
+                });
                 setDeleteLeave(null);
                 refresh();
                 toast.success(t("leaves.calendar.deleteSuccess"));

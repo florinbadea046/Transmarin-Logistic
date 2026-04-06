@@ -6,7 +6,7 @@
 import { STORAGE_KEYS } from "@/data/mock-data";
 
 export type AuditAction = "create" | "update" | "delete";
-export type AuditEntity = "driver" | "truck" | "order" | "trip";
+export type AuditEntity = "driver" | "truck" | "order" | "trip" | "maintenance" | "fuelLog" | "invoice" | "supplier" | "employee" | "leaveRequest" | "part" | "service" | "recurringExpense" | "mileage";
 
 export interface AuditEntry {
   id: string;
