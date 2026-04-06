@@ -59,7 +59,9 @@
       "expiredDocs": "Expired documents",
       "pendingLeaves": "Pending leave requests",
       "allGood": "No active HR alerts.",
+      "days": "{{count}} d",
       "days_one": "{{count}} day",
+      "days_few": "{{count}} days",
       "days_other": "{{count}} days"
     }
   },
