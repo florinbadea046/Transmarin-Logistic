@@ -9,6 +9,7 @@ import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
 import { Bonus } from "../modules/hr/types";
+import { format, addMonths, setDate } from "date-fns";
 
 // Chei localStorage — toate modulele folosesc aceste chei
 export const STORAGE_KEYS = {
@@ -845,8 +846,8 @@ const seedFuelRecords: FuelRecord[] = [
 
 function relativeDate(monthOffset: number, day: number): string {
   const now = new Date();
-  const d = new Date(now.getFullYear(), now.getMonth() + monthOffset, day);
-  return d.toISOString().split("T")[0];
+  const d = setDate(addMonths(now, monthOffset), day);
+  return format(d, "yyyy-MM-dd");
 }
 
 const seedInvoices: Invoice[] = [
@@ -878,9 +879,7 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(0, 25),
     supplierId: "s1",
     clientName: "Auto Parts SRL",
-    items: [
-      { description: "Piese auto", quantity: 3, unitPrice: 800, total: 2400 },
-    ],
+    items: [{ description: "Piese auto", quantity: 3, unitPrice: 800, total: 2400 }],
     totalWithoutVAT: 2400,
     vat: 456,
     total: 2856,
@@ -955,9 +954,7 @@ const seedInvoices: Invoice[] = [
     dueDate: relativeDate(-1, 5),
     supplierId: "s1",
     clientName: "Auto Parts SRL",
-    items: [
-      { description: "Filtre ulei", quantity: 10, unitPrice: 45, total: 450 },
-    ],
+    items: [{ description: "Filtre ulei", quantity: 10, unitPrice: 45, total: 450 }],
     totalWithoutVAT: 450,
     vat: 85,
     total: 535,
@@ -1289,10 +1286,4 @@ export function seedMockData(): void {
 }
 
 export { seedEmployees };
-export const EMPLOYEE_DEPARTMENTS = [
-  "Dispecerat",
-  "Transport",
-  "Service",
-  "Contabilitate",
-  "Administrativ",
-] as const;
+export const EMPLOYEE_DEPARTMENTS = ["Dispecerat", "Transport", "Service", "Contabilitate", "Administrativ"] as const;
