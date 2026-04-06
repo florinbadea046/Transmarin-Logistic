@@ -28,6 +28,7 @@ import {
 
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
+import { toast } from "sonner";
 
 import type { ServiceRecord, Part } from "@/modules/fleet/types";
 import type { Truck } from "@/modules/transport/types";
@@ -99,6 +100,7 @@ export function ServiceCRUD({
   );
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState(createEmptyForm());
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [filterTruckId, setFilterTruckId] = useState("all");
   const [filterFrom, setFilterFrom] = useState("");
@@ -160,18 +162,43 @@ export function ServiceCRUD({
     }));
   };
 
+  const handleEdit = (record: ServiceRecord) => {
+    setForm({
+      ...record,
+      partsUsed: record.partsUsed.map((p) => ({
+        id: crypto.randomUUID(),
+        partId: p.partId,
+        quantity: p.quantity,
+      })),
+      nextServiceDate: record.nextServiceDate || "",
+    });
+    setEditingId(record.id);
+    setOpen(true);
+  };
+
   const handleSubmit = () => {
     if (!form.truckId || !form.date) return;
-    const newRecord: ServiceRecord = {
-      id: crypto.randomUUID(),
+
+    const payload: ServiceRecord = {
+      id: editingId || crypto.randomUUID(),
       ...form,
       partsUsed: form.partsUsed.map(({ id: _id, ...rest }) => rest),
       cost: totalCost,
       nextServiceDate: form.nextServiceDate || undefined,
     };
-    const updated = [...records, newRecord];
+
+    let updated: ServiceRecord[];
+    if (editingId) {
+      updated = records.map((r) => (r.id === editingId ? payload : r));
+      toast.success("Service actualizat");
+    } else {
+      updated = [...records, payload];
+      toast.success("Service adăugat");
+    }
+
     persist(updated, form.truckId);
     setForm(createEmptyForm());
+    setEditingId(null);
     setOpen(false);
   };
 
@@ -184,7 +211,15 @@ export function ServiceCRUD({
   return (
     <div>
       <div className="flex flex-wrap gap-2 items-end mb-4 px-4 md:px-6">
-        <Button onClick={() => setOpen(true)}>+ Programează service</Button>
+        <Button
+          onClick={() => {
+            setForm(createEmptyForm());
+            setEditingId(null);
+            setOpen(true);
+          }}
+        >
+          + Programează service
+        </Button>
 
         <Select value={filterTruckId} onValueChange={setFilterTruckId}>
           <SelectTrigger className="w-48">
@@ -205,14 +240,12 @@ export function ServiceCRUD({
           value={filterFrom}
           onChange={(e) => setFilterFrom(e.target.value)}
           className="w-36"
-          placeholder="De la"
         />
         <Input
           type="date"
           value={filterTo}
           onChange={(e) => setFilterTo(e.target.value)}
           className="w-36"
-          placeholder="Până la"
         />
 
         <Button
@@ -281,7 +314,14 @@ export function ServiceCRUD({
                   </TableCell>
                   <TableCell>{record.nextServiceDate ?? "—"}</TableCell>
                   <TableCell>
-                    <div className="flex justify-center">
+                    <div className="flex gap-2 justify-center">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleEdit(record)}
+                      >
+                        Editează
+                      </Button>
                       <Button
                         size="sm"
                         variant="destructive"
@@ -298,10 +338,21 @@ export function ServiceCRUD({
         </div>
       )}
 
-      <Dialog open={open} onOpenChange={setOpen}>
+      <Dialog
+        open={open}
+        onOpenChange={(v) => {
+          setOpen(v);
+          if (!v) {
+            setForm(createEmptyForm());
+            setEditingId(null);
+          }
+        }}
+      >
         <DialogContent className="w-[95vw] max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Programează service nou</DialogTitle>
+            <DialogTitle>
+              {editingId ? "Editează service" : "Programează service"}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -446,6 +497,7 @@ export function ServiceCRUD({
               )}
             </div>
           </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpen(false)}>
               Anulează
