@@ -41,6 +41,7 @@ import PayrollPage from "@/modules/hr/pages/payroll";
 import AttendancePage from "@/modules/hr/pages/attendance";
 import ActivityLogHRPage from "@/modules/hr/pages/activity-log-hr";
 import HRSettingsPage from "@/modules/hr/pages/settings-hr";
+import EvaluationsPage from "@/modules/hr/pages/evaluations";
 
 import ReportsPage from "@/modules/reports/index";
 import TransportReportsPage from "@/modules/reports/pages/transport-reports";
@@ -268,6 +269,11 @@ const hrSettingsRoute = createRoute({
   path: "/hr/settings",
   component: HRSettingsPage,
 });
+const evaluationsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/evaluations",
+  component: EvaluationsPage,
+});
 
 // Reports
 const reportsRoute = createRoute({
@@ -403,6 +409,7 @@ const routeTree = rootRoute.addChildren([
     attendanceRoute,
     hrActivityLogRoute,
     hrSettingsRoute,
+    evaluationsRoute,
 
     // Reports
     reportsRoute,
