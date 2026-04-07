@@ -13,7 +13,7 @@
 // - Mobile view — carduri mobile se afiseaza pe ecrane mici
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("TripsPage", () => {
   it.todo("placeholder — implementeaza testele");

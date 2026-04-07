@@ -11,7 +11,7 @@
 // - Export — PDF/Excel cu datele comparatiei
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("FleetComparisonPage", () => {
   it.todo("placeholder — implementeaza testele");

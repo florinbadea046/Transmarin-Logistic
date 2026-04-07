@@ -13,7 +13,7 @@
 // - ExpiryCell — afiseaza corect zilele ramase/expirate
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("TrucksSection", () => {
   it.todo("placeholder — implementeaza testele");

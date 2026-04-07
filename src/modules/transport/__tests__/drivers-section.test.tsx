@@ -13,7 +13,7 @@
 // - Export — PDF/Excel/CSV genereaza fisiere corecte
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("DriversSection", () => {
   it.todo("placeholder — implementeaza testele");

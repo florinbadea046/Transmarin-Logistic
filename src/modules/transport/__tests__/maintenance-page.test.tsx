@@ -14,7 +14,7 @@
 // - getTruck useCallback — nu recreeaza functia la fiecare render
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("MaintenancePage", () => {
   it.todo("placeholder — implementeaza testele");

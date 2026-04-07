@@ -14,7 +14,7 @@
 // - Duplicate detection — comanda identica e refuzata
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("OrdersPage", () => {
   it.todo("placeholder — implementeaza testele");

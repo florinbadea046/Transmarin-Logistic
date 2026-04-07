@@ -11,7 +11,7 @@
 // - KPI cards — afiseaza metrici corecte per sofer selectat
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("DriverPerformance", () => {
   it.todo("placeholder — implementeaza testele");
