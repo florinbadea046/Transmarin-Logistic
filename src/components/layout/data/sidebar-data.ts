@@ -124,10 +124,7 @@ export const sidebarData: SidebarData = {
               url: "/transport/mileage-registry",
               icon: Gauge,
             },
-            { title: "Dispecer Live",
-              url: "/dispatcher-live",
-              icon: Activity 
-            },
+            { title: "Dispecer Live", url: "/dispatcher-live", icon: Activity },
           ],
         },
         {
@@ -179,6 +176,11 @@ export const sidebarData: SidebarData = {
               title: "Furnizori",
               url: "/accounting/suppliers",
               icon: Users,
+            },
+            {
+              title: "Audit Log",
+              url: "/accounting/activity-log",
+              icon: ClipboardList,
             },
           ],
         },
