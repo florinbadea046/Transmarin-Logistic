@@ -125,6 +125,26 @@ describe("setOrdersToStorage", () => {
 
     spy.mockRestore();
   });
+
+  it("afiseaza warn in consola cand localStorage esueaza", () => {
+    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+    // Suprascriem direct localStorage.setItem pe obiect
+    const original = localStorage.setItem.bind(localStorage);
+    localStorage.setItem = () => {
+      throw new Error("QuotaExceededError");
+    };
+
+    setOrdersToStorage([]);
+
+    expect(warnSpy).toHaveBeenCalledWith(
+      "Failed to save orders:",
+      expect.any(Error),
+    );
+
+    localStorage.setItem = original;
+    warnSpy.mockRestore();
+  });
 });
 
 describe("isDuplicateOrder", () => {
