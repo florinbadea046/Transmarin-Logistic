@@ -44,13 +44,15 @@ export const COMPANY = {
   email: "office@transmarin-logistic.ro",
 };
 
-export const STATUS_LABELS: Record<InvoiceData["status"], string> = {
-  draft: "Ciornă",
-  sent: "Trimisă",
-  paid: "Achitată",
-  overdue: "Restantă",
-  cancelled: "Anulată",
-};
+export const getStatusLabels = (
+  t: (key: string) => string,
+): Record<InvoiceData["status"], string> => ({
+  draft: t("pdf.statusLabels.draft"),
+  sent: t("pdf.statusLabels.sent"),
+  paid: t("pdf.statusLabels.paid"),
+  overdue: t("pdf.statusLabels.overdue"),
+  cancelled: t("pdf.statusLabels.cancelled"),
+});
 
 // ─── Utilitar formatare ────────────────────────────────────────────────────────
 
@@ -65,7 +67,9 @@ export const fmtDate = (iso?: string) => {
 
 // ─── Generator PDF ─────────────────────────────────────────────────────────────
 
-export function generateInvoicePDF(invoice: InvoiceData): void {
+export type TFunction = (key: string, opts?: Record<string, unknown>) => string;
+
+export function generateInvoicePDF(invoice: InvoiceData, t: TFunction): void {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
   const supplier = {
@@ -103,11 +107,12 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
-  doc.text("FACTURĂ", pageW - margin, 16, { align: "right" });
+  doc.text(t("pdf.labels.invoice"), pageW - margin, 16, { align: "right" });
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
-  doc.text(`Nr. ${invoice.invoiceNumber}`, pageW - margin, 23, { align: "right" });
+  doc.text(t("pdf.labels.invoiceNr", { nr: invoice.invoiceNumber }), pageW - margin, 23, { align: "right" });
 
+  const STATUS_LABELS = getStatusLabels(t);
   const statusLabel = STATUS_LABELS[invoice.status] ?? invoice.status.toUpperCase();
   const badgeColors: Record<string, RGB> = {
     paid: [0, 160, 80],
@@ -131,9 +136,9 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
   doc.setTextColor(...GRAY);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
-  doc.text(`Data emiterii: ${fmtDate(invoice.invoiceDate)}`, margin, 43.5);
+  doc.text(t("pdf.labels.issueDate", { date: fmtDate(invoice.invoiceDate) }), margin, 43.5);
   if (invoice.dueDate) {
-    doc.text(`Scadență: ${fmtDate(invoice.dueDate)}`, margin + 55, 43.5);
+    doc.text(t("pdf.labels.dueDate", { date: fmtDate(invoice.dueDate) }), margin + 55, 43.5);
   }
 
   // ── Furnizor & client ─────────────────────────────────────────────────────────
@@ -148,8 +153,8 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
   doc.setTextColor(...WHITE);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8.5);
-  doc.text("FURNIZOR", col1X + 3, y + 4.8);
-  doc.text("CLIENT", col2X + 3, y + 4.8);
+  doc.text(t("pdf.labels.supplier"), col1X + 3, y + 4.8);
+  doc.text(t("pdf.labels.client"), col2X + 3, y + 4.8);
   y += 7;
 
   doc.setFillColor(248, 250, 254);
@@ -166,7 +171,7 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
   const supplierLines = doc.splitTextToSize(supplier.address, blockW - 6);
   doc.text(supplierLines, col1X + 3, y + 13);
   doc.text(`CUI: ${supplier.cui}`, col1X + 3, y + 13 + supplierLines.length * 4.5);
-  doc.text(`Reg. Com.: ${COMPANY.regCom}`, col1X + 3, y + 13 + supplierLines.length * 4.5 + 4.5);
+  doc.text(t("pdf.labels.regCom", { value: COMPANY.regCom }), col1X + 3, y + 13 + supplierLines.length * 4.5 + 4.5);
 
   doc.setTextColor(...BLACK);
   doc.setFont("helvetica", "bold");
@@ -204,7 +209,15 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
 
   autoTable(doc, {
     startY: y,
-    head: [["#", "Descriere", "Cant.", "Preț unitar", "TVA %", "TVA", "Total"]],
+    head: [[
+      t("pdf.table.nr"),
+      t("pdf.table.description"),
+      t("pdf.table.quantity"),
+      t("pdf.table.unitPrice"),
+      t("pdf.table.vatPercent"),
+      t("pdf.table.vat"),
+      t("pdf.table.total"),
+    ]],
     body: tableData,
     margin: { left: margin, right: margin },
     styles: {
@@ -254,7 +267,7 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
   doc.setTextColor(...GRAY);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8.5);
-  doc.text("Subtotal (fără TVA):", totalsX + 3, ty + 5.3);
+  doc.text(t("pdf.labels.subtotal"), totalsX + 3, ty + 5.3);
   doc.setTextColor(...BLACK);
   doc.text(`${fmt(subtotalNet)} RON`, totalsX + totalsW - 3, ty + 5.3, { align: "right" });
   ty += 8;
@@ -262,7 +275,7 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
   doc.setFillColor(245, 248, 255);
   doc.rect(totalsX, ty, totalsW, 8, "F");
   doc.setTextColor(...GRAY);
-  doc.text("TVA 19%:", totalsX + 3, ty + 5.3);
+  doc.text(t("pdf.labels.vat19"), totalsX + 3, ty + 5.3);
   doc.setTextColor(...BLACK);
   doc.text(`${fmt(totalVAT)} RON`, totalsX + totalsW - 3, ty + 5.3, { align: "right" });
   ty += 8;
@@ -272,7 +285,7 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
   doc.setTextColor(...WHITE);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9.5);
-  doc.text("TOTAL:", totalsX + 3, ty + 6.5);
+  doc.text(t("pdf.labels.totalLabel"), totalsX + 3, ty + 6.5);
   doc.text(`${fmt(grandTotal)} RON`, totalsX + totalsW - 3, ty + 6.5, { align: "right" });
   ty += 14;
 
@@ -283,7 +296,7 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
     doc.setTextColor(...ACCENT);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(8);
-    doc.text("CONDIȚII DE PLATĂ", margin + 3, ty + 5);
+    doc.text(t("pdf.labels.paymentTerms"), margin + 3, ty + 5);
     doc.setTextColor(...GRAY);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(7.5);
@@ -304,12 +317,12 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
   doc.setTextColor(...WHITE);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text("Date bancare:", margin, footerY + 7);
+  doc.text(t("pdf.labels.bankDetails"), margin, footerY + 7);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
   doc.setTextColor(180, 200, 230);
-  doc.text(`IBAN: ${supplier.iban}`, margin, footerY + 12);
-  doc.text(`Bancă: ${supplier.bank}`, margin, footerY + 17);
+  doc.text(t("pdf.labels.iban", { value: supplier.iban }), margin, footerY + 12);
+  doc.text(t("pdf.labels.bank", { value: supplier.bank }), margin, footerY + 17);
 
   doc.setTextColor(180, 200, 230);
   doc.text(COMPANY.phone, pageW - margin, footerY + 9, { align: "right" });
@@ -318,7 +331,7 @@ export function generateInvoicePDF(invoice: InvoiceData): void {
   doc.setTextColor(120, 150, 190);
   doc.setFontSize(7);
   doc.text(
-    `Document generat automat · Transmarin Logistic SRL · Pagina 1`,
+    t("pdf.labels.footer"),
     pageW / 2,
     footerY + 18,
     { align: "center" }
