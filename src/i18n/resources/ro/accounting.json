@@ -12,7 +12,8 @@
     "chartExpenses": "Cheltuieli",
     "nav": {
       "invoices": "Facturi",
-      "suppliers": "Furnizori"
+      "suppliers": "Furnizori",
+      "activityLog": "Audit Log"
     }
   },
   "suppliers": {
@@ -95,5 +96,36 @@
     "added": "Factură adăugată cu succes",
     "deleted": "Factură ștearsă",
     "markedPaid": "Factură marcată ca plătită"
+  },
+  "accountingAuditLog": {
+  "title": "Istoric Activități Contabilitate",
+  "subtitle": "Timeline CRUD pe facturi, furnizori, plăți și buget.",
+  "filters": "Filtre",
+  "allEntities": "Toate entitățile",
+  "allActions": "Toate acțiunile",
+  "perPage": "pe pagină",
+  "resetFilters": "Resetează filtrele",
+  "entries": "{{count}} înregistrări",
+  "noActivity": "Nu există activități înregistrate.",
+  "showDetails": "Arată detalii",
+  "hideDetails": "Ascunde detalii",
+  "before": "Înainte",
+  "after": "După",
+  "previous": "Anterior",
+  "next": "Următor",
+  "page": "Pagina {{page}} din {{total}}",
+  "actions": {
+    "create": "Creare",
+    "update": "Actualizare",
+    "delete": "Ștergere",
+    "pay": "Plată"
+  },
+  "entities": {
+    "invoice": "Factură",
+    "supplier": "Furnizor",
+    "payment": "Plată",
+    "budget": "Buget",
+    "recurringExpense": "Cheltuială recurentă"
+ }
   }
 }
