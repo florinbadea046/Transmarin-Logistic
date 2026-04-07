@@ -12,7 +12,7 @@
 // - Export — genereaza PDF/Excel corect
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("MileageRegistryPage", () => {
   it.todo("placeholder — implementeaza testele");

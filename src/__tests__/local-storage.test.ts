@@ -15,7 +15,7 @@
 // - Error handling — JSON invalid returneaza array gol, nu crapa
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("local-storage utilities", () => {
   it.todo("placeholder — implementeaza testele");

@@ -11,7 +11,7 @@
 // - addDays() => adauga N zile corect, trece luna
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("trips-calendar-utils", () => {
   it.todo("placeholder — implementeaza testele");

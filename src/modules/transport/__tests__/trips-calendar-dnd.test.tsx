@@ -13,7 +13,7 @@
 // - TripDetailDialog — afiseaza detaliile complete ale cursei
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("TripsCalendarDnd", () => {
   it.todo("placeholder — implementeaza testele");

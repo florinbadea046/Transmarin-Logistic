@@ -2,6 +2,7 @@
 // Vitest global setup — runs before every test file
 // ──────────────────────────────────────────────────────────
 
+import { beforeEach } from "vitest";
 import "@testing-library/jest-dom/vitest";
 
 // Mock localStorage for all tests

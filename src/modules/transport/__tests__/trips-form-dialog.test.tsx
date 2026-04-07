@@ -13,7 +13,7 @@
 // - Numeric inputs — accepta doar numere pozitive
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("TripFormDialog", () => {
   it.todo("placeholder — implementeaza testele");

@@ -111,7 +111,7 @@ describe("toRows (via exportOrdersExcel)", () => {
   it("transforma comenzile in randuri cu cheile corecte din t()", () => {
     exportOrdersExcel(mockOrders, t);
     expect(mockJsonToSheet).toHaveBeenCalledOnce();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const rows = (mockJsonToSheet.mock.calls as any)[0][0];
     expect(rows).toHaveLength(2);
     expect(rows[0]).toHaveProperty("orders.fields.client", "SC Test SRL");
@@ -123,7 +123,7 @@ describe("toRows (via exportOrdersExcel)", () => {
   it("campurile lipsa devin string gol", () => {
     const orderFaraNote: Order[] = [{ ...mockOrders[0], notes: undefined }];
     exportOrdersExcel(orderFaraNote, t);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const rows = (mockJsonToSheet.mock.calls as any)[0][0];
     expect(rows[0]["orders.fields.notes"]).toBe("");
   });
@@ -137,14 +137,14 @@ describe("getExportOrderCols (via exportOrdersPDF)", () => {
   it("genereaza 7 coloane pentru comenzi", () => {
     exportOrdersPDF(mockOrders, t);
     expect(mockAutoTable).toHaveBeenCalledOnce();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.head[0]).toHaveLength(7);
   });
 
   it("prima coloana este orders.fields.client", () => {
     exportOrdersPDF(mockOrders, t);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.head[0][0]).toBe("orders.fields.client");
   });
@@ -157,14 +157,14 @@ describe("getExportTripCols (via exportTripsPDF)", () => {
 
   it("genereaza 9 coloane pentru curse", () => {
     exportTripsPDF(mockTrips, t);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.head[0]).toHaveLength(9);
   });
 
   it("prima coloana este ID", () => {
     exportTripsPDF(mockTrips, t);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.head[0][0]).toBe("ID");
   });
@@ -182,7 +182,7 @@ describe("exportOrdersPDF", () => {
 
   it("apeleaza autoTable cu head si body corecte", () => {
     exportOrdersPDF(mockOrders, t);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.head).toHaveLength(1);
     expect(args.body).toHaveLength(2);
@@ -196,7 +196,7 @@ describe("exportOrdersPDF", () => {
 
   it("functioneaza cu lista goala de comenzi", () => {
     exportOrdersPDF([], t);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.body).toHaveLength(0);
     expect(mockSave).toHaveBeenCalledWith("comenzi.pdf");
@@ -224,7 +224,7 @@ describe("exportOrdersExcel", () => {
 
   it("apeleaza json_to_sheet cu numarul corect de randuri", () => {
     exportOrdersExcel(mockOrders, t);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const rows = (mockJsonToSheet.mock.calls as any)[0][0];
     expect(rows).toHaveLength(2);
   });
@@ -287,7 +287,7 @@ describe("exportTripsPDF", () => {
 
   it("body contine datele curse", () => {
     exportTripsPDF(mockTrips, t);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+     
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.body).toHaveLength(1);
     expect(args.body[0]).toContain("tr1");
