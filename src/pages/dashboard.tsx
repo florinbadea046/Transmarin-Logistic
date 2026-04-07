@@ -1,24 +1,30 @@
 import { useTranslation } from "react-i18next";
-import {
-  Users, Receipt, BarChart3, PackageCheck,
-} from "lucide-react";
+import { Users, Receipt, BarChart3, PackageCheck } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Separator } from "@/components/ui/separator";
 import {
-  LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts";
 
-import { padTwo, getTripDate, buildLast30Days } from "./_components/dashboard-utils";
+import {
+  padTwo,
+  getTripDate,
+  buildLast30Days,
+} from "./_components/dashboard-utils";
 import { useTransportData, useHRData } from "./_components/dashboard-hooks";
 import { AlerteTransport } from "./_components/dashboard-transport-alerts";
-import { TransportSection } from "./_components/dashboard-transport-section";
 import { HRSection } from "./_components/dashboard-hr-section";
 import { FinancialSection } from "./_components/dashboard-financial-section";
 import { useFinancialData } from "./_components/dashboard-hooks";
-// ── Dashboard Page ─────────────────────────────────────────
+import { TransportMainSection } from "./_components/dashboard-transport-main-section";
 
 export default function DashboardPage() {
   const { t } = useTranslation();
@@ -28,8 +34,11 @@ export default function DashboardPage() {
   const today = new Date();
   const thisMonth = `${today.getFullYear()}-${padTwo(today.getMonth() + 1)}`;
 
-  const activeOrders = orders.filter((o) =>
-    o.status === "pending" || o.status === "assigned" || o.status === "in_transit",
+  const activeOrders = orders.filter(
+    (o) =>
+      o.status === "pending" ||
+      o.status === "assigned" ||
+      o.status === "in_transit",
   ).length;
 
   const kmMonth = trips
@@ -48,9 +57,13 @@ export default function DashboardPage() {
   for (const d of days30) kmByDay[d] = 0;
   for (const trip of trips) {
     const key = getTripDate(trip).slice(0, 10);
-    if (key in kmByDay) kmByDay[key] += (trip.kmLoaded ?? 0) + (trip.kmEmpty ?? 0);
+    if (key in kmByDay)
+      kmByDay[key] += (trip.kmLoaded ?? 0) + (trip.kmEmpty ?? 0);
   }
-  const chartData = days30.map((d) => ({ date: shortLabel(d), km: kmByDay[d] }));
+  const chartData = days30.map((d) => ({
+    date: shortLabel(d),
+    km: kmByDay[d],
+  }));
 
   return (
     <>
@@ -193,8 +206,8 @@ export default function DashboardPage() {
 
           <Separator />
 
-          {/* A42: Sectiunea Transport — NOU */}
-          <TransportSection
+          {/* A40: Dashboard Principal — Sectiunea Transport */}
+          <TransportMainSection
             orders={orders}
             trips={trips}
             trucks={trucks}
