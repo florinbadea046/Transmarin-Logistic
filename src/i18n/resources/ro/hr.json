@@ -19,7 +19,8 @@
       "leaves": "Concedii",
       "payroll": "Salarizare",
       "attendance": "Pontaj Lunar",
-      "activityLog": "Istoric"
+      "activityLog": "Istoric",
+      "evaluations": "Evaluări"
     },
     "documentAlerts": {
       "title": "Alerte Documente",
@@ -372,6 +373,65 @@
     "addButton": "Adaugă document",
     "addDocumentButton": "Adaugă document"
   },
+  "evaluations": {
+    "title": "Evaluări Performanță",
+    "listTitle": "Lista Evaluări",
+    "count": "{{count}} evaluări",
+    "add": "Adaugă evaluare",
+    "empty": "Nicio evaluare găsită.",
+    "searchPlaceholder": "Caută după angajat...",
+    "allStatuses": "Toate statusurile",
+    "columns": {
+      "employee": "Angajat",
+      "evaluator": "Evaluator",
+      "period": "Perioadă",
+      "score": "Scor general",
+      "status": "Status"
+    },
+    "status": {
+      "draft": "Draft",
+      "final": "Finalizat"
+    },
+    "criteria": {
+      "punctuality": "Punctualitate",
+      "quality": "Calitate",
+      "collaboration": "Colaborare",
+      "initiative": "Inițiativă",
+      "procedures": "Proceduri"
+    },
+    "dialog": {
+      "addTitle": "Evaluare nouă",
+      "editTitle": "Editare evaluare",
+      "selectEmployee": "Selectează angajat",
+      "selectEvaluator": "Selectează evaluator",
+      "periodPlaceholder": "ex: 2026-Q1",
+      "commentPlaceholder": "Comentariu...",
+      "averageScore": "Scor mediu",
+      "cancel": "Anulează",
+      "save": "Salvează",
+      "saveSuccess": "Evaluare salvată cu succes",
+      "updateSuccess": "Evaluare actualizată cu succes",
+      "status": "Status",
+      "validation": {
+        "employeeRequired": "Angajatul este obligatoriu",
+        "evaluatorRequired": "Evaluatorul este obligatoriu",
+        "periodRequired": "Perioada este obligatorie",
+        "scoresRequired": "Toate criteriile trebuie notate (1-5)"
+      }
+    },
+    "radarTitle": "Radar Evaluare",
+    "history": "Istoric evaluări",
+    "noHistory": "Nicio evaluare anterioară.",
+    "actions": {
+      "view": "Vizualizează",
+      "edit": "Editează",
+      "delete": "Șterge",
+      "deleteTitle": "Șterge evaluarea",
+      "deleteDesc": "Sigur vrei să ștergi această evaluare?",
+      "cancel": "Anulează",
+      "deleteSuccess": "Evaluare ștearsă"
+    }
+  },
   "hrAuditLog": {
     "title": "Istoric Activități HR",
     "subtitle": "Toate acțiunile CRUD efectuate pe entitățile HR",
@@ -403,7 +463,8 @@
       "leave": "Concediu",
       "bonus": "Bonus / Penalizare",
       "document": "Document",
-      "attendance": "Pontaj"
+      "attendance": "Pontaj",
+      "evaluation": "Evaluare"
     }
   }
 }

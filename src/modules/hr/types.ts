@@ -55,6 +55,35 @@ export interface HRSettings {
   bonusCurrency: "RON" | "EUR";   // moneda bonusuri
 }
 
+// ── Evaluări Performanță ──────────────────────────────────
+
+export const EVALUATION_CRITERIA = [
+  "punctuality",
+  "quality",
+  "collaboration",
+  "initiative",
+  "procedures",
+] as const;
+
+export type EvaluationCriterion = (typeof EVALUATION_CRITERIA)[number];
+
+export interface CriterionScore {
+  criterion: EvaluationCriterion;
+  score: number; // 1–5
+  comment: string;
+}
+
+export interface PerformanceEvaluation {
+  id: string;
+  employeeId: string;
+  evaluatorId: string;
+  period: string; // ex: "2026-Q1", "2026-03"
+  criteria: CriterionScore[];
+  averageScore: number;
+  status: "draft" | "final";
+  createdAt: string;
+}
+
 export type AttendanceStatus = "P" | "CO" | "CM" | "A" | "LP";
 
 export interface AttendanceRecord {
