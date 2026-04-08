@@ -12,7 +12,7 @@
 // - Integrare — dupa log() apelat de 3 ori, loadAuditLog() returneaza 3 intrari
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("useAuditLog", () => {
   it.todo("placeholder — implementeaza testele");

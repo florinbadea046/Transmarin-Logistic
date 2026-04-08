@@ -33,6 +33,7 @@ import VehiclesPage from "@/modules/fleet/pages/vehicles";
 import AccountingPage from "@/modules/accounting/index";
 import InvoicesPage from "@/modules/accounting/pages/invoices";
 import SuppliersPage from "@/modules/accounting/pages/suppliers";
+import ActivityLogAccountingPage from "@/modules/accounting/pages/activity-log-accounting";
 
 import HRPage from "@/modules/hr/index";
 import EmployeesPage from "@/modules/hr/pages/employees";
@@ -232,6 +233,11 @@ const suppliersRoute = createRoute({
   path: "/accounting/suppliers",
   component: SuppliersPage,
 });
+const accountingActivityLogRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/activity-log",
+  component: ActivityLogAccountingPage,
+});
 
 // HR
 const hrRoute = createRoute({
@@ -400,6 +406,7 @@ const routeTree = rootRoute.addChildren([
     invoicesRoute,
     suppliersRoute,
     budgetRoute,
+    accountingActivityLogRoute,
 
     // HR
     hrRoute,

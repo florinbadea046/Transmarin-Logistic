@@ -13,7 +13,7 @@
 // - Export Excel — genereaza fisier corect
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("FuelLogPage", () => {
   it.todo("placeholder — implementeaza testele");

@@ -12,7 +12,7 @@
 // - Responsive — layout se adapteaza pe mobile
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("DispatcherLivePage", () => {
   it.todo("placeholder — implementeaza testele");

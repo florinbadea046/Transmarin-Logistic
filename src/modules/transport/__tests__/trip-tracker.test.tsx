@@ -12,7 +12,7 @@
 // - Not found state — afiseaza mesaj daca trip-ul nu exista
 // ──────────────────────────────────────────────────────────
 
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 
 describe("TripTracker", () => {
   it.todo("placeholder — implementeaza testele");
