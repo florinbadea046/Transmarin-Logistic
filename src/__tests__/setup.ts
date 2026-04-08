@@ -3,9 +3,8 @@
 // ──────────────────────────────────────────────────────────
 
 import { beforeEach } from "vitest";
-import "@testing-library/jest-dom/vitest";
 
-// Mock localStorage for all tests
+// Mock localStorage for all tests (works in both node and DOM environments)
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
   return {
@@ -18,9 +17,15 @@ const localStorageMock = (() => {
   };
 })();
 
-Object.defineProperty(window, "localStorage", { value: localStorageMock });
+// Polyfill globals for node environment
+if (typeof globalThis.localStorage === "undefined") {
+  Object.defineProperty(globalThis, "localStorage", { value: localStorageMock });
+}
+if (typeof globalThis.window === "undefined") {
+  Object.defineProperty(globalThis, "window", { value: globalThis });
+}
 
 // Reset localStorage before each test
 beforeEach(() => {
-  localStorage.clear();
+  localStorageMock.clear();
 });
