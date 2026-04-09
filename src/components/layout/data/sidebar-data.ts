@@ -178,6 +178,11 @@ export const sidebarData: SidebarData = {
               icon: Users,
             },
             {
+              title: "Registru Plati",
+              url: "/accounting/payments",
+              icon: CreditCard,
+            },
+            {
               title: "Audit Log",
               url: "/accounting/activity-log",
               icon: ClipboardList,

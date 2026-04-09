@@ -34,3 +34,23 @@ export interface Supplier {
   email: string;
   bankAccount: string;
 }
+
+
+export type PaymentMethod = "transfer" | "cash" | "card" | "CEC";
+export type PaymentStatus = "confirmata" | "in_asteptare";
+export type PaymentDirection = "income" | "expense";
+ 
+export interface Payment {
+  id: string;
+  invoiceId: string;       // link catre factura
+  invoiceNumber: string;   // nr factura (afisat in tabel)
+  clientName: string;      // client sau furnizor
+  direction: PaymentDirection;
+  amount: number;          // suma platita
+  date: string;            // yyyy-MM-dd
+  method: PaymentMethod;
+  bankRef?: string;        // referinta bancara
+  status: PaymentStatus;
+  notes?: string;
+  createdAt: string;
+}
