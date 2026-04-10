@@ -376,8 +376,8 @@ export default function TripsCalendarDndPage() {
                   </div>
                 )}
 
-                <div className="overflow-x-auto touch-pan-x -mx-3 sm:mx-0 px-3 sm:px-0">
-                  <div style={{ minWidth: isMobile ? "300px" : undefined }}>
+                <div className="overflow-x-auto touch-pan-x -mx-3 sm:mx-0 px-3 sm:px-0 pb-2">
+                  <div style={{ minWidth: "600px" }}>
                     <div
                       style={{
                         display: "grid",
