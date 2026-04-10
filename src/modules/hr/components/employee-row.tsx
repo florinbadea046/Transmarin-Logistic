@@ -1,8 +1,9 @@
 import * as React from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { flexRender, type Row, type Cell } from "@tanstack/react-table";
-import { MoreVertical, Pencil, Trash2, FileText, BarChart2 } from "lucide-react";
+import { MoreVertical, Pencil, Trash2, FileText, BarChart2, GraduationCap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,9 +26,10 @@ import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 interface EmployeeRowProps {
   row: Row<Employee>;
   setData: React.Dispatch<React.SetStateAction<Employee[]>>;
+  trainingsCount: number;
 }
 
-export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
+export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, trainingsCount }) => {
   const { t } = useTranslation();
   const { log } = useHrAuditLog();
   const employee = row.original;
@@ -71,12 +73,24 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData }) => {
       {row.getVisibleCells().map((cell: Cell<Employee, unknown>) =>
         cell.column.id === "name" ? (
           <TableCell key={cell.id}>
-            <button
-              className="font-medium text-foreground hover:underline hover:text-primary transition-colors text-left whitespace-nowrap"
-              onClick={() => setProfileOpen(true)}
-            >
-              {employee.name}
-            </button>
+            <div className="flex items-center gap-2 whitespace-nowrap">
+              <button
+                className="font-medium text-foreground hover:underline hover:text-primary transition-colors text-left"
+                onClick={() => setProfileOpen(true)}
+              >
+                {employee.name}
+              </button>
+              {trainingsCount > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="gap-1 px-1.5 py-0 text-[10px]"
+                  title={t("trainings.employeeBadge", { count: trainingsCount })}
+                >
+                  <GraduationCap className="h-3 w-3" />
+                  {trainingsCount}
+                </Badge>
+              )}
+            </div>
           </TableCell>
         ) : cell.column.id === "actions" ? (
           <TableCell key={cell.id} className="text-center">

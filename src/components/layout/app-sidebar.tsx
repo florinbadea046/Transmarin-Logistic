@@ -51,6 +51,7 @@ const TITLE_KEYS: Record<string, string> = {
   "/hr/leaves": "sidebar.hr.leaves",
   "/hr/payroll": "sidebar.hr.payroll",
   "/hr/attendance": "hr.nav.attendance",
+  "/hr/trainings": "hr.nav.trainings",
   "/hr/activity-log": "hr.nav.activityLog",
   // Reports
   "/reports": "sidebar.reports.overview",
