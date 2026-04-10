@@ -86,7 +86,7 @@ import { generateCertificatePdf } from "./_components/trainings-pdf";
 import { getEmpName } from "./_components/evaluations-types";
 
 export default function TrainingsPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { log } = useHrAuditLog();
 
   const [employees, setEmployees] = React.useState<Employee[]>(() =>
@@ -116,7 +116,10 @@ export default function TrainingsPage() {
   const [participantsTraining, setParticipantsTraining] =
     React.useState<Training | null>(null);
 
-  const columns = React.useMemo(() => getTrainingColumns(t), [t]);
+  const columns = React.useMemo(
+    () => getTrainingColumns(t),
+    [t, i18n.language],
+  );
 
   const table = useReactTable({
     data,
@@ -230,7 +233,7 @@ export default function TrainingsPage() {
         entity: "training",
         entityId: training.id,
         entityLabel: training.title,
-        details: `Certificat emis pentru ${emp.name}`,
+        details: t("trainings.audit.certificateIssuedFor", { name: emp.name }),
       });
       refreshData();
       // keep dialog in sync
@@ -486,9 +489,7 @@ export default function TrainingsPage() {
                             </TableCell>
                             <TableCell>{row.training.title}</TableCell>
                             <TableCell>{formatDate(row.training.date)}</TableCell>
-                            <TableCell>
-                              {new Date(row.issuedAt).toLocaleDateString("ro-RO")}
-                            </TableCell>
+                            <TableCell>{formatDate(row.issuedAt)}</TableCell>
                             <TableCell className="text-right">
                               <Button
                                 size="sm"

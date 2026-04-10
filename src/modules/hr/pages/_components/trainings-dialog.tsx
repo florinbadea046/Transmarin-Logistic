@@ -60,11 +60,14 @@ export function TrainingDialog({
   training,
   onSaved,
 }: TrainingDialogProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { log } = useHrAuditLog();
   const isEdit = !!training;
 
-  const schema = React.useMemo(() => makeTrainingSchema(t), [t]);
+  const schema = React.useMemo(
+    () => makeTrainingSchema(t),
+    [t, i18n.language],
+  );
   const resolver = React.useMemo(
     () => zodResolver(schema) as Resolver<TrainingFormValues>,
     [schema],
@@ -402,7 +405,7 @@ function ParticipantsMultiSelect({
                 type="button"
                 onClick={() => remove(emp.id)}
                 className="ml-0.5 rounded-sm hover:bg-muted-foreground/20 p-0.5"
-                aria-label={`Remove ${emp.name}`}
+                aria-label={t("trainings.actions.removeParticipant", { name: emp.name })}
               >
                 <X className="h-3 w-3" />
               </button>

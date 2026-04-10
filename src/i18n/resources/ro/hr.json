@@ -559,7 +559,8 @@
       "cancel": "Anulează",
       "save": "Salvează",
       "deleteTitle": "Șterge training",
-      "deleteDesc": "Sigur vrei să ștergi acest training? Acțiunea nu poate fi anulată."
+      "deleteDesc": "Sigur vrei să ștergi acest training? Acțiunea nu poate fi anulată.",
+      "removeParticipant": "Elimină {{name}}"
     },
     "participantsDialog": {
       "title": "Participanți",
@@ -583,6 +584,9 @@
       "deleted": "Training șters cu succes",
       "certificateIssued": "Certificat emis cu succes",
       "redownloaded": "Certificat descărcat din nou"
+    },
+    "audit": {
+      "certificateIssuedFor": "Certificat emis pentru {{name}}"
     }
   }
 }

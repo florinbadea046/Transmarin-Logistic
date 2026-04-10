@@ -559,7 +559,8 @@
       "cancel": "Cancel",
       "save": "Save",
       "deleteTitle": "Delete training",
-      "deleteDesc": "Are you sure you want to delete this training? This action cannot be undone."
+      "deleteDesc": "Are you sure you want to delete this training? This action cannot be undone.",
+      "removeParticipant": "Remove {{name}}"
     },
     "participantsDialog": {
       "title": "Participants",
@@ -583,6 +584,9 @@
       "deleted": "Training deleted successfully",
       "certificateIssued": "Certificate issued successfully",
       "redownloaded": "Certificate re-downloaded"
+    },
+    "audit": {
+      "certificateIssuedFor": "Certificate issued for {{name}}"
     }
   }
 }

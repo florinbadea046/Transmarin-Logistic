@@ -346,6 +346,7 @@ export default function ActivityLogHRPage() {
       { value: "document", label: t("hrAuditLog.entities.document") },
       { value: "attendance", label: t("hrAuditLog.entities.attendance") },
       { value: "evaluation", label: t("hrAuditLog.entities.evaluation") },
+      { value: "training", label: t("hrAuditLog.entities.training") },
     ],
     [t],
   );
