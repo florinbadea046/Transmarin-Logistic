@@ -373,6 +373,25 @@
     "addButton": "Adaugă document",
     "addDocumentButton": "Adaugă document"
   },
+  "profileTabs": {
+    "remainingDays": "Zile rămase {{year}}",
+    "noLeaveRequests": "Nicio cerere de concediu.",
+    "type": "Tip",
+    "startDate": "Început",
+    "endDate": "Sfârșit",
+    "days": "Zile",
+    "status": "Status",
+    "totalNetBonuses": "Total net bonusuri/amenzi",
+    "noRecords": "Nicio înregistrare.",
+    "date": "Data",
+    "description": "Descriere",
+    "amount": "Sumă",
+    "bonuses": "Bonusuri",
+    "fines": "Amenzi",
+    "leaveDaysPerMonth": "Zile concediu pe lună",
+    "noDataAvailable": "Nicio dată disponibilă.",
+    "bonusesVsFines": "Bonusuri vs Amenzi"
+  },
   "evaluations": {
     "title": "Evaluări Performanță",
     "listTitle": "Lista Evaluări",

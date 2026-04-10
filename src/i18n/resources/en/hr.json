@@ -373,6 +373,25 @@
     "addButton": "Add document",
     "addDocumentButton": "Add document"
   },
+  "profileTabs": {
+    "remainingDays": "Days remaining {{year}}",
+    "noLeaveRequests": "No leave requests.",
+    "type": "Type",
+    "startDate": "Start",
+    "endDate": "End",
+    "days": "Days",
+    "status": "Status",
+    "totalNetBonuses": "Total net bonuses/fines",
+    "noRecords": "No records.",
+    "date": "Date",
+    "description": "Description",
+    "amount": "Amount",
+    "bonuses": "Bonuses",
+    "fines": "Fines",
+    "leaveDaysPerMonth": "Leave days per month",
+    "noDataAvailable": "No data available.",
+    "bonusesVsFines": "Bonuses vs Fines"
+  },
   "evaluations": {
     "title": "Performance Evaluations",
     "listTitle": "Evaluations List",

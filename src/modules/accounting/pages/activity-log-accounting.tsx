@@ -52,12 +52,14 @@ import {
 
 // ── Nav links ───────────────────────────────────────────────
 
-const topNavLinks = [
-  { title: "Facturi", href: "/accounting/invoices", isActive: false },
-  { title: "Furnizori", href: "/accounting/suppliers", isActive: false },
-  { title: "Buget", href: "/accounting/budget", isActive: false },
-  { title: "Audit Log", href: "/accounting/activity-log", isActive: true },
-];
+function useTopNavLinks(t: (key: string) => string) {
+  return [
+    { title: t("accounting.nav.invoices"), href: "/accounting/invoices", isActive: false },
+    { title: t("accounting.nav.suppliers"), href: "/accounting/suppliers", isActive: false },
+    { title: t("accounting.nav.budget"), href: "/accounting/budget", isActive: false },
+    { title: t("accounting.nav.activityLog"), href: "/accounting/activity-log", isActive: true },
+  ];
+}
 
 const PAGE_SIZES = [10, 20, 50];
 
@@ -251,6 +253,7 @@ function AccountingAuditEntryCard({
 export default function ActivityLogAccountingPage() {
   const { t } = useTranslation();
   const isMobile = useMobile();
+  const topNavLinks = useTopNavLinks(t);
 
   const [filterEntity, setFilterEntity] = React.useState<AccountingAuditEntity | "all">("all");
   const [filterAction, setFilterAction] = React.useState<AccountingAuditAction | "all">("all");

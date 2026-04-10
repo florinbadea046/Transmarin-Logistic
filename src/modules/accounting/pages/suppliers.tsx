@@ -65,7 +65,7 @@ const handleSave = (supplier: Supplier) => {
   if (selectedSupplier) {
     updated = suppliers.map((s) => (s.id === supplier.id ? supplier : s));
     log({ action: "update", entity: "supplier", entityId: supplier.id, entityLabel: supplier.name, detailKey: "activityLog.details.supplierUpdated", oldValue: { name: selectedSupplier.name, cui: selectedSupplier.cui }, newValue: { name: supplier.name, cui: supplier.cui } });
-    logAccounting({ action: "update", entity: "supplier", entityId: supplier.id, entityLabel: supplier.name, details: "Furnizor actualizat", oldValue: { name: selectedSupplier.name, cui: selectedSupplier.cui }, newValue: { name: supplier.name, cui: supplier.cui } });
+    logAccounting({ action: "update", entity: "supplier", entityId: supplier.id, entityLabel: supplier.name, details: t("suppliers.audit.updated"), oldValue: { name: selectedSupplier.name, cui: selectedSupplier.cui }, newValue: { name: supplier.name, cui: supplier.cui } });
   } else {
     const newId = crypto.randomUUID();
     updated = [...suppliers, { ...supplier, id: newId }];
@@ -83,12 +83,12 @@ const handleSave = (supplier: Supplier) => {
 
     const supplier = suppliers.find((s) => s.id === deleteId);
     log({ action: "delete", entity: "supplier", entityId: deleteId, entityLabel: supplier?.name ?? deleteId, detailKey: "activityLog.details.supplierDeleted" });
-    logAccounting({ action: "delete", entity: "supplier", entityId: deleteId, entityLabel: supplier?.name ?? deleteId, details: "Furnizor șters" });
+    logAccounting({ action: "delete", entity: "supplier", entityId: deleteId, entityLabel: supplier?.name ?? deleteId, details: t("suppliers.audit.deleted") });
     const updated = suppliers.filter((s) => s.id !== deleteId);
     setSuppliers(updated);
     setCollection(STORAGE_KEYS.suppliers, updated);
     setDeleteId(null);
-  }, [deleteId, log, logAccounting, suppliers]);
+  }, [deleteId, log, logAccounting, suppliers, t]);
 
   const columns = useMemo(
     () => [

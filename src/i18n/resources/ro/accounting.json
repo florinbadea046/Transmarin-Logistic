@@ -15,6 +15,7 @@
       "invoices": "Facturi",
       "dueDates": "Scadențar",
       "suppliers": "Furnizori",
+      "budget": "Buget",
       "activityLog": "Audit Log"
     },
 
@@ -57,6 +58,10 @@
       "addTitle": "Adauga Furnizor",
       "cancel": "Anuleaza",
       "save": "Salveaza"
+    },
+    "audit": {
+      "updated": "Furnizor actualizat",
+      "deleted": "Furnizor șters"
     },
     "validation": {
       "nameMin": "Numele trebuie să aibă minim 3 caractere",

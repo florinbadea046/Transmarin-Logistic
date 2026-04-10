@@ -327,7 +327,7 @@ export default function DriverPerformancePage() {
                   <Tooltip
                     formatter={(val) => [
                       `${(val as number).toLocaleString("ro-RO")} km`,
-                      "Km",
+                      t("driverPerformance.ranking.km"),
                     ]}
                   />
                   <Line
