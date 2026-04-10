@@ -26,7 +26,7 @@ vi.mock("@/hooks/use-audit-log", () => ({
 }));
 
 vi.mock("@/hooks/use-dialog-state", () => ({
-  default: () => {
+  default: function useDialogStateMock() {
     const [open, setOpen] = React.useState(false);
     return [open, setOpen] as [boolean, (v: boolean) => void];
   },

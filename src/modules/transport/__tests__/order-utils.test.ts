@@ -128,12 +128,9 @@ describe("setOrdersToStorage", () => {
 
   it("afiseaza warn in consola cand localStorage esueaza", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-
-    // Suprascriem direct localStorage.setItem pe obiect
-    const original = localStorage.setItem.bind(localStorage);
-    localStorage.setItem = () => {
+    const setItemSpy = vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
       throw new Error("QuotaExceededError");
-    };
+    });
 
     setOrdersToStorage([]);
 
@@ -142,7 +139,7 @@ describe("setOrdersToStorage", () => {
       expect.any(Error),
     );
 
-    localStorage.setItem = original;
+    setItemSpy.mockRestore();
     warnSpy.mockRestore();
   });
 });

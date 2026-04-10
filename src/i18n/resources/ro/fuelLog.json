@@ -30,7 +30,11 @@
       },
       "validation": {
         "truckRequired": "Selecteaza un camion",
-        "driverRequired": "Selecteaza un sofer"
+        "driverRequired": "Selecteaza un sofer",
+        "invalidDate": "Data invalida",
+        "invalidLiters": "Litri invalizi",
+        "invalidPrice": "Pret invalid",
+        "invalidKm": "Km invalizi"
       },
       "actions": {
         "add": "Adauga",

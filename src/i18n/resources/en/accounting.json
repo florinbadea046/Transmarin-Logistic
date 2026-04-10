@@ -15,6 +15,7 @@
       "invoices": "Invoices",
       "dueDates": "Due Dates",
       "suppliers": "Suppliers",
+      "budget": "Budget",
       "activityLog": "Audit Log"
     },
 
@@ -57,6 +58,10 @@
       "addTitle": "Add Supplier",
       "cancel": "Cancel",
       "save": "Save"
+    },
+    "audit": {
+      "updated": "Supplier updated",
+      "deleted": "Supplier deleted"
     },
     "validation": {
       "nameMin": "Name must be at least 3 characters",
