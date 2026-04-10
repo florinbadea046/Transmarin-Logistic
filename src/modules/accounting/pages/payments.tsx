@@ -91,6 +91,7 @@ const PAYMENT_METHODS: PaymentMethod[] = ["transfer", "cash", "card", "CEC"];
 const seedPayments: Payment[] = [
   {
     id: "pay-1",
+    invoiceId: "",
     invoiceNumber: "FACT-2024-001",
     clientName: "SC Logistica SRL",
     direction: "income",
@@ -103,6 +104,7 @@ const seedPayments: Payment[] = [
   },
   {
     id: "pay-2",
+    invoiceId: "",
     invoiceNumber: "CHELT-2024-002",
     clientName: "Auto Parts SRL",
     direction: "expense",
@@ -236,10 +238,10 @@ function PaymentDialog({
     const result = paymentSchema.safeParse(form);
     if (!result.success) {
       const errs: PaymentFormErrors = {};
-      result.error.errors.forEach((e) => {
-        const key = e.path[0] as keyof PaymentFormData;
-        errs[key] = e.message;
-      });
+      for (const issue of result.error.issues) {
+        const key = issue.path[0] as keyof PaymentFormData;
+        if (!errs[key]) errs[key] = issue.message;
+      }
       setErrors(errs);
       return;
     }
@@ -256,6 +258,7 @@ function PaymentDialog({
       const newPayment: Payment = {
         ...result.data,
         id: generateId(),
+        invoiceId: "",
         createdAt: new Date().toISOString(),
       };
       addItem<Payment>(STORAGE_KEYS.payments, newPayment);
