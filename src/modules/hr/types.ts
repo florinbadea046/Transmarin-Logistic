@@ -92,3 +92,27 @@ export interface AttendanceRecord {
   date: string; // YYYY-MM-DD
   status: AttendanceStatus;
 }
+
+// ── Training & Certificări ────────────────────────────────
+
+export type TrainingType = "intern" | "extern";
+
+export type TrainingStatus = "planificat" | "in_curs" | "finalizat";
+
+export interface TrainingCertificate {
+  id: string;
+  employeeId: string;
+  issuedAt: string; // ISO
+}
+
+export interface Training {
+  id: string;
+  title: string;
+  type: TrainingType;
+  date: string; // YYYY-MM-DD
+  durationHours: number;
+  trainer: string;
+  participantIds: string[];
+  status: TrainingStatus;
+  issuedCertificates: TrainingCertificate[];
+}

@@ -20,7 +20,8 @@
       "payroll": "Salarizare",
       "attendance": "Pontaj Lunar",
       "activityLog": "Istoric",
-      "evaluations": "Evaluări"
+      "evaluations": "Evaluări",
+      "trainings": "Training & Certificări"
     },
     "documentAlerts": {
       "title": "Alerte Documente",
@@ -483,7 +484,109 @@
       "bonus": "Bonus / Penalizare",
       "document": "Document",
       "attendance": "Pontaj",
-      "evaluation": "Evaluare"
+      "evaluation": "Evaluare",
+      "training": "Training"
+    }
+  },
+  "trainings": {
+    "title": "Training & Certificări",
+    "listTitle": "Lista Training-uri",
+    "count": "{{count}} training-uri",
+    "empty": "Niciun training găsit.",
+    "searchPlaceholder": "Caută după titlu sau trainer...",
+    "allStatuses": "Toate statusurile",
+    "allTypes": "Toate tipurile",
+    "hoursShort": "ore",
+    "employeeBadge": "{{count}} training-uri finalizate",
+    "tabs": {
+      "list": "Training-uri",
+      "certificates": "Certificări Emise"
+    },
+    "columns": {
+      "title": "Titlu",
+      "type": "Tip",
+      "date": "Data",
+      "duration": "Durată",
+      "trainer": "Trainer",
+      "participants": "Participanți",
+      "status": "Status"
+    },
+    "type": {
+      "intern": "Intern",
+      "extern": "Extern"
+    },
+    "status": {
+      "planificat": "Planificat",
+      "in_curs": "În curs",
+      "finalizat": "Finalizat"
+    },
+    "fields": {
+      "title": "Titlu training",
+      "titlePlaceholder": "ex: Training ADR 2026",
+      "type": "Tip",
+      "date": "Data",
+      "duration": "Durată (ore)",
+      "trainer": "Trainer",
+      "trainerPlaceholder": "Nume trainer",
+      "status": "Status",
+      "participants": "Participanți",
+      "participantsPlaceholder": "Selectează participanți...",
+      "participantsSelected": "{{count}} participanți selectați",
+      "searchEmployee": "Caută angajat...",
+      "noEmployee": "Niciun angajat găsit."
+    },
+    "validation": {
+      "titleRequired": "Titlul este obligatoriu",
+      "typeRequired": "Tipul este obligatoriu",
+      "dateRequired": "Data este obligatorie",
+      "durationInvalid": "Durata trebuie să fie > 0",
+      "trainerRequired": "Trainer-ul este obligatoriu",
+      "participantsRequired": "Selectează cel puțin un participant",
+      "statusRequired": "Statusul este obligatoriu"
+    },
+    "dialog": {
+      "addTitle": "Training nou",
+      "editTitle": "Editare training"
+    },
+    "actions": {
+      "add": "Adaugă training",
+      "edit": "Editează",
+      "delete": "Șterge",
+      "menu": "Acțiuni training",
+      "viewParticipants": "Vezi participanți",
+      "generateCertificate": "Generează Certificat",
+      "redownload": "Re-descarcă",
+      "cancel": "Anulează",
+      "save": "Salvează",
+      "deleteTitle": "Șterge training",
+      "deleteDesc": "Sigur vrei să ștergi acest training? Acțiunea nu poate fi anulată.",
+      "removeParticipant": "Elimină {{name}}"
+    },
+    "participantsDialog": {
+      "title": "Participanți",
+      "empty": "Niciun participant.",
+      "issued": "Emis",
+      "notCompleted": "Certificatele pot fi generate doar după finalizarea training-ului."
+    },
+    "certificates": {
+      "title": "Certificări Emise",
+      "empty": "Niciun certificat emis.",
+      "employee": "Angajat",
+      "training": "Training",
+      "date": "Data training",
+      "issuedAt": "Data emiterii",
+      "actions": "Acțiuni",
+      "download": "Descarcă PDF"
+    },
+    "toast": {
+      "created": "Training creat cu succes",
+      "updated": "Training actualizat cu succes",
+      "deleted": "Training șters cu succes",
+      "certificateIssued": "Certificat emis cu succes",
+      "redownloaded": "Certificat descărcat din nou"
+    },
+    "audit": {
+      "certificateIssuedFor": "Certificat emis pentru {{name}}"
     }
   }
 }
