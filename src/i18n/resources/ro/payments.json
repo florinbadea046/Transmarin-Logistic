@@ -1,0 +1,58 @@
+{
+  "payments": {
+    "title": "Registru Plăți",
+    "listTitle": "Lista Plăților",
+    "noResults": "Nu există plăți înregistrate.",
+    "toastAdded": "Plată adăugată cu succes",
+    "toastUpdated": "Plată actualizată",
+    "toastDeleted": "Plată ștearsă",
+    "confirmDeleteTitle": "Șterge plata",
+    "confirmDelete": "Sigur vrei să ștergi această plată?",
+    "cancel": "Anulează",
+    "kpi": {
+      "totalLuna": "Total Plăți Luna",
+      "totalLunaDesc": "Plăți confirmate luna curentă",
+      "soldClienti": "Sold Restant Clienți",
+      "soldClientiDesc": "Plăți de încasat neconfirmate",
+      "soldFurnizori": "Sold Restant Furnizori",
+      "soldFurnizoriDesc": "Plăți de efectuat neconfirmate"
+    },
+    "columns": {
+      "invoiceNumber": "Nr. Factură",
+      "clientName": "Client / Furnizor",
+      "amount": "Sumă",
+      "date": "Data Plății",
+      "method": "Metodă",
+      "bankRef": "Referință Bancară",
+      "status": "Status",
+      "direction": "Tip",
+      "notes": "Note"
+    },
+    "direction": {
+      "income": "Încasare",
+      "expense": "Plată"
+    },
+    "method": {
+      "transfer": "Transfer",
+      "cash": "Cash",
+      "card": "Card",
+      "CEC": "CEC"
+    },
+    "status": {
+      "confirmata": "Confirmată",
+      "in_asteptare": "În așteptare"
+    },
+    "actions": {
+      "add": "Adaugă Plată",
+      "save": "Salvează",
+      "confirm": "Șterge"
+    },
+    "placeholders": {
+      "search": "Caută după factură, client..."
+    },
+    "dialog": {
+      "addTitle": "Adaugă Plată",
+      "editTitle": "Editează Plată"
+    }
+  }
+}
