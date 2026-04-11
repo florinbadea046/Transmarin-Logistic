@@ -26,6 +26,7 @@ export default function AccountingPage() {
 
   const topNavLinks = [
     { title: t("accounting.nav.invoices"), href: "/accounting/invoices", isActive: false },
+    { title: t("accounting.nav.dueDates"), href: "/accounting/due-dates", isActive: false },
     { title: t("accounting.nav.suppliers"), href: "/accounting/suppliers", isActive: false },
     { title: t("accounting.nav.activityLog"), href: "/accounting/activity-log", isActive: false },
   ];

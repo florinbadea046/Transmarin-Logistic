@@ -84,6 +84,30 @@
     },
     "pagination": {
       "showing": "Showing {{filtered}} of {{total}} invoices"
+    },
+    "audit": {
+      "updated": "Invoice updated",
+      "deleted": "Invoice deleted",
+      "markedPaid": "Invoice marked as paid"
+    },
+    "import": {
+      "title": "Import Invoices CSV / Excel",
+      "dragDrop": "Drag a CSV or Excel file here",
+      "clickToChoose": "or click to choose a file",
+      "acceptedColumns": "Accepted columns",
+      "changeFile": "Change file",
+      "valid": "valid",
+      "errors": "errors",
+      "invalidRowsNote": "Rows with errors will not be imported. Fix the file and re-upload.",
+      "cancel": "Cancel",
+      "importButton": "Import {{count}} invoices",
+      "success": "{{count}} invoices imported successfully",
+      "errorNrMissing": "Invoice number missing",
+      "errorDateMissing": "Date missing",
+      "errorClientMissing": "Client/Supplier missing",
+      "errorPriceInvalid": "Invalid unit price",
+      "errorTypeInvalid": "Invalid type",
+      "errorDuplicate": "Duplicate invoice number"
     }
   }
 }

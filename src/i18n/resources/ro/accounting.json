@@ -10,12 +10,25 @@
     "noInvoices": "Nu exista facturi inregistrate.",
     "chartRevenue": "Venituri",
     "chartExpenses": "Cheltuieli",
+
     "nav": {
       "invoices": "Facturi",
+      "dueDates": "Scadențar",
       "suppliers": "Furnizori",
+      "budget": "Buget",
       "activityLog": "Audit Log"
+    },
+
+    "dueDatesTitle": "Scadențar Facturi",
+    "dueDate": "Scadență",
+    "statusLabel": "Status",
+    "status": {
+      "overdue": "Întârziată",
+      "due_soon": "Scadentă curând",
+      "ok": "OK"
     }
   },
+
   "suppliers": {
     "title": "Furnizori",
     "manage": "Gestiune Furnizori",
@@ -44,7 +57,12 @@
       "editTitle": "Editeaza Furnizor",
       "addTitle": "Adauga Furnizor",
       "cancel": "Anuleaza",
-      "save": "Salveaza" },
+      "save": "Salveaza"
+    },
+    "audit": {
+      "updated": "Furnizor actualizat",
+      "deleted": "Furnizor șters"
+    },
     "validation": {
       "nameMin": "Numele trebuie să aibă minim 3 caractere",
       "cuiInvalid": "CUI invalid (ex: RO12345678)",
@@ -54,6 +72,7 @@
       "bankAccountRequired": "Contul bancar este obligatoriu"
     }
   },
+
   "pdf": {
     "statusLabels": {
       "draft": "Ciornă",
@@ -90,6 +109,7 @@
       "downloadPdf": "Descarcă PDF"
     }
   },
+
   "toasts": {
     "itemRequired": "Factura trebuie să conțină cel puțin un articol cu descriere",
     "updated": "Factură actualizată cu succes",
@@ -97,35 +117,36 @@
     "deleted": "Factură ștearsă",
     "markedPaid": "Factură marcată ca plătită"
   },
+
   "accountingAuditLog": {
-  "title": "Istoric Activități Contabilitate",
-  "subtitle": "Timeline CRUD pe facturi, furnizori, plăți și buget.",
-  "filters": "Filtre",
-  "allEntities": "Toate entitățile",
-  "allActions": "Toate acțiunile",
-  "perPage": "pe pagină",
-  "resetFilters": "Resetează filtrele",
-  "entries": "{{count}} înregistrări",
-  "noActivity": "Nu există activități înregistrate.",
-  "showDetails": "Arată detalii",
-  "hideDetails": "Ascunde detalii",
-  "before": "Înainte",
-  "after": "După",
-  "previous": "Anterior",
-  "next": "Următor",
-  "page": "Pagina {{page}} din {{total}}",
-  "actions": {
-    "create": "Creare",
-    "update": "Actualizare",
-    "delete": "Ștergere",
-    "pay": "Plată"
-  },
-  "entities": {
-    "invoice": "Factură",
-    "supplier": "Furnizor",
-    "payment": "Plată",
-    "budget": "Buget",
-    "recurringExpense": "Cheltuială recurentă"
- }
+    "title": "Istoric Activități Contabilitate",
+    "subtitle": "Timeline CRUD pe facturi, furnizori, plăți și buget.",
+    "filters": "Filtre",
+    "allEntities": "Toate entitățile",
+    "allActions": "Toate acțiunile",
+    "perPage": "pe pagină",
+    "resetFilters": "Resetează filtrele",
+    "entries": "{{count}} înregistrări",
+    "noActivity": "Nu există activități înregistrate.",
+    "showDetails": "Arată detalii",
+    "hideDetails": "Ascunde detalii",
+    "before": "Înainte",
+    "after": "După",
+    "previous": "Anterior",
+    "next": "Următor",
+    "page": "Pagina {{page}} din {{total}}",
+    "actions": {
+      "create": "Creare",
+      "update": "Actualizare",
+      "delete": "Ștergere",
+      "pay": "Plată"
+    },
+    "entities": {
+      "invoice": "Factură",
+      "supplier": "Furnizor",
+      "payment": "Plată",
+      "budget": "Buget",
+      "recurringExpense": "Cheltuială recurentă"
+    }
   }
 }

@@ -62,17 +62,18 @@ import { cn } from "@/lib/utils";
 
 // ── Zod schema ──────────────────────────────────────────────
 
-const fuelSchema = z.object({
-  truckId: z.string().min(1),
-  driverId: z.string().min(1),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data invalida"),
-  station: z.string().min(2),
-  liters: z.number({ message: "Litri invalizi" }).positive(),
-  pricePerLiter: z.number({ message: "Pret invalid" }).positive(),
-  kmAtFueling: z.number({ message: "Km invalizi" }).min(0),
-});
+const makeFuelLogSchema = (t: (key: string) => string) =>
+  z.object({
+    truckId: z.string().min(1),
+    driverId: z.string().min(1),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, t("fuelLog.validation.invalidDate")),
+    station: z.string().min(2),
+    liters: z.number({ message: t("fuelLog.validation.invalidLiters") }).positive(),
+    pricePerLiter: z.number({ message: t("fuelLog.validation.invalidPrice") }).positive(),
+    kmAtFueling: z.number({ message: t("fuelLog.validation.invalidKm") }).min(0),
+  });
 
-type FuelFormData = z.infer<typeof fuelSchema>;
+type FuelFormData = z.infer<ReturnType<typeof makeFuelLogSchema>>;
 type FuelFormErrors = Partial<Record<keyof FuelFormData, string>>;
 
 const EMPTY_FORM: FuelFormData = {
@@ -265,10 +266,10 @@ function FuelDialog({
     setErrors({});
   }, [open, editingLog]);
 
-  const patch = (p: Partial<FuelFormData>) => setForm((f) => ({ ...f, ...p }));
+  const patch = (p: Partial<FuelFormData>) => setForm((f: FuelFormData) => ({ ...f, ...p }));
 
   const handleSubmit = () => {
-    const result = fuelSchema.safeParse(form);
+    const result = makeFuelLogSchema(t).safeParse(form);
     if (!result.success) {
       const errs: FuelFormErrors = {};
       for (const issue of result.error.issues) {

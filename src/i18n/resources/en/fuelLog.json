@@ -30,7 +30,11 @@
       },
       "validation": {
         "truckRequired": "Select a truck",
-        "driverRequired": "Select a driver"
+        "driverRequired": "Select a driver",
+        "invalidDate": "Invalid date",
+        "invalidLiters": "Invalid liters",
+        "invalidPrice": "Invalid price",
+        "invalidKm": "Invalid km"
       },
       "actions": {
         "add": "Add",

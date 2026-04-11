@@ -84,6 +84,30 @@
     },
     "pagination": {
       "showing": "Se afiseaza {{filtered}} din {{total}} facturi"
+    },
+    "audit": {
+      "updated": "Factură actualizată",
+      "deleted": "Factură ștearsă",
+      "markedPaid": "Factură marcată ca plătită"
+    },
+    "import": {
+      "title": "Import Facturi CSV / Excel",
+      "dragDrop": "Trage un fișier CSV sau Excel aici",
+      "clickToChoose": "sau click pentru a alege fișierul",
+      "acceptedColumns": "Coloane acceptate",
+      "changeFile": "Schimbă fișierul",
+      "valid": "valide",
+      "errors": "erori",
+      "invalidRowsNote": "Rândurile cu erori nu vor fi importate. Corectați fișierul și reîncărcați-l.",
+      "cancel": "Anulează",
+      "importButton": "Importă {{count}} facturi",
+      "success": "{{count}} facturi importate cu succes",
+      "errorNrMissing": "Nr. factură lipsește",
+      "errorDateMissing": "Data lipsește",
+      "errorClientMissing": "Client/Furnizor lipsește",
+      "errorPriceInvalid": "Preț unitar invalid",
+      "errorTypeInvalid": "Tip invalid",
+      "errorDuplicate": "Nr. factură duplicat"
     }
   }
 }

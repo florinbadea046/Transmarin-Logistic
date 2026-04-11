@@ -156,15 +156,15 @@ function KpiCards({
   ];
 
   return (
-    <div className="grid gap-4 mb-6 grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-3 mb-4 grid-cols-2 lg:grid-cols-4">
       {cards.map(({ title, value, icon, color }) => (
         <Card key={title}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between pb-1 px-3 pt-3 sm:px-6 sm:pt-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground">{title}</CardTitle>
             {icon}
           </CardHeader>
-          <CardContent>
-            <div className={cn("text-2xl font-bold", color)}>{value}</div>
+          <CardContent className="px-3 pb-3 sm:px-6 sm:pb-6">
+            <div className={cn("text-xl sm:text-2xl font-bold", color)}>{value}</div>
           </CardContent>
         </Card>
       ))}
@@ -427,24 +427,24 @@ export default function DispatcherLivePage() {
   return (
     <>
       <Header>
-        <div className="flex items-center justify-between w-full gap-4">
-          <h1 className="text-lg font-semibold">{t("dispatcherLive.title")}</h1>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground hidden sm:block">
-              {t("dispatcherLive.lastRefresh")}: {lastRefresh.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
-            </span>
-            <Button variant="outline" size="sm" onClick={handleRefresh}>
-              <RefreshCw className="h-3.5 w-3.5 mr-1.5" />
-              {t("dispatcherLive.refresh")}
+        <div className="flex items-center justify-between w-full gap-2 min-w-0">
+          <h1 className="text-base sm:text-lg font-semibold truncate">{t("dispatcherLive.title")}</h1>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Button variant="outline" size="icon" className="h-8 w-8" onClick={handleRefresh} title={t("dispatcherLive.refresh")}>
+              <RefreshCw className="h-3.5 w-3.5" />
             </Button>
-            <Button size="sm" onClick={() => navigate({ to: "/transport/trips" })}>
-              <Plus className="h-3.5 w-3.5 mr-1.5" />
-              {t("dispatcherLive.allocateTrip")}
+            <Button size="icon" className="h-8 w-8" onClick={() => navigate({ to: "/transport/trips" })} title={t("dispatcherLive.allocateTrip")}>
+              <Plus className="h-3.5 w-3.5" />
             </Button>
           </div>
         </div>
       </Header>
       <Main>
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-xs text-muted-foreground">
+            {t("dispatcherLive.lastRefresh")}: {lastRefresh.toLocaleTimeString("ro-RO", { hour: "2-digit", minute: "2-digit" })}
+          </span>
+        </div>
         <KpiCards
           activeTrips={activeTrips}
           unassignedOrders={unassignedOrders}
@@ -454,15 +454,11 @@ export default function DispatcherLivePage() {
 
         {isMobile ? (
           <div className="space-y-4">
-            <div className="h-[400px]">
-              <ActiveTripsPanel trips={trips} orders={orders} drivers={drivers} trucks={trucks} />
-            </div>
-            <div className="h-[350px]">
+            <ActiveTripsPanel trips={trips} orders={orders} drivers={drivers} trucks={trucks} />
+            <div className="h-[300px] rounded-lg overflow-hidden border">
               <MapPanel trips={trips} orders={orders} />
             </div>
-            <div className="h-[400px]">
-              <AuditFeed />
-            </div>
+            <AuditFeed />
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-4 h-[calc(100vh-280px)] min-h-[500px]">

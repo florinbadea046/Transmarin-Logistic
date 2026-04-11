@@ -10,12 +10,25 @@
     "noInvoices": "No invoices recorded.",
     "chartRevenue": "Revenue",
     "chartExpenses": "Expenses",
+
     "nav": {
       "invoices": "Invoices",
+      "dueDates": "Due Dates",
       "suppliers": "Suppliers",
+      "budget": "Budget",
       "activityLog": "Audit Log"
+    },
+
+    "dueDatesTitle": "Invoice Due Dates",
+    "dueDate": "Due date",
+    "statusLabel": "Status",
+    "status": {
+      "overdue": "Overdue",
+      "due_soon": "Due soon",
+      "ok": "OK"
     }
   },
+
   "suppliers": {
     "title": "Suppliers",
     "manage": "Manage Suppliers",
@@ -46,6 +59,10 @@
       "cancel": "Cancel",
       "save": "Save"
     },
+    "audit": {
+      "updated": "Supplier updated",
+      "deleted": "Supplier deleted"
+    },
     "validation": {
       "nameMin": "Name must be at least 3 characters",
       "cuiInvalid": "Invalid Tax ID (e.g. RO12345678)",
@@ -55,6 +72,7 @@
       "bankAccountRequired": "Bank account is required"
     }
   },
+
   "pdf": {
     "statusLabels": {
       "draft": "Draft",
@@ -91,6 +109,7 @@
       "downloadPdf": "Download PDF"
     }
   },
+
   "toasts": {
     "itemRequired": "Invoice must contain at least one item with a description",
     "updated": "Invoice updated successfully",
@@ -98,35 +117,36 @@
     "deleted": "Invoice deleted",
     "markedPaid": "Invoice marked as paid"
   },
+
   "accountingAuditLog": {
-  "title": "Accounting Activity Log",
-  "subtitle": "CRUD timeline for invoices, suppliers, payments and budget.",
-  "filters": "Filters",
-  "allEntities": "All entities",
-  "allActions": "All actions",
-  "perPage": "per page",
-  "resetFilters": "Reset filters",
-  "entries": "{{count}} entries",
-  "noActivity": "No activity recorded yet.",
-  "showDetails": "Show details",
-  "hideDetails": "Hide details",
-  "before": "Before",
-  "after": "After",
-  "previous": "Previous",
-  "next": "Next",
-  "page": "Page {{page}} of {{total}}",
-  "actions": {
-    "create": "Create",
-    "update": "Update",
-    "delete": "Delete",
-    "pay": "Payment"
-  },
-  "entities": {
-    "invoice": "Invoice",
-    "supplier": "Supplier",
-    "payment": "Payment",
-    "budget": "Budget",
-    "recurringExpense": "Recurring expense"
+    "title": "Accounting Activity Log",
+    "subtitle": "CRUD timeline for invoices, suppliers, payments and budget.",
+    "filters": "Filters",
+    "allEntities": "All entities",
+    "allActions": "All actions",
+    "perPage": "per page",
+    "resetFilters": "Reset filters",
+    "entries": "{{count}} entries",
+    "noActivity": "No activity recorded yet.",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "before": "Before",
+    "after": "After",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}} of {{total}}",
+    "actions": {
+      "create": "Create",
+      "update": "Update",
+      "delete": "Delete",
+      "pay": "Payment"
+    },
+    "entities": {
+      "invoice": "Invoice",
+      "supplier": "Supplier",
+      "payment": "Payment",
+      "budget": "Budget",
+      "recurringExpense": "Recurring expense"
+    }
   }
-}
 }

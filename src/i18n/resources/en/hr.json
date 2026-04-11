@@ -20,7 +20,8 @@
       "payroll": "Payroll",
       "attendance": "Monthly Timesheet",
       "activityLog": "History",
-      "evaluations": "Evaluations"
+      "evaluations": "Evaluations",
+      "trainings": "Training & Certifications"
     },
     "documentAlerts": {
       "title": "Document Alerts",
@@ -373,6 +374,25 @@
     "addButton": "Add document",
     "addDocumentButton": "Add document"
   },
+  "profileTabs": {
+    "remainingDays": "Days remaining {{year}}",
+    "noLeaveRequests": "No leave requests.",
+    "type": "Type",
+    "startDate": "Start",
+    "endDate": "End",
+    "days": "Days",
+    "status": "Status",
+    "totalNetBonuses": "Total net bonuses/fines",
+    "noRecords": "No records.",
+    "date": "Date",
+    "description": "Description",
+    "amount": "Amount",
+    "bonuses": "Bonuses",
+    "fines": "Fines",
+    "leaveDaysPerMonth": "Leave days per month",
+    "noDataAvailable": "No data available.",
+    "bonusesVsFines": "Bonuses vs Fines"
+  },
   "evaluations": {
     "title": "Performance Evaluations",
     "listTitle": "Evaluations List",
@@ -464,7 +484,109 @@
       "bonus": "Bonus / Penalty",
       "document": "Document",
       "attendance": "Attendance",
-      "evaluation": "Evaluation"
+      "evaluation": "Evaluation",
+      "training": "Training"
+    }
+  },
+  "trainings": {
+    "title": "Training & Certifications",
+    "listTitle": "Trainings List",
+    "count": "{{count}} trainings",
+    "empty": "No training found.",
+    "searchPlaceholder": "Search by title or trainer...",
+    "allStatuses": "All statuses",
+    "allTypes": "All types",
+    "hoursShort": "h",
+    "employeeBadge": "{{count}} completed trainings",
+    "tabs": {
+      "list": "Trainings",
+      "certificates": "Issued Certificates"
+    },
+    "columns": {
+      "title": "Title",
+      "type": "Type",
+      "date": "Date",
+      "duration": "Duration",
+      "trainer": "Trainer",
+      "participants": "Participants",
+      "status": "Status"
+    },
+    "type": {
+      "intern": "Internal",
+      "extern": "External"
+    },
+    "status": {
+      "planificat": "Planned",
+      "in_curs": "In progress",
+      "finalizat": "Completed"
+    },
+    "fields": {
+      "title": "Training title",
+      "titlePlaceholder": "e.g.: ADR Training 2026",
+      "type": "Type",
+      "date": "Date",
+      "duration": "Duration (hours)",
+      "trainer": "Trainer",
+      "trainerPlaceholder": "Trainer name",
+      "status": "Status",
+      "participants": "Participants",
+      "participantsPlaceholder": "Select participants...",
+      "participantsSelected": "{{count}} participants selected",
+      "searchEmployee": "Search employee...",
+      "noEmployee": "No employee found."
+    },
+    "validation": {
+      "titleRequired": "Title is required",
+      "typeRequired": "Type is required",
+      "dateRequired": "Date is required",
+      "durationInvalid": "Duration must be > 0",
+      "trainerRequired": "Trainer is required",
+      "participantsRequired": "Select at least one participant",
+      "statusRequired": "Status is required"
+    },
+    "dialog": {
+      "addTitle": "New training",
+      "editTitle": "Edit training"
+    },
+    "actions": {
+      "add": "Add training",
+      "edit": "Edit",
+      "delete": "Delete",
+      "menu": "Training actions",
+      "viewParticipants": "View participants",
+      "generateCertificate": "Generate Certificate",
+      "redownload": "Re-download",
+      "cancel": "Cancel",
+      "save": "Save",
+      "deleteTitle": "Delete training",
+      "deleteDesc": "Are you sure you want to delete this training? This action cannot be undone.",
+      "removeParticipant": "Remove {{name}}"
+    },
+    "participantsDialog": {
+      "title": "Participants",
+      "empty": "No participants.",
+      "issued": "Issued",
+      "notCompleted": "Certificates can only be generated after the training is completed."
+    },
+    "certificates": {
+      "title": "Issued Certificates",
+      "empty": "No certificate issued.",
+      "employee": "Employee",
+      "training": "Training",
+      "date": "Training date",
+      "issuedAt": "Issued at",
+      "actions": "Actions",
+      "download": "Download PDF"
+    },
+    "toast": {
+      "created": "Training created successfully",
+      "updated": "Training updated successfully",
+      "deleted": "Training deleted successfully",
+      "certificateIssued": "Certificate issued successfully",
+      "redownloaded": "Certificate re-downloaded"
+    },
+    "audit": {
+      "certificateIssuedFor": "Certificate issued for {{name}}"
     }
   }
 }

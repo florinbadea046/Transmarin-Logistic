@@ -34,6 +34,8 @@ import AccountingPage from "@/modules/accounting/index";
 import InvoicesPage from "@/modules/accounting/pages/invoices";
 import SuppliersPage from "@/modules/accounting/pages/suppliers";
 import ActivityLogAccountingPage from "@/modules/accounting/pages/activity-log-accounting";
+import PaymentsPage from "@/modules/accounting/pages/payments";
+import DueDatesPage from "@/pages/due-dates";
 
 import HRPage from "@/modules/hr/index";
 import EmployeesPage from "@/modules/hr/pages/employees";
@@ -43,6 +45,7 @@ import AttendancePage from "@/modules/hr/pages/attendance";
 import ActivityLogHRPage from "@/modules/hr/pages/activity-log-hr";
 import HRSettingsPage from "@/modules/hr/pages/settings-hr";
 import EvaluationsPage from "@/modules/hr/pages/evaluations";
+import TrainingsPage from "@/modules/hr/pages/trainings";
 
 import ReportsPage from "@/modules/reports/index";
 import TransportReportsPage from "@/modules/reports/pages/transport-reports";
@@ -228,10 +231,20 @@ const invoicesRoute = createRoute({
   path: "/accounting/invoices",
   component: InvoicesPage,
 });
+const dueDatesRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/due-dates",
+  component: DueDatesPage,
+});
 const suppliersRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/accounting/suppliers",
   component: SuppliersPage,
+});
+const paymentsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/payments",
+  component: PaymentsPage,
 });
 const accountingActivityLogRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
@@ -279,6 +292,11 @@ const evaluationsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr/evaluations",
   component: EvaluationsPage,
+});
+const trainingsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/trainings",
+  component: TrainingsPage,
 });
 
 // Reports
@@ -404,8 +422,10 @@ const routeTree = rootRoute.addChildren([
     // Accounting
     accountingRoute,
     invoicesRoute,
+    dueDatesRoute,
     suppliersRoute,
     budgetRoute,
+    paymentsRoute,
     accountingActivityLogRoute,
 
     // HR
@@ -417,6 +437,7 @@ const routeTree = rootRoute.addChildren([
     hrActivityLogRoute,
     hrSettingsRoute,
     evaluationsRoute,
+    trainingsRoute,
 
     // Reports
     reportsRoute,

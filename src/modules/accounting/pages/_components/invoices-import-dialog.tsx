@@ -22,6 +22,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import type { Invoice, InvoiceLine, InvoiceType, InvoiceStatus } from "./invoices-types";
 
 // ── Tipuri interne ────────────────────────────────────────
@@ -75,7 +76,7 @@ function normalizeStatus(val: string): InvoiceStatus {
   return "neplatită";
 }
 
-function parseRows(rows: RawRow[], existingNrs: Set<string>): ParsedRow[] {
+function parseRows(rows: RawRow[], existingNrs: Set<string>, t: (key: string) => string): ParsedRow[] {
   return rows.map((raw) => {
     const errors: string[] = [];
 
@@ -88,14 +89,14 @@ function parseRows(rows: RawRow[], existingNrs: Set<string>): ParsedRow[] {
     const cantitate = normalizeNum(raw.cantitate ?? 1);
     const pretUnitar = normalizeNum(raw.pretUnitar || raw["pret unitar"] || raw.pret);
 
-    if (!nr) errors.push("Nr. factură lipsește");
-    if (!data) errors.push("Data lipsește");
-    if (!clientFurnizor) errors.push("Client/Furnizor lipsește");
-    if (pretUnitar <= 0) errors.push("Preț unitar invalid");
-    if (!VALID_TIPURI.includes(tip)) errors.push("Tip invalid");
+    if (!nr) errors.push(t("invoices.import.errorNrMissing"));
+    if (!data) errors.push(t("invoices.import.errorDateMissing"));
+    if (!clientFurnizor) errors.push(t("invoices.import.errorClientMissing"));
+    if (pretUnitar <= 0) errors.push(t("invoices.import.errorPriceInvalid"));
+    if (!VALID_TIPURI.includes(tip)) errors.push(t("invoices.import.errorTypeInvalid"));
 
     const isDuplicate = nr ? existingNrs.has(nr) : false;
-    if (isDuplicate) errors.push("Nr. factură duplicat");
+    if (isDuplicate) errors.push(t("invoices.import.errorDuplicate"));
 
     const linie: InvoiceLine = {
       id: crypto.randomUUID(),
@@ -133,6 +134,7 @@ export function InvoicesImportDialog({
   existingInvoices,
   onImport,
 }: InvoicesImportDialogProps) {
+  const { t } = useTranslation();
   const [parsedRows, setParsedRows] = React.useState<ParsedRow[]>([]);
   const [fileName, setFileName] = React.useState<string>("");
   const [isDragging, setIsDragging] = React.useState(false);
@@ -154,7 +156,7 @@ export function InvoicesImportDialog({
         header: true,
         skipEmptyLines: true,
         complete: (result) => {
-          setParsedRows(parseRows(result.data as RawRow[], existingNrs));
+          setParsedRows(parseRows(result.data as RawRow[], existingNrs, t));
         },
       });
     } else if (ext === "xlsx" || ext === "xls") {
@@ -163,7 +165,7 @@ export function InvoicesImportDialog({
         const data = new Uint8Array(e.target?.result as ArrayBuffer);
         const wb = XLSX.read(data, { type: "array" });
         const ws = wb.Sheets[wb.SheetNames[0]];
-        setParsedRows(parseRows(XLSX.utils.sheet_to_json<RawRow>(ws, { defval: "" }), existingNrs));
+        setParsedRows(parseRows(XLSX.utils.sheet_to_json<RawRow>(ws, { defval: "" }), existingNrs, t));
       };
       reader.readAsArrayBuffer(file);
     }
@@ -208,7 +210,7 @@ export function InvoicesImportDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Upload className="w-5 h-5" />
-            Import Facturi CSV / Excel
+            {t("invoices.import.title")}
           </DialogTitle>
         </DialogHeader>
 
@@ -224,10 +226,10 @@ export function InvoicesImportDialog({
             onClick={() => fileRef.current?.click()}
           >
             <FileText className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-            <p className="text-sm font-medium">Trage un fișier CSV sau Excel aici</p>
-            <p className="text-xs text-muted-foreground mt-1">sau click pentru a alege fișierul</p>
+            <p className="text-sm font-medium">{t("invoices.import.dragDrop")}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t("invoices.import.clickToChoose")}</p>
             <p className="text-xs text-muted-foreground mt-3">
-              Coloane acceptate: <code>nr, tip, data, scadenta, clientFurnizor, descriere, cantitate, pretUnitar, status</code>
+              {t("invoices.import.acceptedColumns")}: <code>nr, tip, data, scadenta, clientFurnizor, descriere, cantitate, pretUnitar, status</code>
             </p>
             <input ref={fileRef} type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={handleInputChange} />
           </div>
@@ -239,16 +241,16 @@ export function InvoicesImportDialog({
               <span className="text-sm text-muted-foreground font-medium">📄 {fileName}</span>
               <Badge variant="outline" className="bg-green-500/10 text-green-400 border-green-500/30">
                 <CheckCircle2 className="w-3 h-3 mr-1" />
-                {validRows.length} valide
+                {validRows.length} {t("invoices.import.valid")}
               </Badge>
               {invalidRows.length > 0 && (
                 <Badge variant="outline" className="bg-red-500/10 text-red-400 border-red-500/30">
                   <AlertCircle className="w-3 h-3 mr-1" />
-                  {invalidRows.length} erori
+                  {invalidRows.length} {t("invoices.import.errors")}
                 </Badge>
               )}
               <Button variant="ghost" size="sm" className="ml-auto" onClick={() => { setParsedRows([]); setFileName(""); }}>
-                <X className="w-4 h-4 mr-1" /> Schimbă fișierul
+                <X className="w-4 h-4 mr-1" /> {t("invoices.import.changeFile")}
               </Button>
             </div>
 
@@ -293,18 +295,18 @@ export function InvoicesImportDialog({
 
             {invalidRows.length > 0 && (
               <p className="text-xs text-muted-foreground">
-                * Rândurile cu erori nu vor fi importate. Corectați fișierul și reîncărcați-l.
+                * {t("invoices.import.invalidRowsNote")}
               </p>
             )}
           </div>
         )}
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
-          <Button variant="outline" onClick={handleClose}>Anulează</Button>
+          <Button variant="outline" onClick={handleClose}>{t("invoices.import.cancel")}</Button>
           {parsedRows.length > 0 && validRows.length > 0 && (
             <Button onClick={handleConfirm}>
               <Upload className="w-4 h-4 mr-1" />
-              Importă {validRows.length} factură{validRows.length !== 1 ? "" : ""}
+              {t("invoices.import.importButton", { count: validRows.length })}
             </Button>
           )}
         </DialogFooter>

@@ -24,7 +24,8 @@ import {
   Gauge,
   Briefcase,
   CreditCard,
-  Activity
+  Activity,
+  GraduationCap
 } from "lucide-react";
 import { type SidebarData } from "../types";
 
@@ -178,6 +179,11 @@ export const sidebarData: SidebarData = {
               icon: Users,
             },
             {
+              title: "Registru Plati",
+              url: "/accounting/payments",
+              icon: CreditCard,
+            },
+            {
               title: "Audit Log",
               url: "/accounting/activity-log",
               icon: ClipboardList,
@@ -212,6 +218,11 @@ export const sidebarData: SidebarData = {
               title: "Pontaj Lunar",
               url: "/hr/attendance",
               icon: CalendarDays,
+            },
+            {
+              title: "Training & Certificări",
+              url: "/hr/trainings",
+              icon: GraduationCap,
             },
             {
               title: "Istoric",
