@@ -59,6 +59,7 @@ import RecurringExpensesPage from "@/modules/transport/pages/recurring-expenses"
 import MileageRegistryPage from "@/modules/transport/pages/mileage-registry";
 import BudgetPage from "@/pages/budget";
 import DispatcherLivePage from "@/modules/transport/pages/dispatcher-live";
+import JournalsPage from "@/pages/journals";
 
 function isAuthenticated(): boolean {
   try {
@@ -374,6 +375,12 @@ const budgetRoute = createRoute({
   component: BudgetPage,
 });
 
+const journalsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/journals",
+  component: JournalsPage,
+});
+
 const driverPerformanceRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/driver-performance",
@@ -425,6 +432,7 @@ const routeTree = rootRoute.addChildren([
     dueDatesRoute,
     suppliersRoute,
     budgetRoute,
+    journalsRoute,
     paymentsRoute,
     accountingActivityLogRoute,
 

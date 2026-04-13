@@ -1,32 +1,4 @@
-import {
-  LayoutDashboard,
-  Truck,
-  Wrench,
-  Receipt,
-  Users,
-  BarChart3,
-  Package,
-  FileText,
-  Calendar,
-  Fuel,
-  ClipboardList,
-  UserCog,
-  Wallet,
-  TrendingUp,
-  PieChart,
-  Settings,
-  Bell,
-  Palette,
-  Monitor,
-  DollarSign,
-  History,
-  CalendarDays,
-  Gauge,
-  Briefcase,
-  CreditCard,
-  Activity,
-  GraduationCap
-} from "lucide-react";
+import { LayoutDashboard, Truck, Wrench, Receipt, Users, BarChart3, Package, FileText, Calendar, Fuel, ClipboardList, UserCog, Wallet, TrendingUp, PieChart, Settings, Bell, Palette, Monitor, DollarSign, History, CalendarDays, Gauge, Briefcase, CreditCard, Activity, GraduationCap } from "lucide-react";
 import { type SidebarData } from "../types";
 
 export const sidebarData: SidebarData = {
@@ -177,6 +149,16 @@ export const sidebarData: SidebarData = {
               title: "Furnizori",
               url: "/accounting/suppliers",
               icon: Users,
+            },
+            {
+              title: "Buget & Planificare",
+              url: "/accounting/budget",
+              icon: Wallet,
+            },
+            {
+              title: "Jurnale Contabile",
+              url: "/accounting/journals",
+              icon: FileText,
             },
             {
               title: "Registru Plati",
