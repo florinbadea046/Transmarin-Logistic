@@ -13,6 +13,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { getCollection } from "@/utils/local-storage";
 import { formatCurrency } from "@/utils/format";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { AccountingNotifications } from "@/components/accounting-notifications";
 import type { Invoice } from "@/modules/accounting/types";
 
 function parseDate(dateStr: string): { year: number; month: number } {
@@ -95,6 +96,9 @@ export default function AccountingPage() {
     <>
       <Header>
         <TopNav links={links} />
+        <div className="ml-auto">
+          <AccountingNotifications />
+        </div>
       </Header>
       <Main>
         <div className="mb-6">
@@ -149,11 +153,7 @@ export default function AccountingPage() {
                 <BarChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="label" />
-                  <YAxis
-                    tickFormatter={(v) =>
-                      new Intl.NumberFormat("ro-RO", { notation: "compact", compactDisplay: "short" }).format(v)
-                    }
-                  />
+                  <YAxis tickFormatter={(v) => new Intl.NumberFormat("ro-RO", { notation: "compact", compactDisplay: "short" }).format(v)} />
                   <Tooltip formatter={(value) => (typeof value === "number" ? formatCurrency(value) : String(value ?? ""))} />
                   <Legend />
                   <Bar dataKey={t("accounting.chartRevenue")} fill="#16a34a" radius={[4, 4, 0, 0]} />

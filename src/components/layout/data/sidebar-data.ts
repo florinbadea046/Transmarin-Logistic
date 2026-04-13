@@ -1,27 +1,4 @@
-import {
-  LayoutDashboard,
-  Truck,
-  Wrench,
-  Receipt,
-  Users,
-  BarChart3,
-  Package,
-  FileText,
-  Calendar,
-  Fuel,
-  ClipboardList,
-  UserCog,
-  Wallet,
-  TrendingUp,
-  PieChart,
-  Settings,
-  Bell,
-  Palette,
-  Monitor,
-  DollarSign,
-  History,
-  CalendarDays,
-} from "lucide-react";
+import { LayoutDashboard, Truck, Wrench, Receipt, Users, BarChart3, Package, FileText, Calendar, Fuel, ClipboardList, UserCog, Wallet, TrendingUp, PieChart, Settings, Bell, Palette, Monitor, DollarSign, History, CalendarDays } from "lucide-react";
 import { type SidebarData } from "../types";
 
 export const sidebarData: SidebarData = {
@@ -110,10 +87,7 @@ export const sidebarData: SidebarData = {
               url: "/transport/fuel-log",
               icon: Fuel,
             },
-            { title: "Cheltuieli Recurente",
-              url: "/transport/recurring-expenses", 
-              icon: Receipt
-            },
+            { title: "Cheltuieli Recurente", url: "/transport/recurring-expenses", icon: Receipt },
           ],
         },
         {
@@ -165,6 +139,11 @@ export const sidebarData: SidebarData = {
               title: "Furnizori",
               url: "/accounting/suppliers",
               icon: Users,
+            },
+            {
+              title: "Buget & Planificare",
+              url: "/accounting/budget",
+              icon: Wallet,
             },
           ],
         },

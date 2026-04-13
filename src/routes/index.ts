@@ -1,9 +1,4 @@
-import {
-  createRootRoute,
-  createRoute,
-  createRouter,
-  redirect,
-} from "@tanstack/react-router";
+import { createRootRoute, createRoute, createRouter, redirect } from "@tanstack/react-router";
 
 import { AuthenticatedLayout } from "@/components/layout/authenticated-layout";
 
@@ -56,6 +51,7 @@ import HrReportsPage from "@/modules/reports/pages/reports-hr";
 
 import SettingsPage from "@/pages/settings";
 import RecurringExpensesPage from "@/modules/transport/pages/recurring-expenses";
+import BudgetPage from "@/pages/budget";
 
 function isAuthenticated(): boolean {
   try {
@@ -223,6 +219,12 @@ const suppliersRoute = createRoute({
   component: SuppliersPage,
 });
 
+const budgetRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/budget",
+  component: BudgetPage,
+});
+
 // HR
 const hrRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
@@ -366,6 +368,7 @@ const routeTree = rootRoute.addChildren([
     accountingRoute,
     invoicesRoute,
     suppliersRoute,
+    budgetRoute,
 
     // HR
     hrRoute,
