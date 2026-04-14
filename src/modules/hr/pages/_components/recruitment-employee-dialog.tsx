@@ -34,10 +34,13 @@ export function CandidateToEmployeeDialog({
   candidate,
   onCreated,
 }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { log } = useHrAuditLog();
 
-  const schema = React.useMemo(() => makeEmployeeSchema(t), [t]);
+  const schema = React.useMemo(
+    () => makeEmployeeSchema(t),
+    [t, i18n.language],
+  );
   const resolver = React.useMemo(
     () => zodResolver(schema) as Resolver<EmployeeFormValues>,
     [schema],
@@ -70,6 +73,8 @@ export function CandidateToEmployeeDialog({
       salary: 0,
     });
     setSelectedDate(undefined);
+    // form is stable across renders in react-hook-form; excluded to avoid spurious re-runs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, candidate]);
 
   const onSubmit = (values: EmployeeFormValues) => {

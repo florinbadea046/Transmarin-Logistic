@@ -83,11 +83,12 @@ export default function RecruitmentPage() {
   const [data, setData] = React.useState<Candidate[]>(() =>
     getCollection<Candidate>(STORAGE_KEYS.recruitment),
   );
-
-  const persist = (next: Candidate[]) => {
-    setData(next);
-    setCollection<Candidate>(STORAGE_KEYS.recruitment, next);
-  };
+  // Ref sincronizat cu data — folosit în handler-e DnD pentru a evita
+  // side-effect-uri în functional updater (problematice în React 18 StrictMode)
+  const dataRef = React.useRef(data);
+  React.useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
 
   // Filtre
   const [search, setSearch] = React.useState("");
@@ -216,46 +217,43 @@ export default function RecruitmentPage() {
     const activeIdStr = String(active.id);
     const overIdStr = String(over.id);
 
-    setData((prev) => {
-      const activeContainer = findContainer(activeIdStr, prev);
-      const overContainer = findContainer(overIdStr, prev);
-      if (!activeContainer || !overContainer) {
-        setCollection<Candidate>(STORAGE_KEYS.recruitment, prev);
-        return prev;
-      }
+    const current = dataRef.current;
+    const activeContainer = findContainer(activeIdStr, current);
+    const overContainer = findContainer(overIdStr, current);
 
-      let next = prev;
+    let next = current;
+    if (activeContainer && overContainer) {
       if (activeContainer === overContainer && activeIdStr !== overIdStr) {
-        const activeIndex = prev.findIndex((c) => c.id === activeIdStr);
-        const overIndex = prev.findIndex((c) => c.id === overIdStr);
+        const activeIndex = current.findIndex((c) => c.id === activeIdStr);
+        const overIndex = current.findIndex((c) => c.id === overIdStr);
         if (activeIndex !== -1 && overIndex !== -1) {
-          next = arrayMove(prev, activeIndex, overIndex);
+          next = arrayMove(current, activeIndex, overIndex);
         }
       }
+    }
 
-      setCollection<Candidate>(STORAGE_KEYS.recruitment, next);
+    setData(next);
+    setCollection<Candidate>(STORAGE_KEYS.recruitment, next);
 
-      const moved = next.find((c) => c.id === activeIdStr);
-      const fromStatus = dragStartStatusRef.current;
-      if (moved && fromStatus && fromStatus !== moved.status) {
-        log({
-          action: "update",
-          entity: "candidate",
-          entityId: moved.id,
-          entityLabel: moved.name,
-          details: `${t(`recruitment.status.${fromStatus}`)} → ${t(`recruitment.status.${moved.status}`)}`,
-          oldValue: { status: fromStatus },
-          newValue: { status: moved.status },
-        });
+    const moved = next.find((c) => c.id === activeIdStr);
+    const fromStatus = dragStartStatusRef.current;
+    if (moved && fromStatus && fromStatus !== moved.status) {
+      log({
+        action: "update",
+        entity: "candidate",
+        entityId: moved.id,
+        entityLabel: moved.name,
+        details: `${t(`recruitment.status.${fromStatus}`)} → ${t(`recruitment.status.${moved.status}`)}`,
+        oldValue: { status: fromStatus },
+        newValue: { status: moved.status },
+      });
 
-        if (moved.status === "hired") {
-          toast.success(
-            t("recruitment.toast.movedToHired", { name: moved.name }),
-          );
-        }
+      if (moved.status === "hired") {
+        toast.success(
+          t("recruitment.toast.movedToHired", { name: moved.name }),
+        );
       }
-      return next;
-    });
+    }
 
     dragSnapshotRef.current = null;
     dragStartStatusRef.current = null;

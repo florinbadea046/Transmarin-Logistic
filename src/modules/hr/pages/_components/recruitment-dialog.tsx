@@ -93,6 +93,8 @@ export function CandidateDialog({
       notes: candidate?.notes ?? "",
       status: candidate?.status ?? defaultStatus,
     });
+    // form is stable across renders in react-hook-form; excluded to avoid spurious re-runs
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, candidate, defaultStatus]);
 
   const rating = form.watch("rating");
