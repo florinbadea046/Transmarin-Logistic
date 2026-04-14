@@ -21,7 +21,8 @@
       "attendance": "Pontaj Lunar",
       "activityLog": "Istoric",
       "evaluations": "Evaluări",
-      "trainings": "Training & Certificări"
+      "trainings": "Training & Certificări",
+      "recruitment": "Recrutare"
     },
     "documentAlerts": {
       "title": "Alerte Documente",
@@ -462,8 +463,11 @@
     "allEntities": "Toate entitățile",
     "allActions": "Toate acțiunile",
     "allEmployees": "Toți angajații",
+    "entries": "{{count}} intrări",
+    "entries_zero": "0 intrări",
     "entries_one": "{{count}} intrare",
-    "entries_other": "{{count}} intrări",
+    "entries_few": "{{count}} intrări",
+    "entries_other": "{{count}} de intrări",
     "page": "Pagina {{page}} din {{total}}",
     "previous": "Anterior",
     "next": "Următor",
@@ -485,7 +489,8 @@
       "document": "Document",
       "attendance": "Pontaj",
       "evaluation": "Evaluare",
-      "training": "Training"
+      "training": "Training",
+      "candidate": "Candidat"
     }
   },
   "trainings": {
@@ -587,6 +592,71 @@
     },
     "audit": {
       "certificateIssuedFor": "Certificat emis pentru {{name}}"
+    }
+  },
+  "recruitment": {
+    "title": "Recrutare",
+    "subtitle": "Pipeline candidați — glisează cardurile între coloane.",
+    "pipelineTitle": "Pipeline Candidați",
+    "count_one": "{{count}} candidat",
+    "count_few": "{{count}} candidați",
+    "count_other": "{{count}} de candidați",
+    "emptyColumn": "Trage aici",
+    "duplicateEmail": "Există deja un candidat cu acest email",
+    "searchPlaceholder": "Caută după nume, email sau poziție...",
+    "createEmployeeTitle": "Creează Angajat din candidat",
+    "filters": {
+      "position": "Poziție",
+      "allPositions": "Toate pozițiile"
+    },
+    "status": {
+      "applied": "Aplicat",
+      "screening": "Screening",
+      "interview": "Interviu",
+      "offer": "Ofertă",
+      "hired": "Angajat",
+      "rejected": "Respins"
+    },
+    "fields": {
+      "name": "Nume complet",
+      "position": "Poziție",
+      "email": "Email",
+      "phone": "Telefon",
+      "applicationDate": "Data aplicare",
+      "rating": "Notă (1–5)",
+      "notes": "Notițe",
+      "status": "Status"
+    },
+    "validation": {
+      "nameRequired": "Numele este obligatoriu",
+      "positionRequired": "Poziția este obligatorie",
+      "emailInvalid": "Email invalid",
+      "phoneInvalid": "Telefon invalid",
+      "dateRequired": "Data aplicării este obligatorie",
+      "ratingRange": "Nota trebuie să fie între 1 și 5"
+    },
+    "dialog": {
+      "addTitle": "Candidat nou",
+      "editTitle": "Editare candidat"
+    },
+    "actions": {
+      "add": "Adaugă candidat",
+      "edit": "Editează",
+      "delete": "Șterge",
+      "menu": "Acțiuni candidat",
+      "drag": "Mută card",
+      "cancel": "Anulează",
+      "save": "Salvează",
+      "createEmployee": "Creează Angajat",
+      "deleteTitle": "Șterge candidat",
+      "deleteDesc": "Sigur vrei să ștergi candidatul {{name}}? Acțiunea nu poate fi anulată."
+    },
+    "toast": {
+      "created": "Candidat adăugat cu succes",
+      "updated": "Candidat actualizat cu succes",
+      "deleted": "Candidat șters cu succes",
+      "movedToHired": "{{name}} a fost mutat la Angajat — poți crea angajatul din card",
+      "employeeCreated": "Angajat creat cu succes din candidat"
     }
   }
 }

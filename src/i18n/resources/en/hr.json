@@ -21,7 +21,8 @@
       "attendance": "Monthly Timesheet",
       "activityLog": "History",
       "evaluations": "Evaluations",
-      "trainings": "Training & Certifications"
+      "trainings": "Training & Certifications",
+      "recruitment": "Recruitment"
     },
     "documentAlerts": {
       "title": "Document Alerts",
@@ -462,6 +463,8 @@
     "allEntities": "All entities",
     "allActions": "All actions",
     "allEmployees": "All employees",
+    "entries": "{{count}} entries",
+    "entries_zero": "0 entries",
     "entries_one": "{{count}} entry",
     "entries_other": "{{count}} entries",
     "page": "Page {{page}} of {{total}}",
@@ -485,7 +488,8 @@
       "document": "Document",
       "attendance": "Attendance",
       "evaluation": "Evaluation",
-      "training": "Training"
+      "training": "Training",
+      "candidate": "Candidate"
     }
   },
   "trainings": {
@@ -587,6 +591,70 @@
     },
     "audit": {
       "certificateIssuedFor": "Certificate issued for {{name}}"
+    }
+  },
+  "recruitment": {
+    "title": "Recruitment",
+    "subtitle": "Candidate pipeline — drag cards between columns.",
+    "pipelineTitle": "Candidate Pipeline",
+    "count_one": "{{count}} candidate",
+    "count_other": "{{count}} candidates",
+    "emptyColumn": "Drop here",
+    "duplicateEmail": "A candidate with this email already exists",
+    "searchPlaceholder": "Search by name, email or position...",
+    "createEmployeeTitle": "Create Employee from candidate",
+    "filters": {
+      "position": "Position",
+      "allPositions": "All positions"
+    },
+    "status": {
+      "applied": "Applied",
+      "screening": "Screening",
+      "interview": "Interview",
+      "offer": "Offer",
+      "hired": "Hired",
+      "rejected": "Rejected"
+    },
+    "fields": {
+      "name": "Full name",
+      "position": "Position",
+      "email": "Email",
+      "phone": "Phone",
+      "applicationDate": "Application date",
+      "rating": "Rating (1–5)",
+      "notes": "Notes",
+      "status": "Status"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "positionRequired": "Position is required",
+      "emailInvalid": "Invalid email",
+      "phoneInvalid": "Invalid phone",
+      "dateRequired": "Application date is required",
+      "ratingRange": "Rating must be between 1 and 5"
+    },
+    "dialog": {
+      "addTitle": "New candidate",
+      "editTitle": "Edit candidate"
+    },
+    "actions": {
+      "add": "Add candidate",
+      "edit": "Edit",
+      "delete": "Delete",
+      "menu": "Candidate actions",
+      "drag": "Move card",
+      "cancel": "Cancel",
+      "save": "Save",
+      "createEmployee": "Create Employee",
+      "deleteTitle": "Delete candidate",
+      "deleteDesc": "Are you sure you want to delete candidate {{name}}? This action cannot be undone."
+    },
+    "toast": {
+      "created": "Candidate added successfully",
+      "updated": "Candidate updated successfully",
+      "deleted": "Candidate deleted successfully",
+      "movedToHired": "{{name}} moved to Hired — you can create the employee from the card",
+      "employeeCreated": "Employee created successfully from candidate"
     }
   }
 }
