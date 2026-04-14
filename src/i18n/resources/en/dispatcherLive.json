@@ -1,0 +1,40 @@
+{
+    "dispatcherLive": {
+      "title": "Live Dispatcher Dashboard",
+      "lastRefresh": "Last refresh",
+      "refresh": "Refresh",
+      "allocateTrip": "Allocate New Trip",
+      "kpi": {
+        "activeTrips": "Active Trips",
+        "unassignedOrders": "Unassigned Orders",
+        "availableTrucks": "Available Trucks",
+        "alerts": "New Alerts"
+      },
+      "trips": {
+        "title": "Active Trips",
+        "noActive": "No active trips at the moment.",
+        "progress": "Progress",
+        "eta": "ETA",
+        "status": {
+          "in_desfasurare": "In progress",
+          "planned": "Planned",
+          "finalizata": "Completed",
+          "anulata": "Cancelled"
+        }
+      },
+      "map": {
+        "title": "Active Trips Map",
+        "origin": "Origin",
+        "destination": "Destination"
+      },
+      "feed": {
+        "title": "Latest Events",
+        "noEvents": "No recent events.",
+        "action": {
+          "create": "Added",
+          "update": "Updated",
+          "delete": "Deleted"
+        }
+      }
+    }
+  }

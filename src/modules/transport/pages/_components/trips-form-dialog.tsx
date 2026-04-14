@@ -32,6 +32,7 @@ import {
 import type { Trip, Driver, Truck, Order } from "@/modules/transport/types";
 import { addItem, updateItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 type TripFormValues = {
   orderId: string;
@@ -93,6 +94,7 @@ export function TripFormDialog({
   onSaved,
 }: TripFormDialogProps) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const today = new Date().toISOString().split("T")[0];
 
   const schema = React.useMemo(() => buildSchema(t), [t]);
@@ -168,6 +170,7 @@ export function TripFormDialog({
           (tr) => tr.id === editingTrip.id,
           () => updatedTrip,
         );
+        log({ action: "update", entity: "trip", entityId: editingTrip.id, entityLabel: values.orderId, detailKey: "activityLog.details.tripUpdated", oldValue: { kmLoaded: editingTrip.kmLoaded, fuelCost: editingTrip.fuelCost, revenue: editingTrip.revenue ?? 0 }, newValue: { kmLoaded: Number(values.kmLoaded), fuelCost: Number(values.fuelCost), revenue: Number(values.revenue) } });
         toast.success(t("trips.toast.updated"));
       } else {
         const newTrip: Trip = {
@@ -190,6 +193,7 @@ export function TripFormDialog({
           (d) => d.id === values.driverId,
           (d) => ({ ...d, status: "on_trip" }),
         );
+        log({ action: "create", entity: "trip", entityId: newTrip.id, entityLabel: values.orderId, detailKey: "activityLog.details.tripCreated" });
         toast.success(t("trips.toast.added"));
       }
       onSaved();

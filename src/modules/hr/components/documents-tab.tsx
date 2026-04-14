@@ -16,16 +16,20 @@ import { ExpiryDatePicker } from "./expiry-date-picker";
 import { generateId } from "@/utils/local-storage";
 import { getHRSettings } from "../utils/get-hr-settings";
 import type { EmployeeDocument } from "@/modules/hr/types";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
-const TYPE_LABELS: Record<EmployeeDocument["type"], string> = {
-  contract: "Contract",
-  license: "Permis conducere",
-  medical: "Aviz medical",
-  certificate: "Certificat",
-  tachograph: "Tahograf",
-  adr: "ADR",
-  other: "Altele",
-};
+function getDocTypeLabels(t: TFunction): Record<EmployeeDocument["type"], string> {
+  return {
+    contract: t("documents.types.contract"),
+    license: t("documents.types.license"),
+    medical: t("documents.types.medical"),
+    certificate: t("documents.types.certificate"),
+    tachograph: t("documents.types.tachograph"),
+    adr: t("documents.types.adr"),
+    other: t("documents.types.other"),
+  };
+}
 
 // Parse a YYYY-MM-DD string as a local date (midnight in the user's timezone)
 function parseLocalYmdDate(dateStr: string): Date {
@@ -36,15 +40,15 @@ function parseLocalYmdDate(dateStr: string): Date {
   return new Date(year, monthIndex, day);
 }
 
-function getExpiryBadge(expiryDate?: string) {
-  if (!expiryDate) return <Badge variant="secondary">Fără expirare</Badge>;
+function getExpiryBadge(t: TFunction, expiryDate?: string) {
+  if (!expiryDate) return <Badge variant="secondary">{t("documents.noExpiry")}</Badge>;
 
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const expiry = parseLocalYmdDate(expiryDate);
 
   if (expiry.getTime() < today.getTime()) {
-    return <Badge variant="destructive">Expirat</Badge>;
+    return <Badge variant="destructive">{t("documents.expired")}</Badge>;
   }
 
   const days = Math.floor(
@@ -54,13 +58,13 @@ function getExpiryBadge(expiryDate?: string) {
   if (days <= 30) {
     return (
       <Badge className="border-yellow-500 text-yellow-600 bg-yellow-50 dark:bg-yellow-950 dark:text-yellow-400" variant="outline">
-        Expiră curând
+        {t("documents.expiresSoon")}
       </Badge>
     );
   }
   return (
     <Badge className="border-green-500 text-green-600 bg-green-50 dark:bg-green-950 dark:text-green-400" variant="outline">
-      Valid
+      {t("documents.valid")}
     </Badge>
   );
 }
@@ -80,6 +84,8 @@ interface Props {
 }
 
 export function DocumentsTab({ documents, onChange }: Props) {
+  const { t } = useTranslation();
+  const TYPE_LABELS = React.useMemo(() => getDocTypeLabels(t), [t]);
   const docNumberFormat = React.useMemo(() => getHRSettings().documentNumberFormat, []);
   const [showDocForm, setShowDocForm] = React.useState(false);
   const [editingDocId, setEditingDocId] = React.useState<string | null>(null);
@@ -167,7 +173,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
   return (
     <div className="space-y-2">
       {documents.length === 0 && !showDocForm ? (
-        <p className="text-xs text-muted-foreground py-1">Niciun document adăugat.</p>
+        <p className="text-xs text-muted-foreground py-1">{t("documents.empty")}</p>
       ) : (
         <div className="space-y-1.5 max-h-[160px] sm:max-h-[175px] overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
           {documents.map((doc) => (
@@ -180,14 +186,14 @@ export function DocumentsTab({ documents, onChange }: Props) {
                   {TYPE_LABELS[doc.type]}
                 </Badge>
                 <span className="flex-1 min-w-0 text-xs truncate">{doc.name || doc.documentNumber || "—"}</span>
-                {getExpiryBadge(doc.expiryDate)}
+                {getExpiryBadge(t, doc.expiryDate)}
                 <div className="flex gap-1 ml-auto shrink-0">
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6"
-                    aria-label="Editează document"
+                    aria-label={t("documents.editAriaLabel")}
                     onClick={() => handleDocEdit(doc)}
                   >
                     <Pencil className="h-3 w-3" />
@@ -197,7 +203,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6 text-destructive hover:text-destructive"
-                    aria-label="Șterge document"
+                    aria-label={t("documents.deleteAriaLabel")}
                     onClick={() => handleDocDelete(doc.id)}
                   >
                     <Trash2 className="h-3 w-3" />
@@ -205,9 +211,9 @@ export function DocumentsTab({ documents, onChange }: Props) {
                 </div>
               </div>
               <div className="flex flex-wrap gap-x-3 gap-y-0 text-xs text-muted-foreground">
-                {doc.documentNumber && <span>Nr: {doc.documentNumber}</span>}
-                {doc.issueDate && <span>Emis: {doc.issueDate}</span>}
-                {doc.expiryDate && <span>Expiră: {doc.expiryDate}</span>}
+                {doc.documentNumber && <span>{t("documents.numberLabel")}: {doc.documentNumber}</span>}
+                {doc.issueDate && <span>{t("documents.issuedLabel")}: {doc.issueDate}</span>}
+                {doc.expiryDate && <span>{t("documents.expiresLabel")}: {doc.expiryDate}</span>}
                 {doc.notes && <span className="italic">{doc.notes}</span>}
               </div>
             </div>
@@ -223,7 +229,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
             }
           >
             <SelectTrigger className="w-full">
-              <SelectValue placeholder="Tip document" />
+              <SelectValue placeholder={t("documents.typePlaceholder")} />
             </SelectTrigger>
             <SelectContent>
               {(Object.entries(TYPE_LABELS) as [EmployeeDocument["type"], string][]).map(
@@ -241,7 +247,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
             onChange={(e) => setDocForm((f) => ({ ...f, documentNumber: e.target.value }))}
           />
           <Input
-            placeholder="Denumire (opțional)"
+            placeholder={t("documents.namePlaceholder")}
             value={docForm.name}
             onChange={(e) => setDocForm((f) => ({ ...f, name: e.target.value }))}
           />
@@ -254,7 +260,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
                 issueDate: date ? format(date, "yyyy-MM-dd") : "",
               }));
             }}
-            placeholder="Data emitere"
+            placeholder={t("documents.issueDatePlaceholder")}
           />
           <ExpiryDatePicker
             selected={docDate}
@@ -265,17 +271,17 @@ export function DocumentsTab({ documents, onChange }: Props) {
                 expiryDate: date ? format(date, "yyyy-MM-dd") : "",
               }));
             }}
-            placeholder="Data expirare"
+            placeholder={t("documents.expiryDatePlaceholder")}
           />
           <Textarea
-            placeholder="Notițe (opțional)"
+            placeholder={t("documents.notesPlaceholder")}
             value={docForm.notes}
             rows={2}
             onChange={(e) => setDocForm((f) => ({ ...f, notes: e.target.value }))}
           />
           <div className="flex gap-2 justify-end">
             <Button type="button" variant="outline" size="sm" onClick={handleDocCancel}>
-              Renunță
+              {t("documents.cancelButton")}
             </Button>
             <Button
               type="button"
@@ -283,7 +289,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
               disabled={!docForm.type || (!docForm.name?.trim() && !docForm.documentNumber?.trim())}
               onClick={handleDocSave}
             >
-              {editingDocId ? "Actualizează document" : "Adaugă document"}
+              {editingDocId ? t("documents.updateButton") : t("documents.addButton")}
             </Button>
           </div>
         </div>
@@ -291,7 +297,7 @@ export function DocumentsTab({ documents, onChange }: Props) {
       {!showDocForm && (
         <Button type="button" variant="outline" size="sm" onClick={handleDocAdd}>
           <Plus className="mr-1 h-3.5 w-3.5" />
-          Adaugă document
+          {t("documents.addDocumentButton")}
         </Button>
       )}
     </div>

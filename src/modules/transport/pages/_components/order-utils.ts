@@ -20,8 +20,7 @@ export function getStatusMeta(t: (k: string) => string): StatusMeta {
 }
 
 export function safeRandomId() {
-  const c = globalThis as any;
-  if (c?.crypto?.randomUUID) return c.crypto.randomUUID();
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") return crypto.randomUUID();
   return `order_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
@@ -53,12 +52,11 @@ export function isDuplicateOrder(
   excludeId?: string,
 ) {
   if (excludeId && existing.id === excludeId) return false;
-  const e = existing as any;
   return (
-    norm(String(e.clientName ?? "")) === norm(incoming.clientName) &&
-    norm(String(e.origin ?? "")) === norm(incoming.origin) &&
-    norm(String(e.destination ?? "")) === norm(incoming.destination) &&
-    String(e.date ?? "") === incoming.date &&
-    round2(Number(e.weight ?? 0)) === round2(incoming.weight)
+    norm(String(existing.clientName ?? "")) === norm(incoming.clientName) &&
+    norm(String(existing.origin ?? "")) === norm(incoming.origin) &&
+    norm(String(existing.destination ?? "")) === norm(incoming.destination) &&
+    String(existing.date ?? "") === incoming.date &&
+    round2(Number(existing.weight ?? 0)) === round2(incoming.weight)
   );
 }

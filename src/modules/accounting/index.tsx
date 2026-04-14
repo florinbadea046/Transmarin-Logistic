@@ -17,17 +17,19 @@ import { AccountingNotifications } from "@/components/accounting-notifications";
 import type { Invoice } from "@/modules/accounting/types";
 
 function parseDate(dateStr: string): { year: number; month: number } {
+  if (!dateStr) return { year: 0, month: 0 }; // <-- adaugă asta
   const [yearStr, monthStr] = dateStr.split("-");
   return { year: Number(yearStr), month: Number(monthStr) - 1 };
 }
-
 export default function AccountingPage() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
 
   const topNavLinks = [
     { title: t("accounting.nav.invoices"), href: "/accounting/invoices", isActive: false },
+    { title: t("accounting.nav.dueDates"), href: "/accounting/due-dates", isActive: false },
     { title: t("accounting.nav.suppliers"), href: "/accounting/suppliers", isActive: false },
+    { title: t("accounting.nav.activityLog"), href: "/accounting/activity-log", isActive: false },
   ];
 
   const links = topNavLinks.map((link) => ({

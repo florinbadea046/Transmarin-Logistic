@@ -56,23 +56,26 @@ import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Truck } from "@/modules/transport/types";
 import type { MaintenanceRecord, MaintenanceType, MaintenanceStatus } from "@/modules/transport/types";
 import { useMobile } from "@/hooks/use-mobile";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import { cn } from "@/lib/utils";
 
 // ── Zod schema ─────────────────────────────────────────────
 
-const maintenanceSchema = z.object({
-  truckId: z.string().min(1),
-  type: z.enum(["revizie", "schimb_ulei", "anvelope", "frane", "altele"]),
-  description: z.string().min(3),
-  entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data invalida"),
-  exitDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal("")),
-  cost: z.number({ message: "Cost invalid" }).min(0),
-  mechanic: z.string().min(2),
-  status: z.enum(["programat", "in_lucru", "finalizat"]),
-  notes: z.string().optional(),
-});
+function makeMaintenanceSchema(t: (k: string) => string) {
+  return z.object({
+    truckId: z.string().min(1),
+    type: z.enum(["revizie", "schimb_ulei", "anvelope", "frane", "altele"]),
+    description: z.string().min(3),
+    entryDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, t("maintenance.validation.invalidDate")),
+    exitDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional().or(z.literal("")),
+    cost: z.number({ message: t("maintenance.validation.invalidCost") }).min(0),
+    mechanic: z.string().min(2),
+    status: z.enum(["programat", "in_lucru", "finalizat"]),
+    notes: z.string().optional(),
+  });
+}
 
-type MaintenanceFormData = z.infer<typeof maintenanceSchema>;
+type MaintenanceFormData = z.infer<ReturnType<typeof makeMaintenanceSchema>>;
 type MaintenanceFormErrors = Partial<Record<keyof MaintenanceFormData, string>>;
 
 const EMPTY_FORM: MaintenanceFormData = {
@@ -236,6 +239,8 @@ function MaintenanceDialog({
   onSave: () => void;
 }) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
+  const maintenanceSchema = React.useMemo(() => makeMaintenanceSchema(t), [t]);
   const [form, setForm] = React.useState<MaintenanceFormData>(EMPTY_FORM);
   const [errors, setErrors] = React.useState<MaintenanceFormErrors>({});
 
@@ -274,19 +279,23 @@ function MaintenanceDialog({
     }
 
     const data = result.data;
+    const truckLabel = trucks.find((tr) => tr.id === data.truckId)?.plateNumber ?? data.truckId;
     if (editingRecord) {
       updateItem<MaintenanceRecord>(
         STORAGE_KEYS.maintenance,
         (r) => r.id === editingRecord.id,
         (r) => ({ ...r, ...data, exitDate: data.exitDate || undefined }),
       );
+      log({ action: "update", entity: "maintenance", entityId: editingRecord.id, entityLabel: truckLabel, detailKey: "activityLog.details.maintenanceUpdated", oldValue: { type: editingRecord.type, status: editingRecord.status, cost: editingRecord.cost }, newValue: { type: data.type, status: data.status, cost: data.cost } });
       toast.success(t("maintenance.toastUpdated"));
     } else {
+      const newId = generateId();
       addItem<MaintenanceRecord>(STORAGE_KEYS.maintenance, {
-        id: generateId(),
+        id: newId,
         ...data,
         exitDate: data.exitDate || undefined,
       });
+      log({ action: "create", entity: "maintenance", entityId: newId, entityLabel: truckLabel, detailKey: "activityLog.details.maintenanceCreated", detailParams: { truck: truckLabel } });
       toast.success(t("maintenance.toastAdded"));
     }
 
@@ -456,6 +465,7 @@ function MaintenanceMobileCard({ record, truck, onEdit, onDelete, t }: {
 
 export default function MaintenancePage() {
   const { t } = useTranslation();
+  const { log: auditLog } = useAuditLog();
   const isMobile = useMobile(640);
 
   const [records, setRecords] = React.useState<MaintenanceRecord[]>(() =>
@@ -474,7 +484,10 @@ export default function MaintenancePage() {
 
   const handleDelete = () => {
     if (!deleteId) return;
+    const record = records.find((r) => r.id === deleteId);
+    const truckLabel = record ? (trucks.find((tr) => tr.id === record.truckId)?.plateNumber ?? record.truckId) : deleteId;
     removeItem<MaintenanceRecord>(STORAGE_KEYS.maintenance, (r) => r.id === deleteId);
+    auditLog({ action: "delete", entity: "maintenance", entityId: deleteId, entityLabel: truckLabel, detailKey: "activityLog.details.maintenanceDeleted" });
     toast.success(t("maintenance.toastDeleted"));
     setDeleteId(null);
     refreshRecords();

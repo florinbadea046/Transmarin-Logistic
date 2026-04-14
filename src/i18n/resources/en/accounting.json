@@ -10,11 +10,25 @@
     "noInvoices": "No invoices recorded.",
     "chartRevenue": "Revenue",
     "chartExpenses": "Expenses",
+
     "nav": {
       "invoices": "Invoices",
-      "suppliers": "Suppliers"
+      "dueDates": "Due Dates",
+      "suppliers": "Suppliers",
+      "budget": "Budget",
+      "activityLog": "Audit Log"
+    },
+
+    "dueDatesTitle": "Invoice Due Dates",
+    "dueDate": "Due date",
+    "statusLabel": "Status",
+    "status": {
+      "overdue": "Overdue",
+      "due_soon": "Due soon",
+      "ok": "OK"
     }
   },
+
   "suppliers": {
     "title": "Suppliers",
     "manage": "Manage Suppliers",
@@ -44,6 +58,95 @@
       "addTitle": "Add Supplier",
       "cancel": "Cancel",
       "save": "Save"
-}
+    },
+    "audit": {
+      "updated": "Supplier updated",
+      "deleted": "Supplier deleted"
+    },
+    "validation": {
+      "nameMin": "Name must be at least 3 characters",
+      "cuiInvalid": "Invalid Tax ID (e.g. RO12345678)",
+      "addressRequired": "Address is required",
+      "phoneInvalid": "Phone must start with 07 and have 10 digits",
+      "emailInvalid": "Invalid email",
+      "bankAccountRequired": "Bank account is required"
+    }
+  },
+
+  "pdf": {
+    "statusLabels": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "paid": "Paid",
+      "overdue": "Overdue",
+      "cancelled": "Cancelled"
+    },
+    "table": {
+      "nr": "#",
+      "description": "Description",
+      "quantity": "Qty.",
+      "unitPrice": "Unit price",
+      "vatPercent": "VAT %",
+      "vat": "VAT",
+      "total": "Total"
+    },
+    "labels": {
+      "invoice": "INVOICE",
+      "invoiceNr": "No. {{nr}}",
+      "issueDate": "Issue date: {{date}}",
+      "dueDate": "Due date: {{date}}",
+      "supplier": "SUPPLIER",
+      "client": "CLIENT",
+      "regCom": "Reg. No.: {{value}}",
+      "subtotal": "Subtotal (excl. VAT):",
+      "vat19": "VAT 19%:",
+      "totalLabel": "TOTAL:",
+      "paymentTerms": "PAYMENT TERMS",
+      "bankDetails": "Bank details:",
+      "iban": "IBAN: {{value}}",
+      "bank": "Bank: {{value}}",
+      "footer": "Auto-generated document · Transmarin Logistic SRL · Page 1",
+      "downloadPdf": "Download PDF"
+    }
+  },
+
+  "toasts": {
+    "itemRequired": "Invoice must contain at least one item with a description",
+    "updated": "Invoice updated successfully",
+    "added": "Invoice added successfully",
+    "deleted": "Invoice deleted",
+    "markedPaid": "Invoice marked as paid"
+  },
+
+  "accountingAuditLog": {
+    "title": "Accounting Activity Log",
+    "subtitle": "CRUD timeline for invoices, suppliers, payments and budget.",
+    "filters": "Filters",
+    "allEntities": "All entities",
+    "allActions": "All actions",
+    "perPage": "per page",
+    "resetFilters": "Reset filters",
+    "entries": "{{count}} entries",
+    "noActivity": "No activity recorded yet.",
+    "showDetails": "Show details",
+    "hideDetails": "Hide details",
+    "before": "Before",
+    "after": "After",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page {{page}} of {{total}}",
+    "actions": {
+      "create": "Create",
+      "update": "Update",
+      "delete": "Delete",
+      "pay": "Payment"
+    },
+    "entities": {
+      "invoice": "Invoice",
+      "supplier": "Supplier",
+      "payment": "Payment",
+      "budget": "Budget",
+      "recurringExpense": "Recurring expense"
+    }
   }
 }

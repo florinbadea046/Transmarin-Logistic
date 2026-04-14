@@ -1,11 +1,15 @@
 import type { ServiceRecord, Part } from "@/modules/fleet/types";
 
-export const TYPE_LABELS: Record<ServiceRecord["type"], string> = {
-  revision: "Revizie",
-  repair:   "Reparație",
-  itp:      "ITP",
-  other:    "Altele",
-};
+export function getTypeLabels(
+  t: (k: string) => string,
+): Record<ServiceRecord["type"], string> {
+  return {
+    revision: t("fleet.service.typeRevision"),
+    repair: t("fleet.service.typeRepair"),
+    itp: t("fleet.service.typeItp"),
+    other: t("fleet.service.typeOther"),
+  };
+}
 
 export function getPartName(parts: Part[], id: string): string {
   return parts.find((p) => p.id === id)?.name ?? id;

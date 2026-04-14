@@ -9,6 +9,7 @@ import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
 import { Bonus } from "../modules/hr/types";
+import { format, addMonths, setDate } from "date-fns";
 
 // Chei localStorage — toate modulele folosesc aceste chei
 export const STORAGE_KEYS = {
@@ -24,6 +25,8 @@ export const STORAGE_KEYS = {
   // Accounting
   invoices: "transmarin_invoices",
   suppliers: "transmarin_suppliers",
+  accounting_audit_log: "transmarin_accounting_audit_log",
+  payments: "transmarin_payments",
   // HR
   employees: "transmarin_employees",
   leaveRequests: "transmarin_leave_requests",
@@ -31,6 +34,8 @@ export const STORAGE_KEYS = {
   attendance: "transmarin_attendance",
   hr_audit_log: "transmarin_hr_audit_log",
   hr_settings: "transmarin_hr_settings",
+  evaluations: "transmarin_evaluations",
+  trainings: "transmarin_trainings",
   // Notifications
   notifications: "transmarin_notifications",
   // Activity Log
@@ -40,6 +45,7 @@ export const STORAGE_KEYS = {
   fuelLog: "transmarin_fuel_log",
   transport_settings: "transmarin_transport_settings",
   tripInvoices: "transmarin_trip_invoices",
+  budgets: "transmarin_budgets",
   recurringExpenses: "transmarin_recurring_expenses",
   budgets: "transmarin_budgets",
   accounting_notifications: "transmarin_accounting_notifications",
@@ -848,8 +854,8 @@ const seedFuelRecords: FuelRecord[] = [
 
 function relativeDate(monthOffset: number, day: number): string {
   const now = new Date();
-  const d = new Date(now.getFullYear(), now.getMonth() + monthOffset, day);
-  return d.toISOString().split("T")[0];
+  const d = setDate(addMonths(now, monthOffset), day);
+  return format(d, "yyyy-MM-dd");
 }
 
 const seedInvoices: Invoice[] = [

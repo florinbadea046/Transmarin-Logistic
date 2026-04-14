@@ -23,6 +23,9 @@ import roFuelLog from "./resources/ro/fuelLog.json";
 import roInvoiceGenerator from "./resources/ro/invoiceGenerator.json";
 import roFleetComparison from "./resources/ro/fleetComparison.json";
 import roRecurringExpenses from "./resources/ro/recurringExpenses.json";
+import roMileageRegistry from "./resources/ro/mileageRegistry.json";
+import roDispatcherLive from "./resources/ro/dispatcherLive.json";
+import roPayments from "./resources/ro/payments.json";
 
 // EN
 import enCommon from "./resources/en/common.json";
@@ -45,6 +48,9 @@ import enFuelLog from "./resources/en/fuelLog.json";
 import enInvoiceGenerator from "./resources/en/invoiceGenerator.json";
 import enFleetComparison from "./resources/en/fleetComparison.json";
 import enRecurringExpenses from "./resources/en/recurringExpenses.json";
+import enMileageRegistry from "./resources/en/mileageRegistry.json";
+import enDispatcherLive from "./resources/en/dispatcherLive.json";
+import enPayments from "./resources/en/payments.json";
 
 i18n
   .use(LanguageDetector)
@@ -52,58 +58,30 @@ i18n
   .init({
     fallbackLng: "ro",
     debug: false,
-
     resources: {
       en: {
         translation: {
-          ...enCommon,
-          ...enDashboard,
-          ...enOrders,
-          ...enEmployees,
-          ...enDrivers,
-          ...enTrucks,
-          ...enTrips,
-          ...enInvoices,
-          ...enReports,
-          ...enCosts,
-          ...enActivityLog,
-          ...enFleet,
-          ...enAccounting,
-          ...enHr,
-          ...enSettings,
-          ...enMaintenance,
-          ...enFuelLog,
-          ...enInvoiceGenerator,
-          ...enFleetComparison,
-          ...enRecurringExpenses,
+          ...enCommon, ...enDashboard, ...enOrders, ...enEmployees,
+          ...enDrivers, ...enTrucks, ...enTrips, ...enInvoices,
+          ...enReports, ...enCosts, ...enActivityLog, ...enFleet,
+          ...enAccounting, ...enHr, ...enSettings, ...enMaintenance,
+          ...enFuelLog, ...enInvoiceGenerator, ...enFleetComparison,
+          ...enRecurringExpenses, ...enMileageRegistry, ...enDispatcherLive,
+          ...enPayments,
         },
       },
       ro: {
         translation: {
-          ...roCommon,
-          ...roDashboard,
-          ...roOrders,
-          ...roEmployees,
-          ...roDrivers,
-          ...roTrucks,
-          ...roTrips,
-          ...roInvoices,
-          ...roReports,
-          ...roCosts,
-          ...roActivityLog,
-          ...roFleet,
-          ...roAccounting,
-          ...roHr,
-          ...roSettings,
-          ...roMaintenance,
-          ...roFuelLog,
-          ...roInvoiceGenerator,
-          ...roFleetComparison,
-          ...roRecurringExpenses,
+          ...roCommon, ...roDashboard, ...roOrders, ...roEmployees,
+          ...roDrivers, ...roTrucks, ...roTrips, ...roInvoices,
+          ...roReports, ...roCosts, ...roActivityLog, ...roFleet,
+          ...roAccounting, ...roHr, ...roSettings, ...roMaintenance,
+          ...roFuelLog, ...roInvoiceGenerator, ...roFleetComparison,
+          ...roRecurringExpenses, ...roMileageRegistry, ...roDispatcherLive,
+          ...roPayments,
         },
       },
     },
-
     interpolation: { escapeValue: false },
     detection: {
       order: ["localStorage", "navigator"],

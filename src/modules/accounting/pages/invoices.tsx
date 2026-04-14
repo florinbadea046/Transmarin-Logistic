@@ -1,6 +1,11 @@
-﻿import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner"; // ← ADĂUGAT
+
+import { getCollection, setCollection, initCollection } from "../components/invoices-utils";
+
+import { toast } from "sonner";
+import { useAuditLog } from "@/hooks/use-audit-log";
+import { useAccountingAuditLog } from "@/hooks/use-accounting-audit-log";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
@@ -12,50 +17,24 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Trash2, Pencil, Plus, Search, CheckCircle, X } from "lucide-react";
+import { Trash2, Pencil, Plus, Search, CheckCircle, X, Upload } from "lucide-react";
 
 import type { Invoice, InvoiceLine } from "./_components/invoices-types";
 import { statusColor } from "./_components/invoices-types";
-import { calcLineTotals, formatCurrency, emptyLine, defaultForm, initialMock } from "./_components/invoices-utils";
+import { calcLineTotals, formatCurrency, defaultForm, initialMock, emptyLine } from "./_components/invoices-utils";
 import { ExportMenu } from "./_components/invoices-export";
 import { InvoiceCard } from "./_components/invoices-card";
 import { InvoiceFormDialog } from "./_components/invoices-form-dialog";
-import InvoicePDFButton from "../components/InvoicePDF"; // ← D15
-import type { InvoiceData } from "../components/invoice-pdf.utils"; // ← D15
+import { InvoicesImportDialog } from "./_components/invoices-import-dialog";
 
-// ── Helper: mapează Invoice local → InvoiceData (pentru jsPDF) ────────────────
-function toInvoiceData(inv: Invoice): InvoiceData {
-  const { totalFaraTVA, tva, total } = calcLineTotals(inv.linii);
-
-  // Mapare status
-  const statusMap: Record<string, InvoiceData["status"]> = {
-    "plătită":  "paid",
-    "neplatită": "overdue",
-    "parțial":  "sent",
-    "anulată":  "cancelled",
-  };
-
-  return {
-    invoiceNumber: inv.nr,
-    invoiceDate:   inv.data,
-    dueDate:       inv.scadenta,
-    status:        statusMap[inv.status] ?? "draft",
-    clientName:    inv.clientFurnizor,
-    lineItems: inv.linii.map((l) => ({
-      description: l.descriere,
-      quantity:    l.cantitate,
-      unitPrice:   l.pretUnitar,
-      vatRate:     19,
-    })),
-    // Câmpuri calculate (opționale – folosite în secțiunea totale)
-    paymentTerms: `Subtotal: ${formatCurrency(totalFaraTVA)} | TVA: ${formatCurrency(tva)} | Total: ${formatCurrency(total)}`,
-  };
-}
+// ── Page ──────────────────────────────────────────────────────
 
 export default function InvoicesPage() {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
+  const { log: logAccounting } = useAccountingAuditLog();
 
-  const [invoices, setInvoices] = useState<Invoice[]>(initialMock);
+  const [invoices, setInvoices] = useState<Invoice[]>(() => getCollection(initialMock));
   const [tipFilter, setTipFilter] = useState("toate");
   const [statusFilter, setStatusFilter] = useState("toate");
   const [search, setSearch] = useState("");
@@ -63,7 +42,18 @@ export default function InvoicesPage() {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState(defaultForm());
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [importOpen, setImportOpen] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    initCollection(initialMock);
+  }, []);
+
+  useEffect(() => {
+    setCollection(invoices);
+  }, [invoices]);
+
+  // ── Filtering ────────────────────────────────────────────────
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -74,6 +64,8 @@ export default function InvoicesPage() {
       return matchTip && matchStatus && matchSearch;
     });
   }, [invoices, tipFilter, statusFilter, search]);
+
+  // ── Selection ────────────────────────────────────────────────
 
   const allFilteredSelected = filtered.length > 0 && filtered.every((inv) => selectedIds.has(inv.id));
   const someFilteredSelected = filtered.some((inv) => selectedIds.has(inv.id));
@@ -96,6 +88,8 @@ export default function InvoicesPage() {
 
   const clearSelection = () => setSelectedIds(new Set());
 
+  // ── Helpers ──────────────────────────────────────────────────
+
   const isOverdue = (inv: Invoice) => {
     if (inv.status === "plătită" || inv.status === "anulată") return false;
     return inv.scadenta ? new Date(inv.scadenta) < new Date() : false;
@@ -113,33 +107,50 @@ export default function InvoicesPage() {
     setDialogOpen(true);
   };
 
+  // ── CRUD handlers ────────────────────────────────────────────
+
   const handleSave = () => {
-    // ← ADĂUGAT: validare factură fără articole
     if (form.linii.length === 0 || form.linii.every((l) => !l.descriere.trim())) {
-      toast.error("Factura trebuie să conțină cel puțin un articol cu descriere");
+      toast.error(t("toasts.itemRequired"));
       return;
     }
 
     if (editId) {
       setInvoices((prev) => prev.map((inv) => (inv.id === editId ? { ...inv, ...form } : inv)));
-      toast.success("Factură actualizată cu succes");
+      log({ action: "update", entity: "invoice", entityId: editId, entityLabel: `${form.nr} - ${form.clientFurnizor}`, detailKey: "activityLog.details.invoiceUpdated" });
+      logAccounting({ action: "update", entity: "invoice", entityId: editId, entityLabel: `${form.nr} - ${form.clientFurnizor}`, details: t("invoices.audit.updated") });
+      toast.success(t("toasts.updated"));
     } else {
-      setInvoices((prev) => [...prev, { id: crypto.randomUUID(), ...form }]);
-      toast.success("Factură adăugată cu succes");
+      const newId = crypto.randomUUID();
+      setInvoices((prev) => [...prev, { id: newId, ...form }]);
+      log({ action: "create", entity: "invoice", entityId: newId, entityLabel: `${form.nr} - ${form.clientFurnizor}`, detailKey: "activityLog.details.invoiceCreated", detailParams: { nr: form.nr } });
+      logAccounting({ action: "create", entity: "invoice", entityId: newId, entityLabel: `${form.nr} - ${form.clientFurnizor}`, details: `${t("invoices.audit.updated")}: ${form.nr}` });
+      toast.success(t("toasts.added"));
     }
     setDialogOpen(false);
   };
 
   const handleDelete = () => {
-    setInvoices((prev) => prev.filter((inv) => inv.id !== deleteId));
+    const inv = invoices.find((i) => i.id === deleteId);
+    log({ action: "delete", entity: "invoice", entityId: deleteId ?? "", entityLabel: inv ? `${inv.nr} - ${inv.clientFurnizor}` : (deleteId ?? ""), detailKey: "activityLog.details.invoiceDeleted" });
+    logAccounting({ action: "delete", entity: "invoice", entityId: deleteId ?? "", entityLabel: inv ? `${inv.nr} - ${inv.clientFurnizor}` : (deleteId ?? ""), details: t("invoices.audit.deleted") });
+    setInvoices((prev) => prev.filter((i) => i.id !== deleteId));
     setDeleteId(null);
-    toast.success("Factură ștearsă"); // ← ADĂUGAT
+    toast.success(t("toasts.deleted"));
   };
 
   const handleMarkPaid = (id: string) => {
     setInvoices((prev) => prev.map((inv) => (inv.id === id ? { ...inv, status: "plătită" } : inv)));
-    toast.success("Factură marcată ca plătită"); // ← ADĂUGAT
+    toast.success(t("toasts.markedPaid"));
+    logAccounting({ action: "pay", entity: "invoice", entityId: id, entityLabel: invoices.find(i => i.id === id)?.nr ?? id, details: t("invoices.audit.markedPaid") });
   };
+
+  const handleImport = (newInvoices: Invoice[]) => {
+    setInvoices((prev) => [...prev, ...newInvoices]);
+    toast.success(t("invoices.import.success", { count: newInvoices.length }));
+  };
+
+  // ── Form line helpers ────────────────────────────────────────
 
   const updateLine = (idx: number, field: keyof InvoiceLine, value: string | number) => {
     setForm((prev) => {
@@ -153,6 +164,8 @@ export default function InvoicesPage() {
   const removeLine = (idx: number) => setForm((prev) => ({ ...prev, linii: prev.linii.filter((_, i) => i !== idx) }));
   const totals = calcLineTotals(form.linii);
 
+  // ── Render ───────────────────────────────────────────────────
+
   return (
     <>
       <Header>
@@ -164,7 +177,19 @@ export default function InvoicesPage() {
           <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <CardTitle>{t("invoices.cardTitle")}</CardTitle>
             <div className="flex gap-2 flex-wrap justify-end">
-              <ExportMenu invoices={invoices} selectedIds={selectedIds} filteredInvoices={filtered} />
+              <ExportMenu
+                invoices={invoices}
+                selectedIds={selectedIds}
+                filteredInvoices={filtered}
+              />
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setImportOpen(true)}
+                className="w-full sm:w-auto"
+              >
+                <Upload className="w-4 h-4 mr-1" /> Import
+              </Button>
               <Button size="sm" onClick={openNew} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-1" /> {t("invoices.actions.add")}
               </Button>
@@ -172,10 +197,16 @@ export default function InvoicesPage() {
           </CardHeader>
 
           <CardContent>
+            {/* Filters */}
             <div className="flex flex-col gap-3 mb-4">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input className="pl-9" placeholder={t("invoices.filters.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
+                <Input
+                  className="pl-9"
+                  placeholder={t("invoices.filters.searchPlaceholder")}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
                 <Select value={tipFilter} onValueChange={setTipFilter}>
@@ -203,25 +234,49 @@ export default function InvoicesPage() {
               </div>
             </div>
 
+            {/* Selection bar */}
             {someFilteredSelected && (
               <div className="flex items-center justify-between rounded-md border border-blue-500/30 bg-blue-500/10 px-3 py-2 mb-3 text-sm">
-                <span className="text-blue-400 font-medium">{t("invoices.selection.count", { count: selectedIds.size })}</span>
+                <span className="text-blue-400 font-medium">
+                  {t("invoices.selection.count", { count: selectedIds.size })}
+                </span>
                 <Button size="sm" variant="ghost" className="h-7 text-muted-foreground hover:text-white" onClick={clearSelection}>
                   <X className="w-3 h-3 mr-1" /> {t("invoices.actions.deselect")}
                 </Button>
               </div>
             )}
 
-            {/* Mobile */}
-            <div className="flex flex-col gap-3 md:hidden">{filtered.length === 0 ? <p className="text-center text-muted-foreground py-8">{t("invoices.noResults")}</p> : filtered.map((inv) => <InvoiceCard key={inv.id} inv={inv} onEdit={openEdit} onDelete={(id) => setDeleteId(id)} onMarkPaid={handleMarkPaid} selected={selectedIds.has(inv.id)} onSelect={toggleSelect} />)}</div>
+            {/* Mobile cards */}
+            <div className="flex flex-col gap-3 md:hidden">
+              {filtered.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">{t("invoices.noResults")}</p>
+              ) : (
+                filtered.map((inv) => (
+                  <InvoiceCard
+                    key={inv.id}
+                    inv={inv}
+                    onEdit={openEdit}
+                    onDelete={(id) => setDeleteId(id)}
+                    onMarkPaid={handleMarkPaid}
+                    selected={selectedIds.has(inv.id)}
+                    onSelect={toggleSelect}
+                  />
+                ))
+              )}
+            </div>
 
-            {/* Desktop */}
+            {/* Desktop table */}
             <div className="hidden md:block rounded-md border">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-10">
-                      <Checkbox checked={allFilteredSelected} data-state={someFilteredSelected && !allFilteredSelected ? "indeterminate" : undefined} onCheckedChange={(checked) => toggleSelectAll(!!checked)} aria-label={t("invoices.actions.selectAll")} />
+                      <Checkbox
+                        checked={allFilteredSelected}
+                        data-state={someFilteredSelected && !allFilteredSelected ? "indeterminate" : undefined}
+                        onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+                        aria-label={t("invoices.actions.selectAll")}
+                      />
                     </TableHead>
                     <TableHead>{t("invoices.columns.nr")}</TableHead>
                     <TableHead>{t("invoices.columns.type")}</TableHead>
@@ -248,7 +303,10 @@ export default function InvoicesPage() {
                       const overdue = isOverdue(inv);
                       const selected = selectedIds.has(inv.id);
                       return (
-                        <TableRow key={inv.id} className={selected ? "bg-blue-500/10 hover:bg-blue-500/15" : overdue ? "bg-red-500/10 hover:bg-red-500/20" : ""}>
+                        <TableRow
+                          key={inv.id}
+                          className={selected ? "bg-blue-500/10 hover:bg-blue-500/15" : overdue ? "bg-red-500/10 hover:bg-red-500/20" : ""}
+                        >
                           <TableCell>
                             <Checkbox checked={selected} onCheckedChange={(checked) => toggleSelect(inv.id, !!checked)} />
                           </TableCell>
@@ -265,16 +323,12 @@ export default function InvoicesPage() {
                           <TableCell className="text-right">{formatCurrency(tva)}</TableCell>
                           <TableCell className="text-right font-semibold">{formatCurrency(total)}</TableCell>
                           <TableCell>
-                            <Badge className={`border ${statusColor[inv.status]}`}>{t(`invoices.statusLabels.${inv.status}`)}</Badge>
+                            <Badge className={`border ${statusColor[inv.status]}`}>
+                              {t(`invoices.statusLabels.${inv.status}`)}
+                            </Badge>
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex justify-end gap-1">
-                              {/* ── D15: Buton PDF ── */}
-                              <InvoicePDFButton
-                                invoice={toInvoiceData(inv)}
-                                size="icon"
-                                variant="ghost"
-                              />
                               {(inv.status === "neplatită" || inv.status === "parțial") && (
                                 <Button size="icon" variant="ghost" className="text-green-400 hover:text-green-300" title={t("invoices.actions.markPaid")} onClick={() => handleMarkPaid(inv.id)}>
                                   <CheckCircle className="w-4 h-4" />
@@ -296,13 +350,28 @@ export default function InvoicesPage() {
               </Table>
             </div>
 
-            <div className="flex justify-end mt-4 text-sm text-muted-foreground">{t("invoices.pagination.showing", { filtered: filtered.length, total: invoices.length })}</div>
+            <div className="flex justify-end mt-4 text-sm text-muted-foreground">
+              {t("invoices.pagination.showing", { filtered: filtered.length, total: invoices.length })}
+            </div>
           </CardContent>
         </Card>
       </Main>
 
-      <InvoiceFormDialog dialogOpen={dialogOpen} setDialogOpen={setDialogOpen} editId={editId} form={form} setForm={setForm} handleSave={handleSave} updateLine={updateLine} addLine={addLine} removeLine={removeLine} totals={totals} />
+      {/* Form dialog */}
+      <InvoiceFormDialog
+        dialogOpen={dialogOpen}
+        setDialogOpen={setDialogOpen}
+        editId={editId}
+        form={form}
+        setForm={setForm}
+        handleSave={handleSave}
+        updateLine={updateLine}
+        addLine={addLine}
+        removeLine={removeLine}
+        totals={totals}
+      />
 
+      {/* Delete dialog */}
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -317,6 +386,14 @@ export default function InvoicesPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Import dialog */}
+      <InvoicesImportDialog
+        open={importOpen}
+        onClose={() => setImportOpen(false)}
+        existingInvoices={invoices}
+        onImport={handleImport}
+      />
     </>
   );
 }

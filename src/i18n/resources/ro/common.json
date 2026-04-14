@@ -40,7 +40,8 @@
       "overview": "Prezentare Generala",
       "parts": "Piese & Consumabile",
       "service": "Service & Reparatii",
-      "fuel": "Combustibil"
+      "fuel": "Combustibil",
+      "vehicles": "Fisa Vehiculului"
     },
     "accounting": {
       "title": "Contabilitate",

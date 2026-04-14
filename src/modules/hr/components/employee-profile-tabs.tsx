@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Badge } from "@/components/ui/badge";
 import {
   Table,
@@ -25,15 +26,15 @@ import type { Employee, LeaveRequest, Bonus, EmployeeDocument } from "@/modules/
 import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 import { formatDate } from "@/utils/format";
 import { DocumentsTab } from "./documents-tab";
-import { BONUS_TYPE_LABELS } from "../payroll/payroll-shared";
+import { BONUS_TYPE_KEYS } from "../payroll/payroll-shared";
 
 // ── Constants ────────────────────────────────────────────────
 
-const LEAVE_TYPE_LABELS: Record<LeaveRequest["type"], string> = {
-  annual: "Anual",
-  sick: "Medical",
-  unpaid: "Fără plată",
-  other: "Altele",
+const LEAVE_TYPE_KEYS: Record<LeaveRequest["type"], string> = {
+  annual: "leaves.types.annual",
+  sick: "leaves.types.sick",
+  unpaid: "leaves.types.unpaid",
+  other: "leaves.types.other",
 };
 
 const LEAVE_STATUS_VARIANT: Record<
@@ -45,10 +46,10 @@ const LEAVE_STATUS_VARIANT: Record<
   rejected: "destructive",
 };
 
-const LEAVE_STATUS_LABELS: Record<LeaveRequest["status"], string> = {
-  approved: "Aprobat",
-  pending: "În așteptare",
-  rejected: "Respins",
+const LEAVE_STATUS_KEYS: Record<LeaveRequest["status"], string> = {
+  approved: "leaves.status.approved",
+  pending: "leaves.status.pending",
+  rejected: "leaves.status.rejected",
 };
 
 const ANNUAL_LEAVE_DAYS = 21;
@@ -57,6 +58,7 @@ const CHART_COLORS = ["#22c55e", "#ef4444"];
 // ── Concedii Tab ─────────────────────────────────────────────
 
 export function LeavesTab({ employeeId }: { employeeId: string }) {
+  const { t } = useTranslation();
   const leaves = React.useMemo(
     () =>
       getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests).filter(
@@ -80,7 +82,7 @@ export function LeavesTab({ employeeId }: { employeeId: string }) {
     <div className="space-y-3">
       <div className="rounded-lg border bg-muted/30 px-3 py-2 space-y-1.5">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Zile rămase {currentYear}</span>
+          <span className="text-muted-foreground">{t("profileTabs.remainingDays", { year: currentYear })}</span>
           <span className="font-semibold text-foreground">
             {Math.max(0, remainingDays)} / {ANNUAL_LEAVE_DAYS}
           </span>
@@ -94,17 +96,17 @@ export function LeavesTab({ employeeId }: { employeeId: string }) {
       </div>
 
       {leaves.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-2">Nicio cerere de concediu.</p>
+        <p className="text-sm text-muted-foreground py-2">{t("profileTabs.noLeaveRequests")}</p>
       ) : (
         <div className="max-h-[260px] overflow-auto rounded-md border">
           <Table className="min-w-[420px]">
             <TableHeader>
               <TableRow>
-                <TableHead>Tip</TableHead>
-                <TableHead>Început</TableHead>
-                <TableHead>Sfârșit</TableHead>
-                <TableHead className="text-right">Zile</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t("profileTabs.type")}</TableHead>
+                <TableHead>{t("profileTabs.startDate")}</TableHead>
+                <TableHead>{t("profileTabs.endDate")}</TableHead>
+                <TableHead className="text-right">{t("profileTabs.days")}</TableHead>
+                <TableHead>{t("profileTabs.status")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -114,7 +116,7 @@ export function LeavesTab({ employeeId }: { employeeId: string }) {
                 .map((leave) => (
                   <TableRow key={leave.id}>
                     <TableCell className="text-sm whitespace-nowrap">
-                      {LEAVE_TYPE_LABELS[leave.type]}
+                      {t(LEAVE_TYPE_KEYS[leave.type])}
                     </TableCell>
                     <TableCell className="text-sm whitespace-nowrap">
                       {formatDate(leave.startDate)}
@@ -127,7 +129,7 @@ export function LeavesTab({ employeeId }: { employeeId: string }) {
                     </TableCell>
                     <TableCell>
                       <Badge variant={LEAVE_STATUS_VARIANT[leave.status]}>
-                        {LEAVE_STATUS_LABELS[leave.status]}
+                        {t(LEAVE_STATUS_KEYS[leave.status])}
                       </Badge>
                     </TableCell>
                   </TableRow>
@@ -187,6 +189,7 @@ export function DocsTabWrapper({ employee, onUpdate }: DocsTabProps) {
 // ── Bonusuri Tab ─────────────────────────────────────────────
 
 export function BonusesTab({ employeeId }: { employeeId: string }) {
+  const { t } = useTranslation();
   const bonuses = React.useMemo(
     () =>
       getCollection<Bonus>(STORAGE_KEYS.bonuses).filter(
@@ -200,23 +203,23 @@ export function BonusesTab({ employeeId }: { employeeId: string }) {
   return (
     <div className="space-y-3">
       <div className="rounded-lg border bg-muted/30 px-3 py-2 flex flex-wrap items-center justify-between gap-1">
-        <span className="text-sm text-muted-foreground">Total net bonusuri/amenzi:</span>
+        <span className="text-sm text-muted-foreground">{t("profileTabs.totalNetBonuses")}:</span>
         <span className={`text-sm font-semibold ${totalNet >= 0 ? "text-green-600" : "text-red-600"}`}>
           {totalNet >= 0 ? "+" : ""}{totalNet.toLocaleString("ro-RO")} RON
         </span>
       </div>
 
       {bonuses.length === 0 ? (
-        <p className="text-sm text-muted-foreground py-2">Nicio înregistrare.</p>
+        <p className="text-sm text-muted-foreground py-2">{t("profileTabs.noRecords")}</p>
       ) : (
         <div className="max-h-[260px] overflow-auto rounded-md border">
           <Table className="min-w-[380px]">
             <TableHeader>
               <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Tip</TableHead>
-                <TableHead>Descriere</TableHead>
-                <TableHead className="text-right">Sumă</TableHead>
+                <TableHead>{t("profileTabs.date")}</TableHead>
+                <TableHead>{t("profileTabs.type")}</TableHead>
+                <TableHead>{t("profileTabs.description")}</TableHead>
+                <TableHead className="text-right">{t("profileTabs.amount")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -229,7 +232,7 @@ export function BonusesTab({ employeeId }: { employeeId: string }) {
                       {formatDate(bonus.date)}
                     </TableCell>
                     <TableCell className="text-sm whitespace-nowrap">
-                      {BONUS_TYPE_LABELS[bonus.type]}
+                      {t(BONUS_TYPE_KEYS[bonus.type])}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground max-w-[140px] truncate">
                       {bonus.description}
@@ -250,6 +253,7 @@ export function BonusesTab({ employeeId }: { employeeId: string }) {
 // ── Statistici Tab ───────────────────────────────────────────
 
 export function StatsTab({ employeeId }: { employeeId: string }) {
+  const { t } = useTranslation();
   const leaves = React.useMemo(
     () =>
       getCollection<LeaveRequest>(STORAGE_KEYS.leaveRequests).filter(
@@ -285,16 +289,16 @@ export function StatsTab({ employeeId }: { employeeId: string }) {
   const totalAmenzi = bonuses.filter((b) => b.amount < 0).reduce((sum, b) => sum + Math.abs(b.amount), 0);
 
   const pieData = [
-    { name: "Bonusuri", value: totalBonusuri, fill: CHART_COLORS[0] },
-    { name: "Amenzi", value: totalAmenzi, fill: CHART_COLORS[1] },
+    { name: t("profileTabs.bonuses"), value: totalBonusuri, fill: CHART_COLORS[0] },
+    { name: t("profileTabs.fines"), value: totalAmenzi, fill: CHART_COLORS[1] },
   ].filter((d) => d.value > 0);
 
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-sm font-medium mb-2">Zile concediu pe lună</p>
+        <p className="text-sm font-medium mb-2">{t("profileTabs.leaveDaysPerMonth")}</p>
         {leavesByMonth.every((m) => m.zile === 0) ? (
-          <p className="text-sm text-muted-foreground">Nicio dată disponibilă.</p>
+          <p className="text-sm text-muted-foreground">{t("profileTabs.noDataAvailable")}</p>
         ) : (
           <div className="outline-none" tabIndex={-1}>
             <ResponsiveContainer width="100%" height={150}>
@@ -310,9 +314,9 @@ export function StatsTab({ employeeId }: { employeeId: string }) {
       </div>
 
       <div>
-        <p className="text-sm font-medium mb-2">Bonusuri vs Amenzi</p>
+        <p className="text-sm font-medium mb-2">{t("profileTabs.bonusesVsFines")}</p>
         {pieData.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nicio dată disponibilă.</p>
+          <p className="text-sm text-muted-foreground">{t("profileTabs.noDataAvailable")}</p>
         ) : (
           <div className="outline-none" tabIndex={-1}>
             <ResponsiveContainer width="100%" height={150}>

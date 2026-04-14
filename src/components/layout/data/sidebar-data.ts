@@ -1,4 +1,33 @@
 import { LayoutDashboard, Truck, Wrench, Receipt, Users, BarChart3, Package, FileText, Calendar, Fuel, ClipboardList, UserCog, Wallet, TrendingUp, PieChart, Settings, Bell, Palette, Monitor, DollarSign, History, CalendarDays } from "lucide-react";
+import {
+  LayoutDashboard,
+  Truck,
+  Wrench,
+  Receipt,
+  Users,
+  BarChart3,
+  Package,
+  FileText,
+  Calendar,
+  Fuel,
+  ClipboardList,
+  UserCog,
+  Wallet,
+  TrendingUp,
+  PieChart,
+  Settings,
+  Bell,
+  Palette,
+  Monitor,
+  DollarSign,
+  History,
+  CalendarDays,
+  Gauge,
+  Briefcase,
+  CreditCard,
+  Activity,
+  GraduationCap
+} from "lucide-react";
 import { type SidebarData } from "../types";
 
 export const sidebarData: SidebarData = {
@@ -88,6 +117,17 @@ export const sidebarData: SidebarData = {
               icon: Fuel,
             },
             { title: "Cheltuieli Recurente", url: "/transport/recurring-expenses", icon: Receipt },
+            {
+              title: "Cheltuieli Recurente",
+              url: "/transport/recurring-expenses",
+              icon: Receipt,
+            },
+            {
+              title: "Registru Kilometraj",
+              url: "/transport/mileage-registry",
+              icon: Gauge,
+            },
+            { title: "Dispecer Live", url: "/dispatcher-live", icon: Activity },
           ],
         },
         {
@@ -144,6 +184,14 @@ export const sidebarData: SidebarData = {
               title: "Buget & Planificare",
               url: "/accounting/budget",
               icon: Wallet,
+              title: "Registru Plati",
+              url: "/accounting/payments",
+              icon: CreditCard,
+            },
+            {
+              title: "Audit Log",
+              url: "/accounting/activity-log",
+              icon: ClipboardList,
             },
           ],
         },
@@ -175,6 +223,11 @@ export const sidebarData: SidebarData = {
               title: "Pontaj Lunar",
               url: "/hr/attendance",
               icon: CalendarDays,
+            },
+            {
+              title: "Training & Certificări",
+              url: "/hr/trainings",
+              icon: GraduationCap,
             },
             {
               title: "Istoric",
@@ -247,6 +300,16 @@ export const sidebarData: SidebarData = {
               title: "Afisare",
               url: "/settings/display",
               icon: Monitor,
+            },
+            {
+              title: "Resurse Umane",
+              url: "/settings/hr",
+              icon: Briefcase,
+            },
+            {
+              title: "Facturare",
+              url: "/settings/invoicing",
+              icon: CreditCard,
             },
           ],
         },

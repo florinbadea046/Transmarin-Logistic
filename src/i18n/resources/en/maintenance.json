@@ -60,7 +60,9 @@
         "status": "Status"
       },
       "validation": {
-        "truckRequired": "Select a truck"
+        "truckRequired": "Select a truck",
+        "invalidDate": "Invalid date",
+        "invalidCost": "Invalid cost"
       },
       "alerts": {
         "longService": "Trucks in service for more than 7 days",

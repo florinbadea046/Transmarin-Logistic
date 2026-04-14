@@ -2,7 +2,7 @@
 // A28. Istoric Activitati (Audit Log)
 // Ruta: /activity-log
 // Timeline CRUD pe entitatile Transport
-// Filtrare: entitate + tip actiune
+// Filtrare: modul + entitate + tip actiune + interval date + cautare text
 // Paginare: 20 per pagina
 // Responsive pana la 320px
 // i18n: useTranslation, fara diacritice in cod
@@ -10,10 +10,11 @@
 
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
 import { ro } from "date-fns/locale";
 import {
   Plus, Pencil, Trash2, Filter, ChevronLeft, ChevronRight, Clock, Truck, User, FileText, Calendar, X,
+  Wrench, Fuel, Receipt, Building2, Briefcase, CalendarDays, Cog, Repeat, Gauge, Search,
 } from "lucide-react";
 
 import { Header } from "@/components/layout/header";
@@ -21,6 +22,7 @@ import { Main } from "@/components/layout/main";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -32,6 +34,22 @@ import { useMobile } from "@/hooks/use-mobile";
 // ── Constante ──────────────────────────────────────────────
 
 const PAGE_SIZE = 20;
+
+type ModuleKey = "all" | "transport" | "fleet" | "accounting" | "hr";
+
+const MODULE_ENTITIES: Record<string, AuditEntity[]> = {
+  transport: ["driver", "truck", "order", "trip", "maintenance", "fuelLog", "recurringExpense", "mileage"],
+  fleet: ["part", "service"],
+  accounting: ["invoice", "supplier"],
+  hr: ["employee", "leaveRequest"],
+};
+
+const ALL_ENTITIES: AuditEntity[] = Object.values(MODULE_ENTITIES).flat();
+
+function getEntitiesForModule(module: ModuleKey): AuditEntity[] {
+  if (module === "all") return ALL_ENTITIES;
+  return MODULE_ENTITIES[module] ?? ALL_ENTITIES;
+}
 
 // ── Helpers vizuale ────────────────────────────────────────
 
@@ -55,6 +73,16 @@ const ENTITY_ICON: Record<AuditEntity, React.ReactNode> = {
   truck: <Truck className="h-4 w-4" />,
   order: <FileText className="h-4 w-4" />,
   trip: <Calendar className="h-4 w-4" />,
+  maintenance: <Wrench className="h-4 w-4" />,
+  fuelLog: <Fuel className="h-4 w-4" />,
+  invoice: <Receipt className="h-4 w-4" />,
+  supplier: <Building2 className="h-4 w-4" />,
+  employee: <Briefcase className="h-4 w-4" />,
+  leaveRequest: <CalendarDays className="h-4 w-4" />,
+  part: <Cog className="h-4 w-4" />,
+  service: <Wrench className="h-4 w-4" />,
+  recurringExpense: <Repeat className="h-4 w-4" />,
+  mileage: <Gauge className="h-4 w-4" />,
 };
 
 // ── Componenta entry ───────────────────────────────────────
@@ -66,7 +94,6 @@ function AuditEntryCard({ entry, isMobile, t }: {
 }) {
   const [expanded, setExpanded] = React.useState(false);
   const action = ACTION_CONFIG[entry.action];
-  const _hasDetails = entry.oldValue || entry.newValue || entry.details;
 
   const formattedTime = (() => {
     try {
@@ -168,8 +195,12 @@ export default function ActivityLogPage() {
   const { t } = useTranslation();
   const isMobile = useMobile(640);
 
+  const [filterModule, setFilterModule] = React.useState<ModuleKey>("all");
   const [filterEntity, setFilterEntity] = React.useState<AuditEntity | "all">("all");
   const [filterAction, setFilterAction] = React.useState<AuditAction | "all">("all");
+  const [dateFrom, setDateFrom] = React.useState("");
+  const [dateTo, setDateTo] = React.useState("");
+  const [searchQuery, setSearchQuery] = React.useState("");
   const [page, setPage] = React.useState(1);
 
   // Reincarca la mount
@@ -178,36 +209,101 @@ export default function ActivityLogPage() {
     setEntries(loadAuditLog());
   }, []);
 
+  // Cand modulul se schimba, reset entitatea daca nu mai apartine modulului
+  React.useEffect(() => {
+    if (filterEntity !== "all") {
+      const available = getEntitiesForModule(filterModule);
+      if (!available.includes(filterEntity)) {
+        setFilterEntity("all");
+      }
+    }
+  }, [filterModule, filterEntity]);
+
+  // Entitati disponibile in functie de modul
+  const availableEntities = React.useMemo(() => getEntitiesForModule(filterModule), [filterModule]);
+
   // Filtrare
   const filtered = React.useMemo(() => {
+    const lowerSearch = searchQuery.toLowerCase().trim();
     return entries.filter((e) => {
       if (filterEntity !== "all" && e.entity !== filterEntity) return false;
       if (filterAction !== "all" && e.action !== filterAction) return false;
+
+      // Filtru modul: verificam daca entitatea apartine modulului selectat
+      if (filterModule !== "all") {
+        const moduleEntities = MODULE_ENTITIES[filterModule] ?? [];
+        if (!moduleEntities.includes(e.entity)) return false;
+      }
+
+      // Filtru date
+      if (dateFrom) {
+        try {
+          const from = startOfDay(new Date(dateFrom));
+          const entryDate = parseISO(e.timestamp);
+          if (isBefore(entryDate, from)) return false;
+        } catch { /* ignore invalid date */ }
+      }
+      if (dateTo) {
+        try {
+          const to = endOfDay(new Date(dateTo));
+          const entryDate = parseISO(e.timestamp);
+          if (isAfter(entryDate, to)) return false;
+        } catch { /* ignore invalid date */ }
+      }
+
+      // Cautare text
+      if (lowerSearch) {
+        const label = (e.entityLabel ?? "").toLowerCase();
+        const details = (e.details ?? "").toLowerCase();
+        const detailKey = (e.detailKey ?? "").toLowerCase();
+        const detailParamsStr = e.detailParams ? Object.values(e.detailParams).join(" ").toLowerCase() : "";
+        if (
+          !label.includes(lowerSearch) &&
+          !details.includes(lowerSearch) &&
+          !detailKey.includes(lowerSearch) &&
+          !detailParamsStr.includes(lowerSearch)
+        ) {
+          return false;
+        }
+      }
+
       return true;
     });
-  }, [entries, filterEntity, filterAction]);
+  }, [entries, filterModule, filterEntity, filterAction, dateFrom, dateTo, searchQuery]);
 
   // Paginare
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   const resetFilters = () => {
+    setFilterModule("all");
     setFilterEntity("all");
     setFilterAction("all");
+    setDateFrom("");
+    setDateTo("");
+    setSearchQuery("");
     setPage(1);
   };
 
-  const hasFilters = filterEntity !== "all" || filterAction !== "all";
+  const hasFilters = filterModule !== "all" || filterEntity !== "all" || filterAction !== "all" || dateFrom !== "" || dateTo !== "" || searchQuery !== "";
 
   // Reset page when filters change
-  React.useEffect(() => { setPage(1); }, [filterEntity, filterAction]);
+  React.useEffect(() => { setPage(1); }, [filterModule, filterEntity, filterAction, dateFrom, dateTo, searchQuery]);
 
-  const entities: { value: AuditEntity | "all"; label: string }[] = [
+  const modules: { value: ModuleKey; label: string }[] = [
+    { value: "all", label: t("activityLog.modules.all") },
+    { value: "transport", label: t("activityLog.modules.transport") },
+    { value: "fleet", label: t("activityLog.modules.fleet") },
+    { value: "accounting", label: t("activityLog.modules.accounting") },
+    { value: "hr", label: t("activityLog.modules.hr") },
+  ];
+
+  const entityOptions: { value: AuditEntity | "all"; label: string }[] = [
     { value: "all", label: t("activityLog.filters.allEntities") },
-    { value: "driver", label: t("activityLog.entities.driver") },
-    { value: "truck", label: t("activityLog.entities.truck") },
-    { value: "order", label: t("activityLog.entities.order") },
-    { value: "trip", label: t("activityLog.entities.trip") },
+    ...availableEntities.map((e) => ({
+      value: e,
+      label: t(`activityLog.entities.${e}`),
+    })),
   ];
 
   const actions: { value: AuditAction | "all"; label: string }[] = [
@@ -234,17 +330,31 @@ export default function ActivityLogPage() {
             <span>{t("activityLog.filters.label")}</span>
           </div>
 
+          {/* Modul */}
+          <Select value={filterModule} onValueChange={(v) => setFilterModule(v as ModuleKey)}>
+            <SelectTrigger className={cn(isMobile ? "w-full" : "w-[170px]")}>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {modules.map((m) => (
+                <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Entitate */}
           <Select value={filterEntity} onValueChange={(v) => setFilterEntity(v as AuditEntity | "all")}>
             <SelectTrigger className={cn(isMobile ? "w-full" : "w-[180px]")}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {entities.map((e) => (
+              {entityOptions.map((e) => (
                 <SelectItem key={e.value} value={e.value}>{e.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
+          {/* Actiune */}
           <Select value={filterAction} onValueChange={(v) => setFilterAction(v as AuditAction | "all")}>
             <SelectTrigger className={cn(isMobile ? "w-full" : "w-[160px]")}>
               <SelectValue />
@@ -255,6 +365,35 @@ export default function ActivityLogPage() {
               ))}
             </SelectContent>
           </Select>
+
+          {/* Date range */}
+          <div className={cn("flex gap-2", isMobile ? "w-full" : "")}>
+            <Input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              placeholder={t("activityLog.filters.dateFrom")}
+              className={cn("h-9", isMobile ? "flex-1" : "w-[145px]")}
+            />
+            <Input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              placeholder={t("activityLog.filters.dateTo")}
+              className={cn("h-9", isMobile ? "flex-1" : "w-[145px]")}
+            />
+          </div>
+
+          {/* Cautare text */}
+          <div className={cn("relative", isMobile ? "w-full" : "w-[200px]")}>
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder={t("activityLog.filters.search")}
+              className="pl-8 h-9"
+            />
+          </div>
 
           {hasFilters && (
             <Button variant="ghost" size="sm" onClick={resetFilters} className={cn(isMobile && "w-full")}>

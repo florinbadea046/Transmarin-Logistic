@@ -187,7 +187,7 @@ async function exportPDF(
       margin: { left: margin, right: margin },
       didParseCell: (data) => { if (typeof data.cell.text[0] === "string") data.cell.text[0] = stripDiacritics(data.cell.text[0]); },
     });
-    y = (doc as any).lastAutoTable.finalY + 8;
+    y = doc.lastAutoTable.finalY + 8;
   }
 
   addTable(t("reports.pdf.kmPerDriver"), [t("reports.pdf.driver"), t("reports.pdf.totalKm")],

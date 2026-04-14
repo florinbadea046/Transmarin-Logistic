@@ -33,6 +33,9 @@ import VehiclesPage from "@/modules/fleet/pages/vehicles";
 import AccountingPage from "@/modules/accounting/index";
 import InvoicesPage from "@/modules/accounting/pages/invoices";
 import SuppliersPage from "@/modules/accounting/pages/suppliers";
+import ActivityLogAccountingPage from "@/modules/accounting/pages/activity-log-accounting";
+import PaymentsPage from "@/modules/accounting/pages/payments";
+import DueDatesPage from "@/pages/due-dates";
 
 import HRPage from "@/modules/hr/index";
 import EmployeesPage from "@/modules/hr/pages/employees";
@@ -41,6 +44,8 @@ import PayrollPage from "@/modules/hr/pages/payroll";
 import AttendancePage from "@/modules/hr/pages/attendance";
 import ActivityLogHRPage from "@/modules/hr/pages/activity-log-hr";
 import HRSettingsPage from "@/modules/hr/pages/settings-hr";
+import EvaluationsPage from "@/modules/hr/pages/evaluations";
+import TrainingsPage from "@/modules/hr/pages/trainings";
 
 import ReportsPage from "@/modules/reports/index";
 import TransportReportsPage from "@/modules/reports/pages/transport-reports";
@@ -52,6 +57,9 @@ import HrReportsPage from "@/modules/reports/pages/reports-hr";
 import SettingsPage from "@/pages/settings";
 import RecurringExpensesPage from "@/modules/transport/pages/recurring-expenses";
 import BudgetPage from "@/pages/budget";
+import MileageRegistryPage from "@/modules/transport/pages/mileage-registry";
+import BudgetPage from "@/pages/budget";
+import DispatcherLivePage from "@/modules/transport/pages/dispatcher-live";
 
 function isAuthenticated(): boolean {
   try {
@@ -174,6 +182,17 @@ const recurringExpensesRoute = createRoute({
   path: "/transport/recurring-expenses",
   component: RecurringExpensesPage,
 });
+const mileageRegistryRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/transport/mileage-registry",
+  component: MileageRegistryPage,
+});
+
+const dispatcherLiveRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/dispatcher-live",
+  component: DispatcherLivePage,
+});
 
 // Fleet
 const fleetRoute = createRoute({
@@ -213,10 +232,25 @@ const invoicesRoute = createRoute({
   path: "/accounting/invoices",
   component: InvoicesPage,
 });
+const dueDatesRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/due-dates",
+  component: DueDatesPage,
+});
 const suppliersRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/accounting/suppliers",
   component: SuppliersPage,
+});
+const paymentsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/payments",
+  component: PaymentsPage,
+});
+const accountingActivityLogRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/activity-log",
+  component: ActivityLogAccountingPage,
 });
 
 const budgetRoute = createRoute({
@@ -260,6 +294,16 @@ const hrSettingsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr/settings",
   component: HRSettingsPage,
+});
+const evaluationsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/evaluations",
+  component: EvaluationsPage,
+});
+const trainingsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/trainings",
+  component: TrainingsPage,
 });
 
 // Reports
@@ -320,6 +364,22 @@ const settingsDisplayRoute = createRoute({
   path: "/settings/display",
   component: SettingsPage,
 });
+const settingsHRRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/settings/hr",
+  component: SettingsPage,
+});
+const settingsInvoicingRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/settings/invoicing",
+  component: SettingsPage,
+});
+
+const budgetRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/budget",
+  component: BudgetPage,
+});
 
 const driverPerformanceRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
@@ -356,6 +416,8 @@ const routeTree = rootRoute.addChildren([
     fuelLogRoute,
     fleetComparisonRoute,
     recurringExpensesRoute,
+    mileageRegistryRoute,
+    dispatcherLiveRoute,
 
     // Fleet
     fleetRoute,
@@ -367,8 +429,11 @@ const routeTree = rootRoute.addChildren([
     // Accounting
     accountingRoute,
     invoicesRoute,
+    dueDatesRoute,
     suppliersRoute,
     budgetRoute,
+    paymentsRoute,
+    accountingActivityLogRoute,
 
     // HR
     hrRoute,
@@ -378,6 +443,8 @@ const routeTree = rootRoute.addChildren([
     attendanceRoute,
     hrActivityLogRoute,
     hrSettingsRoute,
+    evaluationsRoute,
+    trainingsRoute,
 
     // Reports
     reportsRoute,
@@ -393,6 +460,8 @@ const routeTree = rootRoute.addChildren([
     settingsAppearanceRoute,
     settingsNotificationsRoute,
     settingsDisplayRoute,
+    settingsHRRoute,
+    settingsInvoicingRoute,
 
     driverPerformanceRoute,
   ]),

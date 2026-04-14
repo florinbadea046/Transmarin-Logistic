@@ -1,0 +1,59 @@
+
+{
+  "payments": {
+    "title": "Payment Registry",
+    "listTitle": "Payments List",
+    "noResults": "No payments found.",
+    "toastAdded": "Payment added",
+    "toastUpdated": "Payment updated",
+    "toastDeleted": "Payment deleted",
+    "confirmDeleteTitle": "Delete payment",
+    "confirmDelete": "Are you sure you want to delete this payment?",
+    "cancel": "Cancel",
+    "kpi": {
+      "totalLuna": "Total Payments This Month",
+      "totalLunaDesc": "Confirmed payments this month",
+      "soldClienti": "Outstanding Clients",
+      "soldClientiDesc": "Unconfirmed income payments",
+      "soldFurnizori": "Outstanding Suppliers",
+      "soldFurnizoriDesc": "Unconfirmed expense payments"
+    },
+    "columns": {
+      "invoiceNumber": "Invoice Nr.",
+      "clientName": "Client / Supplier",
+      "amount": "Amount",
+      "date": "Payment Date",
+      "method": "Method",
+      "bankRef": "Bank Reference",
+      "status": "Status",
+      "direction": "Type",
+      "notes": "Notes"
+    },
+    "direction": {
+      "income": "Income",
+      "expense": "Expense"
+    },
+    "method": {
+      "transfer": "Transfer",
+      "cash": "Cash",
+      "card": "Card",
+      "CEC": "CEC"
+    },
+    "status": {
+      "confirmata": "Confirmed",
+      "in_asteptare": "Pending"
+    },
+    "actions": {
+      "add": "Add Payment",
+      "save": "Save",
+      "confirm": "Delete"
+    },
+    "placeholders": {
+      "search": "Search by invoice, client..."
+    },
+    "dialog": {
+      "addTitle": "Add Payment",
+      "editTitle": "Edit Payment"
+    }
+  }
+}

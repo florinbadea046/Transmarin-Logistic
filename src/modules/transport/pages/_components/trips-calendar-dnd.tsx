@@ -29,6 +29,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Trip, Order, Driver, Truck } from "@/modules/transport/types";
 import { getCollection, updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 import {
   toYMD,
@@ -85,6 +86,7 @@ function useData() {
 export default function TripsCalendarDndPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { log } = useAuditLog();
   const { enriched, reload } = useData();
   const windowWidth = useWindowWidth();
   const isMobile = windowWidth < 768;
@@ -183,6 +185,14 @@ export default function TripsCalendarDndPage() {
       (tr) => tr.id === trip.id,
       (tr) => ({ ...tr, departureDate: newDate, estimatedArrivalDate: newArr }),
     );
+    log({
+      action: "update",
+      entity: "trip",
+      entityId: trip.id,
+      entityLabel: trip.order?.clientName ?? trip.id,
+      detailKey: "activityLog.details.tripDateMoved",
+      detailParams: { from: trip.departureDate ?? "-", to: newDate },
+    });
     toast.success(t("tripsDnd.toast.moved"));
     setConfirmOpen(false);
     setPendingMove(null);
@@ -366,8 +376,8 @@ export default function TripsCalendarDndPage() {
                   </div>
                 )}
 
-                <div className="overflow-x-auto touch-pan-x -mx-3 sm:mx-0 px-3 sm:px-0">
-                  <div style={{ minWidth: isMobile ? "300px" : undefined }}>
+                <div className="overflow-x-auto touch-pan-x -mx-3 sm:mx-0 px-3 sm:px-0 pb-2">
+                  <div style={{ minWidth: "600px" }}>
                     <div
                       style={{
                         display: "grid",

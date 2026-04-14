@@ -164,9 +164,9 @@ export function OrderFormDialog({
                 type="number"
                 step="0.01"
                 min={0}
-                value={form.weight as any}
+                value={form.weight as string | number}
                 onChange={(e) =>
-                  setForm((p) => ({ ...p, weight: e.target.value as any }))
+                  setForm((p) => ({ ...p, weight: e.target.value as unknown as number }))
                 }
                 placeholder={t("orders.placeholders.weight")}
               />
@@ -240,7 +240,7 @@ export function OrderFormDialog({
                     }}
                     initialFocus
                     fixedWeeks
-                    style={{ ["--cell-size" as any]: "24px" }}
+                    style={{ "--cell-size": "24px" } as React.CSSProperties}
                     className="p-1 text-xs w-full"
                   />
                 </PopoverContent>

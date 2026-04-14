@@ -31,7 +31,7 @@ import { DataTableColumnHeader } from "@/components/data-table/column-header";
 import { DataTablePagination } from "@/components/data-table/pagination";
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import type { Employee } from "@/modules/hr/types";
+import type { Employee, Training } from "@/modules/hr/types";
 import { formatDate } from "@/utils/format";
 import EmployeeDialog from "../components/employee-dialog";
 import { EmployeeExportMenu } from "../components/employee-export-menu";
@@ -149,6 +149,18 @@ export default function EmployeesPage() {
   const [importOpen, setImportOpen] = React.useState(false);
 
   const columns = React.useMemo(() => getColumns(t), [t]);
+
+  const trainingsCountByEmployee = React.useMemo(() => {
+    const trainings = getCollection<Training>(STORAGE_KEYS.trainings);
+    const map = new Map<string, number>();
+    trainings.forEach((tr) => {
+      if (tr.status !== "finalizat") return;
+      tr.participantIds.forEach((id) =>
+        map.set(id, (map.get(id) ?? 0) + 1),
+      );
+    });
+    return map;
+  }, []);
 
   const departments = React.useMemo(() => {
     return [
@@ -283,7 +295,14 @@ export default function EmployeesPage() {
                   <TableBody>
                     {table.getRowModel().rows?.length ? (
                       table.getRowModel().rows.map((row) => (
-                        <EmployeeRow key={row.id} row={row} setData={setData} />
+                        <EmployeeRow
+                          key={row.id}
+                          row={row}
+                          setData={setData}
+                          trainingsCount={
+                            trainingsCountByEmployee.get(row.original.id) ?? 0
+                          }
+                        />
                       ))
                     ) : (
                       <TableRow>

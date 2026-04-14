@@ -21,6 +21,7 @@ import type { Truck } from "@/modules/transport/types";
 import { allocatePartToTruck } from "@/modules/fleet/utils/allocationUtils";
 import { getCollection } from "@/utils/local-storage";
 import { useTranslation } from "react-i18next";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 interface Props {
   part: Part;
@@ -28,6 +29,7 @@ interface Props {
 
 export function AllocatePart({ part }: Props) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const [open, setOpen] = useState(false);
   const [trucks] = useState<Truck[]>(() =>
     getCollection<Truck>(STORAGE_KEYS.trucks),
@@ -39,6 +41,14 @@ export function AllocatePart({ part }: Props) {
     const truck = trucks.find((t) => t.id === selectedTruckId);
     if (!truck) return;
     allocatePartToTruck(part, truck);
+    log({
+      action: "update",
+      entity: "part",
+      entityId: part.id,
+      entityLabel: part.name,
+      detailKey: "activityLog.details.partAllocated",
+      detailParams: { truck: truck.plateNumber },
+    });
     setOpen(false);
     setSelectedTruckId("");
   };

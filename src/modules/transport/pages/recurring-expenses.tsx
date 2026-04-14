@@ -9,7 +9,6 @@
 
 import * as React from "react";
 import { useTranslation } from "react-i18next";
-import { z } from "zod";
 import {
   type ColumnDef,
   flexRender,
@@ -19,393 +18,44 @@ import {
   type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
-} from "recharts";
-import { Plus, Pencil, Trash2, CheckCircle2, DollarSign, AlertTriangle, Clock } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCircle2, AlertTriangle, Clock } from "lucide-react";
 import { toast } from "sonner";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { DataTableColumnHeader } from "@/components/data-table/column-header";
 
-import { getCollection, addItem, updateItem, removeItem, generateId } from "@/utils/local-storage";
+import { getCollection, updateItem, removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Truck } from "@/modules/transport/types";
 import { useMobile } from "@/hooks/use-mobile";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import { cn } from "@/lib/utils";
 
-// ── Tipuri ─────────────────────────────────────────────────
+import type { RecurringExpense } from "./_components/recurring-expenses-utils";
+import { KpiCards } from "./_components/recurring-expenses-kpi-cards";
+import { CategoryChart } from "./_components/recurring-expenses-chart";
+import { ExpenseDialog } from "./_components/recurring-expenses-dialog";
+import { StatusBadge, ExpenseMobileCard } from "./_components/recurring-expenses-mobile-card";
 
-export type RecurringCategory =
-  | "asigurare"
-  | "leasing"
-  | "taxe"
-  | "parcare"
-  | "altele";
-
-export type RecurringStatus = "platit" | "neplatit";
-
-export interface RecurringExpense {
-  id: string;
-  category: RecurringCategory;
-  truckId: string;
-  description: string;
-  monthlyAmount: number;
-  nextPaymentDate: string;  // yyyy-MM-dd
-  status: RecurringStatus;
-  notes?: string;
-}
-
-// ── Zod schema ─────────────────────────────────────────────
-
-const expenseSchema = z.object({
-  category: z.enum(["asigurare", "leasing", "taxe", "parcare", "altele"]),
-  truckId: z.string().min(1),
-  description: z.string().min(2),
-  monthlyAmount: z.number({ message: "Suma invalida" }).positive(),
-  nextPaymentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data invalida"),
-  status: z.enum(["platit", "neplatit"]),
-  notes: z.string().optional(),
-});
-
-type ExpenseFormData = z.infer<typeof expenseSchema>;
-type ExpenseFormErrors = Partial<Record<keyof ExpenseFormData, string>>;
-
-const EMPTY_FORM: ExpenseFormData = {
-  category: "asigurare",
-  truckId: "",
-  description: "",
-  monthlyAmount: 0,
-  nextPaymentDate: "",
-  status: "neplatit",
-  notes: "",
-};
-
-// ── Culori PieChart ────────────────────────────────────────
-
-const PIE_COLORS = ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
-
-// ── Status Badge ───────────────────────────────────────────
-
-function StatusBadge({ status, t }: { status: RecurringStatus; t: (k: string) => string }) {
-  return (
-    <Badge variant="outline" className={cn(
-      "whitespace-nowrap",
-      status === "platit"
-        ? "border-green-500 bg-green-500/10 text-green-700 dark:text-green-400"
-        : "border-red-500 bg-red-500/10 text-red-700 dark:text-red-400",
-    )}>
-      {t(`recurringExpenses.status.${status}`)}
-    </Badge>
-  );
-}
-
-// ── KPI Cards ──────────────────────────────────────────────
-
-function KpiCards({ expenses }: { expenses: RecurringExpense[] }) {
-  const { t } = useTranslation();
-
-  const totalLuna = expenses.reduce((s, e) => s + e.monthlyAmount, 0);
-  const platit = expenses.filter((e) => e.status === "platit").reduce((s, e) => s + e.monthlyAmount, 0);
-  const restant = expenses.filter((e) => e.status === "neplatit").reduce((s, e) => s + e.monthlyAmount, 0);
-
-  return (
-    <div className="grid gap-4 mb-6 sm:grid-cols-3">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">{t("recurringExpenses.kpi.totalMonth")}</CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{totalLuna.toLocaleString("ro-RO")} RON</div>
-          <p className="text-xs text-muted-foreground">{t("recurringExpenses.kpi.totalMonthDesc")}</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">{t("recurringExpenses.kpi.paid")}</CardTitle>
-          <CheckCircle2 className="h-4 w-4 text-green-500" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold text-green-600 dark:text-green-400">{platit.toLocaleString("ro-RO")} RON</div>
-          <p className="text-xs text-muted-foreground">{t("recurringExpenses.kpi.paidDesc")}</p>
-        </CardContent>
-      </Card>
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">{t("recurringExpenses.kpi.unpaid")}</CardTitle>
-          <AlertTriangle className={cn("h-4 w-4", restant > 0 ? "text-red-500" : "text-muted-foreground")} />
-        </CardHeader>
-        <CardContent>
-          <div className={cn("text-2xl font-bold", restant > 0 ? "text-red-600 dark:text-red-400" : "")}>
-            {restant.toLocaleString("ro-RO")} RON
-          </div>
-          <p className="text-xs text-muted-foreground">{t("recurringExpenses.kpi.unpaidDesc")}</p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-// ── PieChart distributie ───────────────────────────────────
-
-function CategoryChart({ expenses }: { expenses: RecurringExpense[] }) {
-  const { t } = useTranslation();
-  if (expenses.length === 0) return null;
-
-  const catMap: Record<string, number> = {};
-  for (const e of expenses) {
-    catMap[e.category] = (catMap[e.category] ?? 0) + e.monthlyAmount;
-  }
-  const data = Object.entries(catMap).map(([cat, value]) => ({
-    name: t(`recurringExpenses.categories.${cat}`),
-    value,
-  }));
-
-  return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle className="text-sm font-medium">{t("recurringExpenses.chart.title")}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={220}>
-          <PieChart>
-            <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80}
-              label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}
-              labelLine={false}>
-              {data.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
-            </Pie>
-            <Tooltip formatter={(val) => [`${Number(val).toLocaleString("ro-RO")} RON`]} />
-            <Legend />
-          </PieChart>
-        </ResponsiveContainer>
-      </CardContent>
-    </Card>
-  );
-}
-
-// ── Dialog CRUD ────────────────────────────────────────────
-
-function ExpenseDialog({
-  open, onOpenChange, editing, trucks, isMobile, onSave,
-}: {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  editing: RecurringExpense | null;
-  trucks: Truck[];
-  isMobile: boolean;
-  onSave: () => void;
-}) {
-  const { t } = useTranslation();
-  const [form, setForm] = React.useState<ExpenseFormData>(EMPTY_FORM);
-  const [errors, setErrors] = React.useState<ExpenseFormErrors>({});
-
-  React.useEffect(() => {
-    if (!open) return;
-    if (editing) {
-      setForm({
-        category: editing.category,
-        truckId: editing.truckId,
-        description: editing.description,
-        monthlyAmount: editing.monthlyAmount,
-        nextPaymentDate: editing.nextPaymentDate,
-        status: editing.status,
-        notes: editing.notes ?? "",
-      });
-    } else {
-      setForm(EMPTY_FORM);
-    }
-    setErrors({});
-  }, [open, editing]);
-
-  const patch = (p: Partial<ExpenseFormData>) => setForm((f) => ({ ...f, ...p }));
-
-  const handleSubmit = () => {
-    const result = expenseSchema.safeParse(form);
-    if (!result.success) {
-      const errs: ExpenseFormErrors = {};
-      for (const issue of result.error.issues) {
-        const key = issue.path[0] as keyof ExpenseFormData;
-        if (!errs[key]) errs[key] = issue.message;
-      }
-      setErrors(errs);
-      return;
-    }
-    const data = result.data;
-    if (editing) {
-      updateItem<RecurringExpense>(
-        STORAGE_KEYS.recurringExpenses,
-        (e) => e.id === editing.id,
-        (e) => ({ ...e, ...data }),
-      );
-      toast.success(t("recurringExpenses.toastUpdated"));
-    } else {
-      addItem<RecurringExpense>(STORAGE_KEYS.recurringExpenses, {
-        id: generateId(), ...data,
-      });
-      toast.success(t("recurringExpenses.toastAdded"));
-    }
-    onSave();
-    onOpenChange(false);
-  };
-
-  const categories: RecurringCategory[] = ["asigurare", "leasing", "taxe", "parcare", "altele"];
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn("flex flex-col gap-4", isMobile ? "max-w-[calc(100vw-2rem)] p-4" : "max-w-xl")}>
-        <DialogHeader>
-          <DialogTitle>{editing ? t("recurringExpenses.edit") : t("recurringExpenses.add")}</DialogTitle>
-        </DialogHeader>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {/* Categorie */}
-          <div className="space-y-1">
-            <Label>{t("recurringExpenses.fields.category")}</Label>
-            <Select value={form.category} onValueChange={(v) => patch({ category: v as RecurringCategory })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {categories.map((c) => (
-                  <SelectItem key={c} value={c}>{t(`recurringExpenses.categories.${c}`)}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Camion */}
-          <div className="space-y-1">
-            <Label>{t("recurringExpenses.fields.truck")}</Label>
-            <Select value={form.truckId} onValueChange={(v) => patch({ truckId: v })}>
-              <SelectTrigger><SelectValue placeholder={t("recurringExpenses.placeholders.truck")} /></SelectTrigger>
-              <SelectContent>
-                {trucks.map((tr) => (
-                  <SelectItem key={tr.id} value={tr.id}>{tr.plateNumber} — {tr.brand} {tr.model}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.truckId && <p className="text-xs text-red-500">{t("recurringExpenses.validation.truckRequired")}</p>}
-          </div>
-
-          {/* Descriere */}
-          <div className="space-y-1 sm:col-span-2">
-            <Label>{t("recurringExpenses.fields.description")}</Label>
-            <Input value={form.description} onChange={(e) => patch({ description: e.target.value })}
-              placeholder={t("recurringExpenses.placeholders.description")} />
-            {errors.description && <p className="text-xs text-red-500">{errors.description}</p>}
-          </div>
-
-          {/* Suma lunara */}
-          <div className="space-y-1">
-            <Label>{t("recurringExpenses.fields.monthlyAmount")}</Label>
-            <Input type="number" min={0} value={form.monthlyAmount}
-              onChange={(e) => patch({ monthlyAmount: parseFloat(e.target.value) || 0 })} />
-            {errors.monthlyAmount && <p className="text-xs text-red-500">{errors.monthlyAmount}</p>}
-          </div>
-
-          {/* Data urmatoare plata */}
-          <div className="space-y-1">
-            <Label>{t("recurringExpenses.fields.nextPaymentDate")}</Label>
-            <Input type="date" value={form.nextPaymentDate}
-              onChange={(e) => patch({ nextPaymentDate: e.target.value })} />
-            {errors.nextPaymentDate && <p className="text-xs text-red-500">{errors.nextPaymentDate}</p>}
-          </div>
-
-          {/* Status */}
-          <div className="space-y-1">
-            <Label>{t("recurringExpenses.fields.status")}</Label>
-            <Select value={form.status} onValueChange={(v) => patch({ status: v as RecurringStatus })}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="neplatit">{t("recurringExpenses.status.neplatit")}</SelectItem>
-                <SelectItem value="platit">{t("recurringExpenses.status.platit")}</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Note */}
-          <div className="space-y-1">
-            <Label>{t("recurringExpenses.fields.notes")} ({t("recurringExpenses.fields.optional")})</Label>
-            <Input value={form.notes} onChange={(e) => patch({ notes: e.target.value })}
-              placeholder={t("recurringExpenses.placeholders.notes")} />
-          </div>
-        </div>
-
-        <DialogFooter className={cn(isMobile && "flex-col gap-2")}>
-          <Button variant="outline" onClick={() => onOpenChange(false)} className={cn(isMobile && "w-full")}>
-            {t("recurringExpenses.cancel")}
-          </Button>
-          <Button onClick={handleSubmit} className={cn(isMobile && "w-full")}>
-            {editing ? t("recurringExpenses.save") : t("recurringExpenses.actions.add")}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-// ── Mobile Card ────────────────────────────────────────────
-
-function ExpenseMobileCard({ expense, truck, onEdit, onDelete, onMarkPaid, t }: {
-  expense: RecurringExpense;
-  truck?: Truck;
-  onEdit: () => void;
-  onDelete: () => void;
-  onMarkPaid: () => void;
-  t: (k: string) => string;
-}) {
-  return (
-    <div className="rounded-lg border bg-card p-4 space-y-2">
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="font-semibold">{t(`recurringExpenses.categories.${expense.category}`)}</p>
-          <p className="text-xs text-muted-foreground">{truck?.plateNumber ?? expense.truckId}</p>
-        </div>
-        <div className="flex items-center gap-1">
-          <StatusBadge status={expense.status} t={t} />
-          <Button variant="ghost" size="icon" onClick={onEdit}><Pencil className="h-4 w-4" /></Button>
-          <Button variant="ghost" size="icon" onClick={onDelete} className="text-red-500 hover:text-red-600">
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-      <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-        <span className="text-foreground font-medium">{expense.monthlyAmount.toLocaleString("ro-RO")} RON</span>
-        <span>{t("recurringExpenses.fields.nextPaymentDate")}: <span className="text-foreground">{expense.nextPaymentDate}</span></span>
-        <span className="truncate">{expense.description}</span>
-      </div>
-      {expense.status === "neplatit" && (
-        <Button size="sm" variant="outline" onClick={onMarkPaid} className="w-full mt-1 border-green-500 text-green-700 dark:text-green-400 hover:bg-green-500/10">
-          <CheckCircle2 className="h-3.5 w-3.5 mr-2" />
-          {t("recurringExpenses.actions.markPaid")}
-        </Button>
-      )}
-    </div>
-  );
-}
+// Re-export types so existing consumers are not broken
+export type { RecurringCategory, RecurringStatus, RecurringExpense } from "./_components/recurring-expenses-utils";
 
 // ── Pagina ─────────────────────────────────────────────────
 
 export default function RecurringExpensesPage() {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const isMobile = useMobile(640);
 
   const [expenses, setExpenses] = React.useState<RecurringExpense[]>(() =>
@@ -419,11 +69,11 @@ export default function RecurringExpensesPage() {
   const [search, setSearch] = React.useState("");
   const [sorting, setSorting] = React.useState<SortingState>([{ id: "nextPaymentDate", desc: false }]);
 
-  const refresh = () => setExpenses(getCollection<RecurringExpense>(STORAGE_KEYS.recurringExpenses));
+  const refresh = React.useCallback(() => setExpenses(getCollection<RecurringExpense>(STORAGE_KEYS.recurringExpenses)), []);
 
-  const getTruck = (id: string) => trucks.find((tr) => tr.id === id);
+  const getTruck = React.useCallback((id: string) => trucks.find((tr) => tr.id === id), [trucks]);
 
-  const handleMarkPaid = (expense: RecurringExpense) => {
+  const handleMarkPaid = React.useCallback((expense: RecurringExpense) => {
     updateItem<RecurringExpense>(
       STORAGE_KEYS.recurringExpenses,
       (e) => e.id === expense.id,
@@ -431,11 +81,14 @@ export default function RecurringExpensesPage() {
     );
     toast.success(t("recurringExpenses.toastMarkPaid"));
     refresh();
-  };
+  }, [t, refresh]);
 
   const handleDelete = () => {
     if (!deleteId) return;
+    const expense = expenses.find((e) => e.id === deleteId);
+    const truckLabel = expense ? (getTruck(expense.truckId)?.plateNumber ?? expense.truckId) : deleteId;
     removeItem<RecurringExpense>(STORAGE_KEYS.recurringExpenses, (e) => e.id === deleteId);
+    log({ action: "delete", entity: "recurringExpense", entityId: deleteId, entityLabel: expense ? `${expense.category} - ${truckLabel}` : deleteId, detailKey: "activityLog.details.recurringExpenseDeleted" });
     toast.success(t("recurringExpenses.toastDeleted"));
     setDeleteId(null);
     refresh();
@@ -525,7 +178,7 @@ export default function RecurringExpensesPage() {
         </div>
       ),
     },
-  ], [trucks, t, expenses]);
+  ], [t, getTruck, handleMarkPaid]);
 
   const table = useReactTable({
     data: expenses,

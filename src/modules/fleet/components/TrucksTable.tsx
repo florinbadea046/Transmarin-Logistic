@@ -20,7 +20,7 @@ import {
 
 import type { Truck } from "@/modules/transport/types";
 import {
-  STATUS_CONFIG,
+  getStatusConfig,
   getDateStatus,
 } from "@/modules/fleet/utils/truckUtils";
 
@@ -100,7 +100,8 @@ function VehicleDialog({
   const { t } = useTranslation();
   if (!truck) return null;
 
-  const { label, variant } = STATUS_CONFIG[truck.status];
+  const statusConfig = getStatusConfig(t);
+  const { label, variant } = statusConfig[truck.status];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -195,7 +196,8 @@ export function TrucksTable() {
           </TableHeader>
           <TableBody>
             {trucks.map((truck) => {
-              const { label, variant } = STATUS_CONFIG[truck.status];
+              const statusConfig = getStatusConfig(t);
+              const { label, variant } = statusConfig[truck.status];
 
               return (
                 <TableRow

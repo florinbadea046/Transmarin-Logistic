@@ -32,7 +32,9 @@
         "search": "Cauta cheltuiala..."
       },
       "validation": {
-        "truckRequired": "Camionul este obligatoriu."
+        "truckRequired": "Camionul este obligatoriu.",
+        "invalidAmount": "Suma invalida",
+        "invalidDate": "Data invalida"
       },
       "categories": {
         "asigurare": "Asigurare",

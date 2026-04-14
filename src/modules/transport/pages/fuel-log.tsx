@@ -57,21 +57,23 @@ import type { Truck } from "@/modules/transport/types";
 import type { Driver } from "@/modules/transport/types";
 import type { FuelLog } from "@/modules/transport/types";
 import { useMobile } from "@/hooks/use-mobile";
+import { useAuditLog } from "@/hooks/use-audit-log";
 import { cn } from "@/lib/utils";
 
 // ── Zod schema ──────────────────────────────────────────────
 
-const fuelSchema = z.object({
-  truckId: z.string().min(1),
-  driverId: z.string().min(1),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data invalida"),
-  station: z.string().min(2),
-  liters: z.number({ message: "Litri invalizi" }).positive(),
-  pricePerLiter: z.number({ message: "Pret invalid" }).positive(),
-  kmAtFueling: z.number({ message: "Km invalizi" }).min(0),
-});
+const makeFuelLogSchema = (t: (key: string) => string) =>
+  z.object({
+    truckId: z.string().min(1),
+    driverId: z.string().min(1),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, t("fuelLog.validation.invalidDate")),
+    station: z.string().min(2),
+    liters: z.number({ message: t("fuelLog.validation.invalidLiters") }).positive(),
+    pricePerLiter: z.number({ message: t("fuelLog.validation.invalidPrice") }).positive(),
+    kmAtFueling: z.number({ message: t("fuelLog.validation.invalidKm") }).min(0),
+  });
 
-type FuelFormData = z.infer<typeof fuelSchema>;
+type FuelFormData = z.infer<ReturnType<typeof makeFuelLogSchema>>;
 type FuelFormErrors = Partial<Record<keyof FuelFormData, string>>;
 
 const EMPTY_FORM: FuelFormData = {
@@ -242,6 +244,7 @@ function FuelDialog({
   onSave: () => void;
 }) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
   const [form, setForm] = React.useState<FuelFormData>(EMPTY_FORM);
   const [errors, setErrors] = React.useState<FuelFormErrors>({});
 
@@ -263,10 +266,10 @@ function FuelDialog({
     setErrors({});
   }, [open, editingLog]);
 
-  const patch = (p: Partial<FuelFormData>) => setForm((f) => ({ ...f, ...p }));
+  const patch = (p: Partial<FuelFormData>) => setForm((f: FuelFormData) => ({ ...f, ...p }));
 
   const handleSubmit = () => {
-    const result = fuelSchema.safeParse(form);
+    const result = makeFuelLogSchema(t).safeParse(form);
     if (!result.success) {
       const errs: FuelFormErrors = {};
       for (const issue of result.error.issues) {
@@ -280,19 +283,23 @@ function FuelDialog({
     const data = result.data;
     const totalCost = parseFloat((data.liters * data.pricePerLiter).toFixed(2));
 
+    const truckLabel = trucks.find((tr) => tr.id === data.truckId)?.plateNumber ?? data.truckId;
     if (editingLog) {
       updateItem<FuelLog>(
         STORAGE_KEYS.fuelLog,
         (l) => l.id === editingLog.id,
         (l) => ({ ...l, ...data, totalCost }),
       );
+      log({ action: "update", entity: "fuelLog", entityId: editingLog.id, entityLabel: truckLabel, detailKey: "activityLog.details.fuelLogUpdated", oldValue: { liters: editingLog.liters, totalCost: editingLog.totalCost }, newValue: { liters: data.liters, totalCost } });
       toast.success(t("fuelLog.toastUpdated"));
     } else {
+      const newId = generateId();
       addItem<FuelLog>(STORAGE_KEYS.fuelLog, {
-        id: generateId(),
+        id: newId,
         ...data,
         totalCost,
       });
+      log({ action: "create", entity: "fuelLog", entityId: newId, entityLabel: truckLabel, detailKey: "activityLog.details.fuelLogCreated", detailParams: { truck: truckLabel } });
       toast.success(t("fuelLog.toastAdded"));
     }
 
@@ -436,6 +443,7 @@ function FuelMobileCard({ log, truck, driver, onEdit, onDelete }: {
 
 export default function FuelLogPage() {
   const { t } = useTranslation();
+  const { log: auditLog } = useAuditLog();
   const isMobile = useMobile(640);
 
   const [logs, setLogs] = React.useState<FuelLog[]>(() =>
@@ -457,7 +465,10 @@ export default function FuelLogPage() {
 
   const handleDelete = () => {
     if (!deleteId) return;
+    const fuelEntry = logs.find((l) => l.id === deleteId);
+    const truckLabel = fuelEntry ? (getTruck(fuelEntry.truckId)?.plateNumber ?? fuelEntry.truckId) : deleteId;
     removeItem<FuelLog>(STORAGE_KEYS.fuelLog, (l) => l.id === deleteId);
+    auditLog({ action: "delete", entity: "fuelLog", entityId: deleteId, entityLabel: truckLabel, detailKey: "activityLog.details.fuelLogDeleted" });
     toast.success(t("fuelLog.toastDeleted"));
     setDeleteId(null);
     refreshLogs();

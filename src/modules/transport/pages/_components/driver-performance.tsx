@@ -184,7 +184,7 @@ export default function DriverPerformancePage() {
       styles: { fontSize: 9 },
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    const finalY = doc.lastAutoTable.finalY + 10;
 
     autoTable(doc, {
       startY: finalY,
@@ -327,7 +327,7 @@ export default function DriverPerformancePage() {
                   <Tooltip
                     formatter={(val) => [
                       `${(val as number).toLocaleString("ro-RO")} km`,
-                      "Km",
+                      t("driverPerformance.ranking.km"),
                     ]}
                   />
                   <Line

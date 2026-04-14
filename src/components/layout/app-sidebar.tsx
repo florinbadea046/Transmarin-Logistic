@@ -32,6 +32,8 @@ const TITLE_KEYS: Record<string, string> = {
   "/transport/fuel-log": "fuelLog.title",
   "/transport/fleet-comparison": "fleetComparison.title",
   "/transport/recurring-expenses": "recurringExpenses.title",
+  "/transport/mileage-registry": "mileageRegistry.title",
+  "transport/dispatcher-live": "dispatcherLive.title",
   // Fleet
   "/fleet": "sidebar.fleet.overview",
   "/fleet/parts": "sidebar.fleet.parts",
@@ -42,12 +44,14 @@ const TITLE_KEYS: Record<string, string> = {
   "/accounting": "sidebar.accounting.overview",
   "/accounting/invoices": "invoices.title",
   "/accounting/suppliers": "sidebar.accounting.suppliers",
+  "/accounting/activity-log": "accounting.nav.activityLog",
   // HR
   "/hr": "sidebar.hr.overview",
   "/hr/employees": "employees.title",
   "/hr/leaves": "sidebar.hr.leaves",
   "/hr/payroll": "sidebar.hr.payroll",
   "/hr/attendance": "hr.nav.attendance",
+  "/hr/trainings": "hr.nav.trainings",
   "/hr/activity-log": "hr.nav.activityLog",
   // Reports
   "/reports": "sidebar.reports.overview",

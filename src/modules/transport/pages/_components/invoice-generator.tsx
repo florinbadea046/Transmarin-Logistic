@@ -24,6 +24,7 @@ import {
 import type { Trip, Order } from "@/modules/transport/types";
 import { getCollection, addItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { useAuditLog } from "@/hooks/use-audit-log";
 
 export interface TripInvoice {
   id: string;
@@ -62,6 +63,7 @@ export function InvoiceGenerator({
   onInvoiceSaved,
 }: InvoiceGeneratorProps) {
   const { t } = useTranslation();
+  const { log } = useAuditLog();
 
   const orders = getCollection<Order>(STORAGE_KEYS.orders);
   const order = orders.find((o) => o.id === trip.orderId);
@@ -101,6 +103,14 @@ export function InvoiceGenerator({
       createdAt: new Date().toISOString().split("T")[0],
     };
     addItem<TripInvoice>(STORAGE_KEYS.tripInvoices, invoice);
+    log({
+      action: "create",
+      entity: "invoice",
+      entityId: invoice.id,
+      entityLabel: invoice.number,
+      detailKey: "activityLog.details.invoiceGenerated",
+      detailParams: { nr: invoice.number, client: invoice.clientName },
+    });
     onInvoiceSaved();
     setSavedCount((c) => c + 1);
   }
@@ -171,7 +181,7 @@ export function InvoiceGenerator({
       styles: { fontSize: 10 },
     });
 
-    const finalY = (doc as any).lastAutoTable.finalY + 10;
+    const finalY = doc.lastAutoTable.finalY + 10;
 
     doc.setFontSize(10);
     doc.text(`${t("invoiceGenerator.preview.subtotal")}:`, 130, finalY);
