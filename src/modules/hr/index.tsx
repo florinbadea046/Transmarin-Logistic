@@ -44,6 +44,7 @@ export default function HRPage() {
 
   const topNavLinks = [
     { title: t("hr.nav.employees"), href: "/hr/employees", isActive: false },
+    { title: t("hr.nav.recruitment"), href: "/hr/recruitment", isActive: false },
     { title: t("hr.nav.leaves"), href: "/hr/leaves", isActive: false },
     { title: t("hr.nav.payroll"), href: "/hr/payroll", isActive: false },
     { title: t("hr.nav.attendance"), href: "/hr/attendance", isActive: false },

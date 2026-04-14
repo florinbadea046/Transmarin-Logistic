@@ -25,7 +25,8 @@ import {
   Briefcase,
   CreditCard,
   Activity,
-  GraduationCap
+  GraduationCap,
+  Kanban,
 } from "lucide-react";
 import { type SidebarData } from "../types";
 
@@ -203,6 +204,11 @@ export const sidebarData: SidebarData = {
               title: "Angajati",
               url: "/hr/employees",
               icon: UserCog,
+            },
+            {
+              title: "Recrutare",
+              url: "/hr/recruitment",
+              icon: Kanban,
             },
             {
               title: "Concedii",
