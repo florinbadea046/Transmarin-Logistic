@@ -116,3 +116,30 @@ export interface Training {
   status: TrainingStatus;
   issuedCertificates: TrainingCertificate[];
 }
+
+// ── Recrutare ─────────────────────────────────────────────
+
+export const CANDIDATE_STATUSES = [
+  "applied",
+  "screening",
+  "interview",
+  "offer",
+  "hired",
+  "rejected",
+] as const;
+
+export type CandidateStatus = (typeof CANDIDATE_STATUSES)[number];
+
+export interface Candidate {
+  id: string;
+  name: string;
+  position: string;
+  email: string;
+  phone: string;
+  applicationDate: string; // YYYY-MM-DD
+  rating: number; // 1..5
+  notes?: string;
+  status: CandidateStatus;
+  createdAt: string; // ISO
+  employeeId?: string; // setat după conversia în angajat, previne duplicate
+}
