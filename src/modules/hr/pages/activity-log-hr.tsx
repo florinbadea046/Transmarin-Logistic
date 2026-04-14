@@ -27,6 +27,7 @@ import {
   X,
   Star,
   GraduationCap,
+  UserPlus,
 } from "lucide-react";
 import { useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -126,6 +127,10 @@ const ENTITY_CONFIG: Record<
   training: {
     icon: <GraduationCap className="h-4 w-4" />,
     labelKey: "hrAuditLog.entities.training",
+  },
+  candidate: {
+    icon: <UserPlus className="h-4 w-4" />,
+    labelKey: "hrAuditLog.entities.candidate",
   },
 };
 
@@ -347,6 +352,7 @@ export default function ActivityLogHRPage() {
       { value: "attendance", label: t("hrAuditLog.entities.attendance") },
       { value: "evaluation", label: t("hrAuditLog.entities.evaluation") },
       { value: "training", label: t("hrAuditLog.entities.training") },
+      { value: "candidate", label: t("hrAuditLog.entities.candidate") },
     ],
     [t],
   );

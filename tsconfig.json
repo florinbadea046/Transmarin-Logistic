@@ -18,7 +18,8 @@
       "@/*": ["./src/*"]
     },
     "ignoreDeprecations": "6.0"
+    "ignoreDeprecations": "6.0",
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
   },
-  "include": ["src"],
-  "exclude": ["src/**/__tests__/**", "src/**/*.test.*", "src/**/*.spec.*"]
+  "include": ["src"]
 }
