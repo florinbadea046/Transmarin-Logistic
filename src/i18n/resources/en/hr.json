@@ -43,6 +43,178 @@
       "expired": "Expired",
       "expiresToday": "Expires today",
       "daysLeft": "{{count}} days"
+    },
+    "selfService": {
+      "title": "My Profile",
+      "simulateLogin": "Login simulation:",
+      "selectEmployee": "Select employee",
+      "selectedPlaceholder": "Select an employee",
+      "emptyHint": "To see the profile, pick an employee from the list",
+      "noEmployees": "No employees in the system.",
+      "positions": {
+        "Director General": "General Manager",
+        "Manager": "Manager",
+        "Sofer": "Driver",
+        "Dispecer": "Dispatcher",
+        "Mecanic": "Mechanic",
+        "Contabil": "Accountant"
+      },
+      "departments": {
+        "Management": "Management",
+        "Administrativ": "Administration",
+        "Transport": "Transport",
+        "Dispecerat": "Dispatch",
+        "Service": "Service",
+        "Contabilitate": "Accounting"
+      },
+      "tabs": {
+        "personal": "Personal data",
+        "leaves": "My leaves",
+        "payslips": "Payslips",
+        "documents": "My documents"
+      },
+      "personal": {
+        "title": "Personal data",
+        "description": "Your employee data. For changes, contact HR.",
+        "fields": {
+          "name": "Full name",
+          "position": "Position",
+          "department": "Department",
+          "hireDate": "Hire date",
+          "email": "Email",
+          "phone": "Phone",
+          "salary": "Base salary"
+        }
+      },
+      "leaves": {
+        "title": "My leaves",
+        "summary": "{{approved}} approved days · {{pending}} pending requests",
+        "newRequest": "New request",
+        "columns": {
+          "type": "Type",
+          "period": "Period",
+          "days": "Days",
+          "status": "Status",
+          "reason": "Reason"
+        },
+        "empty": "You have no leave requests yet.",
+        "types": {
+          "annual": "Annual",
+          "sick": "Medical",
+          "unpaid": "Unpaid",
+          "other": "Other"
+        },
+        "status": {
+          "pending": "Pending",
+          "approved": "Approved",
+          "rejected": "Rejected"
+        },
+        "dialog": {
+          "title": "New leave request",
+          "typeLabel": "Leave type",
+          "typeOptions": {
+            "annual": "Annual (vacation)",
+            "sick": "Medical",
+            "unpaid": "Unpaid",
+            "other": "Other"
+          },
+          "from": "From",
+          "to": "To",
+          "pickDate": "Pick date",
+          "totalDays": "Total days:",
+          "reasonLabel": "Reason (optional)",
+          "reasonPlaceholder": "e.g. summer vacation",
+          "cancel": "Cancel",
+          "submit": "Submit request"
+        },
+        "toast": {
+          "datesRequired": "Select start and end dates",
+          "endBeforeStart": "End date must be after start date",
+          "overlap": "A leave request already exists for that period",
+          "created": "Leave request submitted"
+        },
+        "auditDetails": "Self-service: {{type}}, {{startDate}} – {{endDate}} ({{days}} days)"
+      },
+      "payslips": {
+        "title": "Payslips",
+        "description": "Click a month to download the payslip as PDF.",
+        "columns": {
+          "month": "Month",
+          "salaryBase": "Base salary",
+          "diurna": "Per diem",
+          "bonuses": "Bonuses",
+          "fines": "Fines",
+          "totalNet": "Net total",
+          "pdf": "PDF"
+        },
+        "downloadPdf": "PDF"
+      },
+      "documents": {
+        "title": "My documents",
+        "description": "View only. For changes or replacements, contact HR.",
+        "empty": "No documents uploaded.",
+        "expired": "Expired",
+        "labels": {
+          "type": "Type:",
+          "number": "No:",
+          "expires": "Expires:"
+        },
+        "types": {
+          "license": "License",
+          "tachograph": "Tachograph card",
+          "adr": "ADR",
+          "medical": "Medical certificate",
+          "contract": "Contract",
+          "certificate": "Certificate",
+          "other": "Other"
+        },
+        "names": {
+          "Permis categoria C": "Driver's license cat. C",
+          "Permis categoria CE": "Driver's license cat. CE",
+          "Card tahograf": "Tachograph card",
+          "Certificat ADR": "ADR certificate",
+          "Fisa medicala": "Medical certificate",
+          "Contract de munca": "Employment contract",
+          "Aviz psihologic": "Psychological assessment"
+        }
+      },
+      "pdf": {
+        "title": "PAYSLIP",
+        "employeeHeader": "EMPLOYEE DATA",
+        "labels": {
+          "name": "Name:",
+          "position": "Position:",
+          "department": "Department:",
+          "hireDate": "Hire date:"
+        },
+        "tableHead": {
+          "item": "Item",
+          "amount": "Amount"
+        },
+        "rows": {
+          "base": "Base salary",
+          "diurna": "Travel per diem",
+          "bonuses": "Bonuses",
+          "overtime": "Overtime",
+          "fines": "Penalties / fines"
+        },
+        "totalNet": "NET TOTAL TO RECEIVE",
+        "detailsHeader": "BONUSES / PENALTIES DETAILS",
+        "bonusHead": {
+          "date": "Date",
+          "type": "Type",
+          "description": "Description",
+          "amount": "Amount"
+        },
+        "types": {
+          "bonus": "Bonus",
+          "diurna": "Per diem",
+          "amenda": "Fine",
+          "ore_suplimentare": "Overtime"
+        },
+        "footer": "Document generated automatically. For questions, contact HR.",
+        "filename": "Payslip"
+      }
     }
   },
   "leaves": {

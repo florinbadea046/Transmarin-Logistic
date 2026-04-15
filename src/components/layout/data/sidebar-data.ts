@@ -231,6 +231,11 @@ export const sidebarData: SidebarData = {
               icon: GraduationCap,
             },
             {
+              title: "Profilul Meu",
+              url: "/hr/self-service",
+              icon: UserCog,
+            },
+            {
               title: "Istoric",
               url: "/hr/activity-log",
               icon: History,

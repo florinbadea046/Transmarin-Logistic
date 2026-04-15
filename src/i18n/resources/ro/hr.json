@@ -43,6 +43,178 @@
       "expired": "Expirat",
       "expiresToday": "Expira azi",
       "daysLeft": "{{count}} zile"
+    },
+    "selfService": {
+      "title": "Profilul Meu",
+      "simulateLogin": "Simulare login:",
+      "selectEmployee": "Alege angajat",
+      "selectedPlaceholder": "Selectează un angajat",
+      "emptyHint": "Pentru a vedea profilul, alege un angajat din listă",
+      "noEmployees": "Nu există angajați în sistem.",
+      "positions": {
+        "Director General": "Director General",
+        "Manager": "Manager",
+        "Sofer": "Șofer",
+        "Dispecer": "Dispecer",
+        "Mecanic": "Mecanic",
+        "Contabil": "Contabil"
+      },
+      "departments": {
+        "Management": "Management",
+        "Administrativ": "Administrativ",
+        "Transport": "Transport",
+        "Dispecerat": "Dispecerat",
+        "Service": "Service",
+        "Contabilitate": "Contabilitate"
+      },
+      "tabs": {
+        "personal": "Date personale",
+        "leaves": "Concediile mele",
+        "payslips": "Fluturași salariu",
+        "documents": "Documentele mele"
+      },
+      "personal": {
+        "title": "Date personale",
+        "description": "Datele tale de angajat. Pentru modificări contactează HR-ul.",
+        "fields": {
+          "name": "Nume complet",
+          "position": "Funcție",
+          "department": "Departament",
+          "hireDate": "Data angajării",
+          "email": "Email",
+          "phone": "Telefon",
+          "salary": "Salariu de bază"
+        }
+      },
+      "leaves": {
+        "title": "Concediile mele",
+        "summary": "{{approved}} zile aprobate · {{pending}} cereri în așteptare",
+        "newRequest": "Cerere nouă",
+        "columns": {
+          "type": "Tip",
+          "period": "Perioadă",
+          "days": "Zile",
+          "status": "Status",
+          "reason": "Motiv"
+        },
+        "empty": "Nu ai cereri de concediu înregistrate.",
+        "types": {
+          "annual": "Anual",
+          "sick": "Medical",
+          "unpaid": "Fără plată",
+          "other": "Altul"
+        },
+        "status": {
+          "pending": "În așteptare",
+          "approved": "Aprobat",
+          "rejected": "Respins"
+        },
+        "dialog": {
+          "title": "Cerere concediu nouă",
+          "typeLabel": "Tip concediu",
+          "typeOptions": {
+            "annual": "Anual (de odihnă)",
+            "sick": "Medical",
+            "unpaid": "Fără plată",
+            "other": "Altul"
+          },
+          "from": "De la",
+          "to": "Până la",
+          "pickDate": "Alege data",
+          "totalDays": "Total zile:",
+          "reasonLabel": "Motiv (opțional)",
+          "reasonPlaceholder": "ex: vacanță de vară",
+          "cancel": "Anulează",
+          "submit": "Trimite cerere"
+        },
+        "toast": {
+          "datesRequired": "Selectează data de început și de sfârșit",
+          "endBeforeStart": "Data de sfârșit trebuie să fie după data de început",
+          "overlap": "Există deja o cerere de concediu pe acea perioadă",
+          "created": "Cerere de concediu trimisă"
+        },
+        "auditDetails": "Self-service: {{type}}, {{startDate}} – {{endDate}} ({{days}} zile)"
+      },
+      "payslips": {
+        "title": "Fluturași salariu",
+        "description": "Apasă pe o lună pentru a descărca fluturașul în PDF.",
+        "columns": {
+          "month": "Luna",
+          "salaryBase": "Salariu bază",
+          "diurna": "Diurnă",
+          "bonuses": "Bonusuri",
+          "fines": "Amenzi",
+          "totalNet": "Total net",
+          "pdf": "PDF"
+        },
+        "downloadPdf": "PDF"
+      },
+      "documents": {
+        "title": "Documentele mele",
+        "description": "Vizualizare. Pentru modificări sau înlocuiri, contactează HR-ul.",
+        "empty": "Nu există documente încărcate.",
+        "expired": "Expirat",
+        "labels": {
+          "type": "Tip:",
+          "number": "Nr:",
+          "expires": "Expiră:"
+        },
+        "types": {
+          "license": "Permis",
+          "tachograph": "Card tahograf",
+          "adr": "ADR",
+          "medical": "Fisa medicala",
+          "contract": "Contract",
+          "certificate": "Certificat",
+          "other": "Altul"
+        },
+        "names": {
+          "Permis categoria C": "Permis categoria C",
+          "Permis categoria CE": "Permis categoria CE",
+          "Card tahograf": "Card tahograf",
+          "Certificat ADR": "Certificat ADR",
+          "Fisa medicala": "Fișă medicală",
+          "Contract de munca": "Contract de muncă",
+          "Aviz psihologic": "Aviz psihologic"
+        }
+      },
+      "pdf": {
+        "title": "FLUTURAS SALARIU",
+        "employeeHeader": "DATE ANGAJAT",
+        "labels": {
+          "name": "Nume:",
+          "position": "Functie:",
+          "department": "Departament:",
+          "hireDate": "Data angajarii:"
+        },
+        "tableHead": {
+          "item": "Rubrica",
+          "amount": "Suma"
+        },
+        "rows": {
+          "base": "Salariu de baza",
+          "diurna": "Diurna deplasari",
+          "bonuses": "Bonusuri",
+          "overtime": "Ore suplimentare",
+          "fines": "Penalizari / amenzi"
+        },
+        "totalNet": "TOTAL NET DE INCASAT",
+        "detailsHeader": "DETALII BONUSURI / PENALIZARI",
+        "bonusHead": {
+          "date": "Data",
+          "type": "Tip",
+          "description": "Descriere",
+          "amount": "Suma"
+        },
+        "types": {
+          "bonus": "Bonus",
+          "diurna": "Diurna",
+          "amenda": "Amenda",
+          "ore_suplimentare": "Ore supl."
+        },
+        "footer": "Document generat automat. Pentru intrebari contactati departamentul HR.",
+        "filename": "Fluturas"
+      }
     }
   },
   "leaves": {

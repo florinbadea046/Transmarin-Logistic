@@ -28,6 +28,7 @@ import {
   Star,
   GraduationCap,
   UserPlus,
+  HelpCircle,
 } from "lucide-react";
 import { useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -145,8 +146,15 @@ function HrAuditEntryCard({
 }) {
   const { t, i18n } = useTranslation();
   const [expanded, setExpanded] = React.useState(false);
-  const action = ACTION_CONFIG[entry.action];
-  const entity = ENTITY_CONFIG[entry.entity];
+  const action = ACTION_CONFIG[entry.action] ?? {
+    icon: <HelpCircle className="h-3 w-3" />,
+    color: "border-gray-400 text-gray-600",
+    labelKey: "hrAuditLog.actions.update",
+  };
+  const entity = ENTITY_CONFIG[entry.entity] ?? {
+    icon: <HelpCircle className="h-4 w-4" />,
+    labelKey: "hrAuditLog.entities.employee",
+  };
   const dateLocale = i18n.language === "en" ? enGB : ro;
 
   const formattedTime = (() => {
