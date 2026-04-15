@@ -159,8 +159,8 @@ export function generatePayslipPDF(p: PayslipData, t: TFn): void {
   doc.setFontSize(9.5);
   const rows: [string, string][] = [
     [t("hr.selfService.pdf.labels.name"), p.employee.name],
-    [t("hr.selfService.pdf.labels.position"), p.employee.position],
-    [t("hr.selfService.pdf.labels.department"), p.employee.department],
+    [t("hr.selfService.pdf.labels.position"), t(`hr.selfService.positions.${p.employee.position}`, { defaultValue: p.employee.position })],
+    [t("hr.selfService.pdf.labels.department"), t(`hr.selfService.departments.${p.employee.department}`, { defaultValue: p.employee.department })],
     [t("hr.selfService.pdf.labels.hireDate"), formatDate(p.employee.hireDate)],
   ];
   rows.forEach(([k, v]) => {

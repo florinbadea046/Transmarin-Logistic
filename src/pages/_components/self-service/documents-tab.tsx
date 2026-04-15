@@ -43,7 +43,9 @@ export function DocumentsTab({ employee }: { employee: Employee }) {
                   <div className="min-w-0 flex-1 space-y-1">
                     <div className="flex items-center justify-between gap-2">
                       <p className="truncate text-sm font-medium">
-                        {t(`hr.selfService.documents.names.${d.name}`, d.name)}
+                        {t(`hr.selfService.documents.names.${d.name}`, {
+                          defaultValue: d.name,
+                        })}
                       </p>
                       {expired && (
                         <Badge variant="destructive">
@@ -53,7 +55,9 @@ export function DocumentsTab({ employee }: { employee: Employee }) {
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {t("hr.selfService.documents.labels.type")}{" "}
-                      {t(`hr.selfService.documents.types.${d.type}`, d.type)}
+                      {t(`hr.selfService.documents.types.${d.type}`, {
+                        defaultValue: d.type,
+                      })}
                     </p>
                     {d.documentNumber && (
                       <p className="text-xs text-muted-foreground">

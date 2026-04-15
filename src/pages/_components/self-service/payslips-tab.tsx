@@ -79,7 +79,15 @@ export function PayslipsTab({ employee }: { employee: Employee }) {
                 <TableRow
                   key={r.value}
                   className="cursor-pointer"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => generatePayslipPDF(r.payslip, t)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      generatePayslipPDF(r.payslip, t);
+                    }
+                  }}
                 >
                   <TableCell className="font-medium capitalize">
                     {r.label}

@@ -81,7 +81,7 @@ export default function SelfServicePage() {
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {employee
-                    ? `${t(`hr.selfService.positions.${employee.position}`, employee.position)} · ${t(`hr.selfService.departments.${employee.department}`, employee.department)}`
+                    ? `${t(`hr.selfService.positions.${employee.position}`, { defaultValue: employee.position })} · ${t(`hr.selfService.departments.${employee.department}`, { defaultValue: employee.department })}`
                     : t("hr.selfService.emptyHint")}
                 </p>
               </div>
@@ -116,7 +116,7 @@ export default function SelfServicePage() {
           </Card>
         ) : (
           <Tabs defaultValue="personal">
-            <TabsList>
+            <TabsList className="grid h-auto w-full grid-cols-2 sm:flex sm:h-9 sm:w-fit">
               <TabsTrigger value="personal">
                 {t("hr.selfService.tabs.personal")}
               </TabsTrigger>

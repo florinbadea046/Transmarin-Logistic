@@ -16,6 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { formatCurrency, formatDate } from "@/utils/format";
+import type { ComponentType } from "react";
 import type { Employee } from "@/modules/hr/types";
 
 function PersonalField({
@@ -23,7 +24,7 @@ function PersonalField({
   label,
   value,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: ComponentType<{ className?: string }>;
   label: string;
   value: string;
 }) {
@@ -59,12 +60,12 @@ export function PersonalTab({ employee }: { employee: Employee }) {
         <PersonalField
           icon={Briefcase}
           label={t("hr.selfService.personal.fields.position")}
-          value={employee.position}
+          value={t(`hr.selfService.positions.${employee.position}`, { defaultValue: employee.position })}
         />
         <PersonalField
           icon={Building2}
           label={t("hr.selfService.personal.fields.department")}
-          value={employee.department}
+          value={t(`hr.selfService.departments.${employee.department}`, { defaultValue: employee.department })}
         />
         <PersonalField
           icon={CalendarDays}
