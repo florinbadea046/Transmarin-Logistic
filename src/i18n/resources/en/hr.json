@@ -22,7 +22,51 @@
       "activityLog": "History",
       "evaluations": "Evaluations",
       "trainings": "Training & Certifications",
-      "recruitment": "Recruitment"
+      "recruitment": "Recruitment",
+      "shifts": "Shift Planning"
+    },
+    "shifts": {
+      "title": "Shift Planning",
+      "subtitle": "Weekly 3-shift calendar per department",
+      "department": "Department",
+      "weekOf": "Week",
+      "prevWeek": "Previous week",
+      "nextWeek": "Next week",
+      "today": "Current week",
+      "employee": "Employee",
+      "exportPdf": "Export PDF",
+      "noEmployees": "No employees in this department.",
+      "assign": "Assign shift",
+      "clear": "Clear",
+      "summary": "Shift/day summary",
+      "total": "Total",
+      "types": {
+        "morning": "Morning (06-14)",
+        "afternoon": "Afternoon (14-22)",
+        "night": "Night (22-06)"
+      },
+      "short": {
+        "morning": "M",
+        "afternoon": "A",
+        "night": "N"
+      },
+      "validation": {
+        "nightThenMorning": "A night shift cannot be followed by a morning shift.",
+        "blocked": "Validation failed"
+      },
+      "pdf": {
+        "title": "Shift Plan",
+        "generated": "Generated:"
+      },
+      "days": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      }
     },
     "documentAlerts": {
       "title": "Document Alerts",
