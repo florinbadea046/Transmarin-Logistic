@@ -28,6 +28,7 @@ import {
   Star,
   GraduationCap,
   UserPlus,
+  Clock3,
 } from "lucide-react";
 import { useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -131,6 +132,10 @@ const ENTITY_CONFIG: Record<
   candidate: {
     icon: <UserPlus className="h-4 w-4" />,
     labelKey: "hrAuditLog.entities.candidate",
+  },
+  shift: {
+    icon: <Clock3 className="h-4 w-4" />,
+    labelKey: "hrAuditLog.entities.shift",
   },
 };
 

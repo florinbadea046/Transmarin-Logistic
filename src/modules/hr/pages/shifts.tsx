@@ -160,7 +160,7 @@ export default function ShiftsPage() {
       shortAfternoon: t("hr.shifts.short.afternoon"),
       shortNight: t("hr.shifts.short.night"),
     }),
-    [t],
+    [t, i18n.language],
   );
 
   // ── Mutation ─────────────────────────────────────────────
@@ -476,7 +476,7 @@ export default function ShiftsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead className="min-w-[180px]">
-                      {t("hr.shifts.department")}
+                      {t("hr.shifts.shiftType")}
                     </TableHead>
                     {days.map((d) => (
                       <TableHead

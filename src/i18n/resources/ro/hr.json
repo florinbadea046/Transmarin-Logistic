@@ -29,6 +29,7 @@
       "title": "Planificare Ture / Schimburi",
       "subtitle": "Calendar saptamanal cu 3 ture pe departament",
       "department": "Departament",
+      "shiftType": "Tip tura",
       "weekOf": "Saptamana",
       "prevWeek": "Saptamana anterioara",
       "nextWeek": "Saptamana urmatoare",
@@ -534,7 +535,8 @@
       "attendance": "Pontaj",
       "evaluation": "Evaluare",
       "training": "Training",
-      "candidate": "Candidat"
+      "candidate": "Candidat",
+      "shift": "Tura"
     }
   },
   "trainings": {

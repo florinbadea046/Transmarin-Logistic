@@ -29,6 +29,7 @@
       "title": "Shift Planning",
       "subtitle": "Weekly 3-shift calendar per department",
       "department": "Department",
+      "shiftType": "Shift type",
       "weekOf": "Week",
       "prevWeek": "Previous week",
       "nextWeek": "Next week",
@@ -533,7 +534,8 @@
       "attendance": "Attendance",
       "evaluation": "Evaluation",
       "training": "Training",
-      "candidate": "Candidate"
+      "candidate": "Candidate",
+      "shift": "Shift"
     }
   },
   "trainings": {
