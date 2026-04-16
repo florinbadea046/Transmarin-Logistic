@@ -14,12 +14,12 @@ import {
   Bar,
   XAxis,
   YAxis,
-  Tooltip,
   ResponsiveContainer,
   PieChart,
   Pie,
   Legend,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import { getCollection, updateItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, LeaveRequest, Bonus, EmployeeDocument } from "@/modules/hr/types";
@@ -305,7 +305,7 @@ export function StatsTab({ employeeId }: { employeeId: string }) {
               <BarChart data={leavesByMonth} margin={{ top: 4, right: 8, left: -20, bottom: 0 }} style={{ outline: "none" }}>
                 <XAxis dataKey="month" tick={{ fontSize: 11 }} />
                 <YAxis tick={{ fontSize: 11 }} allowDecimals={false} />
-                <Tooltip formatter={(value) => [`${value} zile`, "Concediu"]} />
+                <ChartTooltip formatter={(value) => [`${value} zile`, "Concediu"]} />
                 <Bar dataKey="zile" fill="#3b82f6" radius={[3, 3, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -323,7 +323,7 @@ export function StatsTab({ employeeId }: { employeeId: string }) {
               <PieChart>
                 <Pie data={pieData} cx="50%" cy="50%" outerRadius={55} dataKey="value" />
                 <Legend formatter={(value, entry: { payload?: { value?: number } }) => `${value}: ${Number(entry.payload?.value ?? 0).toLocaleString("ro-RO")} RON`} />
-                <Tooltip formatter={(value) => [`${Number(value).toLocaleString("ro-RO")} RON`]} />
+                <ChartTooltip formatter={(value) => [`${Number(value).toLocaleString("ro-RO")} RON`]} />
               </PieChart>
             </ResponsiveContainer>
           </div>

@@ -25,9 +25,9 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 
 const DEPT_COLORS = [
   "#3b82f6",
@@ -232,7 +232,7 @@ export default function HRPage() {
                       />
                     ))}
                   </Pie>
-                  <Tooltip />
+                  <ChartTooltip />
                   <Legend />
                 </PieChart>
               </ResponsiveContainer>
@@ -260,7 +260,7 @@ export default function HRPage() {
                       }).format(v)
                     }
                   />
-                  <Tooltip
+                  <ChartTooltip
                     formatter={(value) => formatCurrency(Number(value))}
                   />
                   <Legend />

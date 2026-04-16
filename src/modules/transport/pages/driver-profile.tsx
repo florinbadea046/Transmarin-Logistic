@@ -12,7 +12,8 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, Phone, Truck, User, AlertTriangle, CheckCircle2, Clock, XCircle, BarChart3, FileText, Info, Upload, Trash2, Eye, FileImage, File } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { ro } from "date-fns/locale";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
@@ -293,7 +294,7 @@ function TabStats({ trips, isMobile }: { trips: Trip[]; isMobile: boolean }) {
                 <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                 <XAxis dataKey="luna" tick={{ fontSize: 11 }} angle={-35} textAnchor="end" interval={0} />
                 <YAxis tick={{ fontSize: 11 }} width={45} />
-                <Tooltip formatter={(val) => [`${(val as number).toLocaleString("ro-RO")} km`, "Km"]} />
+                <ChartTooltip formatter={(val) => [`${(val as number).toLocaleString("ro-RO")} km`, "Km"]} />
                 <Bar dataKey="km" fill="#3b82f6" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

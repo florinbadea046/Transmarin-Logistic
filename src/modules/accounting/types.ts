@@ -16,7 +16,14 @@ export interface Invoice {
   vat: number;
   total: number;
   status: "draft" | "sent" | "paid" | "overdue";
+  category?: string; // cheie BudgetCategory pentru evidență buget
   attachmentName?: string; // simulare atașament
+}
+
+export interface BudgetCategory {
+  id: string;
+  name: string;
+  allocated: number;
 }
 
 export interface Client {

@@ -36,6 +36,7 @@ import ClientsPage from "@/modules/accounting/pages/clients";
 import ActivityLogAccountingPage from "@/modules/accounting/pages/activity-log";
 import PaymentsPage from "@/modules/accounting/pages/payments";
 import DueDatesPage from "@/modules/accounting/pages/due-dates";
+import JournalsPage from "@/modules/accounting/pages/journals";
 
 import HRPage from "@/modules/hr/index";
 import EmployeesPage from "@/modules/hr/pages/employees";
@@ -253,6 +254,11 @@ const accountingActivityLogRoute = createRoute({
   path: "/accounting/activity-log",
   component: ActivityLogAccountingPage,
 });
+const journalsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/journals",
+  component: JournalsPage,
+});
 
 // HR
 const hrRoute = createRoute({
@@ -444,6 +450,7 @@ const routeTree = rootRoute.addChildren([
     budgetRoute,
     paymentsRoute,
     accountingActivityLogRoute,
+    journalsRoute,
 
     // HR
     hrRoute,

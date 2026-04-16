@@ -32,10 +32,10 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { getCollection } from "@/utils/local-storage";
@@ -150,7 +150,7 @@ export function FuelCRUD() {
                     tickFormatter={(v) => `${t("fleet.fuel.refuel")} ${v}`}
                   />
                   <YAxis unit="L" tick={{ fontSize: 11 }} width={40} />
-                  <Tooltip formatter={(v) => `${v} L/100km`} />
+                  <ChartTooltip formatter={(v) => `${v} L/100km`} />
                   <Legend wrapperStyle={{ fontSize: 11 }} />
                   {trucks.map((truck, i) => (
                     <Line

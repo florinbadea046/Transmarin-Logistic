@@ -135,4 +135,25 @@
   *::-webkit-scrollbar-thumb:hover {
     background-color: hsl(var(--muted-foreground) / 0.5);
   }
+
+}
+
+/* Recharts — elimina focus ring-ul browser-ului pe chart-uri.
+   Chart-urile nu sunt interactive cu tastatura, deci ring-ul nu ajuta.
+   Regula stata in afara lui @layer pentru a primi precedenta maxima. */
+[class^="recharts-"],
+[class*=" recharts-"],
+[class^="recharts-"] *,
+[class*=" recharts-"] *,
+.recharts-wrapper:focus,
+.recharts-wrapper:focus-visible,
+.recharts-wrapper *:focus,
+.recharts-wrapper *:focus-visible,
+.recharts-surface:focus,
+.recharts-surface:focus-visible,
+.recharts-responsive-container:focus,
+.recharts-responsive-container:focus-visible {
+  outline: none !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
 }

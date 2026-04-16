@@ -185,6 +185,11 @@ export const sidebarData: SidebarData = {
               icon: CreditCard,
             },
             {
+              title: "Jurnale Contabile",
+              url: "/accounting/journals",
+              icon: FileText,
+            },
+            {
               title: "Audit Log",
               url: "/accounting/activity-log",
               icon: ClipboardList,

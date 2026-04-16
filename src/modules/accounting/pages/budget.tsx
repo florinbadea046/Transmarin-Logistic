@@ -9,19 +9,13 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import { Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import { getCollection, setCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import type { Invoice } from "@/modules/accounting/types";
-
-// ── Tipuri ─────────────────────────────────────────────────
-interface BudgetCategory {
-  id: string;
-  name: string;
-  allocated: number;
-}
+import type { BudgetCategory, Invoice } from "@/modules/accounting/types";
 
 const DEFAULT_CATEGORIES: BudgetCategory[] = [
   { id: "combustibil", name: "Combustibil", allocated: 10000 },
@@ -57,7 +51,7 @@ export default function BudgetPage() {
     invoices
       .filter((inv) => inv.type === "expense")
       .forEach((inv) => {
-        const cat = (inv as unknown as Record<string, string>).category ?? "altele";
+        const cat = inv.category ?? "altele";
         map[cat] = (map[cat] ?? 0) + inv.total;
       });
     return map;
@@ -155,7 +149,7 @@ export default function BudgetPage() {
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} />
                   <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(val) => [formatCurrency(Number(val))]} />
+                  <ChartTooltip formatter={(val) => [formatCurrency(Number(val))]} />
                   <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
                   <Bar dataKey="Alocat" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                   <Bar dataKey="Real" fill="#ef4444" radius={[4, 4, 0, 0]} />

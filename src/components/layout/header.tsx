@@ -5,6 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationsCenter } from "@/components/notifications/notifications-center";
 import { HRNotificationsCenter } from "@/components/hr-notifications";
+import { AccountingNotificationsCenter } from "@/components/accounting-notifications";
 import { useLocation } from "@tanstack/react-router";
 
 type HeaderProps = HTMLAttributes<HTMLElement> & {
@@ -15,6 +16,7 @@ export function Header({ className, fixed, children, ...props }: HeaderProps) {
   const [offset, setOffset] = useState(0);
   const { pathname } = useLocation();
   const isHRSection = pathname.startsWith("/hr");
+  const isAccountingSection = pathname.startsWith("/accounting");
 
   useEffect(() => {
     const onScroll = () => {
@@ -47,7 +49,13 @@ export function Header({ className, fixed, children, ...props }: HeaderProps) {
         <Separator orientation="vertical" className="h-6" />
         {children}
         <div className="ml-auto flex items-center gap-2">
-          {isHRSection ? <HRNotificationsCenter /> : <NotificationsCenter />}
+          {isHRSection ? (
+            <HRNotificationsCenter />
+          ) : isAccountingSection ? (
+            <AccountingNotificationsCenter />
+          ) : (
+            <NotificationsCenter />
+          )}
         </div>
       </div>
     </header>

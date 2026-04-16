@@ -16,9 +16,10 @@ import type { DateRange } from "react-day-picker";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   RadialBarChart, RadialBar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import {
   CalendarIcon, Download, Loader2, Route, Truck, User, TrendingUp,
 } from "lucide-react";
@@ -457,7 +458,7 @@ export default function TransportReportsPage() {
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis dataKey="name" {...xAxisProps} />
                       <YAxis tick={{ fontSize: isMobile ? 10 : 11 }} width={isMobile ? 40 : 50} />
-                      <Tooltip formatter={(val) => [`${(val ?? 0).toLocaleString("ro-RO")} km`, t("transportReports.charts.kmPerDriver")]} />
+                      <ChartTooltip formatter={(val) => [`${(val ?? 0).toLocaleString("ro-RO")} km`, t("transportReports.charts.kmPerDriver")]} />
                       <Bar dataKey="km" fill={COLORS[0]} radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -479,7 +480,7 @@ export default function TransportReportsPage() {
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis dataKey="luna" {...xAxisProps} />
                       <YAxis tick={{ fontSize: isMobile ? 10 : 11 }} width={isMobile ? 40 : 50} />
-                      <Tooltip formatter={(val) => [`${(val ?? 0).toLocaleString("ro-RO")} RON`, t("transportReports.charts.fuelPerMonth")]} />
+                      <ChartTooltip formatter={(val) => [`${(val ?? 0).toLocaleString("ro-RO")} RON`, t("transportReports.charts.fuelPerMonth")]} />
                       <Line type="monotone" dataKey="cost" stroke={COLORS[1]} strokeWidth={2} dot={{ r: isMobile ? 3 : 4 }} activeDot={{ r: isMobile ? 5 : 6 }} />
                     </LineChart>
                   </ResponsiveContainer>
@@ -507,7 +508,7 @@ export default function TransportReportsPage() {
                       >
                         {routeData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                       </Pie>
-                      <Tooltip formatter={(val, name) => [val ?? 0, name ?? ""]} />
+                      <ChartTooltip formatter={(val, name) => [val ?? 0, name ?? ""]} />
                       <Legend
                         iconSize={8} layout="vertical" align="center" verticalAlign="bottom"
                         wrapperStyle={{ fontSize: isMobile ? "10px" : "11px", lineHeight: "1.6", paddingTop: "8px", width: "100%", whiteSpace: "normal", wordBreak: "break-word" }}
@@ -539,7 +540,7 @@ export default function TransportReportsPage() {
                         label={{ position: "insideStart", fill: "#fff", fontSize: isMobile ? 9 : 11 }}
                         background
                       />
-                      <Tooltip formatter={(val) => [`${val ?? 0}%`, t("transportReports.charts.truckUtil")]} />
+                      <ChartTooltip formatter={(val) => [`${val ?? 0}%`, t("transportReports.charts.truckUtil")]} />
                       <Legend
                         iconSize={isMobile ? 8 : 10}
                         formatter={(value) => <span className={isMobile ? "text-[10px]" : "text-xs"}>{value}</span>}

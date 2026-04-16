@@ -13,9 +13,9 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -236,7 +236,7 @@ export function TransportMainSection({
                 axisLine={false}
                 width={36}
               />
-              <Tooltip
+              <ChartTooltip
                 contentStyle={{ fontSize: 12 }}
                 formatter={(v) => [
                   `${v ?? 0} km`,

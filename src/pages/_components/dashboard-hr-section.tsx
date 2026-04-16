@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   BarChart, Bar,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  XAxis, YAxis, CartesianGrid, ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import { cn } from "@/lib/utils";
 import { padTwo, daysUntil, formatDateRO } from "./dashboard-utils";
@@ -122,7 +123,7 @@ export function HRSection({ employees, leaveRequests }: {
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                 <XAxis dataKey="luna" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
                 <YAxis tick={{ fontSize: 10 }} tickLine={false} axisLine={false} width={30} allowDecimals={false} />
-                <Tooltip contentStyle={{ fontSize: 12 }} formatter={(v) => [v, t("hrDashboard.charts.newEmployeesTooltip")]} />
+                <ChartTooltip contentStyle={{ fontSize: 12 }} formatter={(v) => [v, t("hrDashboard.charts.newEmployeesTooltip")]} />
                 <Bar dataKey="angajati" fill="hsl(var(--primary))" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

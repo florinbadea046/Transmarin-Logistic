@@ -12,10 +12,10 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import { format, parseISO } from "date-fns";
 import { ro } from "date-fns/locale";
 import jsPDF from "jspdf";
@@ -324,7 +324,7 @@ export default function DriverPerformancePage() {
                     interval={0}
                   />
                   <YAxis tick={{ fontSize: 11 }} width={45} />
-                  <Tooltip
+                  <ChartTooltip
                     formatter={(val) => [
                       `${(val as number).toLocaleString("ro-RO")} km`,
                       t("driverPerformance.ranking.km"),
@@ -375,7 +375,7 @@ export default function DriverPerformancePage() {
                         <Cell key={i} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(val) => [val, ""]} />
+                    <ChartTooltip formatter={(val) => [val, ""]} />
                     {isMobile && (
                       <Legend
                         layout="horizontal"
@@ -424,7 +424,7 @@ export default function DriverPerformancePage() {
                     interval={0}
                   />
                   <YAxis tick={{ fontSize: 11 }} width={60} />
-                  <Tooltip
+                  <ChartTooltip
                     formatter={(val) => [
                       `${(val as number).toLocaleString("ro-RO")} RON`,
                       t("driverPerformance.ranking.profit"),
