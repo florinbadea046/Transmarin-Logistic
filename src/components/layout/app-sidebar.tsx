@@ -54,6 +54,7 @@ const TITLE_KEYS: Record<string, string> = {
   "/hr/attendance": "hr.nav.attendance",
   "/hr/shifts": "hr.nav.shifts",
   "/hr/trainings": "hr.nav.trainings",
+  "/hr/self-service": "hr.selfService.title",
   "/hr/activity-log": "hr.nav.activityLog",
   // Reports
   "/reports": "sidebar.reports.overview",
