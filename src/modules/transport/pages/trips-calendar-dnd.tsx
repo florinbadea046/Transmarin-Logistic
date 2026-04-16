@@ -9,9 +9,9 @@ import {
 import { useNavigate } from "@tanstack/react-router";
 import {
   DndContext,
-  DragEndEvent,
+  type DragEndEvent,
   DragOverlay,
-  DragStartEvent,
+  type DragStartEvent,
   PointerSensor,
   TouchSensor,
   useSensor,
@@ -37,12 +37,12 @@ import {
   getDaysInMonth,
   getDayOfWeek,
   addDays,
-} from "./trips-calendar-utils";
-import { STATUS_DOT } from "./trips-dnd-types";
-import type { TripWithRelations } from "./trips-dnd-types";
-import { TripCard, SidebarTripCard } from "./trips-dnd-cards";
-import { DroppableDay } from "./trips-dnd-droppable-day";
-import { TripDetailDialog, ConfirmMoveDialog } from "./trips-dnd-dialogs";
+} from "./_components/trips-calendar-utils";
+import { STATUS_DOT } from "./_components/trips-dnd-types";
+import type { TripWithRelations } from "./_components/trips-dnd-types";
+import { TripCard, SidebarTripCard } from "./_components/trips-dnd-cards";
+import { DroppableDay } from "./_components/trips-dnd-droppable-day";
+import { TripDetailDialog, ConfirmMoveDialog } from "./_components/trips-dnd-dialogs";
 
 function useWindowWidth() {
   const [w, setW] = React.useState(

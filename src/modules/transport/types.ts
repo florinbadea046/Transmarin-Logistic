@@ -1,5 +1,6 @@
 export interface Order {
   id: string;
+  clientId?: string;
   clientName: string;
   origin: string;
   destination: string;

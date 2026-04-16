@@ -8,86 +8,44 @@ import {
 import type { Employee } from "@/modules/hr/types";
 import { useTranslation } from "react-i18next";
 import { Download } from "lucide-react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-import Papa from "papaparse";
+import { exportToPdf, exportToExcel, exportToCsv } from "@/utils/exports";
 
-function toPdfSafeText(value: unknown) {
-  return String(value ?? "")
-    .replace(/[ăĂ]/g, (c) => c === "a" ? "a" : "A")
-    .replace(/[âÂ]/g, (c) => c === "a" ? "a" : "A")
-    .replace(/[îÎ]/g, (c) => c === "i" ? "i" : "I")
-    .replace(/[șşŞŠ]/g, (c) => c.toLowerCase() === "s" ? "s" : "S")
-    .replace(/[țţŢŤ]/g, (c) => c.toLowerCase() === "t" ? "t" : "T");
-}
-
-function getExportCols(t: (k: string) => string) {
+function buildColumns(t: (k: string) => string) {
   return [
-    { key: "name", label: t("employees.fields.name") },
-    { key: "position", label: t("employees.fields.position") },
-    { key: "department", label: t("employees.fields.department") },
-    { key: "phone", label: t("employees.fields.phone") },
-    { key: "email", label: t("employees.fields.email") },
-    { key: "hireDate", label: t("employees.fields.hireDate") },
-    { key: "salary", label: t("employees.fields.salaryExport") },
+    { header: t("employees.fields.name"), accessor: (e: Employee) => e.name },
+    { header: t("employees.fields.position"), accessor: (e: Employee) => e.position },
+    { header: t("employees.fields.department"), accessor: (e: Employee) => e.department },
+    { header: t("employees.fields.phone"), accessor: (e: Employee) => e.phone },
+    { header: t("employees.fields.email"), accessor: (e: Employee) => e.email },
+    { header: t("employees.fields.hireDate"), accessor: (e: Employee) => e.hireDate },
+    { header: t("employees.fields.salaryExport"), accessor: (e: Employee) => e.salary },
   ];
 }
 
-function toRows(employees: Employee[], cols: { key: string; label: string }[]) {
-  return employees.map((e) => {
-    const mapped = {
-      id: e.id,
-      name: e.name,
-      position: e.position,
-      department: e.department,
-      phone: e.phone,
-      email: e.email,
-      hireDate: e.hireDate,
-      salary: e.salary,
-    };
-
-    return Object.fromEntries(
-      cols.map((c) => [c.label, mapped[c.key as keyof typeof mapped] ?? ""])
-    );
-  });
-}
-
 function exportPDF(employees: Employee[], t: (k: string) => string) {
-  const cols = getExportCols(t);
-  const doc = new jsPDF();
-  doc.setFontSize(14);
-  doc.text(toPdfSafeText(t("employees.export.pdfTitle")), 14, 16);
-  autoTable(doc, {
-    head: [cols.map((c) => toPdfSafeText(c.label))],
-    body: employees.map((emp) =>
-      cols.map((c) => toPdfSafeText((emp as unknown as Record<string, unknown>)[c.key]))
-    ),
-    startY: 22,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [30, 30, 30] },
+  exportToPdf({
+    filename: t("employees.export.filename"),
+    title: t("employees.export.pdfTitle"),
+    columns: buildColumns(t),
+    rows: employees,
   });
-  doc.save(`${t("employees.export.filename")}.pdf`);
 }
 
 function exportExcel(employees: Employee[], t: (k: string) => string) {
-  const cols = getExportCols(t);
-  const ws = XLSX.utils.json_to_sheet(toRows(employees, cols));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, t("employees.listTitle"));
-  XLSX.writeFile(wb, `${t("employees.export.filename")}.xlsx`);
+  exportToExcel({
+    filename: t("employees.export.filename"),
+    sheetName: t("employees.listTitle"),
+    columns: buildColumns(t),
+    rows: employees,
+  });
 }
 
 function exportCSV(employees: Employee[], t: (k: string) => string) {
-  const cols = getExportCols(t);
-  const csv = Papa.unparse(toRows(employees, cols));
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${t("employees.export.filename")}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  exportToCsv({
+    filename: t("employees.export.filename"),
+    columns: buildColumns(t),
+    rows: employees,
+  });
 }
 
 type Props = {

@@ -177,7 +177,6 @@ function buildKPIs(
 async function exportPDF(
   kpis: ReturnType<typeof buildKPIs>,
   deptData: ReturnType<typeof buildDeptPie>,
-  leavesData: ReturnType<typeof buildLeavesPerMonth>,
   bonusData: ReturnType<typeof buildTopBonuses>,
   absenceData: ReturnType<typeof buildAbsenceRate>,
   range: DateRange | undefined,
@@ -360,7 +359,7 @@ export default function HRReportsPage() {
   const handleExport = async () => {
     setExporting(true);
     try {
-      await exportPDF(kpis, deptData, leavesData, bonusData, absenceData, range, chartRefs.current, t);
+      await exportPDF(kpis, deptData, bonusData, absenceData, range, chartRefs.current, t);
     } finally {
       setExporting(false);
     }

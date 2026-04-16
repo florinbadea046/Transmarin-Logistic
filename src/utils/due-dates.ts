@@ -1,4 +1,4 @@
-import { Invoice } from "@/modules/accounting/types";
+import type { Invoice } from "@/modules/accounting/types";
 import { differenceInDays, parseISO } from "date-fns";
 
 export function getInvoiceDueStatus(invoice: Invoice) {

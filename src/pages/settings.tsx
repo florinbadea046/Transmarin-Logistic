@@ -54,8 +54,8 @@ export default function SettingsPage() {
       </Header>
       <Main>
         <Tabs value={activeTab} onValueChange={(v) => navigate({ to: tabToPathname(v) })}>
-          <div className="overflow-x-auto -mx-4 px-4 mb-4">
-            <TabsList className="inline-flex w-max min-w-full sm:w-auto">
+          <div className="mb-4 flex justify-center overflow-x-auto -mx-4 px-4">
+            <TabsList className="inline-flex w-max">
               {tabs.filter((tab) => tab.visible).map((tab) => (
                 <TabsTrigger key={tab.value} value={tab.value}>
                   {tab.label}

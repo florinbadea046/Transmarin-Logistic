@@ -71,7 +71,7 @@ export function SettingsInvoicing() {
   }
 
   return (
-    <div className="grid gap-4 max-w-2xl">
+    <div className="grid gap-4 max-w-2xl mx-auto">
       {/* Company information */}
       <Card>
         <CardHeader>

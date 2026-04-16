@@ -170,6 +170,11 @@ export const sidebarData: SidebarData = {
               icon: FileText,
             },
             {
+              title: "Clienti",
+              url: "/accounting/clients",
+              icon: Users,
+            },
+            {
               title: "Furnizori",
               url: "/accounting/suppliers",
               icon: Users,

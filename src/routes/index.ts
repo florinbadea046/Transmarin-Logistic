@@ -6,19 +6,19 @@ import DashboardPage from "@/pages/dashboard";
 import LoginPage from "@/pages/login";
 import NotFoundPage from "@/pages/not-found";
 import UnauthorizedPage from "@/pages/unauthorized";
-import CostsPage from "@/pages/costs";
-import ActivityLogPage from "@/pages/activity-log";
-import DriverPerformancePage from "@/modules/transport/pages/_components/driver-performance";
+import CostsPage from "@/modules/transport/pages/costs";
+import ActivityLogPage from "@/modules/transport/pages/activity-log";
+import DriverPerformancePage from "@/modules/transport/pages/driver-performance";
 
 import TransportPage from "@/modules/transport/index";
 import OrdersPage from "@/modules/transport/pages/orders";
 import TripsPage from "@/modules/transport/pages/trips";
-import TripsCalendarPage from "@/modules/transport/pages/_components/trips-calendar";
-import TripsCalendarDndPage from "@/modules/transport/pages/_components/trips-calendar-dnd";
-import TripsMapPage from "@/modules/transport/pages/_components/trips-map";
-import TripTrackerPage from "@/modules/transport/pages/_components/trip-tracker";
+import TripsCalendarPage from "@/modules/transport/pages/trips-calendar";
+import TripsCalendarDndPage from "@/modules/transport/pages/trips-calendar-dnd";
+import TripsMapPage from "@/modules/transport/pages/trips-map";
+import TripTrackerPage from "@/modules/transport/pages/trip-tracker";
 import DriversPage from "@/modules/transport/pages/drivers";
-import DriverProfilePage from "@/modules/transport/pages/_components/driver-profile";
+import DriverProfilePage from "@/modules/transport/pages/driver-profile";
 import MaintenancePage from "@/modules/transport/pages/maintenance";
 import FuelLogPage from "@/modules/transport/pages/fuel-log";
 import FleetComparisonPage from "@/modules/transport/pages/fleet-comparison";
@@ -32,21 +32,22 @@ import VehiclesPage from "@/modules/fleet/pages/vehicles";
 import AccountingPage from "@/modules/accounting/index";
 import InvoicesPage from "@/modules/accounting/pages/invoices";
 import SuppliersPage from "@/modules/accounting/pages/suppliers";
-import ActivityLogAccountingPage from "@/modules/accounting/pages/activity-log-accounting";
+import ClientsPage from "@/modules/accounting/pages/clients";
+import ActivityLogAccountingPage from "@/modules/accounting/pages/activity-log";
 import PaymentsPage from "@/modules/accounting/pages/payments";
-import DueDatesPage from "@/pages/due-dates";
+import DueDatesPage from "@/modules/accounting/pages/due-dates";
 
 import HRPage from "@/modules/hr/index";
 import EmployeesPage from "@/modules/hr/pages/employees";
 import LeavesPage from "@/modules/hr/pages/leaves";
 import PayrollPage from "@/modules/hr/pages/payroll";
 import AttendancePage from "@/modules/hr/pages/attendance";
-import ActivityLogHRPage from "@/modules/hr/pages/activity-log-hr";
+import ActivityLogHRPage from "@/modules/hr/pages/activity-log";
 import HRSettingsPage from "@/modules/hr/pages/settings-hr";
 import EvaluationsPage from "@/modules/hr/pages/evaluations";
 import TrainingsPage from "@/modules/hr/pages/trainings";
 import RecruitmentPage from "@/modules/hr/pages/recruitment";
-import SelfServicePage from "@/pages/self-service";
+import SelfServicePage from "@/modules/hr/pages/self-service";
 import ShiftsPage from "@/modules/hr/pages/shifts";
 
 import ReportsPage from "@/modules/reports/index";
@@ -59,7 +60,7 @@ import HrReportsPage from "@/modules/reports/pages/reports-hr";
 import SettingsPage from "@/pages/settings";
 import RecurringExpensesPage from "@/modules/transport/pages/recurring-expenses";
 import MileageRegistryPage from "@/modules/transport/pages/mileage-registry";
-import BudgetPage from "@/pages/budget";
+import BudgetPage from "@/modules/accounting/pages/budget";
 import DispatcherLivePage from "@/modules/transport/pages/dispatcher-live";
 
 function isAuthenticated(): boolean {
@@ -236,6 +237,11 @@ const suppliersRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/accounting/suppliers",
   component: SuppliersPage,
+});
+const clientsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/accounting/clients",
+  component: ClientsPage,
 });
 const paymentsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
@@ -434,6 +440,7 @@ const routeTree = rootRoute.addChildren([
     invoicesRoute,
     dueDatesRoute,
     suppliersRoute,
+    clientsRoute,
     budgetRoute,
     paymentsRoute,
     accountingActivityLogRoute,

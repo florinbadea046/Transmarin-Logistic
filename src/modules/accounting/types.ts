@@ -9,6 +9,7 @@ export interface Invoice {
   date: string;
   dueDate: string;
   supplierId?: string;
+  clientId?: string;
   clientName: string;
   items: InvoiceItem[];
   totalWithoutVAT: number;
@@ -16,6 +17,19 @@ export interface Invoice {
   total: number;
   status: "draft" | "sent" | "paid" | "overdue";
   attachmentName?: string; // simulare atașament
+}
+
+export interface Client {
+  id: string;
+  name: string;
+  cui?: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  bankAccount?: string;
+  contactPerson?: string;
+  notes?: string;
+  createdAt?: string;
 }
 
 export interface InvoiceItem {

@@ -1,0 +1,41 @@
+{
+  "clients": {
+    "title": "Clienti",
+    "subtitle": "{{count}} clienti inregistrati",
+    "searchPlaceholder": "Cauta dupa nume, CUI, email, telefon...",
+    "empty": "Niciun client inregistrat. Clientii se creeaza automat din comenzi si facturi existente.",
+    "fields": {
+      "name": "Denumire",
+      "cui": "CUI",
+      "address": "Adresa",
+      "phone": "Telefon",
+      "email": "Email",
+      "bankAccount": "Cont bancar",
+      "contactPerson": "Persoana de contact",
+      "notes": "Note",
+      "actions": "Actiuni"
+    },
+    "actions": {
+      "new": "Client nou",
+      "save": "Salveaza",
+      "cancel": "Anuleaza",
+      "confirmDelete": "Sterge"
+    },
+    "dialog": {
+      "newTitle": "Client nou",
+      "editTitle": "Editeaza client"
+    },
+    "delete": {
+      "title": "Confirmare stergere",
+      "description": "Comenzile si facturile asociate vor ramane cu numele clientului salvat anterior, dar nu vor mai putea referi clientul. Continui?"
+    },
+    "validation": {
+      "nameRequired": "Denumirea clientului este obligatorie"
+    },
+    "toast": {
+      "created": "Client creat cu succes",
+      "updated": "Client actualizat",
+      "deleted": "Client sters"
+    }
+  }
+}

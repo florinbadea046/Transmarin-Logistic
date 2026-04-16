@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,24 +6,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
 import type { PayrollRow } from "../payroll/payroll-shared";
 import { useTranslation } from "react-i18next";
+import { exportToPdf, exportToExcel, type PdfColumn } from "@/utils/exports";
 
 type TFunction = (key: string) => string;
-
-function toPdfSafe(value: unknown): string {
-  return String(value ?? "")
-    .replace(/[ăĂ]/g, (c) => (c === "ă" ? "a" : "A"))
-    .replace(/[âÂ]/g, (c) => (c === "â" ? "a" : "A"))
-    .replace(/[îÎ]/g, (c) => (c === "î" ? "i" : "I"))
-    .replace(/[șş]/g, "s")
-    .replace(/[ȘŞ]/g, "S")
-    .replace(/[țţ]/g, "t")
-    .replace(/[ȚŢ]/g, "T");
-}
 
 function formatRON(value: number): string {
   return (
@@ -45,19 +31,6 @@ function getMonthLabel(selectedMonth: string, locale: string): string {
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
 
-function getCols(t: TFunction): { key: keyof PayrollRow; label: string }[] {
-  return [
-    { key: "name", label: t("payroll.columns.employee") },
-    { key: "department", label: t("payroll.columns.department") },
-    { key: "salary", label: t("payroll.columns.baseSalary") },
-    { key: "diurna", label: t("payroll.columns.diurna") },
-    { key: "bonusuri", label: t("payroll.columns.bonuses") },
-    { key: "amenzi", label: t("payroll.columns.fines") },
-    { key: "oreSuplimentare", label: t("payroll.columns.overtime") },
-    { key: "totalNet", label: t("payroll.columns.totalNet") },
-  ];
-}
-
 const CURRENCY_KEYS = new Set<keyof PayrollRow>([
   "salary",
   "diurna",
@@ -67,47 +40,57 @@ const CURRENCY_KEYS = new Set<keyof PayrollRow>([
   "totalNet",
 ]);
 
+function buildColumns(t: TFunction): PdfColumn<PayrollRow>[] {
+  const cols: { key: keyof PayrollRow; label: string }[] = [
+    { key: "name", label: t("payroll.columns.employee") },
+    { key: "department", label: t("payroll.columns.department") },
+    { key: "salary", label: t("payroll.columns.baseSalary") },
+    { key: "diurna", label: t("payroll.columns.diurna") },
+    { key: "bonusuri", label: t("payroll.columns.bonuses") },
+    { key: "amenzi", label: t("payroll.columns.fines") },
+    { key: "oreSuplimentare", label: t("payroll.columns.overtime") },
+    { key: "totalNet", label: t("payroll.columns.totalNet") },
+  ];
+
+  return cols.map((c) => ({
+    header: c.label,
+    accessor: (row: PayrollRow) => {
+      const val = row[c.key];
+      return CURRENCY_KEYS.has(c.key) ? formatRON(Number(val)) : String(val ?? "");
+    },
+  }));
+}
+
 function exportPDF(
   rows: PayrollRow[],
   selectedMonth: string,
   t: TFunction,
   locale: string,
-  cols: { key: keyof PayrollRow; label: string }[],
 ) {
   const monthLabel = getMonthLabel(selectedMonth, locale);
-  const title = `${t("payroll.export.pdfTitle")} ${monthLabel}`;
   const totalNet = rows.reduce((sum, r) => sum + r.totalNet, 0);
+  const columns = buildColumns(t);
 
-  const doc = new jsPDF({ orientation: "landscape" });
-  doc.setFontSize(13);
-  doc.text(toPdfSafe(title), 14, 16);
-
-  autoTable(doc, {
-    head: [cols.map((c) => toPdfSafe(c.label))],
-    body: rows.map((row) =>
-      cols.map((c) => {
-        const val = row[c.key];
-        return CURRENCY_KEYS.has(c.key) ? formatRON(Number(val)) : toPdfSafe(val);
-      }),
-    ),
-    foot: [
-      [
-        {
-          content: t("payroll.export.totalLabel"),
-          colSpan: cols.length - 1,
-          styles: { halign: "right" as const, fontStyle: "bold" as const },
-        },
-        { content: formatRON(totalNet), styles: { fontStyle: "bold" as const } },
-      ],
+  exportToPdf({
+    filename: `${t("payroll.export.fileName")}-${selectedMonth}`,
+    title: `${t("payroll.export.pdfTitle")} ${monthLabel}`,
+    columns,
+    rows,
+    orientation: "landscape",
+    showHeader: false,
+    footerRow: [
+      {
+        content: t("payroll.export.totalLabel"),
+        colSpan: columns.length - 1,
+        align: "right",
+        bold: true,
+      },
+      {
+        content: formatRON(totalNet),
+        bold: true,
+      },
     ],
-    startY: 22,
-    styles: { fontSize: 7 },
-    headStyles: { fillColor: [30, 30, 30] },
-    footStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
-    showFoot: "lastPage",
   });
-
-  doc.save(`${t("payroll.export.fileName")}-${selectedMonth}.pdf`);
 }
 
 function exportExcel(
@@ -115,27 +98,32 @@ function exportExcel(
   selectedMonth: string,
   t: TFunction,
   locale: string,
-  cols: { key: keyof PayrollRow; label: string }[],
 ) {
   const monthLabel = getMonthLabel(selectedMonth, locale);
-  const headers = cols.map((c) => c.label);
-
-  const data = rows.map((row) =>
-    cols.map((c) => {
-      const val = row[c.key];
-      return CURRENCY_KEYS.has(c.key) ? Number(val) : String(val ?? "");
-    }),
-  );
-
   const totalNet = rows.reduce((sum, r) => sum + r.totalNet, 0);
-  const totalRow = Array(cols.length).fill("");
-  totalRow[cols.length - 2] = t("payroll.export.totalLabel");
-  totalRow[cols.length - 1] = totalNet;
 
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...data, totalRow]);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, monthLabel);
-  XLSX.writeFile(wb, `${t("payroll.export.fileName")}-${selectedMonth}.xlsx`);
+  const columns: { header: string; accessor: (r: PayrollRow) => string | number }[] = [
+    { header: t("payroll.columns.employee"), accessor: (r) => r.name },
+    { header: t("payroll.columns.department"), accessor: (r) => r.department },
+    { header: t("payroll.columns.baseSalary"), accessor: (r) => r.salary },
+    { header: t("payroll.columns.diurna"), accessor: (r) => r.diurna },
+    { header: t("payroll.columns.bonuses"), accessor: (r) => r.bonusuri },
+    { header: t("payroll.columns.fines"), accessor: (r) => r.amenzi },
+    { header: t("payroll.columns.overtime"), accessor: (r) => r.oreSuplimentare },
+    { header: t("payroll.columns.totalNet"), accessor: (r) => r.totalNet },
+  ];
+
+  const footerRow: (string | number)[] = Array(columns.length).fill("");
+  footerRow[columns.length - 2] = t("payroll.export.totalLabel");
+  footerRow[columns.length - 1] = totalNet;
+
+  exportToExcel({
+    filename: `${t("payroll.export.fileName")}-${selectedMonth}`,
+    sheetName: monthLabel,
+    columns,
+    rows,
+    footerRow,
+  });
 }
 
 type Props = {
@@ -146,7 +134,6 @@ type Props = {
 export function PayrollExportMenu({ rows, selectedMonth }: Props) {
   const { t, i18n } = useTranslation();
   const locale = i18n.language.startsWith("en") ? "en-GB" : "ro-RO";
-  const cols = React.useMemo(() => getCols(t), [t]);
   const isEmpty = rows.length === 0;
 
   return (
@@ -160,13 +147,13 @@ export function PayrollExportMenu({ rows, selectedMonth }: Props) {
       <DropdownMenuContent align="end">
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => exportPDF(rows, selectedMonth, t, locale, cols)}
+          onClick={() => exportPDF(rows, selectedMonth, t, locale)}
         >
           {t("payroll.export.pdf")}
         </DropdownMenuItem>
         <DropdownMenuItem
           className="cursor-pointer"
-          onClick={() => exportExcel(rows, selectedMonth, t, locale, cols)}
+          onClick={() => exportExcel(rows, selectedMonth, t, locale)}
         >
           {t("payroll.export.excel")}
         </DropdownMenuItem>

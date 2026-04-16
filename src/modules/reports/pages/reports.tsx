@@ -7,7 +7,7 @@
 import * as React from "react";
 import { format, parseISO, startOfDay, endOfDay, isWithinInterval } from "date-fns";
 import { ro } from "date-fns/locale";
-import { DateRange } from "react-day-picker";
+import type { DateRange } from "react-day-picker";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   RadialBarChart, RadialBar,
