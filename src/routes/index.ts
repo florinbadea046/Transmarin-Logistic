@@ -47,6 +47,7 @@ import HRSettingsPage from "@/modules/hr/pages/settings-hr";
 import EvaluationsPage from "@/modules/hr/pages/evaluations";
 import TrainingsPage from "@/modules/hr/pages/trainings";
 import RecruitmentPage from "@/modules/hr/pages/recruitment";
+import EquipmentPage from "@/modules/hr/pages/equipment";
 import SelfServicePage from "@/modules/hr/pages/self-service";
 import ShiftsPage from "@/modules/hr/pages/shifts";
 
@@ -305,6 +306,11 @@ const recruitmentRoute = createRoute({
   path: "/hr/recruitment",
   component: RecruitmentPage,
 });
+const equipmentRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/equipment",
+  component: EquipmentPage,
+});
 const selfServiceRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr/self-service",
@@ -456,6 +462,7 @@ const routeTree = rootRoute.addChildren([
     evaluationsRoute,
     trainingsRoute,
     recruitmentRoute,
+    equipmentRoute,
     selfServiceRoute,
     shiftsRoute,
 

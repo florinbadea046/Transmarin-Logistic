@@ -708,6 +708,7 @@
       "evaluation": "Evaluare",
       "training": "Training",
       "candidate": "Candidat",
+      "equipment": "Echipament",
       "shift": "Tura"
     }
   },
@@ -875,6 +876,94 @@
       "deleted": "Candidat șters cu succes",
       "movedToHired": "{{name}} a fost mutat la Angajat — poți crea angajatul din card",
       "employeeCreated": "Angajat creat cu succes din candidat"
+    }
+  },
+  "equipment": {
+    "title": "Echipamente",
+    "listTitle": "Inventar Echipamente Angajați",
+    "count": "{{count}} echipamente",
+    "searchPlaceholder": "Caută după nr. inventar sau angajat...",
+    "empty": "Niciun echipament găsit.",
+    "allTypes": "Toate tipurile",
+    "allConditions": "Toate stările",
+    "assigned": "Alocat",
+    "returned": "Returnat",
+    "scheduledReturn": "De returnat",
+    "departed": "Plecat",
+    "tabs": {
+      "active": "Active",
+      "unreturned": "Nereturnate"
+    },
+    "unreturnedTitle": "Echipamente nereturnate — angajați plecați",
+    "unreturnedEmpty": "Niciun echipament nereturnat de angajați plecați.",
+    "columns": {
+      "type": "Tip echipament",
+      "inventoryNumber": "Nr. inventar",
+      "employee": "Angajat atribuit",
+      "assignedDate": "Data atribuire",
+      "condition": "Stare",
+      "value": "Valoare",
+      "status": "Status",
+      "actions": "Acțiuni"
+    },
+    "type": {
+      "laptop": "Laptop",
+      "phone": "Telefon",
+      "uniform": "Uniformă",
+      "key": "Cheie",
+      "access_card": "Card acces",
+      "other": "Altele"
+    },
+    "condition": {
+      "new": "Nou",
+      "good": "Bun",
+      "worn": "Uzat",
+      "broken": "Defect"
+    },
+    "fields": {
+      "type": "Tip echipament",
+      "inventoryNumber": "Nr. inventar",
+      "inventoryPlaceholder": "ex: INV-001",
+      "employee": "Angajat",
+      "employeePlaceholder": "Selectează angajat",
+      "assignedDate": "Data atribuire",
+      "returnedDate": "Data returnare",
+      "condition": "Stare",
+      "value": "Valoare (RON)",
+      "notes": "Observații",
+      "notesPlaceholder": "Opțional"
+    },
+    "dialog": {
+      "addTitle": "Adaugă echipament",
+      "editTitle": "Editare echipament"
+    },
+    "actions": {
+      "add": "Adaugă echipament",
+      "edit": "Editează",
+      "delete": "Șterge",
+      "menu": "Acțiuni echipament",
+      "cancel": "Anulează",
+      "save": "Salvează",
+      "markReturned": "Marchează ca returnat",
+      "deleteTitle": "Șterge echipament",
+      "deleteDesc": "Sigur vrei să ștergi acest echipament? Acțiunea nu poate fi anulată."
+    },
+    "validation": {
+      "typeRequired": "Tipul este obligatoriu",
+      "inventoryRequired": "Nr. inventar este obligatoriu",
+      "employeeRequired": "Selectează un angajat",
+      "assignedDateRequired": "Data atribuire este obligatorie",
+      "conditionRequired": "Starea este obligatorie",
+      "valueInvalid": "Valoarea trebuie să fie >= 0",
+      "returnedBeforeAssigned": "Data returnare nu poate fi înainte de data atribuire",
+      "returnedInFuture": "Data returnare nu poate fi în viitor"
+    },
+    "toast": {
+      "created": "Echipament adăugat cu succes",
+      "updated": "Echipament actualizat cu succes",
+      "deleted": "Echipament șters cu succes",
+      "markedReturned": "Echipament marcat ca returnat",
+      "unreturnedWarning": "Atenție: angajatul are {{count}} echipament(e) nereturnat(e)!"
     }
   }
 }
