@@ -154,3 +154,39 @@ export interface Candidate {
   createdAt: string; // ISO
   employeeId?: string; // setat după conversia în angajat, previne duplicate
 }
+
+// ── Inventar Echipamente ──────────────────────────────────
+
+export const EQUIPMENT_TYPES = [
+  "laptop",
+  "phone",
+  "uniform",
+  "key",
+  "access_card",
+  "other",
+] as const;
+
+export type EquipmentType = (typeof EQUIPMENT_TYPES)[number];
+
+export const EQUIPMENT_CONDITIONS = [
+  "new",
+  "good",
+  "worn",
+  "broken",
+] as const;
+
+export type EquipmentCondition = (typeof EQUIPMENT_CONDITIONS)[number];
+
+export interface Equipment {
+  id: string;
+  type: EquipmentType;
+  inventoryNumber: string;
+  employeeId: string;
+  employeeName?: string;
+  assignedDate: string; // YYYY-MM-DD
+  returnedDate?: string; // YYYY-MM-DD, termen planificat returnare
+  returnedConfirmed?: boolean; // true = efectiv returnat
+  condition: EquipmentCondition;
+  value: number;
+  notes?: string;
+}

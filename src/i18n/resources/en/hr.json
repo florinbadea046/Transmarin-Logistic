@@ -707,6 +707,7 @@
       "evaluation": "Evaluation",
       "training": "Training",
       "candidate": "Candidate",
+      "equipment": "Equipment",
       "shift": "Shift"
     }
   },
@@ -873,6 +874,94 @@
       "deleted": "Candidate deleted successfully",
       "movedToHired": "{{name}} moved to Hired — you can create the employee from the card",
       "employeeCreated": "Employee created successfully from candidate"
+    }
+  },
+  "equipment": {
+    "title": "Equipment",
+    "listTitle": "Employee Equipment Inventory",
+    "count": "{{count}} items",
+    "searchPlaceholder": "Search by inventory no. or employee...",
+    "empty": "No equipment found.",
+    "allTypes": "All types",
+    "allConditions": "All conditions",
+    "assigned": "Assigned",
+    "returned": "Returned",
+    "scheduledReturn": "Due return",
+    "departed": "Departed",
+    "tabs": {
+      "active": "Active",
+      "unreturned": "Unreturned"
+    },
+    "unreturnedTitle": "Unreturned equipment — departed employees",
+    "unreturnedEmpty": "No unreturned equipment from departed employees.",
+    "columns": {
+      "type": "Equipment type",
+      "inventoryNumber": "Inventory no.",
+      "employee": "Assigned employee",
+      "assignedDate": "Assigned date",
+      "condition": "Condition",
+      "value": "Value",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "type": {
+      "laptop": "Laptop",
+      "phone": "Phone",
+      "uniform": "Uniform",
+      "key": "Key",
+      "access_card": "Access card",
+      "other": "Other"
+    },
+    "condition": {
+      "new": "New",
+      "good": "Good",
+      "worn": "Worn",
+      "broken": "Broken"
+    },
+    "fields": {
+      "type": "Equipment type",
+      "inventoryNumber": "Inventory no.",
+      "inventoryPlaceholder": "e.g.: INV-001",
+      "employee": "Employee",
+      "employeePlaceholder": "Select employee",
+      "assignedDate": "Assigned date",
+      "returnedDate": "Returned date",
+      "condition": "Condition",
+      "value": "Value (RON)",
+      "notes": "Notes",
+      "notesPlaceholder": "Optional"
+    },
+    "dialog": {
+      "addTitle": "Add equipment",
+      "editTitle": "Edit equipment"
+    },
+    "actions": {
+      "add": "Add equipment",
+      "edit": "Edit",
+      "delete": "Delete",
+      "menu": "Equipment actions",
+      "cancel": "Cancel",
+      "save": "Save",
+      "markReturned": "Mark as returned",
+      "deleteTitle": "Delete equipment",
+      "deleteDesc": "Are you sure you want to delete this equipment? This action cannot be undone."
+    },
+    "validation": {
+      "typeRequired": "Type is required",
+      "inventoryRequired": "Inventory number is required",
+      "employeeRequired": "Select an employee",
+      "assignedDateRequired": "Assigned date is required",
+      "conditionRequired": "Condition is required",
+      "valueInvalid": "Value must be >= 0",
+      "returnedBeforeAssigned": "Return date cannot be before assigned date",
+      "returnedInFuture": "Return date cannot be in the future"
+    },
+    "toast": {
+      "created": "Equipment added successfully",
+      "updated": "Equipment updated successfully",
+      "deleted": "Equipment deleted successfully",
+      "markedReturned": "Equipment marked as returned",
+      "unreturnedWarning": "Warning: employee has {{count}} unreturned equipment item(s)!"
     }
   }
 }

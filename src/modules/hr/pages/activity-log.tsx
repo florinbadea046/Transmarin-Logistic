@@ -28,6 +28,7 @@ import {
   Star,
   GraduationCap,
   UserPlus,
+  Package,
   HelpCircle,
   Clock3,
 } from "lucide-react";
@@ -133,6 +134,10 @@ const ENTITY_CONFIG: Record<
   candidate: {
     icon: <UserPlus className="h-4 w-4" />,
     labelKey: "hrAuditLog.entities.candidate",
+  },
+  equipment: {
+    icon: <Package className="h-4 w-4" />,
+    labelKey: "hrAuditLog.entities.equipment",
   },
   shift: {
     icon: <Clock3 className="h-4 w-4" />,

@@ -17,7 +17,7 @@ import { EmployeeDocumentsDialog } from "./employee-documents-dialog";
 import { EmployeeProfileDialog, EmployeeStatsDialog } from "./employee-profile-dialog";
 import { getCollection, updateItem, removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import type { Employee, LeaveRequest } from "@/modules/hr/types";
+import type { Employee, LeaveRequest, Equipment } from "@/modules/hr/types";
 import type { Trip } from "@/modules/transport/types";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -63,6 +63,16 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, training
     if (hasFutureLeave) {
       toast.warning(t("employees.toast.deleteBlockedFutureLeave"));
       return;
+    }
+
+    const equipmentItems = getCollection<Equipment>(STORAGE_KEYS.equipment);
+    const unreturned = equipmentItems.filter(
+      (eq) => eq.employeeId === employee.id && !eq.returnedDate,
+    );
+    if (unreturned.length > 0) {
+      toast.warning(
+        t("equipment.toast.unreturnedWarning", { count: unreturned.length }),
+      );
     }
 
     setDeleteOpen(true);
