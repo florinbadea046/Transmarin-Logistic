@@ -21,7 +21,12 @@ import {
 } from "@/components/ui/select";
 import { addItem, updateItem, generateId } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import type { Employee, Equipment, EquipmentType, EquipmentCondition } from "@/modules/hr/types";
+import type {
+  Employee,
+  Equipment,
+  EquipmentType,
+  EquipmentCondition,
+} from "@/modules/hr/types";
 import { EQUIPMENT_TYPES, EQUIPMENT_CONDITIONS } from "@/modules/hr/types";
 import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
 import { toast } from "sonner";
@@ -58,6 +63,8 @@ export function EquipmentDialog({
     [schema],
   );
 
+  // NOTĂ: returnedAt (data returnării efective) se setează doar din acțiunea „Marchează ca returnat”, nu din dialogul de editare generală.
+  // Formularul nu expune și nu resetează acest câmp, pentru a evita confuzii și a păstra o singură sursă de adevăr pentru returnare.
   const form = useForm<EquipmentFormValues>({
     resolver,
     defaultValues: {
@@ -90,8 +97,10 @@ export function EquipmentDialog({
 
   const handleSubmit = (values: EquipmentFormValues) => {
     const emp = employees.find((e) => e.id === values.employeeId);
+    // Eliminăm orice referință la returnedConfirmed, folosim doar returnedAt dacă e cazul
+    const { returnedConfirmed, ...rest } = values as any;
     const cleanValues = {
-      ...values,
+      ...rest,
       employeeName: emp?.name,
       returnedDate: values.returnedDate || undefined,
       notes: values.notes || undefined,
@@ -147,7 +156,10 @@ export function EquipmentDialog({
                 control={form.control}
                 name="type"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={(v) => field.onChange(v as EquipmentType)}>
+                  <Select
+                    value={field.value}
+                    onValueChange={(v) => field.onChange(v as EquipmentType)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -175,7 +187,12 @@ export function EquipmentDialog({
                 control={form.control}
                 name="condition"
                 render={({ field }) => (
-                  <Select value={field.value} onValueChange={(v) => field.onChange(v as EquipmentCondition)}>
+                  <Select
+                    value={field.value}
+                    onValueChange={(v) =>
+                      field.onChange(v as EquipmentCondition)
+                    }
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
@@ -223,7 +240,9 @@ export function EquipmentDialog({
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger>
-                    <SelectValue placeholder={t("equipment.fields.employeePlaceholder")} />
+                    <SelectValue
+                      placeholder={t("equipment.fields.employeePlaceholder")}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     {employees.map((emp) => (

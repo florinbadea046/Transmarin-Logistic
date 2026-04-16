@@ -1,7 +1,14 @@
 import * as React from "react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { flexRender, type Row, type Cell } from "@tanstack/react-table";
-import { MoreVertical, Pencil, Trash2, FileText, BarChart2, GraduationCap } from "lucide-react";
+import {
+  MoreVertical,
+  Pencil,
+  Trash2,
+  FileText,
+  BarChart2,
+  GraduationCap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,7 +21,10 @@ import {
 import EmployeeDialog from "./employee-dialog";
 import ConfirmDeleteDialog from "./confirm-delete-dialog";
 import { EmployeeDocumentsDialog } from "./employee-documents-dialog";
-import { EmployeeProfileDialog, EmployeeStatsDialog } from "./employee-profile-dialog";
+import {
+  EmployeeProfileDialog,
+  EmployeeStatsDialog,
+} from "./employee-profile-dialog";
 import { getCollection, updateItem, removeItem } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import type { Employee, LeaveRequest, Equipment } from "@/modules/hr/types";
@@ -29,7 +39,11 @@ interface EmployeeRowProps {
   trainingsCount: number;
 }
 
-export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, trainingsCount }) => {
+export const EmployeeRow: React.FC<EmployeeRowProps> = ({
+  row,
+  setData,
+  trainingsCount,
+}) => {
   const { t } = useTranslation();
   const { log } = useHrAuditLog();
   const employee = row.original;
@@ -67,7 +81,7 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, training
 
     const equipmentItems = getCollection<Equipment>(STORAGE_KEYS.equipment);
     const unreturned = equipmentItems.filter(
-      (eq) => eq.employeeId === employee.id && !eq.returnedDate,
+      (eq) => eq.employeeId === employee.id && !eq.returnedConfirmed,
     );
     if (unreturned.length > 0) {
       toast.warning(
@@ -94,7 +108,9 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, training
                 <Badge
                   variant="secondary"
                   className="gap-1 px-1.5 py-0 text-[10px]"
-                  title={t("trainings.employeeBadge", { count: trainingsCount })}
+                  title={t("trainings.employeeBadge", {
+                    count: trainingsCount,
+                  })}
                 >
                   <GraduationCap className="h-3 w-3" />
                   {trainingsCount}
@@ -167,7 +183,11 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, training
         employee={employee}
         open={profileOpen}
         onOpenChange={setProfileOpen}
-        onUpdate={(updated) => setData((prev) => prev.map((e) => e.id === updated.id ? updated : e))}
+        onUpdate={(updated) =>
+          setData((prev) =>
+            prev.map((e) => (e.id === updated.id ? updated : e)),
+          )
+        }
       />
       <EmployeeDialog
         mode="edit"
@@ -186,18 +206,29 @@ export const EmployeeRow: React.FC<EmployeeRowProps> = ({ row, setData, training
             entity: "employee",
             entityId: updated.id,
             entityLabel: updated.name,
-            oldValue: { name: employee.name, position: employee.position, salary: employee.salary },
-            newValue: { name: updated.name, position: updated.position, salary: updated.salary },
+            oldValue: {
+              name: employee.name,
+              position: employee.position,
+              salary: employee.salary,
+            },
+            newValue: {
+              name: updated.name,
+              position: updated.position,
+              salary: updated.salary,
+            },
           });
           toast.success(t("employees.toast.updated"));
         }}
-
       />
       <EmployeeDocumentsDialog
         employee={employee}
         open={docsOpen}
         onOpenChange={setDocsOpen}
-        onUpdate={(updated) => setData((prev) => prev.map((e) => e.id === updated.id ? updated : e))}
+        onUpdate={(updated) =>
+          setData((prev) =>
+            prev.map((e) => (e.id === updated.id ? updated : e)),
+          )
+        }
       />
       <ConfirmDeleteDialog
         employeeName={employee.name}

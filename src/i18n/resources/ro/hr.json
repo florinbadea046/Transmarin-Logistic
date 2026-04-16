@@ -890,6 +890,7 @@
     "returned": "Returnat",
     "scheduledReturn": "De returnat",
     "departed": "Plecat",
+    "late": "Echipament întârziat",
     "tabs": {
       "active": "Active",
       "unreturned": "Nereturnate"

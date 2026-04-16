@@ -17,7 +17,14 @@ export interface Employee {
 
 export interface EmployeeDocument {
   id: string;
-  type: "license" | "tachograph" | "adr" | "medical" | "contract" | "certificate" | "other";
+  type:
+    | "license"
+    | "tachograph"
+    | "adr"
+    | "medical"
+    | "contract"
+    | "certificate"
+    | "other";
   name: string;
   documentNumber?: string;
   issueDate?: string;
@@ -47,12 +54,12 @@ export interface Bonus {
 }
 
 export interface HRSettings {
-  defaultLeaveDays: number;        // nr. zile concediu/an, default 21
-  leaveTypes: string[];            // tipuri concediu configurabile
-  documentAlertDays: number;       // prag alertă documente în zile, default 30
-  departments: string[];           // departamente disponibile (CRUD)
-  documentNumberFormat: string;    // format nr. document
-  bonusCurrency: "RON" | "EUR";   // moneda bonusuri
+  defaultLeaveDays: number; // nr. zile concediu/an, default 21
+  leaveTypes: string[]; // tipuri concediu configurabile
+  documentAlertDays: number; // prag alertă documente în zile, default 30
+  departments: string[]; // departamente disponibile (CRUD)
+  documentNumberFormat: string; // format nr. document
+  bonusCurrency: "RON" | "EUR"; // moneda bonusuri
 }
 
 // ── Evaluări Performanță ──────────────────────────────────
@@ -168,12 +175,7 @@ export const EQUIPMENT_TYPES = [
 
 export type EquipmentType = (typeof EQUIPMENT_TYPES)[number];
 
-export const EQUIPMENT_CONDITIONS = [
-  "new",
-  "good",
-  "worn",
-  "broken",
-] as const;
+export const EQUIPMENT_CONDITIONS = ["new", "good", "worn", "broken"] as const;
 
 export type EquipmentCondition = (typeof EQUIPMENT_CONDITIONS)[number];
 
@@ -184,8 +186,12 @@ export interface Equipment {
   employeeId: string;
   employeeName?: string;
   assignedDate: string; // YYYY-MM-DD
-  returnedDate?: string; // YYYY-MM-DD, termen planificat returnare
-  returnedConfirmed?: boolean; // true = efectiv returnat
+  dueDate?: string; // YYYY-MM-DD, termen planificat de returnare
+  returnedAt?: string; // YYYY-MM-DD, data returnării efective
+  /** @deprecated Folosește dueDate pentru termen planificat sau returnedAt pentru returnare efectivă */
+  returnedDate?: string;
+  /** @deprecated Folosește returnedAt pentru returnare efectivă */
+  returnedConfirmed?: string;
   condition: EquipmentCondition;
   value: number;
   notes?: string;

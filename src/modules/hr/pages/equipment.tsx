@@ -10,7 +10,13 @@ import {
   type ColumnFiltersState,
   useReactTable,
 } from "@tanstack/react-table";
-import { Plus, Pencil, Trash2, MoreHorizontal, CheckCircle2 } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  MoreHorizontal,
+  CheckCircle2,
+} from "lucide-react";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,12 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -82,8 +83,9 @@ export default function EquipmentPage() {
   );
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] =
-    React.useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
   const [search, setSearch] = React.useState("");
   const [typeFilter, setTypeFilter] = React.useState(ALL_TYPES);
   const [conditionFilter, setConditionFilter] = React.useState(ALL_CONDITIONS);
@@ -135,15 +137,8 @@ export default function EquipmentPage() {
   });
 
   const unreturnedData = React.useMemo(() => {
-    const employeeIds = new Set(employees.map((e) => e.id));
-    const today = new Date().toISOString().slice(0, 10);
-    return data.filter((eq) => {
-      const effectivelyReturned = eq.returnedDate && eq.returnedDate <= today;
-      if (effectivelyReturned) return false;
-      const employeeDeparted = !employeeIds.has(eq.employeeId);
-      const overdue = eq.returnedDate && eq.returnedDate < today;
-      return employeeDeparted || overdue;
-    });
+    // În aplicațiile reale, tab-ul Nereturnate arată TOATE echipamentele fără returnedAt (nu contează dacă angajatul există sau dacă sunt overdue)
+    return data.filter((eq) => !eq.returnedAt);
   }, [data, employees]);
 
   const refreshData = () => {
@@ -153,9 +148,7 @@ export default function EquipmentPage() {
 
   const handleTypeFilter = (v: string) => {
     setTypeFilter(v);
-    table
-      .getColumn("type")
-      ?.setFilterValue(v === ALL_TYPES ? undefined : v);
+    table.getColumn("type")?.setFilterValue(v === ALL_TYPES ? undefined : v);
     table.setPageIndex(0);
   };
 
@@ -182,7 +175,7 @@ export default function EquipmentPage() {
     updateItem<Equipment>(
       STORAGE_KEYS.equipment,
       (e) => e.id === eq.id,
-      (e) => ({ ...e, returnedDate: today, returnedConfirmed: true }),
+      (e) => ({ ...e, returnedAt: today }),
     );
     log({
       action: "update",
@@ -218,9 +211,7 @@ export default function EquipmentPage() {
     setDeleteTarget(null);
   };
 
-  const renderTableRows = (
-    tableInstance: typeof table,
-  ) =>
+  const renderTableRows = (tableInstance: typeof table) =>
     tableInstance.getRowModel().rows?.length ? (
       tableInstance.getRowModel().rows.map((row) => (
         <TableRow key={row.id}>
@@ -287,7 +278,10 @@ export default function EquipmentPage() {
             <TabsTrigger value="unreturned">
               {t("equipment.tabs.unreturned")}
               {unreturnedData.length > 0 && (
-                <Badge variant="destructive" className="ml-2 px-1.5 py-0 text-[10px]">
+                <Badge
+                  variant="destructive"
+                  className="ml-2 px-1.5 py-0 text-[10px]"
+                >
                   {unreturnedData.length}
                 </Badge>
               )}
@@ -325,9 +319,7 @@ export default function EquipmentPage() {
                   />
                   <Select value={typeFilter} onValueChange={handleTypeFilter}>
                     <SelectTrigger className="w-44">
-                      <SelectValue
-                        placeholder={t("equipment.columns.type")}
-                      />
+                      <SelectValue placeholder={t("equipment.columns.type")} />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value={ALL_TYPES}>
@@ -400,21 +392,19 @@ export default function EquipmentPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>{t("equipment.columns.type")}</TableHead>
+                        <TableHead className="pl-4">{t("equipment.columns.type")}</TableHead>
                         <TableHead>
                           {t("equipment.columns.inventoryNumber")}
                         </TableHead>
-                        <TableHead>
-                          {t("equipment.columns.employee")}
-                        </TableHead>
+                        <TableHead>{t("equipment.columns.employee")}</TableHead>
                         <TableHead>
                           {t("equipment.columns.assignedDate")}
                         </TableHead>
                         <TableHead>
                           {t("equipment.columns.condition")}
                         </TableHead>
-                        <TableHead>{t("equipment.columns.value")}</TableHead>
-                        <TableHead className="text-right">
+                        <TableHead className="text-right pr-6 min-w-[120px]">{t("equipment.columns.value")}</TableHead>
+                        <TableHead className="text-center min-w-[170px]">
                           {t("equipment.columns.actions")}
                         </TableHead>
                       </TableRow>
@@ -430,46 +420,53 @@ export default function EquipmentPage() {
                           </TableCell>
                         </TableRow>
                       ) : (
-                        unreturnedData.map((eq) => (
-                          <TableRow key={eq.id}>
-                            <TableCell>
-                              <Badge variant="outline">
-                                {t(`equipment.type.${eq.type}`)}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="font-mono text-xs">
-                              {eq.inventoryNumber}
-                            </TableCell>
-                            <TableCell className="text-muted-foreground">
-                              {eq.employeeName ?? eq.employeeId}
-                              <Badge
-                                variant="destructive"
-                                className="ml-2 text-[10px]"
-                              >
-                                {t("equipment.departed")}
-                              </Badge>
-                            </TableCell>
-                            <TableCell>{formatDate(eq.assignedDate)}</TableCell>
-                            <TableCell>
-                              <Badge variant="outline">
-                                {t(`equipment.condition.${eq.condition}`)}
-                              </Badge>
-                            </TableCell>
-                            <TableCell className="text-right tabular-nums">
-                              {formatCurrency(eq.value)}
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => markAsReturned(eq)}
-                              >
-                                <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
-                                {t("equipment.actions.markReturned")}
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))
+                        unreturnedData.map((eq) => {
+                          // Verifică dacă angajatul mai există
+                          const employee = employees.find(e => e.id === eq.employeeId);
+                          return (
+                            <TableRow key={eq.id}>
+                              <TableCell className="pl-4">
+                                <Badge variant="outline">
+                                  {t(`equipment.type.${eq.type}`)}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="font-mono text-xs">
+                                {eq.inventoryNumber}
+                              </TableCell>
+                              <TableCell className="text-muted-foreground">
+                                {eq.employeeName ?? eq.employeeId}
+                                {!employee && (
+                                  <Badge
+                                    variant="destructive"
+                                    className="ml-2 text-[10px] align-middle"
+                                  >
+                                    {t("equipment.departed")}
+                                  </Badge>
+                                )}
+                              </TableCell>
+                              <TableCell>{formatDate(eq.assignedDate)}</TableCell>
+                              <TableCell>
+                                <Badge variant="outline">
+                                  {t(`equipment.condition.${eq.condition}`)}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums pr-6 min-w-[120px]">
+                                {formatCurrency(eq.value)}
+                              </TableCell>
+                              <TableCell className="text-center min-w-[170px]">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => markAsReturned(eq)}
+                                  className="mx-auto"
+                                >
+                                  <CheckCircle2 className="h-3.5 w-3.5 mr-1.5" />
+                                  {t("equipment.actions.markReturned")}
+                                </Button>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })
                       )}
                     </TableBody>
                   </Table>

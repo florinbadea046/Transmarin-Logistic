@@ -69,15 +69,20 @@ export function getEquipmentColumns(
           title={t("equipment.columns.employee")}
         />
       ),
-      cell: ({ row }) => (
-        <div className="whitespace-nowrap">
-          {empName(row.getValue("employeeId"))}
-        </div>
-      ),
-      sortingFn: (a, b) =>
-        empName(a.getValue("employeeId")).localeCompare(
-          empName(b.getValue("employeeId")),
-        ),
+      cell: ({ row }) => {
+        // Folosește employeeName dacă există, altfel empName sau id
+        const original = row.original;
+        return (
+          <div className="whitespace-nowrap">
+            {original.employeeName || empName(row.getValue("employeeId"))}
+          </div>
+        );
+      },
+      sortingFn: (a, b) => {
+        const aName = a.original.employeeName || empName(a.getValue("employeeId"));
+        const bName = b.original.employeeName || empName(b.getValue("employeeId"));
+        return aName.localeCompare(bName);
+      },
     },
     {
       accessorKey: "assignedDate",
@@ -120,10 +125,11 @@ export function getEquipmentColumns(
         <DataTableColumnHeader
           column={column}
           title={t("equipment.columns.value")}
+          className="text-right pr-6 min-w-[120px]"
         />
       ),
       cell: ({ row }) => (
-        <div className="whitespace-nowrap text-right tabular-nums">
+        <div className="whitespace-nowrap text-right tabular-nums pr-6 min-w-[120px]">
           {formatCurrency(Number(row.getValue("value")))}
         </div>
       ),
@@ -137,25 +143,38 @@ export function getEquipmentColumns(
         />
       ),
       cell: ({ row }) => {
-        const d = row.original.returnedDate;
-        if (!d) {
+        // Folosește noile câmpuri dueDate și returnedAt, cu fallback pe cele vechi pentru compatibilitate
+        const dueDate = row.original.dueDate || row.original.returnedDate;
+        const returnedAt =
+          row.original.returnedAt || row.original.returnedConfirmed;
+        const employeeId = row.original.employeeId;
+        const today = new Date().toISOString().slice(0, 10);
+        if (returnedAt) {
           return (
-            <Badge variant="default" className="whitespace-nowrap">
-              {t("equipment.assigned")}
+            <Badge variant="secondary" className="whitespace-nowrap">
+              {t("equipment.returned")} — {formatDate(returnedAt)}
             </Badge>
           );
         }
-        const today = new Date().toISOString().slice(0, 10);
-        if (d > today) {
-          return (
-            <Badge variant="outline" className="whitespace-nowrap">
-              {t("equipment.scheduledReturn")} — {formatDate(d)}
-            </Badge>
-          );
+        if (dueDate) {
+          if (dueDate > today) {
+            return (
+              <Badge variant="outline" className="whitespace-nowrap">
+                {t("equipment.scheduledReturn")} — {formatDate(dueDate)}
+              </Badge>
+            );
+          } else if (dueDate <= today) {
+            // Dacă angajatul există, afișează 'Întârziat' în loc de 'overdue'
+            return (
+              <Badge variant="destructive" className="whitespace-nowrap">
+                {t("equipment.late")} — {formatDate(dueDate)}
+              </Badge>
+            );
+          }
         }
         return (
-          <Badge variant="secondary" className="whitespace-nowrap">
-            {t("equipment.returned")} — {formatDate(d)}
+          <Badge variant="default" className="whitespace-nowrap">
+            {t("equipment.assigned")}
           </Badge>
         );
       },
@@ -164,8 +183,8 @@ export function getEquipmentColumns(
       id: "actions",
       enableSorting: false,
       enableHiding: false,
-      header: () => null,
-      cell: () => null,
+      header: () => <div className="pl-6 min-w-[160px]" />,
+      cell: () => <div className="pl-6 min-w-[160px]" />,
     },
   ];
 }
