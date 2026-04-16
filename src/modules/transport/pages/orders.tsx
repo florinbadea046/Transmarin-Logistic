@@ -44,6 +44,7 @@ import {
   setOrdersToStorage,
   isDuplicateOrder,
 } from "./_components/order-utils";
+import { getOrCreateClientId } from "@/modules/accounting/utils/clients";
 import { OrderExportMenu } from "./_components/order-export-menu";
 import { OrderImportDialog } from "./_components/order-import-dialog";
 import { AdvancedFilters } from "./_components/order-advanced-filters";
@@ -57,10 +58,15 @@ import { getOrderColumns } from "./_components/order-columns";
 export default function OrdersPage() {
   const { t } = useTranslation();
   const { log } = useAuditLog();
-  const statusMeta = getStatusMeta(t);
-  const statusFilterOptions = (
-    Object.keys(statusMeta) as Order["status"][]
-  ).map((value) => ({ value, label: statusMeta[value].label }));
+  const statusMeta = React.useMemo(() => getStatusMeta(t), [t]);
+  const statusFilterOptions = React.useMemo(
+    () =>
+      (Object.keys(statusMeta) as Order["status"][]).map((value) => ({
+        value,
+        label: statusMeta[value].label,
+      })),
+    [statusMeta],
+  );
   const [data, setData] = React.useState<Order[]>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -135,9 +141,11 @@ export default function OrdersPage() {
     };
     if (data.some((o) => isDuplicateOrder(o, payload)))
       return t("orders.duplicate");
+    const clientId = getOrCreateClientId(values.clientName);
     const newOrder = {
       id: safeRandomId(),
       ...payload,
+      ...(clientId ? { clientId } : {}),
       status: "pending",
       ...(values.notes ? { notes: values.notes } : {}),
       stops: (values.stops ?? []).map((s) => s.trim()).filter(Boolean),
@@ -161,11 +169,13 @@ export default function OrdersPage() {
     };
     if (data.some((o) => isDuplicateOrder(o, payload, editingOrder.id)))
       return t("orders.duplicate");
+    const clientId = getOrCreateClientId(values.clientName);
     const next = data.map((o) =>
       o.id === editingOrder.id
         ? {
             ...o,
             ...payload,
+            ...(clientId ? { clientId } : {}),
             notes: values.notes ?? "",
             stops: (values.stops ?? []).map((s) => s.trim()).filter(Boolean),
           }

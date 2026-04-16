@@ -29,12 +29,12 @@ import {
   makeStopIcon,
   PanTo,
   type TrackerData,
-} from "./trip-tracker-utils";
+} from "./_components/trip-tracker-utils";
 import {
   ProgressCard,
   StopsCard,
   TripDetailsCard,
-} from "./trip-tracker-sidebar";
+} from "./_components/trip-tracker-sidebar";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({

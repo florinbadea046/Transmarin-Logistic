@@ -111,7 +111,7 @@ export function SettingsProfile() {
   if (!user) return null;
 
   return (
-    <div className="grid gap-4 max-w-2xl">
+    <div className="grid gap-4 max-w-2xl mx-auto">
       {/* Profile Information */}
       <Card>
         <CardHeader>

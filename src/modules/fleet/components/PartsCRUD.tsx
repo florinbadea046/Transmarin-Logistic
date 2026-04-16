@@ -4,13 +4,13 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
-  ColumnDef,
+  type ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  PaginationState,
+  type PaginationState,
 } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";

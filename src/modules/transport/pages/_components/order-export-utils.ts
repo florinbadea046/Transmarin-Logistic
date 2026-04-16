@@ -1,111 +1,89 @@
 import type { Order, Trip } from "@/modules/transport/types";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-import Papa from "papaparse";
+import { exportToPdf, exportToExcel, exportToCsv } from "@/utils/exports";
 
-function getExportOrderCols(t: (k: string) => string) {
+function orderColumns(t: (k: string) => string) {
   return [
-    { key: "clientName", label: t("orders.fields.client") },
-    { key: "origin", label: t("orders.fields.origin") },
-    { key: "destination", label: t("orders.fields.destination") },
-    { key: "date", label: t("orders.fields.date") },
-    { key: "status", label: t("orders.fields.status") },
-    { key: "weight", label: t("orders.fields.weight") },
-    { key: "notes", label: t("orders.fields.notes") },
+    { header: t("orders.fields.client"), accessor: (o: Order) => o.clientName ?? "" },
+    { header: t("orders.fields.origin"), accessor: (o: Order) => o.origin ?? "" },
+    { header: t("orders.fields.destination"), accessor: (o: Order) => o.destination ?? "" },
+    { header: t("orders.fields.date"), accessor: (o: Order) => o.date ?? "" },
+    { header: t("orders.fields.status"), accessor: (o: Order) => o.status ?? "" },
+    { header: t("orders.fields.weight"), accessor: (o: Order) => o.weight ?? "" },
+    { header: t("orders.fields.notes"), accessor: (o: Order) => o.notes ?? "" },
   ];
 }
 
-function getExportTripCols(t: (k: string) => string) {
+function tripColumns(t: (k: string) => string) {
   return [
-    { key: "id", label: "ID" },
-    { key: "orderId", label: t("trips.fields.orderId") },
-    { key: "driverId", label: t("trips.fields.driverId") },
-    { key: "truckId", label: t("trips.fields.truckId") },
-    { key: "date", label: t("trips.fields.date") },
-    { key: "kmLoaded", label: t("trips.fields.kmLoaded") },
-    { key: "kmEmpty", label: t("trips.fields.kmEmpty") },
-    { key: "fuelCost", label: t("trips.fields.fuelCost") },
-    { key: "status", label: t("trips.fields.status") },
+    { header: "ID", accessor: (tr: Trip) => tr.id ?? "" },
+    { header: t("trips.fields.orderId"), accessor: (tr: Trip) => tr.orderId ?? "" },
+    { header: t("trips.fields.driverId"), accessor: (tr: Trip) => tr.driverId ?? "" },
+    { header: t("trips.fields.truckId"), accessor: (tr: Trip) => tr.truckId ?? "" },
+    { header: t("trips.fields.date"), accessor: (tr: Trip) => (tr as unknown as { date?: string }).date ?? "" },
+    { header: t("trips.fields.kmLoaded"), accessor: (tr: Trip) => tr.kmLoaded ?? "" },
+    { header: t("trips.fields.kmEmpty"), accessor: (tr: Trip) => tr.kmEmpty ?? "" },
+    { header: t("trips.fields.fuelCost"), accessor: (tr: Trip) => tr.fuelCost ?? "" },
+    { header: t("trips.fields.status"), accessor: (tr: Trip) => tr.status ?? "" },
   ];
-}
-
-function getField(item: Record<string, unknown>, key: string): unknown {
-  return item[key as keyof typeof item] ?? "";
-}
-
-function toRows<T>(items: T[], cols: { key: string; label: string }[]) {
-  return items.map((item) =>
-    Object.fromEntries(cols.map((c) => [c.label, getField(item as Record<string, unknown>, c.key)])),
-  );
 }
 
 export function exportOrdersPDF(orders: Order[], t: (k: string) => string) {
-  const cols = getExportOrderCols(t);
-  const doc = new jsPDF();
-  doc.setFontSize(14);
-  doc.text(t("orders.manage"), 14, 16);
-  autoTable(doc, {
-    head: [cols.map((c) => c.label)],
-    body: orders.map((o) => cols.map((c) => String(getField(o as unknown as Record<string, unknown>, c.key)))),
-    startY: 22,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [30, 30, 30] },
+  exportToPdf({
+    filename: "comenzi",
+    title: t("orders.manage"),
+    columns: orderColumns(t),
+    rows: orders,
+    showHeader: false,
+    stripRomanian: false,
   });
-  doc.save("comenzi.pdf");
 }
 
 export function exportOrdersExcel(orders: Order[], t: (k: string) => string) {
-  const cols = getExportOrderCols(t);
-  const ws = XLSX.utils.json_to_sheet(toRows(orders, cols));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, t("orders.title"));
-  XLSX.writeFile(wb, "comenzi.xlsx");
+  exportToExcel({
+    filename: "comenzi",
+    sheetName: t("orders.title"),
+    columns: orderColumns(t),
+    rows: orders,
+    autoWidth: false,
+  });
 }
 
 export function exportOrdersCSV(orders: Order[], t: (k: string) => string) {
-  const cols = getExportOrderCols(t);
-  const csv = Papa.unparse(toRows(orders, cols));
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "comenzi.csv";
-  a.click();
-  URL.revokeObjectURL(url);
+  exportToCsv({
+    filename: "comenzi",
+    columns: orderColumns(t),
+    rows: orders,
+    addBom: false,
+  });
 }
 
 export function exportTripsPDF(trips: Trip[], t: (k: string) => string) {
-  const cols = getExportTripCols(t);
-  const doc = new jsPDF({ orientation: "landscape" });
-  doc.setFontSize(14);
-  doc.text(t("trips.title"), 14, 16);
-  autoTable(doc, {
-    head: [cols.map((c) => c.label)],
-    body: trips.map((tr) => cols.map((c) => String(getField(tr as unknown as Record<string, unknown>, c.key)))),
-    startY: 22,
-    styles: { fontSize: 7 },
-    headStyles: { fillColor: [30, 30, 30] },
+  exportToPdf({
+    filename: "curse",
+    title: t("trips.title"),
+    columns: tripColumns(t),
+    rows: trips,
+    orientation: "landscape",
+    showHeader: false,
+    stripRomanian: false,
   });
-  doc.save("curse.pdf");
 }
 
 export function exportTripsExcel(trips: Trip[], t: (k: string) => string) {
-  const cols = getExportTripCols(t);
-  const ws = XLSX.utils.json_to_sheet(toRows(trips, cols));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, t("trips.title"));
-  XLSX.writeFile(wb, "curse.xlsx");
+  exportToExcel({
+    filename: "curse",
+    sheetName: t("trips.title"),
+    columns: tripColumns(t),
+    rows: trips,
+    autoWidth: false,
+  });
 }
 
 export function exportTripsCSV(trips: Trip[], t: (k: string) => string) {
-  const cols = getExportTripCols(t);
-  const csv = Papa.unparse(toRows(trips, cols));
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "curse.csv";
-  a.click();
-  URL.revokeObjectURL(url);
+  exportToCsv({
+    filename: "curse",
+    columns: tripColumns(t),
+    rows: trips,
+    addBom: false,
+  });
 }

@@ -6,25 +6,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-import Papa from "papaparse";
 import type { LeaveRequest } from "@/modules/hr/types";
 import { useTranslation } from "react-i18next";
+import { exportToPdf, exportToExcel, exportToCsv } from "@/utils/exports";
 
 type LeaveRow = LeaveRequest & { employeeName: string };
-
-function toPdfSafe(value: unknown): string {
-  return String(value ?? "")
-    .replace(/[ăĂ]/g, (c) => (c === "ă" ? "a" : "A"))
-    .replace(/[âÂ]/g, (c) => (c === "â" ? "a" : "A"))
-    .replace(/[îÎ]/g, (c) => (c === "î" ? "i" : "I"))
-    .replace(/[șş]/g, "s")
-    .replace(/[ȘŞ]/g, "S")
-    .replace(/[țţ]/g, "t")
-    .replace(/[ȚŢ]/g, "T");
-}
 
 type ExportLabels = {
   pdfTitle: string;
@@ -34,67 +20,43 @@ type ExportLabels = {
   status: Record<LeaveRequest["status"], string>;
 };
 
-function buildCols(labels: ExportLabels) {
+function buildColumns(labels: ExportLabels) {
   return [
-    { key: "employeeName" as const, label: labels.cols.employee },
-    { key: "type" as const, label: labels.cols.type },
-    { key: "startDate" as const, label: labels.cols.startDate },
-    { key: "endDate" as const, label: labels.cols.endDate },
-    { key: "days" as const, label: labels.cols.days },
-    { key: "status" as const, label: labels.cols.status },
-    { key: "reason" as const, label: labels.cols.reason },
+    { header: labels.cols.employee, accessor: (r: LeaveRow) => r.employeeName },
+    { header: labels.cols.type, accessor: (r: LeaveRow) => labels.types[r.type] },
+    { header: labels.cols.startDate, accessor: (r: LeaveRow) => r.startDate },
+    { header: labels.cols.endDate, accessor: (r: LeaveRow) => r.endDate },
+    { header: labels.cols.days, accessor: (r: LeaveRow) => r.days },
+    { header: labels.cols.status, accessor: (r: LeaveRow) => labels.status[r.status] },
+    { header: labels.cols.reason, accessor: (r: LeaveRow) => r.reason ?? "" },
   ];
 }
 
-type ColKey = "employeeName" | "type" | "startDate" | "endDate" | "days" | "status" | "reason";
-
-function getRowValue(row: LeaveRow, key: ColKey, labels: ExportLabels): string {
-  if (key === "type") return labels.types[row.type];
-  if (key === "status") return labels.status[row.status];
-  if (key === "reason") return row.reason ?? "";
-  return String(row[key] ?? "");
-}
-
-function toExportRows(rows: LeaveRow[], labels: ExportLabels) {
-  const cols = buildCols(labels);
-  return rows.map((row) =>
-    Object.fromEntries(cols.map((c) => [c.label, getRowValue(row, c.key, labels)])),
-  );
-}
-
 function exportPDF(rows: LeaveRow[], labels: ExportLabels) {
-  const cols = buildCols(labels);
-  const doc = new jsPDF({ orientation: "landscape" });
-  doc.setFontSize(13);
-  doc.text(toPdfSafe(labels.pdfTitle), 14, 16);
-
-  autoTable(doc, {
-    head: [cols.map((c) => toPdfSafe(c.label))],
-    body: rows.map((row) => cols.map((c) => toPdfSafe(getRowValue(row, c.key, labels)))),
-    startY: 22,
-    styles: { fontSize: 8 },
-    headStyles: { fillColor: [30, 30, 30] },
+  exportToPdf({
+    filename: labels.fileName,
+    title: labels.pdfTitle,
+    columns: buildColumns(labels),
+    rows,
+    orientation: "landscape",
   });
-
-  doc.save(`${labels.fileName}.pdf`);
 }
 
 function exportExcel(rows: LeaveRow[], labels: ExportLabels) {
-  const ws = XLSX.utils.json_to_sheet(toExportRows(rows, labels));
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, labels.fileName);
-  XLSX.writeFile(wb, `${labels.fileName}.xlsx`);
+  exportToExcel({
+    filename: labels.fileName,
+    sheetName: labels.fileName,
+    columns: buildColumns(labels),
+    rows,
+  });
 }
 
 function exportCSV(rows: LeaveRow[], labels: ExportLabels) {
-  const csv = Papa.unparse(toExportRows(rows, labels));
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `${labels.fileName}.csv`;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(url), 100);
+  exportToCsv({
+    filename: labels.fileName,
+    columns: buildColumns(labels),
+    rows,
+  });
 }
 
 type Props = {

@@ -75,7 +75,7 @@ export function SettingsHR() {
   }
 
   return (
-    <div className="grid gap-4 max-w-2xl">
+    <div className="grid gap-4 max-w-2xl mx-auto">
       {/* Annual leave days */}
       <Card>
         <CardHeader>

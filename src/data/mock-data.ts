@@ -8,7 +8,7 @@ import type { Driver, Truck, Order, Trip } from "@/modules/transport/types";
 import type { Part, ServiceRecord, FuelRecord } from "@/modules/fleet/types";
 import type { Employee, LeaveRequest } from "@/modules/hr/types";
 import type { Supplier, Invoice } from "@/modules/accounting/types";
-import { Bonus } from "../modules/hr/types";
+import type { Bonus } from "../modules/hr/types";
 import { format, addMonths, setDate } from "date-fns";
 
 // Chei localStorage — toate modulele folosesc aceste chei
@@ -25,6 +25,7 @@ export const STORAGE_KEYS = {
   // Accounting
   invoices: "transmarin_invoices",
   suppliers: "transmarin_suppliers",
+  clients: "transmarin_clients",
   accounting_audit_log: "transmarin_accounting_audit_log",
   payments: "transmarin_payments",
   // HR

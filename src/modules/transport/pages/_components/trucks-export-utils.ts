@@ -1,79 +1,45 @@
-import Papa from "papaparse";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-
 import type { Driver, Truck } from "@/modules/transport/types";
+import { exportToPdf, exportToExcel, exportToCsv } from "@/utils/exports";
 
-import { stripD } from "./transport-shared-utils";
+function buildColumns(drivers: Driver[], t: (k: string) => string) {
+  const getDriverName = (tr: Truck) =>
+    drivers.find((d) => d.truckId === tr.id)?.name ?? "—";
 
-// ── Export Camioane ────────────────────────────────────────
+  return [
+    { header: t("trucks.columns.plateNumber"), accessor: (tr: Truck) => tr.plateNumber },
+    { header: t("trucks.fields.brand"), accessor: (tr: Truck) => tr.brand },
+    { header: t("trucks.fields.model"), accessor: (tr: Truck) => tr.model },
+    { header: t("trucks.fields.year"), accessor: (tr: Truck) => tr.year },
+    { header: t("trucks.columns.status"), accessor: (tr: Truck) => t(`trucks.status.${tr.status}`) },
+    { header: t("trucks.columns.itpExpiry"), accessor: (tr: Truck) => tr.itpExpiry },
+    { header: t("trucks.columns.rcaExpiry"), accessor: (tr: Truck) => tr.rcaExpiry },
+    { header: t("trucks.columns.vignetteExpiry"), accessor: (tr: Truck) => tr.vignetteExpiry },
+    { header: t("trucks.columns.driver"), accessor: (tr: Truck) => getDriverName(tr) },
+  ];
+}
 
 export function exportTrucksPDF(trucks: Truck[], drivers: Driver[], t: (k: string) => string) {
-  const doc = new jsPDF();
-  doc.setFontSize(14);
-  doc.text(stripD(t("trucks.export.pdfTitle")), 14, 16);
-  autoTable(doc, {
-    head: [[
-      t("trucks.columns.plateNumber"), t("trucks.fields.brand"), t("trucks.fields.model"),
-      t("trucks.fields.year"), t("trucks.columns.status"),
-      t("trucks.columns.itpExpiry"), t("trucks.columns.rcaExpiry"), t("trucks.columns.vignetteExpiry"),
-      t("trucks.columns.driver"),
-    ].map(stripD)],
-    body: trucks.map((tr) => {
-      const driver = drivers.find((d) => d.truckId === tr.id);
-      return [
-        tr.plateNumber, tr.brand, tr.model, String(tr.year),
-        t(`trucks.status.${tr.status}`),
-        tr.itpExpiry, tr.rcaExpiry, tr.vignetteExpiry,
-        driver?.name ?? "—",
-      ].map(stripD);
-    }),
-    startY: 22, styles: { fontSize: 7 }, headStyles: { fillColor: [30, 30, 30] },
+  exportToPdf({
+    filename: t("trucks.export.filename"),
+    title: t("trucks.export.pdfTitle"),
+    columns: buildColumns(drivers, t),
+    rows: trucks,
   });
-  doc.save(`${t("trucks.export.filename")}.pdf`);
 }
 
 export function exportTrucksExcel(trucks: Truck[], drivers: Driver[], t: (k: string) => string) {
-  const rows = trucks.map((tr) => {
-    const driver = drivers.find((d) => d.truckId === tr.id);
-    return {
-      [t("trucks.columns.plateNumber")]: tr.plateNumber,
-      [t("trucks.fields.brand")]: tr.brand,
-      [t("trucks.fields.model")]: tr.model,
-      [t("trucks.fields.year")]: tr.year,
-      [t("trucks.columns.status")]: t(`trucks.status.${tr.status}`),
-      [t("trucks.columns.itpExpiry")]: tr.itpExpiry,
-      [t("trucks.columns.rcaExpiry")]: tr.rcaExpiry,
-      [t("trucks.columns.vignetteExpiry")]: tr.vignetteExpiry,
-      [t("trucks.columns.driver")]: driver?.name ?? "—",
-    };
+  exportToExcel({
+    filename: t("trucks.export.filename"),
+    sheetName: t("trucks.export.sheetName"),
+    columns: buildColumns(drivers, t),
+    rows: trucks,
   });
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, t("trucks.export.sheetName"));
-  XLSX.writeFile(wb, `${t("trucks.export.filename")}.xlsx`);
 }
 
 export function exportTrucksCSV(trucks: Truck[], drivers: Driver[], t: (k: string) => string) {
-  const rows = trucks.map((tr) => {
-    const driver = drivers.find((d) => d.truckId === tr.id);
-    return {
-      [t("trucks.columns.plateNumber")]: tr.plateNumber,
-      [t("trucks.fields.brand")]: tr.brand,
-      [t("trucks.fields.model")]: tr.model,
-      [t("trucks.fields.year")]: tr.year,
-      [t("trucks.columns.status")]: t(`trucks.status.${tr.status}`),
-      [t("trucks.columns.itpExpiry")]: tr.itpExpiry,
-      [t("trucks.columns.rcaExpiry")]: tr.rcaExpiry,
-      [t("trucks.columns.vignetteExpiry")]: tr.vignetteExpiry,
-      [t("trucks.columns.driver")]: driver?.name ?? "—",
-    };
+  exportToCsv({
+    filename: t("trucks.export.filename"),
+    columns: buildColumns(drivers, t),
+    rows: trucks,
   });
-  const csv = Papa.unparse(rows);
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url; a.download = `${t("trucks.export.filename")}.csv`; a.click();
-  URL.revokeObjectURL(url);
 }

@@ -146,7 +146,7 @@ vi.mock("@/data/mock-data", () => ({
 
 // ── Imports ────────────────────────────────────────────────
 
-import TripTrackerPage from "@/modules/transport/pages/_components/trip-tracker";
+import TripTrackerPage from "@/modules/transport/pages/trip-tracker";
 import {
   getCoords,
   haversineKm,

@@ -65,7 +65,7 @@ export function SettingsAppearance() {
   }, [reducedMotion]);
 
   return (
-    <div className="grid gap-4 max-w-2xl">
+    <div className="grid gap-4 max-w-2xl mx-auto">
       {/* Theme */}
       <Card>
         <CardHeader>

@@ -1,0 +1,41 @@
+{
+  "clients": {
+    "title": "Clients",
+    "subtitle": "{{count}} clients registered",
+    "searchPlaceholder": "Search by name, tax ID, email, phone...",
+    "empty": "No clients registered. Clients are auto-created from existing orders and invoices.",
+    "fields": {
+      "name": "Name",
+      "cui": "Tax ID",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "bankAccount": "Bank account",
+      "contactPerson": "Contact person",
+      "notes": "Notes",
+      "actions": "Actions"
+    },
+    "actions": {
+      "new": "New client",
+      "save": "Save",
+      "cancel": "Cancel",
+      "confirmDelete": "Delete"
+    },
+    "dialog": {
+      "newTitle": "New client",
+      "editTitle": "Edit client"
+    },
+    "delete": {
+      "title": "Confirm deletion",
+      "description": "Associated orders and invoices will keep their saved client name but won't reference this client anymore. Continue?"
+    },
+    "validation": {
+      "nameRequired": "Client name is required"
+    },
+    "toast": {
+      "created": "Client created",
+      "updated": "Client updated",
+      "deleted": "Client deleted"
+    }
+  }
+}

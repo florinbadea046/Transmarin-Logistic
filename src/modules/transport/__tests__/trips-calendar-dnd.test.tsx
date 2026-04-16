@@ -2,7 +2,7 @@
 
 // ──────────────────────────────────────────────────────────
 // Integration tests: Trips Calendar Drag & Drop
-// File: src/modules/transport/pages/_components/trips-calendar-dnd.tsx
+// File: src/modules/transport/pages/trips-calendar-dnd.tsx
 //
 // Ce trebuie testat:
 // - Calendar render — afiseaza zilele lunii curente corect
@@ -18,7 +18,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import * as React from "react";
-import TripsCalendarDndPage from "../pages/_components/trips-calendar-dnd";
+import TripsCalendarDndPage from "../pages/trips-calendar-dnd";
 import type { Trip, Order, Driver, Truck } from "../types";
 
 // ─── Mock-uri ──────────────────────────────────────────────

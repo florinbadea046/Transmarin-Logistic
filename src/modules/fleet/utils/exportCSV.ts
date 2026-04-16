@@ -1,6 +1,6 @@
-import Papa from "papaparse";
-import { FuelRecord } from "@/modules/fleet/types";
-import { Truck } from "@/modules/transport/types";
+import type { FuelRecord } from "@/modules/fleet/types";
+import type { Truck } from "@/modules/transport/types";
+import { exportToCsv } from "@/utils/exports";
 
 export function exportFuelToCSV(
   records: FuelRecord[],
@@ -12,21 +12,15 @@ export function exportFuelToCSV(
     return tr ? `${tr.plateNumber} - ${tr.brand} ${tr.model}` : id;
   };
 
-  const data = records.map((r) => ({
-    [t("fleet.fuel.exportColumnTruck")]: getTruckLabel(r.truckId),
-    [t("fleet.fuel.exportColumnDate")]: r.date,
-    [t("fleet.fuel.exportColumnLiters")]: r.liters,
-    [t("fleet.fuel.exportColumnCost")]: r.cost,
-    [t("fleet.fuel.exportColumnKm")]: r.mileage,
-  }));
-
-  const csv = Papa.unparse(data);
-  const BOM = "\uFEFF";
-  const blob = new Blob([BOM + csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `alimentari-${new Date().toISOString().split("T")[0]}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  exportToCsv({
+    filename: `alimentari-${new Date().toISOString().split("T")[0]}`,
+    columns: [
+      { header: t("fleet.fuel.exportColumnTruck"), accessor: (r) => getTruckLabel(r.truckId) },
+      { header: t("fleet.fuel.exportColumnDate"), accessor: (r) => r.date },
+      { header: t("fleet.fuel.exportColumnLiters"), accessor: (r) => r.liters },
+      { header: t("fleet.fuel.exportColumnCost"), accessor: (r) => r.cost },
+      { header: t("fleet.fuel.exportColumnKm"), accessor: (r) => r.mileage },
+    ],
+    rows: records,
+  });
 }

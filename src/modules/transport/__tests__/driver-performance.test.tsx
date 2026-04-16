@@ -150,7 +150,7 @@ vi.mock("@/data/mock-data", () => ({
 
 // ── Imports ────────────────────────────────────────────────
 
-import DriverPerformancePage from "@/modules/transport/pages/_components/driver-performance";
+import DriverPerformancePage from "@/modules/transport/pages/driver-performance";
 import type { Driver, Trip } from "@/modules/transport/types";
 import { getCollection } from "@/utils/local-storage";
 import { useMobile } from "@/hooks/use-mobile";

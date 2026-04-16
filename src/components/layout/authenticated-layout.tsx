@@ -7,6 +7,7 @@ import { SearchProvider } from "@/context/search-provider";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SkipToMain } from "@/components/skip-to-main";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 type AuthenticatedLayoutProps = {
   children?: ReactNode;
@@ -29,7 +30,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
               "peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-2rem)]",
             )}
           >
-            {children ?? <Outlet />}
+            <ErrorBoundary>{children ?? <Outlet />}</ErrorBoundary>
           </SidebarInset>
         </SidebarProvider>
       </LayoutProvider>

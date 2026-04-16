@@ -1,9 +1,7 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import { ServiceRecord } from "@/modules/fleet/types";
-import { Truck } from "@/modules/transport/types";
+import type { ServiceRecord } from "@/modules/fleet/types";
+import type { Truck } from "@/modules/transport/types";
 import { getTypeLabels } from "@/modules/fleet/utils/serviceUtils";
-
+import { exportToPdf } from "@/utils/exports";
 
 export interface ServiceExportFilters {
   truckId?: string;
@@ -15,13 +13,13 @@ export function exportServiceToPDF(
   records: ServiceRecord[],
   trucks: Truck[],
   t: (k: string, opts?: Record<string, unknown>) => string,
-  filters?: ServiceExportFilters
+  filters?: ServiceExportFilters,
 ): void {
   const typeLabels = getTypeLabels(t);
 
   const getTruckLabel = (id: string) => {
     const tr = trucks.find((tr) => tr.id === id);
-    return tr ? `${tr.plateNumber} — ${tr.brand} ${tr.model}` : id;
+    return tr ? `${tr.plateNumber} - ${tr.brand} ${tr.model}` : id;
   };
 
   let filtered = [...records];
@@ -33,19 +31,9 @@ export function exportServiceToPDF(
   const totalCost = filtered.reduce((sum, r) => sum + r.cost, 0);
   const today = new Date().toLocaleDateString("ro-RO");
 
-  const doc = new jsPDF({ orientation: "landscape" });
-
-  doc.setFontSize(18);
-  doc.setFont("helvetica", "bold");
-  doc.text(t("fleet.service.exportTitle"), 14, 18);
-
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
-  doc.text(
+  const extraLines: string[] = [
     t("fleet.service.exportGenerated", { date: today, count: filtered.length } as Record<string, unknown>),
-    14,
-    26,
-  );
+  ];
 
   if (filters?.truckId || filters?.fromDate || filters?.toDate) {
     const filterParts = [
@@ -53,35 +41,29 @@ export function exportServiceToPDF(
       filters.fromDate ? t("fleet.service.exportFilterFrom", { date: filters.fromDate } as Record<string, unknown>) : null,
       filters.toDate ? t("fleet.service.exportFilterTo", { date: filters.toDate } as Record<string, unknown>) : null,
     ].filter(Boolean).join("   |   ");
-    doc.text(t("fleet.service.exportFilters", { filters: filterParts } as Record<string, unknown>), 14, 32);
+    extraLines.push(t("fleet.service.exportFilters", { filters: filterParts } as Record<string, unknown>));
   }
 
-  autoTable(doc, {
-    startY: filters?.truckId || filters?.fromDate || filters?.toDate ? 38 : 32,
-    head: [[
-      t("fleet.service.exportHeadTruck"),
-      t("fleet.service.exportHeadDate"),
-      t("fleet.service.exportHeadType"),
-      t("fleet.service.exportHeadDescription"),
-      t("fleet.service.exportHeadKm"),
-      t("fleet.service.exportHeadCost"),
-      t("fleet.service.exportHeadNext"),
-    ]],
-    body: filtered.map((r) => [
-      getTruckLabel(r.truckId),
-      r.date,
-      typeLabels[r.type],
-      r.description,
-      r.mileageAtService.toLocaleString("ro-RO"),
-      r.cost.toLocaleString("ro-RO"),
-      r.nextServiceDate ?? "—",
-    ]),
-    styles: { fontSize: 9, cellPadding: 3 },
-    headStyles: { fillColor: [30, 30, 30], textColor: 255, fontStyle: "bold" },
-    alternateRowStyles: { fillColor: [248, 248, 248] },
-    foot: [["", "", "", "", t("fleet.service.exportTotal"), `${totalCost.toLocaleString("ro-RO")} RON`, ""]],
-    footStyles: { fontStyle: "bold", fillColor: [240, 240, 240] },
+  exportToPdf({
+    filename: `registru-service-${new Date().toISOString().split("T")[0]}`,
+    title: t("fleet.service.exportTitle"),
+    orientation: "landscape",
+    extraLines,
+    columns: [
+      { header: t("fleet.service.exportHeadTruck"), accessor: (r: ServiceRecord) => getTruckLabel(r.truckId) },
+      { header: t("fleet.service.exportHeadDate"), accessor: (r: ServiceRecord) => r.date },
+      { header: t("fleet.service.exportHeadType"), accessor: (r: ServiceRecord) => typeLabels[r.type] },
+      { header: t("fleet.service.exportHeadDescription"), accessor: (r: ServiceRecord) => r.description },
+      { header: t("fleet.service.exportHeadKm"), accessor: (r: ServiceRecord) => r.mileageAtService.toLocaleString("ro-RO") },
+      { header: t("fleet.service.exportHeadCost"), accessor: (r: ServiceRecord) => r.cost.toLocaleString("ro-RO") },
+      { header: t("fleet.service.exportHeadNext"), accessor: (r: ServiceRecord) => r.nextServiceDate ?? "—" },
+    ],
+    rows: filtered,
+    footerRow: [
+      { content: "", colSpan: 4 },
+      { content: t("fleet.service.exportTotal"), bold: true, align: "right" },
+      { content: `${totalCost.toLocaleString("ro-RO")} RON`, bold: true },
+      { content: "" },
+    ],
   });
-
-  doc.save(`registru-service-${new Date().toISOString().split("T")[0]}.pdf`);
 }
