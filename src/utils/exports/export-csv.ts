@@ -1,4 +1,5 @@
-import Papa from "papaparse";
+// `papaparse` este mic (~15 KB), dar e aliniat cu celelalte export utils sa il
+// incarcam lazy pentru consistenta si scadere marginala a bundle-ului.
 
 export interface CsvColumn<T> {
   header: string;
@@ -13,7 +14,7 @@ export interface ExportCsvOptions<T> {
   addBom?: boolean;
 }
 
-export function exportToCsv<T>(options: ExportCsvOptions<T>): void {
+export async function exportToCsv<T>(options: ExportCsvOptions<T>): Promise<void> {
   const {
     filename,
     columns,
@@ -21,6 +22,8 @@ export function exportToCsv<T>(options: ExportCsvOptions<T>): void {
     delimiter = ",",
     addBom = true,
   } = options;
+
+  const { default: Papa } = await import("papaparse");
 
   const data = rows.map((row) => {
     const obj: Record<string, string | number | boolean | null | undefined> =

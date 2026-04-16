@@ -119,7 +119,7 @@ describe("invoices-export", () => {
 
     it("apeleaza autoTable pentru structura tabelului", async () => {
       const autoTable = (await import("jspdf-autotable")).default;
-      exportPDF(mockInvoices, t);
+      await exportPDF(mockInvoices, t);
       expect(autoTable).toHaveBeenCalled();
     });
   });
@@ -131,13 +131,13 @@ describe("invoices-export", () => {
 
     it("apeleaza XLSX.utils.json_to_sheet", async () => {
       const XLSX = await import("xlsx");
-      exportExcel(mockInvoices, t);
+      await exportExcel(mockInvoices, t);
       expect(XLSX.utils.json_to_sheet).toHaveBeenCalled();
     });
 
     it("apeleaza XLSX.utils.book_append_sheet cu sheet name", async () => {
       const XLSX = await import("xlsx");
-      exportExcel(mockInvoices, t);
+      await exportExcel(mockInvoices, t);
       expect(XLSX.utils.book_append_sheet).toHaveBeenCalledWith(
         expect.anything(),
         expect.anything(),
@@ -147,7 +147,7 @@ describe("invoices-export", () => {
 
     it("apeleaza XLSX.writeFile cu extensia .xlsx", async () => {
       const XLSX = await import("xlsx");
-      exportExcel(mockInvoices, t);
+      await exportExcel(mockInvoices, t);
       expect(XLSX.writeFile).toHaveBeenCalledWith(
         expect.anything(),
         expect.stringContaining(".xlsx"),

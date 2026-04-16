@@ -27,11 +27,11 @@ import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
 
-import { getCollection, setCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
 import { formatDate } from "@/utils/format";
 import { cn } from "@/lib/utils";
 import { useHrAuditLog } from "@/hooks/use-hr-audit-log";
+import { useSyncedCollection } from "@/hooks/use-synced-collection";
 import {
   ONBOARDING_STEP_KEYS,
   type Employee,
@@ -91,25 +91,20 @@ export default function OnboardingPage() {
   const { t } = useTranslation();
   const { log } = useHrAuditLog();
 
-  const [employees, setEmployees] = useState<Employee[]>(() =>
-    getCollection<Employee>(STORAGE_KEYS.employees),
-  );
-  const [checklists, setChecklists] = useState<OnboardingChecklist[]>([]);
+  const { items: employees, refresh: refreshEmployees } =
+    useSyncedCollection<Employee>(STORAGE_KEYS.employees);
+  const { items: checklists, save: saveChecklists } =
+    useSyncedCollection<OnboardingChecklist>(STORAGE_KEYS.onboarding);
   const [dialogChecklistId, setDialogChecklistId] = useState<string | null>(null);
 
-  // Seed & sync — genereaza checklist-uri lipsa pentru angajati existenti.
+  // Seed — cand lista de angajati se schimba, creeaza checklist-uri lipsa.
   useEffect(() => {
-    const stored = getCollection<OnboardingChecklist>(STORAGE_KEYS.onboarding);
-    const synced = syncChecklistsWithEmployees(stored, employees);
-    if (synced.length !== stored.length) {
-      setCollection(STORAGE_KEYS.onboarding, synced);
+    const synced = syncChecklistsWithEmployees(checklists, employees);
+    if (synced.length !== checklists.length) {
+      saveChecklists(synced);
     }
-    setChecklists(synced);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [employees]);
-
-  const refreshEmployees = useCallback(() => {
-    setEmployees(getCollection<Employee>(STORAGE_KEYS.employees));
-  }, []);
 
   const today = startOfToday();
 
@@ -133,13 +128,9 @@ export default function OnboardingPage() {
 
   const updateChecklist = useCallback(
     (updated: OnboardingChecklist) => {
-      setChecklists((prev) => {
-        const next = prev.map((c) => (c.id === updated.id ? updated : c));
-        setCollection(STORAGE_KEYS.onboarding, next);
-        return next;
-      });
+      saveChecklists(checklists.map((c) => (c.id === updated.id ? updated : c)));
     },
-    [],
+    [checklists, saveChecklists],
   );
 
   const activeChecklist = useMemo(

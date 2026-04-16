@@ -61,7 +61,7 @@ function buildColumns(t: (key: string) => string) {
 }
 
 export function exportPDF(invoices: Invoice[], t: (key: string) => string) {
-  exportToPdf({
+  return exportToPdf({
     filename: "facturi",
     title: t("invoices.header"),
     subtitle: `${t("invoices.export.invoiceList")} [${new Date().toLocaleDateString("ro-RO")}]`,
@@ -72,7 +72,7 @@ export function exportPDF(invoices: Invoice[], t: (key: string) => string) {
 }
 
 export function exportExcel(invoices: Invoice[], t: (key: string) => string) {
-  exportToExcel({
+  return exportToExcel({
     filename: "facturi",
     sheetName: t("invoices.title"),
     columns: buildColumns(t),
@@ -81,7 +81,7 @@ export function exportExcel(invoices: Invoice[], t: (key: string) => string) {
 }
 
 export function exportCSV(invoices: Invoice[], t: (key: string) => string) {
-  exportToCsv({
+  return exportToCsv({
     filename: "facturi",
     columns: buildColumns(t),
     rows: invoices,

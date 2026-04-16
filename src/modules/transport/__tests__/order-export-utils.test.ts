@@ -108,10 +108,10 @@ const {
 describe("toRows (via exportOrdersExcel)", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("transforma comenzile in randuri cu cheile corecte din t()", () => {
-    exportOrdersExcel(mockOrders, t);
+  it("transforma comenzile in randuri cu cheile corecte din t()", async () => {
+    await exportOrdersExcel(mockOrders, t);
     expect(mockJsonToSheet).toHaveBeenCalledOnce();
-     
+
     const rows = (mockJsonToSheet.mock.calls as any)[0][0];
     expect(rows).toHaveLength(2);
     expect(rows[0]).toHaveProperty("orders.fields.client", "SC Test SRL");
@@ -120,10 +120,10 @@ describe("toRows (via exportOrdersExcel)", () => {
     expect(rows[0]).toHaveProperty("orders.fields.status", "delivered");
   });
 
-  it("campurile lipsa devin string gol", () => {
+  it("campurile lipsa devin string gol", async () => {
     const orderFaraNote: Order[] = [{ ...mockOrders[0], notes: undefined }];
-    exportOrdersExcel(orderFaraNote, t);
-     
+    await exportOrdersExcel(orderFaraNote, t);
+
     const rows = (mockJsonToSheet.mock.calls as any)[0][0];
     expect(rows[0]["orders.fields.notes"]).toBe("");
   });
@@ -134,17 +134,17 @@ describe("toRows (via exportOrdersExcel)", () => {
 describe("getExportOrderCols (via exportOrdersPDF)", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("genereaza 7 coloane pentru comenzi", () => {
-    exportOrdersPDF(mockOrders, t);
+  it("genereaza 7 coloane pentru comenzi", async () => {
+    await exportOrdersPDF(mockOrders, t);
     expect(mockAutoTable).toHaveBeenCalledOnce();
-     
+
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.head[0]).toHaveLength(7);
   });
 
-  it("prima coloana este orders.fields.client", () => {
-    exportOrdersPDF(mockOrders, t);
-     
+  it("prima coloana este orders.fields.client", async () => {
+    await exportOrdersPDF(mockOrders, t);
+
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.head[0][0]).toBe("orders.fields.client");
   });
@@ -155,16 +155,16 @@ describe("getExportOrderCols (via exportOrdersPDF)", () => {
 describe("getExportTripCols (via exportTripsPDF)", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("genereaza 9 coloane pentru curse", () => {
-    exportTripsPDF(mockTrips, t);
-     
+  it("genereaza 9 coloane pentru curse", async () => {
+    await exportTripsPDF(mockTrips, t);
+
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.head[0]).toHaveLength(9);
   });
 
-  it("prima coloana este ID", () => {
-    exportTripsPDF(mockTrips, t);
-     
+  it("prima coloana este ID", async () => {
+    await exportTripsPDF(mockTrips, t);
+
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.head[0][0]).toBe("ID");
   });
@@ -175,28 +175,28 @@ describe("getExportTripCols (via exportTripsPDF)", () => {
 describe("exportOrdersPDF", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("apeleaza doc.save cu 'comenzi.pdf'", () => {
-    exportOrdersPDF(mockOrders, t);
+  it("apeleaza doc.save cu 'comenzi.pdf'", async () => {
+    await exportOrdersPDF(mockOrders, t);
     expect(mockSave).toHaveBeenCalledWith("comenzi.pdf");
   });
 
-  it("apeleaza autoTable cu head si body corecte", () => {
-    exportOrdersPDF(mockOrders, t);
-     
+  it("apeleaza autoTable cu head si body corecte", async () => {
+    await exportOrdersPDF(mockOrders, t);
+
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.head).toHaveLength(1);
     expect(args.body).toHaveLength(2);
   });
 
-  it("apeleaza setFontSize si text", () => {
-    exportOrdersPDF(mockOrders, t);
+  it("apeleaza setFontSize si text", async () => {
+    await exportOrdersPDF(mockOrders, t);
     expect(mockSetFontSize).toHaveBeenCalledWith(14);
     expect(mockText).toHaveBeenCalled();
   });
 
-  it("functioneaza cu lista goala de comenzi", () => {
-    exportOrdersPDF([], t);
-     
+  it("functioneaza cu lista goala de comenzi", async () => {
+    await exportOrdersPDF([], t);
+
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.body).toHaveLength(0);
     expect(mockSave).toHaveBeenCalledWith("comenzi.pdf");
@@ -208,13 +208,13 @@ describe("exportOrdersPDF", () => {
 describe("exportOrdersExcel", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("apeleaza XLSX.writeFile cu 'comenzi.xlsx'", () => {
-    exportOrdersExcel(mockOrders, t);
+  it("apeleaza XLSX.writeFile cu 'comenzi.xlsx'", async () => {
+    await exportOrdersExcel(mockOrders, t);
     expect(mockWriteFile).toHaveBeenCalledWith(expect.anything(), "comenzi.xlsx");
   });
 
-  it("apeleaza book_append_sheet cu numele foii = t('orders.title')", () => {
-    exportOrdersExcel(mockOrders, t);
+  it("apeleaza book_append_sheet cu numele foii = t('orders.title')", async () => {
+    await exportOrdersExcel(mockOrders, t);
     expect(mockBookAppendSheet).toHaveBeenCalledWith(
       expect.anything(),
       expect.anything(),
@@ -222,9 +222,9 @@ describe("exportOrdersExcel", () => {
     );
   });
 
-  it("apeleaza json_to_sheet cu numarul corect de randuri", () => {
-    exportOrdersExcel(mockOrders, t);
-     
+  it("apeleaza json_to_sheet cu numarul corect de randuri", async () => {
+    await exportOrdersExcel(mockOrders, t);
+
     const rows = (mockJsonToSheet.mock.calls as any)[0][0];
     expect(rows).toHaveLength(2);
   });
@@ -235,42 +235,42 @@ describe("exportOrdersExcel", () => {
 describe("exportOrdersCSV", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("apeleaza Papa.unparse", () => {
-    exportOrdersCSV(mockOrders, t);
+  it("apeleaza Papa.unparse", async () => {
+    await exportOrdersCSV(mockOrders, t);
     expect(mockUnparse).toHaveBeenCalledOnce();
   });
 
-  it("apeleaza URL.createObjectURL", () => {
+  it("apeleaza URL.createObjectURL", async () => {
     const spy = vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
-    exportOrdersCSV(mockOrders, t);
+    await exportOrdersCSV(mockOrders, t);
     expect(spy).toHaveBeenCalledOnce();
     spy.mockRestore();
   });
 
-  it("apeleaza URL.revokeObjectURL dupa click", () => {
+  it("apeleaza URL.revokeObjectURL dupa click", async () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
     const revokeSpy = vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
-    exportOrdersCSV(mockOrders, t);
+    await exportOrdersCSV(mockOrders, t);
     expect(revokeSpy).toHaveBeenCalledWith("blob:mock");
     revokeSpy.mockRestore();
   });
 
-  it("apeleaza click pe elementul <a>", () => {
+  it("apeleaza click pe elementul <a>", async () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
     const mockClick = vi.fn();
     const mockA = { href: "", download: "", click: mockClick };
     vi.spyOn(document, "createElement").mockReturnValueOnce(mockA as unknown as HTMLElement);
-    exportOrdersCSV(mockOrders, t);
+    await exportOrdersCSV(mockOrders, t);
     expect(mockClick).toHaveBeenCalledOnce();
   });
 
-  it("download attribute este 'comenzi.csv'", () => {
+  it("download attribute este 'comenzi.csv'", async () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
     const mockA = { href: "", download: "", click: vi.fn() };
     vi.spyOn(document, "createElement").mockReturnValueOnce(mockA as unknown as HTMLElement);
-    exportOrdersCSV(mockOrders, t);
+    await exportOrdersCSV(mockOrders, t);
     expect(mockA.download).toBe("comenzi.csv");
   });
 });
@@ -280,14 +280,14 @@ describe("exportOrdersCSV", () => {
 describe("exportTripsPDF", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("apeleaza doc.save cu 'curse.pdf'", () => {
-    exportTripsPDF(mockTrips, t);
+  it("apeleaza doc.save cu 'curse.pdf'", async () => {
+    await exportTripsPDF(mockTrips, t);
     expect(mockSave).toHaveBeenCalledWith("curse.pdf");
   });
 
-  it("body contine datele curse", () => {
-    exportTripsPDF(mockTrips, t);
-     
+  it("body contine datele curse", async () => {
+    await exportTripsPDF(mockTrips, t);
+
     const args = (mockAutoTable.mock.calls as any)[0][1];
     expect(args.body).toHaveLength(1);
     expect(args.body[0]).toContain("tr1");
@@ -299,13 +299,13 @@ describe("exportTripsPDF", () => {
 describe("exportTripsExcel", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("apeleaza XLSX.writeFile cu 'curse.xlsx'", () => {
-    exportTripsExcel(mockTrips, t);
+  it("apeleaza XLSX.writeFile cu 'curse.xlsx'", async () => {
+    await exportTripsExcel(mockTrips, t);
     expect(mockWriteFile).toHaveBeenCalledWith(expect.anything(), "curse.xlsx");
   });
 
-  it("foaia se numeste trips.title", () => {
-    exportTripsExcel(mockTrips, t);
+  it("foaia se numeste trips.title", async () => {
+    await exportTripsExcel(mockTrips, t);
     expect(mockBookAppendSheet).toHaveBeenCalledWith(
       expect.anything(),
       expect.anything(),
@@ -319,29 +319,29 @@ describe("exportTripsExcel", () => {
 describe("exportTripsCSV", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("apeleaza Papa.unparse", () => {
+  it("apeleaza Papa.unparse", async () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
-    exportTripsCSV(mockTrips, t);
+    await exportTripsCSV(mockTrips, t);
     expect(mockUnparse).toHaveBeenCalledOnce();
   });
 
-  it("apeleaza click pe elementul <a>", () => {
+  it("apeleaza click pe elementul <a>", async () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
     const mockClick = vi.fn();
     const mockA = { href: "", download: "", click: mockClick };
     vi.spyOn(document, "createElement").mockReturnValueOnce(mockA as unknown as HTMLElement);
-    exportTripsCSV(mockTrips, t);
+    await exportTripsCSV(mockTrips, t);
     expect(mockClick).toHaveBeenCalledOnce();
   });
 
-  it("download attribute este 'curse.csv'", () => {
+  it("download attribute este 'curse.csv'", async () => {
     vi.spyOn(URL, "createObjectURL").mockReturnValue("blob:mock");
     vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => {});
     const mockA = { href: "", download: "", click: vi.fn() };
     vi.spyOn(document, "createElement").mockReturnValueOnce(mockA as unknown as HTMLElement);
-    exportTripsCSV(mockTrips, t);
+    await exportTripsCSV(mockTrips, t);
     expect(mockA.download).toBe("curse.csv");
   });
 });

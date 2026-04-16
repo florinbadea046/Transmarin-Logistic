@@ -1,4 +1,4 @@
-import * as XLSX from "xlsx";
+// `xlsx` adauga ~425 KB la bundle. Il incarcam lazy la momentul exportului.
 
 export interface ExcelColumn<T> {
   header: string;
@@ -14,7 +14,7 @@ export interface ExportExcelOptions<T> {
   footerRow?: (string | number | null | undefined)[];
 }
 
-export function exportToExcel<T>(options: ExportExcelOptions<T>): void {
+export async function exportToExcel<T>(options: ExportExcelOptions<T>): Promise<void> {
   const {
     filename,
     sheetName = "Sheet1",
@@ -24,9 +24,11 @@ export function exportToExcel<T>(options: ExportExcelOptions<T>): void {
     footerRow,
   } = options;
 
+  const XLSX = await import("xlsx");
+
   const headers = columns.map((c) => c.header);
 
-  let ws: XLSX.WorkSheet;
+  let ws: import("xlsx").WorkSheet;
 
   if (footerRow) {
     const data = rows.map((row) => columns.map((c) => c.accessor(row) ?? ""));

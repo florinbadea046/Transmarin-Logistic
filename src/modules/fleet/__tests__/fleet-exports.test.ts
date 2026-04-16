@@ -68,13 +68,13 @@ const services: ServiceRecord[] = [
 describe("exportFuelToCSV", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("calls Papa.unparse with rows", () => {
-    exportFuelToCSV(fuelRecords, trucks, t);
+  it("calls Papa.unparse with rows", async () => {
+    await exportFuelToCSV(fuelRecords, trucks, t);
     expect(m.unparse).toHaveBeenCalledOnce();
   });
 
-  it("resolves truck label from truckId", () => {
-    exportFuelToCSV(fuelRecords, trucks, t);
+  it("resolves truck label from truckId", async () => {
+    await exportFuelToCSV(fuelRecords, trucks, t);
     // exportToCsv builds rows of {header: value} objects internally
     // Verify the CSV unparse received data with the truck label
     const calls = m.unparse.mock.calls[0];
@@ -85,21 +85,21 @@ describe("exportFuelToCSV", () => {
 describe("exportPartsToExcel", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("creates xlsx with all parts", () => {
-    exportPartsToExcel(parts, t);
+  it("creates xlsx with all parts", async () => {
+    await exportPartsToExcel(parts, t);
     expect(m.writeFile).toHaveBeenCalledWith(expect.anything(), expect.stringContaining(".xlsx"));
     expect(m.jsonToSheet).toHaveBeenCalledOnce();
   });
 
-  it("flags low-stock parts in stock status column", () => {
-    exportPartsToExcel(parts, t);
+  it("flags low-stock parts in stock status column", async () => {
+    await exportPartsToExcel(parts, t);
     const rows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     const tire = rows.find((r) => r["fleet.parts.exportColumnName"] === "Tire");
     expect(tire?.["fleet.parts.exportColumnStockStatus"]).toBe("fleet.parts.exportStockLow");
   });
 
-  it("marks ok-stock parts", () => {
-    exportPartsToExcel(parts, t);
+  it("marks ok-stock parts", async () => {
+    await exportPartsToExcel(parts, t);
     const rows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     const filter = rows.find((r) => r["fleet.parts.exportColumnName"] === "Filter");
     expect(filter?.["fleet.parts.exportColumnStockStatus"]).toBe("fleet.parts.exportStockOk");
@@ -109,36 +109,36 @@ describe("exportPartsToExcel", () => {
 describe("exportServiceToPDF", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("calls autoTable with rows + footer", () => {
-    exportServiceToPDF(services, trucks, t);
+  it("calls autoTable with rows + footer", async () => {
+    await exportServiceToPDF(services, trucks, t);
     expect(m.autoTable).toHaveBeenCalledOnce();
     const args = m.autoTable.mock.calls[0][1] as { foot?: unknown[][]; body: unknown[][] };
     expect(args.body).toHaveLength(1);
     expect(args.foot).toBeDefined();
   });
 
-  it("filters by truckId", () => {
+  it("filters by truckId", async () => {
     const services2: ServiceRecord[] = [
       ...services,
       { id: "s2", truckId: "t-other", date: "2026-03-15", type: "revision", description: "x", mileageAtService: 100, cost: 100, nextServiceDate: "", partsUsed: [] },
     ];
-    exportServiceToPDF(services2, trucks, t, { truckId: "t1" });
+    await exportServiceToPDF(services2, trucks, t, { truckId: "t1" });
     const args = m.autoTable.mock.calls[0][1] as { body: unknown[][] };
     expect(args.body).toHaveLength(1);
   });
 
-  it("filters by date range", () => {
+  it("filters by date range", async () => {
     const services2: ServiceRecord[] = [
       { id: "s1", truckId: "t1", date: "2026-01-15", type: "revision", description: "", mileageAtService: 0, cost: 0, nextServiceDate: "", partsUsed: [] },
       { id: "s2", truckId: "t1", date: "2026-06-15", type: "revision", description: "", mileageAtService: 0, cost: 0, nextServiceDate: "", partsUsed: [] },
     ];
-    exportServiceToPDF(services2, trucks, t, { fromDate: "2026-05-01" });
+    await exportServiceToPDF(services2, trucks, t, { fromDate: "2026-05-01" });
     const args = m.autoTable.mock.calls[0][1] as { body: unknown[][] };
     expect(args.body).toHaveLength(1);
   });
 
-  it("saves with date-stamped filename", () => {
-    exportServiceToPDF(services, trucks, t);
+  it("saves with date-stamped filename", async () => {
+    await exportServiceToPDF(services, trucks, t);
     expect(m.save).toHaveBeenCalledWith(expect.stringMatching(/registru-service-\d{4}-\d{2}-\d{2}\.pdf$/));
   });
 });

@@ -28,7 +28,7 @@ function tripColumns(t: (k: string) => string) {
 }
 
 export function exportOrdersPDF(orders: Order[], t: (k: string) => string) {
-  exportToPdf({
+  return exportToPdf({
     filename: "comenzi",
     title: t("orders.manage"),
     columns: orderColumns(t),
@@ -39,7 +39,7 @@ export function exportOrdersPDF(orders: Order[], t: (k: string) => string) {
 }
 
 export function exportOrdersExcel(orders: Order[], t: (k: string) => string) {
-  exportToExcel({
+  return exportToExcel({
     filename: "comenzi",
     sheetName: t("orders.title"),
     columns: orderColumns(t),
@@ -49,7 +49,7 @@ export function exportOrdersExcel(orders: Order[], t: (k: string) => string) {
 }
 
 export function exportOrdersCSV(orders: Order[], t: (k: string) => string) {
-  exportToCsv({
+  return exportToCsv({
     filename: "comenzi",
     columns: orderColumns(t),
     rows: orders,
@@ -58,7 +58,7 @@ export function exportOrdersCSV(orders: Order[], t: (k: string) => string) {
 }
 
 export function exportTripsPDF(trips: Trip[], t: (k: string) => string) {
-  exportToPdf({
+  return exportToPdf({
     filename: "curse",
     title: t("trips.title"),
     columns: tripColumns(t),
@@ -70,7 +70,7 @@ export function exportTripsPDF(trips: Trip[], t: (k: string) => string) {
 }
 
 export function exportTripsExcel(trips: Trip[], t: (k: string) => string) {
-  exportToExcel({
+  return exportToExcel({
     filename: "curse",
     sheetName: t("trips.title"),
     columns: tripColumns(t),
@@ -80,7 +80,7 @@ export function exportTripsExcel(trips: Trip[], t: (k: string) => string) {
 }
 
 export function exportTripsCSV(trips: Trip[], t: (k: string) => string) {
-  exportToCsv({
+  return exportToCsv({
     filename: "curse",
     columns: tripColumns(t),
     rows: trips,

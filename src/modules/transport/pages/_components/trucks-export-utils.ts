@@ -19,7 +19,7 @@ function buildColumns(drivers: Driver[], t: (k: string) => string) {
 }
 
 export function exportTrucksPDF(trucks: Truck[], drivers: Driver[], t: (k: string) => string) {
-  exportToPdf({
+  return exportToPdf({
     filename: t("trucks.export.filename"),
     title: t("trucks.export.pdfTitle"),
     columns: buildColumns(drivers, t),
@@ -28,7 +28,7 @@ export function exportTrucksPDF(trucks: Truck[], drivers: Driver[], t: (k: strin
 }
 
 export function exportTrucksExcel(trucks: Truck[], drivers: Driver[], t: (k: string) => string) {
-  exportToExcel({
+  return exportToExcel({
     filename: t("trucks.export.filename"),
     sheetName: t("trucks.export.sheetName"),
     columns: buildColumns(drivers, t),
@@ -37,7 +37,7 @@ export function exportTrucksExcel(trucks: Truck[], drivers: Driver[], t: (k: str
 }
 
 export function exportTrucksCSV(trucks: Truck[], drivers: Driver[], t: (k: string) => string) {
-  exportToCsv({
+  return exportToCsv({
     filename: t("trucks.export.filename"),
     columns: buildColumns(drivers, t),
     rows: trucks,
