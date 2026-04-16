@@ -6,13 +6,13 @@ export function exportFuelToCSV(
   records: FuelRecord[],
   trucks: Truck[],
   t: (k: string) => string,
-): void {
+): Promise<void> {
   const getTruckLabel = (id: string) => {
     const tr = trucks.find((tr) => tr.id === id);
     return tr ? `${tr.plateNumber} - ${tr.brand} ${tr.model}` : id;
   };
 
-  exportToCsv({
+  return exportToCsv({
     filename: `alimentari-${new Date().toISOString().split("T")[0]}`,
     columns: [
       { header: t("fleet.fuel.exportColumnTruck"), accessor: (r) => getTruckLabel(r.truckId) },

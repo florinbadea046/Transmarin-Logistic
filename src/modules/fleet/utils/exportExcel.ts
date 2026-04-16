@@ -4,8 +4,8 @@ import { exportToExcel } from "@/utils/exports";
 export function exportPartsToExcel(
   parts: Part[],
   t: (k: string) => string,
-): void {
-  exportToExcel({
+): Promise<void> {
+  return exportToExcel({
     filename: `inventar-piese-${new Date().toISOString().split("T")[0]}`,
     sheetName: t("fleet.parts.exportSheetName"),
     columns: [

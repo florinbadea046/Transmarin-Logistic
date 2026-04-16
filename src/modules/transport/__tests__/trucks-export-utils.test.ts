@@ -56,27 +56,27 @@ const drivers: Driver[] = [
 describe("exportTrucksPDF", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("includes 9 columns", () => {
-    exportTrucksPDF(trucks, drivers, t);
+  it("includes 9 columns", async () => {
+    await exportTrucksPDF(trucks, drivers, t);
     const args = m.autoTable.mock.calls[0][1] as { head: string[][] };
     expect(args.head[0]).toHaveLength(9);
   });
 
-  it("populates body with all trucks", () => {
-    exportTrucksPDF(trucks, drivers, t);
+  it("populates body with all trucks", async () => {
+    await exportTrucksPDF(trucks, drivers, t);
     const args = m.autoTable.mock.calls[0][1] as { body: string[][] };
     expect(args.body).toHaveLength(2);
   });
 
-  it("resolves driver name for assigned truck", () => {
-    exportTrucksPDF(trucks, drivers, t);
+  it("resolves driver name for assigned truck", async () => {
+    await exportTrucksPDF(trucks, drivers, t);
     const args = m.autoTable.mock.calls[0][1] as { body: string[][] };
     const ct01 = args.body.find((r) => r.includes("CT-01-TML"));
     expect(ct01).toContain("Ion Popescu");
   });
 
-  it("shows dash for trucks with no driver", () => {
-    exportTrucksPDF(trucks, drivers, t);
+  it("shows dash for trucks with no driver", async () => {
+    await exportTrucksPDF(trucks, drivers, t);
     const args = m.autoTable.mock.calls[0][1] as { body: string[][] };
     const ct02 = args.body.find((r) => r.includes("CT-02-TML"));
     expect(ct02).toContain("—");
@@ -86,13 +86,13 @@ describe("exportTrucksPDF", () => {
 describe("exportTrucksExcel", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("creates xlsx sheet", () => {
-    exportTrucksExcel(trucks, drivers, t);
+  it("creates xlsx sheet", async () => {
+    await exportTrucksExcel(trucks, drivers, t);
     expect(m.writeFile).toHaveBeenCalledWith(expect.anything(), expect.stringContaining(".xlsx"));
   });
 
-  it("includes year and mileage as values", () => {
-    exportTrucksExcel(trucks, drivers, t);
+  it("includes year and mileage as values", async () => {
+    await exportTrucksExcel(trucks, drivers, t);
     const rows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     const ct01 = rows.find((r) => r["trucks.columns.plateNumber"] === "CT-01-TML");
     expect(ct01?.["trucks.fields.year"]).toBe(2020);
@@ -102,8 +102,8 @@ describe("exportTrucksExcel", () => {
 describe("exportTrucksCSV", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("calls Papa.unparse", () => {
-    exportTrucksCSV(trucks, drivers, t);
+  it("calls Papa.unparse", async () => {
+    await exportTrucksCSV(trucks, drivers, t);
     expect(m.unparse).toHaveBeenCalledOnce();
   });
 });

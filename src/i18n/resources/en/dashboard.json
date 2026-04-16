@@ -4,30 +4,31 @@
     "transport": {
       "title": "Transport — Summary",
       "activeOrders": "Active Orders",
-      "activeOrdersDesc": "live from orders (pending + assigned + in transit)",
+      "activeOrdersDesc": "pending, assigned or in transit",
       "fuelCostMonth": "Fuel Cost This Month",
       "fuelCostMonthDesc": "sum of fuel logs this month",
       "profitMonth": "Estimated Profit This Month",
-      "profitMonthDesc": "revenue - fuel cost (completed trips)",
+      "profitMonthDesc": "revenue − fuel cost (completed trips)",
       "maintenanceAlert": "Trucks in service > 7 days",
       "maintenanceDays": "{{days}} days",
       "noMaintenanceAlerts": "No active maintenance alerts."
     },
     "cards": {
       "activeOrders": "Active Orders",
-      "activeOrdersDesc": "pending + assigned + in transit",
+      "activeOrdersDesc": "pending, assigned or in transit",
       "employees": "Employees",
-      "employeesDesc": "21 active",
+      "employeesDesc": "{{count}} active",
       "invoices": "Invoices This Month",
-      "invoicesDesc": "8 unpaid",
+      "invoicesDesc": "{{count}} unpaid",
       "kmMonth": "Km This Month",
       "kmMonthDesc": "loaded + empty from all trips"
     },
     "charts": {
-      "kmPerDay": "Km / day - last 30 days",
-      "costsVsRevenue": "Costs vs. Revenue",
-      "costsVsRevenueTodo": "Costs vs revenue chart will be available soon.",
-      "kmTooltip": "Km"
+      "kmPerDay": "Km / day — last 30 days",
+      "costsVsRevenue": "Costs vs. Revenue — last 6 months",
+      "kmTooltip": "Km",
+      "revenue": "Revenue",
+      "costs": "Costs"
     },
     "alerts": {
       "title": "ITP / RCA / Vignette Alerts (<30 days)",

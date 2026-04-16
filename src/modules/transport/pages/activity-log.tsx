@@ -141,13 +141,11 @@ function AuditEntryCard({ entry, isMobile, t }: {
             </span>
           </div>
 
-          {/* Detalii — traduse la afisare din detailKey sau fallback la details */}
+          {/* Detalii — traduse la afisare din detailKey (cu interpolare) sau fallback la details */}
           {(entry.detailKey || entry.details) && (
             <p className="mt-1.5 text-xs text-muted-foreground break-words">
               {entry.detailKey
-                ? entry.detailParams
-                  ? `${t(entry.detailKey)} - ${Object.values(entry.detailParams).join(", ")}`
-                  : t(entry.detailKey)
+                ? (t as (k: string, o?: Record<string, unknown>) => string)(entry.detailKey, entry.detailParams)
                 : entry.details}
             </p>
           )}

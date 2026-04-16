@@ -20,7 +20,7 @@ import { formatCurrency, formatDate, getDateLocale } from "@/utils/format";
 import { exportToPdf } from "@/utils/exports/export-pdf";
 import { exportToExcel } from "@/utils/exports/export-excel";
 import type { Invoice } from "@/modules/accounting/types";
-import { getUnifiedInvoices } from "@/modules/accounting/utils/invoices-store";
+import { useUnifiedInvoices } from "@/modules/accounting/utils/invoices-store";
 
 // ── Types & config ─────────────────────────────────────────
 
@@ -112,7 +112,9 @@ function buildView(kind: JournalKind, monthInvoices: Invoice[]): JournalView {
 
 export default function JournalsPage() {
   const { t, i18n } = useTranslation();
-  const allInvoices = useMemo(() => getUnifiedInvoices(), []);
+  // Hook reactiv — se reactualizeaza automat la orice schimbare in cele doua
+  // colectii de facturi (cross-tab sau intra-tab).
+  const allInvoices = useUnifiedInvoices();
   const monthOptions = useMemo(
     () => buildMonthOptions(allInvoices),
     [allInvoices, i18n.language],

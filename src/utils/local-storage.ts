@@ -2,8 +2,18 @@
 // Helpers pentru localStorage — tot CRUD-ul din aplicație
 // folosește localStorage ca "bază de date" (conform proiectului).
 //
-// Studenții vor folosi aceste funcții în fiecare modul.
+// Orice scriere emite un eveniment intra-tab `transmarin:storage` asa ca hook-ul
+// `useSyncedCollection` poate reactualiza UI-ul din alte componente fara sa fie
+// nevoie de refresh manual. Cross-tab merge automat prin `storage` event nativ.
 // ──────────────────────────────────────────────────────────
+
+const LOCAL_CHANGE_EVENT = "transmarin:storage";
+
+/** Emis dupa orice scriere pentru sincronizarea intra-tab. */
+function notifyLocalChange(key: string): void {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent(LOCAL_CHANGE_EVENT, { detail: { key } }));
+}
 
 /**
  * Citește și parsează un array din localStorage.
@@ -24,6 +34,7 @@ export function getCollection<T>(key: string): T[] {
  */
 export function setCollection<T>(key: string, data: T[]): void {
   localStorage.setItem(key, JSON.stringify(data));
+  notifyLocalChange(key);
 }
 
 /**

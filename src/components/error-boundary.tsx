@@ -5,11 +5,22 @@ import { AlertTriangle } from "lucide-react";
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  /** Când vreunul din aceste chei se schimbă între render-uri, bounary-ul se
+   *  auto-resetează. Util pentru a reseta la navigare (ex: `resetKeys={[pathname]}`). */
+  resetKeys?: ReadonlyArray<unknown>;
 }
 
 interface State {
   hasError: boolean;
   error: Error | null;
+}
+
+function keysChanged(a: ReadonlyArray<unknown> = [], b: ReadonlyArray<unknown> = []): boolean {
+  if (a.length !== b.length) return true;
+  for (let i = 0; i < a.length; i++) {
+    if (!Object.is(a[i], b[i])) return true;
+  }
+  return false;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -21,6 +32,15 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error("ErrorBoundary caught:", error, errorInfo);
+  }
+
+  componentDidUpdate(prevProps: Props) {
+    if (
+      this.state.hasError &&
+      keysChanged(prevProps.resetKeys, this.props.resetKeys)
+    ) {
+      this.setState({ hasError: false, error: null });
+    }
   }
 
   handleReset = () => {

@@ -4,30 +4,31 @@
     "transport": {
       "title": "Transport — Sumar",
       "activeOrders": "Comenzi Active",
-      "activeOrdersDesc": "live din comenzi (pending + assigned + in tranzit)",
+      "activeOrdersDesc": "în așteptare, asignate sau în tranzit",
       "fuelCostMonth": "Cost Combustibil Luna",
-      "fuelCostMonthDesc": "sumat din alimentari luna curenta",
+      "fuelCostMonthDesc": "sumat din alimentările lunii curente",
       "profitMonth": "Profit Estimat Luna",
-      "profitMonthDesc": "venit - cost combustibil (curse finalizate)",
-      "maintenanceAlert": "Camioane in service > 7 zile",
+      "profitMonthDesc": "venit − cost combustibil (curse finalizate)",
+      "maintenanceAlert": "Camioane în service > 7 zile",
       "maintenanceDays": "{{days}} zile",
-      "noMaintenanceAlerts": "Nicio alerta de mentenanta activa."
+      "noMaintenanceAlerts": "Nicio alertă de mentenanță activă."
     },
     "cards": {
       "activeOrders": "Comenzi Active",
-      "activeOrdersDesc": "pending + assigned + in tranzit",
-      "employees": "Angajati",
-      "employeesDesc": "21 activi",
-      "invoices": "Facturi Luna",
-      "invoicesDesc": "8 neachitate",
+      "activeOrdersDesc": "în așteptare, asignate sau în tranzit",
+      "employees": "Angajați",
+      "employeesDesc": "{{count}} activi",
+      "invoices": "Facturi Lună",
+      "invoicesDesc": "{{count}} neachitate",
       "kmMonth": "Km Luna Aceasta",
-      "kmMonthDesc": "incarcat + gol din toate cursele"
+      "kmMonthDesc": "încărcat + gol din toate cursele"
     },
     "charts": {
-      "kmPerDay": "Km / zi - ultimele 30 zile",
-      "costsVsRevenue": "Costuri vs. Venituri",
-      "costsVsRevenueTodo": "Graficul costuri vs venituri va fi disponibil in curand.",
-      "kmTooltip": "Km"
+      "kmPerDay": "Km / zi — ultimele 30 zile",
+      "costsVsRevenue": "Costuri vs. Venituri — ultimele 6 luni",
+      "kmTooltip": "Km",
+      "revenue": "Venituri",
+      "costs": "Costuri"
     },
     "alerts": {
       "title": "Alerte ITP / RCA / Rovinieta (<30 zile)",

@@ -56,36 +56,36 @@ const trucks: Truck[] = [
 describe("exportDriversPDF", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("calls autoTable with 5 columns", () => {
-    exportDriversPDF(drivers, trucks, t);
+  it("calls autoTable with 5 columns", async () => {
+    await exportDriversPDF(drivers, trucks, t);
     expect(m.autoTable).toHaveBeenCalledOnce();
     const args = m.autoTable.mock.calls[0][1] as { head: string[][] };
     expect(args.head[0]).toHaveLength(5);
   });
 
-  it("populates body with driver data", () => {
-    exportDriversPDF(drivers, trucks, t);
+  it("populates body with driver data", async () => {
+    await exportDriversPDF(drivers, trucks, t);
     const args = m.autoTable.mock.calls[0][1] as { body: string[][] };
     expect(args.body).toHaveLength(2);
     expect(args.body[0]).toContain("Ion Popescu");
   });
 
-  it("resolves linked truck plate", () => {
-    exportDriversPDF(drivers, trucks, t);
+  it("resolves linked truck plate", async () => {
+    await exportDriversPDF(drivers, trucks, t);
     const args = m.autoTable.mock.calls[0][1] as { body: string[][] };
     const ionRow = args.body.find((r) => r.includes("Ion Popescu"));
     expect(ionRow).toContain("CT-01-TML");
   });
 
-  it("uses dash for unassigned driver truck", () => {
-    exportDriversPDF(drivers, trucks, t);
+  it("uses dash for unassigned driver truck", async () => {
+    await exportDriversPDF(drivers, trucks, t);
     const args = m.autoTable.mock.calls[0][1] as { body: string[][] };
     const mariaRow = args.body.find((r) => r.includes("Maria Pop"));
     expect(mariaRow).toContain("—");
   });
 
-  it("saves with .pdf filename", () => {
-    exportDriversPDF(drivers, trucks, t);
+  it("saves with .pdf filename", async () => {
+    await exportDriversPDF(drivers, trucks, t);
     expect(m.save).toHaveBeenCalledWith(expect.stringContaining(".pdf"));
   });
 });
@@ -93,16 +93,16 @@ describe("exportDriversPDF", () => {
 describe("exportDriversExcel", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("calls XLSX.writeFile with .xlsx extension", () => {
-    exportDriversExcel(drivers, trucks, t);
+  it("calls XLSX.writeFile with .xlsx extension", async () => {
+    await exportDriversExcel(drivers, trucks, t);
     expect(m.writeFile).toHaveBeenCalledWith(
       expect.anything(),
       expect.stringContaining(".xlsx"),
     );
   });
 
-  it("creates a sheet with translated columns", () => {
-    exportDriversExcel(drivers, trucks, t);
+  it("creates a sheet with translated columns", async () => {
+    await exportDriversExcel(drivers, trucks, t);
     expect(m.jsonToSheet).toHaveBeenCalledOnce();
     const rows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     expect(rows).toHaveLength(2);
@@ -113,8 +113,8 @@ describe("exportDriversExcel", () => {
 describe("exportDriversCSV", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("calls Papa.unparse with normalized rows", () => {
-    exportDriversCSV(drivers, trucks, t);
+  it("calls Papa.unparse with normalized rows", async () => {
+    await exportDriversCSV(drivers, trucks, t);
     expect(m.unparse).toHaveBeenCalledOnce();
   });
 });

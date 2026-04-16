@@ -14,7 +14,7 @@ export function exportServiceToPDF(
   trucks: Truck[],
   t: (k: string, opts?: Record<string, unknown>) => string,
   filters?: ServiceExportFilters,
-): void {
+): Promise<void> {
   const typeLabels = getTypeLabels(t);
 
   const getTruckLabel = (id: string) => {
@@ -44,7 +44,7 @@ export function exportServiceToPDF(
     extraLines.push(t("fleet.service.exportFilters", { filters: filterParts } as Record<string, unknown>));
   }
 
-  exportToPdf({
+  return exportToPdf({
     filename: `registru-service-${new Date().toISOString().split("T")[0]}`,
     title: t("fleet.service.exportTitle"),
     orientation: "landscape",

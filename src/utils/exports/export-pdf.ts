@@ -1,5 +1,6 @@
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
+// `jspdf` + `jspdf-autotable` adauga ~415 KB la bundle. Le incarcam lazy la
+// momentul exportului pentru a pastra main bundle-ul subtire.
+import type { default as JsPDFType } from "jspdf";
 import { stripDiacritics } from "./strip-diacritics";
 
 export interface PdfColumn<T> {
@@ -28,7 +29,7 @@ export interface ExportPdfOptions<T> {
   showHeader?: boolean;
 }
 
-export function exportToPdf<T>(options: ExportPdfOptions<T>): void {
+export async function exportToPdf<T>(options: ExportPdfOptions<T>): Promise<void> {
   const {
     filename,
     title,
@@ -43,8 +44,13 @@ export function exportToPdf<T>(options: ExportPdfOptions<T>): void {
     showHeader = true,
   } = options;
 
+  const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+    import("jspdf"),
+    import("jspdf-autotable"),
+  ]);
+
   const strip = stripRomanian ? stripDiacritics : (s: string) => s;
-  const doc = new jsPDF({ orientation });
+  const doc: JsPDFType = new jsPDF({ orientation });
 
   let y = 15;
 

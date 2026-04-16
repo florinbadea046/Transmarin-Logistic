@@ -15,7 +15,7 @@ import UnauthorizedPage from "@/pages/unauthorized";
 const CostsPage = lazy(() => import("@/modules/transport/pages/costs"));
 const ActivityLogPage = lazy(() => import("@/modules/transport/pages/activity-log"));
 const DriverPerformancePage = lazy(() => import("@/modules/transport/pages/driver-performance"));
-const TransportPage = lazy(() => import("@/modules/transport/index"));
+const TransportPage = lazy(() => import("@/modules/transport"));
 const OrdersPage = lazy(() => import("@/modules/transport/pages/orders"));
 const TripsPage = lazy(() => import("@/modules/transport/pages/trips"));
 const TripsCalendarPage = lazy(() => import("@/modules/transport/pages/trips-calendar"));
@@ -32,14 +32,14 @@ const MileageRegistryPage = lazy(() => import("@/modules/transport/pages/mileage
 const DispatcherLivePage = lazy(() => import("@/modules/transport/pages/dispatcher-live"));
 
 // Fleet
-const FleetPage = lazy(() => import("@/modules/fleet/index"));
+const FleetPage = lazy(() => import("@/modules/fleet"));
 const PartsPage = lazy(() => import("@/modules/fleet/pages/parts"));
 const ServicePage = lazy(() => import("@/modules/fleet/pages/service"));
 const FuelPage = lazy(() => import("@/modules/fleet/pages/fuel"));
 const VehiclesPage = lazy(() => import("@/modules/fleet/pages/vehicles"));
 
 // Accounting
-const AccountingPage = lazy(() => import("@/modules/accounting/index"));
+const AccountingPage = lazy(() => import("@/modules/accounting"));
 const InvoicesPage = lazy(() => import("@/modules/accounting/pages/invoices"));
 const SuppliersPage = lazy(() => import("@/modules/accounting/pages/suppliers"));
 const ClientsPage = lazy(() => import("@/modules/accounting/pages/clients"));
@@ -50,7 +50,7 @@ const JournalsPage = lazy(() => import("@/modules/accounting/pages/journals"));
 const BudgetPage = lazy(() => import("@/modules/accounting/pages/budget"));
 
 // HR
-const HRPage = lazy(() => import("@/modules/hr/index"));
+const HRPage = lazy(() => import("@/modules/hr"));
 const EmployeesPage = lazy(() => import("@/modules/hr/pages/employees"));
 const LeavesPage = lazy(() => import("@/modules/hr/pages/leaves"));
 const PayrollPage = lazy(() => import("@/modules/hr/pages/payroll"));
@@ -67,7 +67,7 @@ const SelfServicePage = lazy(() => import("@/modules/hr/pages/self-service"));
 const ShiftsPage = lazy(() => import("@/modules/hr/pages/shifts"));
 
 // Reports
-const ReportsPage = lazy(() => import("@/modules/reports/index"));
+const ReportsPage = lazy(() => import("@/modules/reports"));
 const TransportReportsPage = lazy(() => import("@/modules/reports/pages/transport-reports"));
 const FinancialReportsPage = lazy(() => import("@/modules/reports/pages/financial-reports"));
 const FleetReportsPage = lazy(() => import("@/modules/reports/pages/fleet-reports"));

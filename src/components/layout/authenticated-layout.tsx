@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Suspense } from "react";
-import { Outlet } from "@tanstack/react-router";
+import { Outlet, useLocation } from "@tanstack/react-router";
 import { getCookie } from "@/lib/cookies";
 import { cn } from "@/lib/utils";
 import { LayoutProvider } from "@/context/layout-provider";
@@ -17,6 +17,7 @@ type AuthenticatedLayoutProps = {
 
 export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
   const defaultOpen = getCookie("sidebar_state") !== "false";
+  const { pathname } = useLocation();
 
   return (
     <SearchProvider>
@@ -32,7 +33,7 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
               "peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-2rem)]",
             )}
           >
-            <ErrorBoundary>
+            <ErrorBoundary resetKeys={[pathname]}>
               <Suspense fallback={<PageFallback />}>
                 {children ?? <Outlet />}
               </Suspense>
