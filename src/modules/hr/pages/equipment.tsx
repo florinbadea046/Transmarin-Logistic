@@ -70,8 +70,23 @@ import {
 } from "./_components/equipment-columns";
 import { EquipmentDialog } from "./_components/equipment-dialog";
 
+const PAGE_SIZE_DEFAULT = 10;
+const PAGE_SIZE_OPTIONS = [10, 20];
+
+// Coloanele din tab-ul "Neînapoiate" sunt randate static; lista lor dictează
+// si colSpan-ul pentru starea goala. Tine-l sincronizat cu <TableHeader>.
+const UNRETURNED_COLUMN_KEYS = [
+  "type",
+  "inventoryNumber",
+  "employee",
+  "assignedDate",
+  "condition",
+  "value",
+  "actions",
+] as const;
+
 export default function EquipmentPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { log } = useHrAuditLog();
 
   const [employees, setEmployees] = React.useState<Employee[]>(() =>
@@ -105,7 +120,7 @@ export default function EquipmentPage() {
 
   const columns = React.useMemo(
     () => getEquipmentColumns(t, employees),
-    [t, i18n.language, employees],
+    [t, employees],
   );
 
   const table = useReactTable({
@@ -131,7 +146,7 @@ export default function EquipmentPage() {
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    initialState: { pagination: { pageSize: 10, pageIndex: 0 } },
+    initialState: { pagination: { pageSize: PAGE_SIZE_DEFAULT, pageIndex: 0 } },
   });
 
   const unreturnedData = React.useMemo(() => {
@@ -384,7 +399,7 @@ export default function EquipmentPage() {
                   </Table>
                 </div>
 
-                <DataTablePagination table={table} pageSizes={[10, 20]} />
+                <DataTablePagination table={table} pageSizes={PAGE_SIZE_OPTIONS} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -423,7 +438,7 @@ export default function EquipmentPage() {
                       {unreturnedData.length === 0 ? (
                         <TableRow>
                           <TableCell
-                            colSpan={7}
+                            colSpan={UNRETURNED_COLUMN_KEYS.length}
                             className="h-24 text-center text-muted-foreground"
                           >
                             {t("equipment.unreturnedEmpty")}

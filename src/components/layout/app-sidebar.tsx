@@ -44,6 +44,8 @@ const TITLE_KEYS: Record<string, string> = {
   "/accounting/invoices": "invoices.title",
   "/accounting/suppliers": "sidebar.accounting.suppliers",
   "/accounting/clients": "clients.title",
+  "/accounting/payments": "payments.title",
+  "/accounting/journals": "accountingJournals.title",
   "/accounting/activity-log": "accounting.nav.activityLog",
   // HR
   "/hr": "sidebar.hr.overview",
@@ -54,6 +56,7 @@ const TITLE_KEYS: Record<string, string> = {
   "/hr/attendance": "hr.nav.attendance",
   "/hr/shifts": "hr.nav.shifts",
   "/hr/trainings": "hr.nav.trainings",
+  "/hr/equipment": "hr.nav.equipment",
   "/hr/self-service": "hr.selfService.title",
   "/hr/activity-log": "hr.nav.activityLog",
   // Reports
