@@ -1,42 +1,31 @@
-// AccountingNotificationsCenter — Bell icon + dropdown pentru zona Contabilitate.
-// Genereaza notificari pentru: facturi scadente azi, restante >7 zile, buget depasit,
-// plati neconfirmate >3 zile. Persistare (max 200, FIFO) in STORAGE_KEYS.accounting_notifications.
+// AccountingNotificationsCenter — centru notificari pentru zona Contabilitate.
+// Logica: genereaza 4 tipuri (scadent azi, restanta >7 zile, buget depasit,
+// plata neconfirmata >3 zile). Persistare FIFO in STORAGE_KEYS.accounting_notifications.
+// UI-ul delegat la NotificationCenter (bell + popover/sheet).
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   AlertTriangle,
-  Bell,
   CalendarClock,
-  Check,
-  CheckCheck,
   Clock,
   PiggyBank,
   type LucideIcon,
 } from "lucide-react";
 import {
   differenceInCalendarDays,
-  formatDistanceToNow,
   parseISO,
   startOfToday,
 } from "date-fns";
 import { useNavigate } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
 
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-
 import { getCollection, setCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
-import { formatCurrency, formatDate, getDateLocale } from "@/utils/format";
+import { formatCurrency, formatDate } from "@/utils/format";
 import type { BudgetCategory, Payment } from "@/modules/accounting/types";
 import { getUnifiedInvoices } from "@/modules/accounting/utils/invoices-store";
-import useDialogState from "@/hooks/use-dialog-state";
-import { useMobile } from "@/hooks/use-mobile";
+import { NotificationCenter } from "@/components/notifications/notification-center";
 
 // ── Tipuri & config ────────────────────────────────────────
 
@@ -218,180 +207,11 @@ function mergeNotifications(
     .slice(0, MAX_NOTIFICATIONS);
 }
 
-// ── UI ─────────────────────────────────────────────────────
-
-function AccountingNotificationItem({
-  notification,
-  onMarkAsRead,
-  onNavigate,
-}: {
-  notification: AccountingNotification;
-  onMarkAsRead: (id: string) => void;
-  onNavigate: (n: AccountingNotification) => void;
-}) {
-  const { t } = useTranslation();
-  const meta = NOTIFICATION_META[notification.type];
-  const Icon = meta.icon;
-  const title = t(meta.titleKey, notification.params);
-  const message = t(meta.messageKey, notification.params);
-
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={() => onNavigate(notification)}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          onNavigate(notification);
-        }
-      }}
-      className={cn(
-        "flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-ring",
-        !notification.read ? "bg-muted/50 hover:bg-muted" : "hover:bg-muted/30",
-      )}
-    >
-      <Icon className={cn("h-4 w-4 shrink-0 mt-0.5", meta.iconClass)} />
-      <div className="flex-1 min-w-0 space-y-0.5">
-        <p className={cn("text-sm leading-snug", !notification.read && "font-medium")}>
-          {title}
-        </p>
-        <p className="text-xs text-muted-foreground leading-snug break-words">
-          {message}
-        </p>
-        <p className="text-[10px] text-muted-foreground/70 pt-0.5">
-          {formatDistanceToNow(parseISO(notification.createdAt), { addSuffix: true, locale: getDateLocale() })}
-        </p>
-      </div>
-      {!notification.read && (
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
-          onClick={(e) => {
-            e.stopPropagation();
-            onMarkAsRead(notification.id);
-          }}
-          aria-label={t("accountingNotifications.markRead")}
-        >
-          <Check className="h-3.5 w-3.5" />
-        </Button>
-      )}
-    </div>
-  );
-}
-
-interface ListProps {
-  notifications: AccountingNotification[];
-  unreadCount: number;
-  onMarkAsRead: (id: string) => void;
-  onMarkAllAsRead: () => void;
-  onNavigate: (n: AccountingNotification) => void;
-}
-
-function AccountingNotificationsList({
-  notifications,
-  unreadCount,
-  onMarkAsRead,
-  onMarkAllAsRead,
-  onNavigate,
-}: ListProps) {
-  const { t } = useTranslation();
-
-  return (
-    <div className="flex flex-col">
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold">{t("accountingNotifications.title")}</span>
-          {unreadCount > 0 && (
-            <Badge variant="secondary" className="text-xs">
-              {t("accountingNotifications.newBadge", { count: unreadCount })}
-            </Badge>
-          )}
-        </div>
-        {unreadCount > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1.5 text-xs text-muted-foreground"
-            onClick={onMarkAllAsRead}
-          >
-            <CheckCheck className="h-3.5 w-3.5" />
-            <span>{t("accountingNotifications.markAllRead")}</span>
-          </Button>
-        )}
-      </div>
-
-      <Separator className="shrink-0" />
-
-      <ScrollArea className="h-[320px]">
-        {notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
-            <Bell className="h-8 w-8 opacity-30" />
-            <p className="text-sm">{t("accountingNotifications.empty")}</p>
-          </div>
-        ) : (
-          <div className="divide-y">
-            {notifications.map((n) => (
-              <AccountingNotificationItem
-                key={n.id}
-                notification={n}
-                onMarkAsRead={onMarkAsRead}
-                onNavigate={onNavigate}
-              />
-            ))}
-          </div>
-        )}
-      </ScrollArea>
-
-      {notifications.length > 0 && (
-        <>
-          <Separator className="shrink-0" />
-          <div className="px-4 py-2 text-center text-xs text-muted-foreground shrink-0">
-            {t("accountingNotifications.total", { count: notifications.length })}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function AccountingBellButton({
-  unreadCount,
-  onClick,
-}: {
-  unreadCount: number;
-  onClick?: () => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <Button
-      variant="outline"
-      size="icon"
-      className="relative"
-      aria-label={t("accountingNotifications.bellAriaLabel")}
-      onClick={onClick}
-    >
-      <Bell className="h-4 w-4" />
-      {unreadCount > 0 && (
-        <Badge
-          className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full p-0 px-1 text-[10px] leading-none"
-          variant="destructive"
-        >
-          {unreadCount > 99 ? "99+" : unreadCount}
-        </Badge>
-      )}
-    </Button>
-  );
-}
-
 // ── Componenta principala ──────────────────────────────────
 
 export function AccountingNotificationsCenter() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const isMobile = useMobile(640);
-  const [open, setOpen] = useDialogState(false);
   const [items, setItems] = useState<AccountingNotification[]>([]);
 
   const refresh = useCallback(() => {
@@ -404,12 +224,6 @@ export function AccountingNotificationsCenter() {
   useEffect(() => {
     refresh();
   }, [refresh]);
-
-  useEffect(() => {
-    if (open) refresh();
-  }, [open, refresh]);
-
-  const unreadCount = useMemo(() => items.filter((n) => !n.read).length, [items]);
 
   const markAsRead = useCallback((id: string) => {
     setItems((prev) => {
@@ -427,50 +241,34 @@ export function AccountingNotificationsCenter() {
     });
   }, []);
 
-  const handleNavigate = useCallback((n: AccountingNotification) => {
+  const handleItemClick = useCallback((n: AccountingNotification) => {
     if (!n.read) markAsRead(n.id);
-    setOpen(false);
     navigate({ to: NOTIFICATION_META[n.type].route });
-  }, [markAsRead, navigate, setOpen]);
-
-  const listProps: ListProps = {
-    notifications: items,
-    unreadCount,
-    onMarkAsRead: markAsRead,
-    onMarkAllAsRead: markAllAsRead,
-    onNavigate: handleNavigate,
-  };
+  }, [markAsRead, navigate]);
 
   return (
-    <>
-      <AccountingBellButton unreadCount={unreadCount} onClick={() => setOpen(true)} />
-
-      <Sheet open={isMobile && open} onOpenChange={(v) => { if (isMobile) setOpen(v); }}>
-        <SheetContent side="bottom" className="p-0 rounded-t-xl max-h-[85dvh] flex flex-col">
-          <SheetHeader className="sr-only">
-            <SheetTitle>{t("accountingNotifications.title")}</SheetTitle>
-          </SheetHeader>
-          <div className="flex justify-center pt-3 pb-1 shrink-0">
-            <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
-          </div>
-          <div className="flex-1 overflow-hidden min-h-0">
-            <AccountingNotificationsList {...listProps} />
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      <Popover open={!isMobile && open} onOpenChange={(v) => { if (!isMobile) setOpen(v); }}>
-        <PopoverTrigger asChild>
-          <span className="absolute" aria-hidden />
-        </PopoverTrigger>
-        <PopoverContent
-          align="end"
-          className="w-[calc(100vw-2rem)] max-w-[380px] p-0 max-h-[480px] flex flex-col overflow-hidden"
-          sideOffset={8}
-        >
-          <AccountingNotificationsList {...listProps} />
-        </PopoverContent>
-      </Popover>
-    </>
+    <NotificationCenter
+      labels={{
+        title: t("accountingNotifications.title"),
+        empty: t("accountingNotifications.empty"),
+        markAllRead: t("accountingNotifications.markAllRead"),
+        markRead: t("accountingNotifications.markRead"),
+        newBadge: (count) => t("accountingNotifications.newBadge", { count }),
+        total: (count) => t("accountingNotifications.total", { count }),
+      }}
+      notifications={items}
+      onMarkAsRead={markAsRead}
+      onMarkAllAsRead={markAllAsRead}
+      onItemClick={handleItemClick}
+      renderItem={(n) => {
+        const meta = NOTIFICATION_META[n.type];
+        const Icon = meta.icon;
+        return {
+          icon: <Icon className={cn("h-4 w-4", meta.iconClass)} />,
+          title: t(meta.titleKey, n.params),
+          message: t(meta.messageKey, n.params),
+        };
+      }}
+    />
   );
 }

@@ -1,69 +1,79 @@
+import { lazy } from "react";
 import { createRootRoute, createRoute, createRouter, redirect } from "@tanstack/react-router";
 
 import { AuthenticatedLayout } from "@/components/layout/authenticated-layout";
 
+// Pagini eager-loaded — intrare rapida in aplicatie.
+// Login: prima pagina dupa logout. Dashboard: prima pagina dupa login.
+// NotFound & Unauthorized: fallback-uri simple si mici.
 import DashboardPage from "@/pages/dashboard";
 import LoginPage from "@/pages/login";
 import NotFoundPage from "@/pages/not-found";
 import UnauthorizedPage from "@/pages/unauthorized";
-import CostsPage from "@/modules/transport/pages/costs";
-import ActivityLogPage from "@/modules/transport/pages/activity-log";
-import DriverPerformancePage from "@/modules/transport/pages/driver-performance";
 
-import TransportPage from "@/modules/transport/index";
-import OrdersPage from "@/modules/transport/pages/orders";
-import TripsPage from "@/modules/transport/pages/trips";
-import TripsCalendarPage from "@/modules/transport/pages/trips-calendar";
-import TripsCalendarDndPage from "@/modules/transport/pages/trips-calendar-dnd";
-import TripsMapPage from "@/modules/transport/pages/trips-map";
-import TripTrackerPage from "@/modules/transport/pages/trip-tracker";
-import DriversPage from "@/modules/transport/pages/drivers";
-import DriverProfilePage from "@/modules/transport/pages/driver-profile";
-import MaintenancePage from "@/modules/transport/pages/maintenance";
-import FuelLogPage from "@/modules/transport/pages/fuel-log";
-import FleetComparisonPage from "@/modules/transport/pages/fleet-comparison";
+// Transport
+const CostsPage = lazy(() => import("@/modules/transport/pages/costs"));
+const ActivityLogPage = lazy(() => import("@/modules/transport/pages/activity-log"));
+const DriverPerformancePage = lazy(() => import("@/modules/transport/pages/driver-performance"));
+const TransportPage = lazy(() => import("@/modules/transport/index"));
+const OrdersPage = lazy(() => import("@/modules/transport/pages/orders"));
+const TripsPage = lazy(() => import("@/modules/transport/pages/trips"));
+const TripsCalendarPage = lazy(() => import("@/modules/transport/pages/trips-calendar"));
+const TripsCalendarDndPage = lazy(() => import("@/modules/transport/pages/trips-calendar-dnd"));
+const TripsMapPage = lazy(() => import("@/modules/transport/pages/trips-map"));
+const TripTrackerPage = lazy(() => import("@/modules/transport/pages/trip-tracker"));
+const DriversPage = lazy(() => import("@/modules/transport/pages/drivers"));
+const DriverProfilePage = lazy(() => import("@/modules/transport/pages/driver-profile"));
+const MaintenancePage = lazy(() => import("@/modules/transport/pages/maintenance"));
+const FuelLogPage = lazy(() => import("@/modules/transport/pages/fuel-log"));
+const FleetComparisonPage = lazy(() => import("@/modules/transport/pages/fleet-comparison"));
+const RecurringExpensesPage = lazy(() => import("@/modules/transport/pages/recurring-expenses"));
+const MileageRegistryPage = lazy(() => import("@/modules/transport/pages/mileage-registry"));
+const DispatcherLivePage = lazy(() => import("@/modules/transport/pages/dispatcher-live"));
 
-import FleetPage from "@/modules/fleet/index";
-import PartsPage from "@/modules/fleet/pages/parts";
-import ServicePage from "@/modules/fleet/pages/service";
-import FuelPage from "@/modules/fleet/pages/fuel";
-import VehiclesPage from "@/modules/fleet/pages/vehicles";
+// Fleet
+const FleetPage = lazy(() => import("@/modules/fleet/index"));
+const PartsPage = lazy(() => import("@/modules/fleet/pages/parts"));
+const ServicePage = lazy(() => import("@/modules/fleet/pages/service"));
+const FuelPage = lazy(() => import("@/modules/fleet/pages/fuel"));
+const VehiclesPage = lazy(() => import("@/modules/fleet/pages/vehicles"));
 
-import AccountingPage from "@/modules/accounting/index";
-import InvoicesPage from "@/modules/accounting/pages/invoices";
-import SuppliersPage from "@/modules/accounting/pages/suppliers";
-import ClientsPage from "@/modules/accounting/pages/clients";
-import ActivityLogAccountingPage from "@/modules/accounting/pages/activity-log";
-import PaymentsPage from "@/modules/accounting/pages/payments";
-import DueDatesPage from "@/modules/accounting/pages/due-dates";
-import JournalsPage from "@/modules/accounting/pages/journals";
+// Accounting
+const AccountingPage = lazy(() => import("@/modules/accounting/index"));
+const InvoicesPage = lazy(() => import("@/modules/accounting/pages/invoices"));
+const SuppliersPage = lazy(() => import("@/modules/accounting/pages/suppliers"));
+const ClientsPage = lazy(() => import("@/modules/accounting/pages/clients"));
+const ActivityLogAccountingPage = lazy(() => import("@/modules/accounting/pages/activity-log"));
+const PaymentsPage = lazy(() => import("@/modules/accounting/pages/payments"));
+const DueDatesPage = lazy(() => import("@/modules/accounting/pages/due-dates"));
+const JournalsPage = lazy(() => import("@/modules/accounting/pages/journals"));
+const BudgetPage = lazy(() => import("@/modules/accounting/pages/budget"));
 
-import HRPage from "@/modules/hr/index";
-import EmployeesPage from "@/modules/hr/pages/employees";
-import LeavesPage from "@/modules/hr/pages/leaves";
-import PayrollPage from "@/modules/hr/pages/payroll";
-import AttendancePage from "@/modules/hr/pages/attendance";
-import ActivityLogHRPage from "@/modules/hr/pages/activity-log";
-import HRSettingsPage from "@/modules/hr/pages/settings-hr";
-import EvaluationsPage from "@/modules/hr/pages/evaluations";
-import TrainingsPage from "@/modules/hr/pages/trainings";
-import RecruitmentPage from "@/modules/hr/pages/recruitment";
-import EquipmentPage from "@/modules/hr/pages/equipment";
-import SelfServicePage from "@/modules/hr/pages/self-service";
-import ShiftsPage from "@/modules/hr/pages/shifts";
+// HR
+const HRPage = lazy(() => import("@/modules/hr/index"));
+const EmployeesPage = lazy(() => import("@/modules/hr/pages/employees"));
+const LeavesPage = lazy(() => import("@/modules/hr/pages/leaves"));
+const PayrollPage = lazy(() => import("@/modules/hr/pages/payroll"));
+const AttendancePage = lazy(() => import("@/modules/hr/pages/attendance"));
+const ActivityLogHRPage = lazy(() => import("@/modules/hr/pages/activity-log"));
+const HRSettingsPage = lazy(() => import("@/modules/hr/pages/settings-hr"));
+const EvaluationsPage = lazy(() => import("@/modules/hr/pages/evaluations"));
+const TrainingsPage = lazy(() => import("@/modules/hr/pages/trainings"));
+const RecruitmentPage = lazy(() => import("@/modules/hr/pages/recruitment"));
+const EquipmentPage = lazy(() => import("@/modules/hr/pages/equipment"));
+const SelfServicePage = lazy(() => import("@/modules/hr/pages/self-service"));
+const ShiftsPage = lazy(() => import("@/modules/hr/pages/shifts"));
 
-import ReportsPage from "@/modules/reports/index";
-import TransportReportsPage from "@/modules/reports/pages/transport-reports";
-import FinancialReportsPage from "@/modules/reports/pages/financial-reports";
-import FleetReportsPage from "@/modules/reports/pages/fleet-reports";
-import AdvancedReportsPage from "@/modules/reports/pages/reports";
-import HrReportsPage from "@/modules/reports/pages/reports-hr";
+// Reports
+const ReportsPage = lazy(() => import("@/modules/reports/index"));
+const TransportReportsPage = lazy(() => import("@/modules/reports/pages/transport-reports"));
+const FinancialReportsPage = lazy(() => import("@/modules/reports/pages/financial-reports"));
+const FleetReportsPage = lazy(() => import("@/modules/reports/pages/fleet-reports"));
+const AdvancedReportsPage = lazy(() => import("@/modules/reports/pages/reports"));
+const HrReportsPage = lazy(() => import("@/modules/reports/pages/reports-hr"));
 
-import SettingsPage from "@/pages/settings";
-import RecurringExpensesPage from "@/modules/transport/pages/recurring-expenses";
-import MileageRegistryPage from "@/modules/transport/pages/mileage-registry";
-import BudgetPage from "@/modules/accounting/pages/budget";
-import DispatcherLivePage from "@/modules/transport/pages/dispatcher-live";
+// Settings
+const SettingsPage = lazy(() => import("@/pages/settings"));
 
 function isAuthenticated(): boolean {
   try {

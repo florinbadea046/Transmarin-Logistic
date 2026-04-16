@@ -59,6 +59,7 @@ const employees: Employee[] = [
     email: "ion@x.com",
     hireDate: "2024-01-15",
     salary: 5000,
+    documents: [],
   },
   {
     id: "e2",
@@ -69,6 +70,7 @@ const employees: Employee[] = [
     email: "maria@x.com",
     hireDate: "2023-03-10",
     salary: 6000,
+    documents: [],
   },
 ];
 
@@ -115,7 +117,7 @@ describe("EmployeeExportMenu", () => {
     render(<EmployeeExportMenu employees={employees} />);
     await user.click(screen.getByRole("button", { name: /export/i }));
     await user.click(await screen.findByText(/exportExcel/i));
-    const rows = m.jsonToSheet.mock.calls[0][0] as Record<string, unknown>[];
+    const rows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     expect(rows).toHaveLength(2);
   });
 });

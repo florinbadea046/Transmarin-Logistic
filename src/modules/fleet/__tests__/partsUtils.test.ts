@@ -4,6 +4,7 @@ import type { Part } from "@/modules/fleet/types";
 
 const makePart = (id: string, qty = 10, min = 5): Part => ({
   id,
+  code: "P-001",
   name: `Part-${id}`,
   category: "engine",
   supplier: "Bosch",
@@ -16,6 +17,7 @@ describe("savePart", () => {
   it("appends new part with generated id when no editingPart", () => {
     const parts: Part[] = [makePart("p1")];
     const newForm = {
+      code: "P-NEW",
       name: "Filter",
       category: "engine",
       supplier: "Mahle",
@@ -41,7 +43,7 @@ describe("savePart", () => {
   it("does not mutate original array when adding", () => {
     const parts: Part[] = [makePart("p1")];
     const before = parts.length;
-    savePart(parts, { name: "x", category: "y", supplier: "z", unitPrice: 1, quantity: 1, minStock: 0 }, null);
+    savePart(parts, { code: "P-NEW", name: "x", category: "y", supplier: "z", unitPrice: 1, quantity: 1, minStock: 0 }, null);
     expect(parts).toHaveLength(before);
   });
 });

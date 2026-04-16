@@ -68,7 +68,34 @@
       "profile": "Profil",
       "appearance": "Aparenta",
       "notifications": "Notificari",
-      "display": "Afisare"
+      "display": "Afisare",
+      "hr": "Resurse Umane",
+      "invoicing": "Facturare"
+    }
+  },
+  "hrNotifications": {
+    "title": "Notificări HR",
+    "empty": "Nicio notificare HR",
+    "newBadge": "{{count}} noi",
+    "markAllRead": "Marchează toate ca citite",
+    "markRead": "Marchează ca citit",
+    "total": "{{count}} notificări total",
+    "docLabels": {
+      "license": "Permis de conducere",
+      "tachograph": "Tahograf",
+      "adr": "Certificat ADR",
+      "medical": "Aviz medical",
+      "contract": "Contract de muncă",
+      "certificate": "Certificat",
+      "other": "Document"
+    },
+    "types": {
+      "docExpired": "{{label}} expirat — {{name}}",
+      "docExpiring": "{{label}} expiră în curând — {{name}}",
+      "docExpiredMsg": "{{label}} al lui {{name}} a expirat pe {{date}}.",
+      "docExpiringMsg": "{{label}} al lui {{name}} expiră în {{days}} zile ({{date}}).",
+      "pendingLeave": "Cerere concediu în așteptare — {{name}}",
+      "pendingLeaveMsg": "{{name}} a solicitat {{days}} zile de concediu ({{from}} – {{to}})."
     }
   },
   "notifications": {

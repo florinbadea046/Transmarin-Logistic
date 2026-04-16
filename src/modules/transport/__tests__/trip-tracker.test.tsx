@@ -5,7 +5,7 @@
 
 import * as React from "react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 // ── Mocks ──────────────────────────────────────────────────
@@ -85,7 +85,7 @@ vi.mock("@/modules/transport/pages/_components/trip-tracker-sidebar", () => ({
       {running && <button onClick={onStop} data-testid="stop-btn">stopTracking</button>}
     </div>
   ),
-  StopsCard: ({ stopNames, order, isStopReached, totalKm }: {
+  StopsCard: ({ stopNames, order: _order, isStopReached, totalKm }: {
     stopNames: string[];
     order: { origin: string; destination: string } | null;
     isStopReached: (idx: number) => boolean;

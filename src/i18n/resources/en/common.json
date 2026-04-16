@@ -68,7 +68,34 @@
       "profile": "Profile",
       "appearance": "Appearance",
       "notifications": "Notifications",
-      "display": "Display"
+      "display": "Display",
+      "hr": "Human Resources",
+      "invoicing": "Invoicing"
+    }
+  },
+  "hrNotifications": {
+    "title": "HR Notifications",
+    "empty": "No HR notifications",
+    "newBadge": "{{count}} new",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "total": "{{count}} notifications total",
+    "docLabels": {
+      "license": "Driver's license",
+      "tachograph": "Tachograph",
+      "adr": "ADR Certificate",
+      "medical": "Medical certificate",
+      "contract": "Employment contract",
+      "certificate": "Certificate",
+      "other": "Document"
+    },
+    "types": {
+      "docExpired": "{{label}} expired — {{name}}",
+      "docExpiring": "{{label}} expiring soon — {{name}}",
+      "docExpiredMsg": "{{label}} for {{name}} expired on {{date}}.",
+      "docExpiringMsg": "{{label}} for {{name}} expires in {{days}} days ({{date}}).",
+      "pendingLeave": "Pending leave request — {{name}}",
+      "pendingLeaveMsg": "{{name}} requested {{days}} days off ({{from}} – {{to}})."
     }
   },
   "notifications": {

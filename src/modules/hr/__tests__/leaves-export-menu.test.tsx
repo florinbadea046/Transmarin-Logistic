@@ -101,7 +101,7 @@ describe("LeavesExportMenu", () => {
     render(<LeavesExportMenu rows={rows} />);
     await user.click(screen.getByRole("button", { name: /leaves.export.button/i }));
     await user.click(await screen.findByText(/leaves.export.excel/i));
-    const xlsxRows = m.jsonToSheet.mock.calls[0][0] as Record<string, unknown>[];
+    const xlsxRows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     const ion = xlsxRows.find((r) => r["leavesExport.cols.employee"] === "Ion Popescu");
     expect(ion?.["leavesExport.cols.type"]).toBe("leavesExport.types.annual");
     expect(ion?.["leavesExport.cols.status"]).toBe("leavesExport.status.approved");
@@ -112,7 +112,7 @@ describe("LeavesExportMenu", () => {
     render(<LeavesExportMenu rows={rows} />);
     await user.click(screen.getByRole("button", { name: /leaves.export.button/i }));
     await user.click(await screen.findByText(/leaves.export.excel/i));
-    const xlsxRows = m.jsonToSheet.mock.calls[0][0] as Record<string, unknown>[];
+    const xlsxRows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     const maria = xlsxRows.find((r) => r["leavesExport.cols.employee"] === "Maria Pop");
     expect(maria?.["leavesExport.cols.reason"]).toBe("");
   });

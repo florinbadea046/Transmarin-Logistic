@@ -1,7 +1,8 @@
 import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 
-import { getCollection, setCollection, initCollection } from "../components/invoices-utils";
+import { getCollection, setCollection, initCollection } from "@/utils/local-storage";
+import { LEGACY_INVOICES_STORAGE_KEY } from "@/modules/accounting/utils/invoices-store";
 
 import { toast } from "sonner";
 import { useAuditLog } from "@/hooks/use-audit-log";
@@ -34,7 +35,10 @@ export default function InvoicesPage() {
   const { log } = useAuditLog();
   const { log: logAccounting } = useAccountingAuditLog();
 
-  const [invoices, setInvoices] = useState<Invoice[]>(() => getCollection(initialMock));
+  const [invoices, setInvoices] = useState<Invoice[]>(() => {
+    initCollection(LEGACY_INVOICES_STORAGE_KEY, initialMock);
+    return getCollection<Invoice>(LEGACY_INVOICES_STORAGE_KEY);
+  });
   const [tipFilter, setTipFilter] = useState("toate");
   const [statusFilter, setStatusFilter] = useState("toate");
   const [search, setSearch] = useState("");
@@ -46,11 +50,7 @@ export default function InvoicesPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    initCollection(initialMock);
-  }, []);
-
-  useEffect(() => {
-    setCollection(invoices);
+    setCollection(LEGACY_INVOICES_STORAGE_KEY, invoices);
   }, [invoices]);
 
   // ── Filtering ────────────────────────────────────────────────

@@ -18,24 +18,24 @@ describe("calcAverage", () => {
   });
 
   it("returns the value for a single criterion", () => {
-    const c: CriterionScore[] = [{ key: "punctualitate", score: 4 }];
+    const c: CriterionScore[] = [{ criterion: "punctuality", score: 4, comment: "" }];
     expect(calcAverage(c)).toBe(4);
   });
 
   it("returns the average of multiple scores", () => {
     const c: CriterionScore[] = [
-      { key: "a", score: 5 },
-      { key: "b", score: 3 },
-      { key: "c", score: 4 },
+      { criterion: "punctuality", score: 5, comment: "" },
+      { criterion: "quality", score: 3, comment: "" },
+      { criterion: "collaboration", score: 4, comment: "" },
     ];
     expect(calcAverage(c)).toBe(4);
   });
 
   it("rounds to 2 decimals", () => {
     const c: CriterionScore[] = [
-      { key: "a", score: 5 },
-      { key: "b", score: 4 },
-      { key: "c", score: 4 },
+      { criterion: "punctuality", score: 5, comment: "" },
+      { criterion: "quality", score: 4, comment: "" },
+      { criterion: "collaboration", score: 4, comment: "" },
     ];
     expect(calcAverage(c)).toBe(4.33);
   });

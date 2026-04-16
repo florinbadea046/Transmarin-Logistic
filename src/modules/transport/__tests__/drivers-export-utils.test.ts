@@ -104,7 +104,7 @@ describe("exportDriversExcel", () => {
   it("creates a sheet with translated columns", () => {
     exportDriversExcel(drivers, trucks, t);
     expect(m.jsonToSheet).toHaveBeenCalledOnce();
-    const rows = m.jsonToSheet.mock.calls[0][0] as Record<string, unknown>[];
+    const rows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     expect(rows).toHaveLength(2);
     expect(Object.keys(rows[0])).toContain("drivers.columns.name");
   });

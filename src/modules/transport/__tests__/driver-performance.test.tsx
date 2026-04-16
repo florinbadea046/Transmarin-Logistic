@@ -125,7 +125,7 @@ vi.mock("jspdf", () => ({ default: jsPDFMock.MockJsPDF }));
 vi.mock("jspdf-autotable", () => ({ default: vi.fn() }));
 
 vi.mock("date-fns", () => ({
-  format: vi.fn((date: Date, fmt: string) => "ian 25"),
+  format: vi.fn((_date: Date, _fmt: string) => "ian 25"),
   parseISO: vi.fn((s: string) => new Date(s)),
 }));
 
