@@ -18,7 +18,6 @@ const TITLE_KEYS: Record<string, string> = {
   // General
   "/": "dashboard.title",
   "/costs": "costs.title",
-  "/fleet-comparison": "fleetComparison.title",
   "/activity-log": "activityLog.title",
   // Transport
   "/transport": "sidebar.transport.overview",
