@@ -1,5 +1,6 @@
 import type { ElementType } from "react";
 
+// ── Common ──────────────────────────────────────────────────
 type User = {
   name: string;
   email: string;
@@ -12,6 +13,37 @@ type Team = {
   plan: string;
 };
 
+// ── Raw (source) — ce scrie sidebar-data.ts (chei i18n, nu text tradus) ──
+type RawBaseNavItem = {
+  titleKey: string;
+  badge?: string;
+  icon?: ElementType;
+};
+
+type RawNavLink = RawBaseNavItem & {
+  url: string;
+  items?: never;
+};
+
+type RawNavCollapsible = RawBaseNavItem & {
+  items: (RawBaseNavItem & { url: string })[];
+  url?: never;
+};
+
+type RawNavItem = RawNavCollapsible | RawNavLink;
+
+type RawNavGroup = {
+  titleKey: string;
+  items: RawNavItem[];
+};
+
+type RawSidebarData = {
+  user: User;
+  teams: Team[];
+  navGroups: RawNavGroup[];
+};
+
+// ── Translated — consumat de NavGroup după rezolvarea cheilor cu t() ──
 type BaseNavItem = {
   title: string;
   badge?: string;
@@ -41,4 +73,13 @@ type SidebarData = {
   navGroups: NavGroup[];
 };
 
-export type { SidebarData, NavGroup, NavItem, NavCollapsible, NavLink };
+export type {
+  RawSidebarData,
+  RawNavGroup,
+  RawNavItem,
+  SidebarData,
+  NavGroup,
+  NavItem,
+  NavCollapsible,
+  NavLink,
+};

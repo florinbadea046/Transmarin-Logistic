@@ -53,8 +53,8 @@ const fuelRecords: FuelRecord[] = [
 ];
 
 const parts: Part[] = [
-  { id: "p1", name: "Filter", category: "engine", supplier: "Bosch", unitPrice: 50, quantity: 10, minStock: 5 },
-  { id: "p2", name: "Tire", category: "wheels", supplier: "Michelin", unitPrice: 200, quantity: 2, minStock: 4 },
+  { id: "p1", code: "P-0001", name: "Filter", category: "engine", supplier: "Bosch", unitPrice: 50, quantity: 10, minStock: 5 },
+  { id: "p2", code: "P-0002", name: "Tire", category: "wheels", supplier: "Michelin", unitPrice: 200, quantity: 2, minStock: 4 },
 ];
 
 const trucks: Truck[] = [
@@ -93,14 +93,14 @@ describe("exportPartsToExcel", () => {
 
   it("flags low-stock parts in stock status column", () => {
     exportPartsToExcel(parts, t);
-    const rows = m.jsonToSheet.mock.calls[0][0] as Record<string, unknown>[];
+    const rows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     const tire = rows.find((r) => r["fleet.parts.exportColumnName"] === "Tire");
     expect(tire?.["fleet.parts.exportColumnStockStatus"]).toBe("fleet.parts.exportStockLow");
   });
 
   it("marks ok-stock parts", () => {
     exportPartsToExcel(parts, t);
-    const rows = m.jsonToSheet.mock.calls[0][0] as Record<string, unknown>[];
+    const rows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     const filter = rows.find((r) => r["fleet.parts.exportColumnName"] === "Filter");
     expect(filter?.["fleet.parts.exportColumnStockStatus"]).toBe("fleet.parts.exportStockOk");
   });

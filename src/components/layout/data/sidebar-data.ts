@@ -28,9 +28,11 @@ import {
   GraduationCap,
   Kanban,
 } from "lucide-react";
-import { type SidebarData } from "../types";
+import type { RawSidebarData } from "../types";
 
-export const sidebarData: SidebarData = {
+// Sursă unică de adevăr — titlurile sunt chei i18n; hook-ul useTranslatedSidebar
+// le rezolvă la render prin useTranslation().
+export const sidebarData: RawSidebarData = {
   user: {
     name: "Admin Transmarin",
     email: "admin@transmarin.ro",
@@ -45,293 +47,101 @@ export const sidebarData: SidebarData = {
   ],
   navGroups: [
     {
-      title: "General",
+      titleKey: "sidebar.groups.general",
       items: [
-        {
-          title: "Dashboard",
-          url: "/",
-          icon: LayoutDashboard,
-        },
-        {
-          title: "Costs & Profitability",
-          url: "/costs",
-          icon: DollarSign,
-        },
-        {
-          title: "Istoric Activitati",
-          url: "/activity-log",
-          icon: History,
-        },
+        { titleKey: "dashboard.title", url: "/", icon: LayoutDashboard },
+        { titleKey: "costs.title", url: "/costs", icon: DollarSign },
+        { titleKey: "activityLog.title", url: "/activity-log", icon: History },
       ],
     },
     {
-      title: "Module",
+      titleKey: "sidebar.groups.modules",
       items: [
         {
-          title: "Transport & Dispecerat",
+          titleKey: "sidebar.transport.title",
           icon: Truck,
           items: [
-            {
-              title: "Prezentare Generala",
-              url: "/transport",
-              icon: ClipboardList,
-            },
-            {
-              title: "Comenzi",
-              url: "/transport/orders",
-              icon: FileText,
-            },
-            {
-              title: "Curse Zilnice",
-              url: "/transport/trips",
-              icon: Calendar,
-            },
-            {
-              title: "Comparatie Flota",
-              url: "/transport/fleet-comparison",
-              icon: BarChart3,
-            },
-            {
-              title: "Soferi & Camioane",
-              url: "/transport/drivers",
-              icon: Users,
-            },
-            {
-              title: "Analiza Soferi",
-              url: "/driver-performance",
-              icon: TrendingUp,
-            },
-            {
-              title: "Mentenanta Camioane",
-              url: "/transport/maintenance",
-              icon: Wrench,
-            },
-            {
-              title: "Combustibil",
-              url: "/transport/fuel-log",
-              icon: Fuel,
-            },
-            {
-              title: "Cheltuieli Recurente",
-              url: "/transport/recurring-expenses",
-              icon: Receipt,
-            },
-            {
-              title: "Registru Kilometraj",
-              url: "/transport/mileage-registry",
-              icon: Gauge,
-            },
-            { title: "Dispecer Live", url: "/dispatcher-live", icon: Activity },
+            { titleKey: "sidebar.transport.overview", url: "/transport", icon: ClipboardList },
+            { titleKey: "orders.title", url: "/transport/orders", icon: FileText },
+            { titleKey: "trips.title", url: "/transport/trips", icon: Calendar },
+            { titleKey: "fleetComparison.title", url: "/transport/fleet-comparison", icon: BarChart3 },
+            { titleKey: "driversPage.title", url: "/transport/drivers", icon: Users },
+            { titleKey: "sidebar.transport.driverPerformance", url: "/driver-performance", icon: TrendingUp },
+            { titleKey: "maintenance.title", url: "/transport/maintenance", icon: Wrench },
+            { titleKey: "fuelLog.title", url: "/transport/fuel-log", icon: Fuel },
+            { titleKey: "recurringExpenses.title", url: "/transport/recurring-expenses", icon: Receipt },
+            { titleKey: "mileageRegistry.title", url: "/transport/mileage-registry", icon: Gauge },
+            { titleKey: "dispatcherLive.title", url: "/dispatcher-live", icon: Activity },
           ],
         },
         {
-          title: "Parc Auto & Service",
+          titleKey: "sidebar.fleet.title",
           icon: Wrench,
           items: [
-            {
-              title: "Prezentare Generala",
-              url: "/fleet",
-              icon: Truck,
-            },
-            {
-              title: "Piese & Consumabile",
-              url: "/fleet/parts",
-              icon: Package,
-            },
-            {
-              title: "Service & Reparatii",
-              url: "/fleet/service",
-              icon: Wrench,
-            },
-            {
-              title: "Combustibil",
-              url: "/fleet/fuel",
-              icon: Fuel,
-            },
-            {
-              title: "Fisa Vehicul",
-              url: "/fleet/vehicles",
-              icon: FileText,
-            },
+            { titleKey: "sidebar.fleet.overview", url: "/fleet", icon: Truck },
+            { titleKey: "sidebar.fleet.parts", url: "/fleet/parts", icon: Package },
+            { titleKey: "sidebar.fleet.service", url: "/fleet/service", icon: Wrench },
+            { titleKey: "sidebar.fleet.fuel", url: "/fleet/fuel", icon: Fuel },
+            { titleKey: "sidebar.fleet.vehicles", url: "/fleet/vehicles", icon: FileText },
           ],
         },
         {
-          title: "Contabilitate",
+          titleKey: "sidebar.accounting.title",
           icon: Receipt,
           items: [
-            {
-              title: "Prezentare Generala",
-              url: "/accounting",
-              icon: Receipt,
-            },
-            {
-              title: "Facturi",
-              url: "/accounting/invoices",
-              icon: FileText,
-            },
-            {
-              title: "Clienti",
-              url: "/accounting/clients",
-              icon: Users,
-            },
-            {
-              title: "Furnizori",
-              url: "/accounting/suppliers",
-              icon: Users,
-            },
-            {
-              title: "Registru Plati",
-              url: "/accounting/payments",
-              icon: CreditCard,
-            },
-            {
-              title: "Jurnale Contabile",
-              url: "/accounting/journals",
-              icon: FileText,
-            },
-            {
-              title: "Audit Log",
-              url: "/accounting/activity-log",
-              icon: ClipboardList,
-            },
+            { titleKey: "sidebar.accounting.overview", url: "/accounting", icon: Receipt },
+            { titleKey: "invoices.title", url: "/accounting/invoices", icon: FileText },
+            { titleKey: "clients.title", url: "/accounting/clients", icon: Users },
+            { titleKey: "sidebar.accounting.suppliers", url: "/accounting/suppliers", icon: Users },
+            { titleKey: "payments.title", url: "/accounting/payments", icon: CreditCard },
+            { titleKey: "accountingJournals.title", url: "/accounting/journals", icon: FileText },
+            { titleKey: "accounting.nav.activityLog", url: "/accounting/activity-log", icon: ClipboardList },
           ],
         },
         {
-          title: "Resurse Umane",
+          titleKey: "sidebar.hr.title",
           icon: UserCog,
           items: [
-            {
-              title: "Prezentare Generala",
-              url: "/hr",
-              icon: Users,
-            },
-            {
-              title: "Angajati",
-              url: "/hr/employees",
-              icon: UserCog,
-            },
-            {
-              title: "Recrutare",
-              url: "/hr/recruitment",
-              icon: Kanban,
-            },
-            {
-              title: "Concedii",
-              url: "/hr/leaves",
-              icon: Calendar,
-            },
-            {
-              title: "Salarizare",
-              url: "/hr/payroll",
-              icon: Wallet,
-            },
-            {
-              title: "Pontaj Lunar",
-              url: "/hr/attendance",
-              icon: CalendarDays,
-            },
-            {
-              title: "Planificare Ture",
-              url: "/hr/shifts",
-              icon: Calendar,
-            },
-            {
-              title: "Training & Certificări",
-              url: "/hr/trainings",
-              icon: GraduationCap,
-            },
-            {
-              title: "Inventar Echipamente",
-              url: "/hr/equipment",
-              icon: Package,
-            },
-            {
-              title: "Profilul Meu",
-              url: "/hr/self-service",
-              icon: UserCog,
-            },
-            {
-              title: "Istoric",
-              url: "/hr/activity-log",
-              icon: History,
-            },
+            { titleKey: "sidebar.hr.overview", url: "/hr", icon: Users },
+            { titleKey: "employees.title", url: "/hr/employees", icon: UserCog },
+            { titleKey: "hr.nav.recruitment", url: "/hr/recruitment", icon: Kanban },
+            { titleKey: "sidebar.hr.leaves", url: "/hr/leaves", icon: Calendar },
+            { titleKey: "sidebar.hr.payroll", url: "/hr/payroll", icon: Wallet },
+            { titleKey: "hr.nav.attendance", url: "/hr/attendance", icon: CalendarDays },
+            { titleKey: "hr.nav.shifts", url: "/hr/shifts", icon: Calendar },
+            { titleKey: "hr.nav.trainings", url: "/hr/trainings", icon: GraduationCap },
+            { titleKey: "hr.nav.equipment", url: "/hr/equipment", icon: Package },
+            { titleKey: "hr.selfService.title", url: "/hr/self-service", icon: UserCog },
+            { titleKey: "hr.nav.activityLog", url: "/hr/activity-log", icon: History },
           ],
         },
         {
-          title: "Rapoarte",
+          titleKey: "sidebar.reports.title",
           icon: BarChart3,
           items: [
-            {
-              title: "Dashboard Rapoarte",
-              url: "/reports",
-              icon: PieChart,
-            },
-            {
-              title: "Rapoarte Transport",
-              url: "/reports/transport",
-              icon: TrendingUp,
-            },
-            {
-              title: "Rapoarte Financiare",
-              url: "/reports/financial",
-              icon: Receipt,
-            },
-            {
-              title: "Rapoarte Parc Auto",
-              url: "/reports/fleet",
-              icon: Wrench,
-            },
-            {
-              title: "Rapoarte Avansate",
-              url: "/reports/advanced",
-              icon: BarChart3,
-            },
-            {
-              title: "Rapoarte HR",
-              url: "/reports/hr",
-              icon: Users,
-            },
+            { titleKey: "sidebar.reports.overview", url: "/reports", icon: PieChart },
+            { titleKey: "sidebar.reports.transport", url: "/reports/transport", icon: TrendingUp },
+            { titleKey: "sidebar.reports.financial", url: "/reports/financial", icon: Receipt },
+            { titleKey: "sidebar.reports.fleet", url: "/reports/fleet", icon: Wrench },
+            { titleKey: "reports.title", url: "/reports/advanced", icon: BarChart3 },
+            { titleKey: "sidebar.reports.hr", url: "/reports/hr", icon: Users },
           ],
         },
       ],
     },
     {
-      title: "Setari",
+      titleKey: "sidebar.groups.settings",
       items: [
         {
-          title: "Setari",
+          titleKey: "sidebar.settings.title",
           icon: Settings,
           items: [
-            {
-              title: "Profil",
-              url: "/settings",
-              icon: UserCog,
-            },
-            {
-              title: "Aparenta",
-              url: "/settings/appearance",
-              icon: Palette,
-            },
-            {
-              title: "Notificari",
-              url: "/settings/notifications",
-              icon: Bell,
-            },
-            {
-              title: "Afisare",
-              url: "/settings/display",
-              icon: Monitor,
-            },
-            {
-              title: "Resurse Umane",
-              url: "/settings/hr",
-              icon: Briefcase,
-            },
-            {
-              title: "Facturare",
-              url: "/settings/invoicing",
-              icon: CreditCard,
-            },
+            { titleKey: "sidebar.settings.profile", url: "/settings", icon: UserCog },
+            { titleKey: "sidebar.settings.appearance", url: "/settings/appearance", icon: Palette },
+            { titleKey: "sidebar.settings.notifications", url: "/settings/notifications", icon: Bell },
+            { titleKey: "sidebar.settings.display", url: "/settings/display", icon: Monitor },
+            { titleKey: "sidebar.settings.hr", url: "/settings/hr", icon: Briefcase },
+            { titleKey: "sidebar.settings.invoicing", url: "/settings/invoicing", icon: CreditCard },
           ],
         },
       ],

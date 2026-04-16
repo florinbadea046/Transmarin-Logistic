@@ -17,7 +17,6 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import * as React from "react";
 import { TripFormDialog } from "../pages/_components/trips-form-dialog";
 import type { Trip, Order, Driver, Truck } from "../types";
 import { addItem, updateItem } from "../../../utils/local-storage";

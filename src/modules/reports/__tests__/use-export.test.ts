@@ -115,7 +115,7 @@ describe("useExport", () => {
       columns: [{ header: "Sucursală", key: "x" }],
       rows: [{ x: "București" }],
     });
-    const data = m.aoaToSheet.mock.calls[0][0] as unknown as unknown[][];
+    const data = ((m.aoaToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as unknown as unknown[][];
     expect(data[1][0]).toBe("Constanța");
   });
 

@@ -13,12 +13,14 @@ import {
   CommandSeparator,
 } from '@/components/ui/command'
 import { sidebarData } from './layout/data/sidebar-data'
+import { useTranslatedSidebar } from './layout/use-translated-sidebar'
 import { ScrollArea } from './ui/scroll-area'
 
 export function CommandMenu() {
   const navigate = useNavigate()
   const { setTheme } = useTheme()
   const { open, setOpen } = useSearch()
+  const translated = useTranslatedSidebar(sidebarData)
 
   const runCommand = React.useCallback(
     (command: () => unknown) => {
@@ -34,7 +36,7 @@ export function CommandMenu() {
       <CommandList>
         <ScrollArea type='hover' className='h-72 pe-1'>
           <CommandEmpty>No results found.</CommandEmpty>
-          {sidebarData.navGroups.map((group) => (
+          {translated.navGroups.map((group) => (
             <CommandGroup key={group.title} heading={group.title}>
               {group.items.map((navItem, i) => {
                 if (navItem.url)

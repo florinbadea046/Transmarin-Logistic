@@ -6,7 +6,7 @@
 
 import * as React from "react";
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 // ── Mocks ──────────────────────────────────────────────────
@@ -101,7 +101,7 @@ vi.mock("@/data/mock-data", () => ({
 
 import FuelLogPage from "@/modules/transport/pages/fuel-log";
 import type { Truck, Driver, FuelLog } from "@/modules/transport/types";
-import { addItem, removeItem, updateItem, getCollection } from "@/utils/local-storage";
+import { removeItem, updateItem, getCollection } from "@/utils/local-storage";
 import { useMobile } from "@/hooks/use-mobile";
 
 // ── Date test ──────────────────────────────────────────────

@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Suspense } from "react";
 import { Outlet } from "@tanstack/react-router";
 import { getCookie } from "@/lib/cookies";
 import { cn } from "@/lib/utils";
@@ -8,6 +9,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/app-sidebar";
 import { SkipToMain } from "@/components/skip-to-main";
 import { ErrorBoundary } from "@/components/error-boundary";
+import { PageFallback } from "@/components/page-fallback";
 
 type AuthenticatedLayoutProps = {
   children?: ReactNode;
@@ -30,7 +32,11 @@ export function AuthenticatedLayout({ children }: AuthenticatedLayoutProps) {
               "peer-data-[variant=inset]:has-[[data-layout=fixed]]:h-[calc(100svh-2rem)]",
             )}
           >
-            <ErrorBoundary>{children ?? <Outlet />}</ErrorBoundary>
+            <ErrorBoundary>
+              <Suspense fallback={<PageFallback />}>
+                {children ?? <Outlet />}
+              </Suspense>
+            </ErrorBoundary>
           </SidebarInset>
         </SidebarProvider>
       </LayoutProvider>

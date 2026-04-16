@@ -4,8 +4,8 @@
 // ──────────────────────────────────────────────────────────
 
 import * as React from "react";
-import { vi, beforeEach, afterEach } from "vitest";
-import { render, screen, waitFor, act } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, act } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 // ── Mocks ──────────────────────────────────────────────────
@@ -468,7 +468,13 @@ describe("DispatcherLivePage — quick actions", () => {
 // ── Auto-refresh ───────────────────────────────────────────
 
 describe("DispatcherLivePage — auto-refresh", () => {
-  beforeEach(() => { vi.clearAllMocks(); setupStorage(); vi.useFakeTimers(); });
+  // Fake doar timerele de interval/timeout; microtask-urile raman reale ca
+  // React render-ul sa nu blocheze asteptand microtask-uri fake.
+  beforeEach(() => {
+    vi.clearAllMocks();
+    setupStorage();
+    vi.useFakeTimers({ toFake: ["setInterval", "clearInterval", "setTimeout", "clearTimeout"] });
+  });
   afterEach(() => { vi.useRealTimers(); });
 
   it("reincarca datele dupa 30 secunde", () => {

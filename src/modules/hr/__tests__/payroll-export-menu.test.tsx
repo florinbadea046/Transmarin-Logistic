@@ -95,7 +95,7 @@ describe("PayrollExportMenu", () => {
     await user.click(screen.getByRole("button", { name: /payroll.export.button/i }));
     await user.click(await screen.findByText(/payroll.export.excel/i));
     expect(m.aoaToSheet).toHaveBeenCalledOnce();
-    const data = m.aoaToSheet.mock.calls[0][0] as unknown[][];
+    const data = ((m.aoaToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as unknown[][];
     // headers + 2 rows + footer
     expect(data.length).toBe(4);
   });
@@ -105,7 +105,7 @@ describe("PayrollExportMenu", () => {
     render(<PayrollExportMenu rows={rows} selectedMonth="2026-04" />);
     await user.click(screen.getByRole("button", { name: /payroll.export.button/i }));
     await user.click(await screen.findByText(/payroll.export.excel/i));
-    const data = m.aoaToSheet.mock.calls[0][0] as unknown[][];
+    const data = ((m.aoaToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as unknown[][];
     const footerRow = data[data.length - 1];
     expect(footerRow[footerRow.length - 1]).toBe(5330 + 6000);
   });

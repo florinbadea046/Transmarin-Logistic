@@ -93,7 +93,7 @@ describe("exportTrucksExcel", () => {
 
   it("includes year and mileage as values", () => {
     exportTrucksExcel(trucks, drivers, t);
-    const rows = m.jsonToSheet.mock.calls[0][0] as Record<string, unknown>[];
+    const rows = ((m.jsonToSheet.mock.calls as unknown[][])[0]?.[0] ?? []) as Record<string, unknown>[];
     const ct01 = rows.find((r) => r["trucks.columns.plateNumber"] === "CT-01-TML");
     expect(ct01?.["trucks.fields.year"]).toBe(2020);
   });

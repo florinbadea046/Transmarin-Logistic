@@ -1,33 +1,23 @@
-// NotificationsCenter — Bell icon cu badge + dropdown
-// Pe mobile (< 640px) -> Sheet din jos
-// Pe desktop -> Popover dropdown
+// NotificationsCenter — bell pentru zona Transport. Genereaza notificari pentru
+// documente camioane/soferi care expira, curse intarziate si comenzi neasignate.
+// UI-ul delegat la NotificationCenter partajat; aici doar logica de domeniu.
 
 import { useEffect, useMemo, useState } from "react";
-import { Bell, Check, CheckCheck, FileWarning, Clock, PackageOpen } from "lucide-react";
-import { formatDistanceToNow, parseISO, differenceInHours } from "date-fns";
-import { ro } from "date-fns/locale";
+import { Clock, FileWarning, PackageOpen } from "lucide-react";
+import { differenceInHours, parseISO } from "date-fns";
 import { useTranslation } from "react-i18next";
-
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  Popover, PopoverContent, PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Sheet, SheetContent, SheetHeader, SheetTitle,
-} from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { cn } from "@/lib/utils";
+import type { TFunction } from "i18next";
 
 import { getCollection } from "@/utils/local-storage";
 import { STORAGE_KEYS } from "@/data/mock-data";
+import { formatDate } from "@/utils/format";
 import type { Driver, Truck, Order, Trip } from "@/modules/transport/types";
 import type { AppNotification } from "@/modules/notifications/notification.types";
-import useDialogState from "@/hooks/use-dialog-state";
-import { useMobile } from "@/hooks/use-mobile";
+import { NotificationCenter } from "./notification-center";
 
-// ── Helpers ────────────────────────────────────────────────
+const DOC_ALERT_DAYS = 30;
+const UNASSIGNED_ORDER_HOURS = 48;
+const READ_KEY = `${STORAGE_KEYS.notifications}_read`;
 
 function daysUntil(dateStr: string): number {
   const today = new Date();
@@ -36,32 +26,26 @@ function daysUntil(dateStr: string): number {
   return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-function formatDateRO(dateStr: string): string {
-  return new Date(`${dateStr}T00:00:00`).toLocaleDateString("ro-RO");
-}
-
-// ── Generare notificari ────────────────────────────────────
-
-import type { TFunction } from "i18next";
-
 function generateNotifications(t: TFunction): AppNotification[] {
   const notifications: AppNotification[] = [];
   const now = new Date();
 
-  // 1. Documente soferi — permis
+  // Documente soferi
   const drivers = getCollection<Driver>(STORAGE_KEYS.drivers);
   for (const driver of drivers) {
     const days = daysUntil(driver.licenseExpiry);
-    if (days <= 30) {
+    if (days <= DOC_ALERT_DAYS) {
+      const expired = days <= 0;
+      const date = formatDate(driver.licenseExpiry);
       notifications.push({
         id: `doc-driver-${driver.id}`,
         type: "document_expiry",
-        title: days <= 0
+        title: expired
           ? t("notifications.types.licenseExpired")
           : t("notifications.types.licenseExpiring"),
-        message: days <= 0
-          ? t("notifications.types.licenseExpiredMsg", { name: driver.name, date: formatDateRO(driver.licenseExpiry) })
-          : t("notifications.types.licenseExpiringMsg", { name: driver.name, days, plural: days === 1 ? "" : "le", date: formatDateRO(driver.licenseExpiry) }),
+        message: expired
+          ? t("notifications.types.licenseExpiredMsg", { name: driver.name, date })
+          : t("notifications.types.licenseExpiringMsg", { name: driver.name, days, plural: days === 1 ? "" : "le", date }),
         createdAt: now.toISOString(),
         read: false,
         entityId: driver.id,
@@ -69,97 +53,88 @@ function generateNotifications(t: TFunction): AppNotification[] {
     }
   }
 
-  // 2. Documente camioane — ITP, RCA, Vigneta
+  // Documente camioane
   const trucks = getCollection<Truck>(STORAGE_KEYS.trucks);
   for (const truck of trucks) {
-    const checks: { key: string; label: string; date: string }[] = [
+    const checks = [
       { key: "itp", label: "ITP", date: truck.itpExpiry },
       { key: "rca", label: "RCA", date: truck.rcaExpiry },
       { key: "vignette", label: "Vigneta", date: truck.vignetteExpiry },
     ];
     for (const check of checks) {
       const days = daysUntil(check.date);
-      if (days <= 30) {
-        notifications.push({
-          id: `doc-truck-${truck.id}-${check.key}`,
-          type: "document_expiry",
-          title: days <= 0
-            ? t("notifications.types.docExpired", { label: check.label, plate: truck.plateNumber })
-            : t("notifications.types.docExpiring", { label: check.label, plate: truck.plateNumber }),
-          message: days <= 0
-            ? t("notifications.types.docExpiredMsg", { plate: truck.plateNumber, label: check.label, date: formatDateRO(check.date) })
-            : t("notifications.types.docExpiringMsg", { plate: truck.plateNumber, label: check.label, days, plural: days === 1 ? "" : "le", date: formatDateRO(check.date) }),
-          createdAt: now.toISOString(),
-          read: false,
-          entityId: truck.id,
-        });
-      }
-    }
-  }
-
-  // 3. Curse intarziate
-  const trips = getCollection<Trip>(STORAGE_KEYS.trips);
-  for (const trip of trips) {
-    if (
-      trip.status === "in_desfasurare" &&
-      trip.estimatedArrivalDate &&
-      daysUntil(trip.estimatedArrivalDate) < 0
-    ) {
-      const overdueDays = Math.abs(daysUntil(trip.estimatedArrivalDate));
+      if (days > DOC_ALERT_DAYS) continue;
+      const expired = days <= 0;
+      const formattedDate = formatDate(check.date);
       notifications.push({
-        id: `trip-delayed-${trip.id}`,
-        type: "delayed_trip",
-        title: t("notifications.types.delayedTrip"),
-        message: t("notifications.types.delayedTripMsg", {
-          id: trip.id,
-          days: overdueDays,
-          plural: overdueDays === 1 ? "" : "le",
-          date: formatDateRO(trip.estimatedArrivalDate),
-        }),
+        id: `doc-truck-${truck.id}-${check.key}`,
+        type: "document_expiry",
+        title: expired
+          ? t("notifications.types.docExpired", { label: check.label, plate: truck.plateNumber })
+          : t("notifications.types.docExpiring", { label: check.label, plate: truck.plateNumber }),
+        message: expired
+          ? t("notifications.types.docExpiredMsg", { plate: truck.plateNumber, label: check.label, date: formattedDate })
+          : t("notifications.types.docExpiringMsg", { plate: truck.plateNumber, label: check.label, days, plural: days === 1 ? "" : "le", date: formattedDate }),
         createdAt: now.toISOString(),
         read: false,
-        entityId: trip.id,
+        entityId: truck.id,
       });
     }
   }
 
-  // 4. Comenzi neasignate >48h
+  // Curse intarziate
+  const trips = getCollection<Trip>(STORAGE_KEYS.trips);
+  for (const trip of trips) {
+    if (trip.status !== "in_desfasurare" || !trip.estimatedArrivalDate) continue;
+    const days = daysUntil(trip.estimatedArrivalDate);
+    if (days >= 0) continue;
+    const overdueDays = Math.abs(days);
+    notifications.push({
+      id: `trip-delayed-${trip.id}`,
+      type: "delayed_trip",
+      title: t("notifications.types.delayedTrip"),
+      message: t("notifications.types.delayedTripMsg", {
+        id: trip.id,
+        days: overdueDays,
+        plural: overdueDays === 1 ? "" : "le",
+        date: formatDate(trip.estimatedArrivalDate),
+      }),
+      createdAt: now.toISOString(),
+      read: false,
+      entityId: trip.id,
+    });
+  }
+
+  // Comenzi neasignate > 48h
   const orders = getCollection<Order>(STORAGE_KEYS.orders);
   for (const order of orders) {
-    if (order.status === "pending") {
-      const orderDate = parseISO(order.date);
-      const hoursElapsed = differenceInHours(now, orderDate);
-      if (hoursElapsed > 48) {
-        const days = Math.floor(hoursElapsed / 24);
-        notifications.push({
-          id: `order-unassigned-${order.id}`,
-          type: "unassigned_order",
-          title: t("notifications.types.unassignedOrder"),
-          message: t("notifications.types.unassignedOrderMsg", {
-            client: order.clientName,
-            origin: order.origin,
-            destination: order.destination,
-            days,
-            plural: days === 1 ? "" : "le",
-          }),
-          createdAt: now.toISOString(),
-          read: false,
-          entityId: order.id,
-        });
-      }
-    }
+    if (order.status !== "pending") continue;
+    const hoursElapsed = differenceInHours(now, parseISO(order.date));
+    if (hoursElapsed <= UNASSIGNED_ORDER_HOURS) continue;
+    const days = Math.floor(hoursElapsed / 24);
+    notifications.push({
+      id: `order-unassigned-${order.id}`,
+      type: "unassigned_order",
+      title: t("notifications.types.unassignedOrder"),
+      message: t("notifications.types.unassignedOrderMsg", {
+        client: order.clientName,
+        origin: order.origin,
+        destination: order.destination,
+        days,
+        plural: days === 1 ? "" : "le",
+      }),
+      createdAt: now.toISOString(),
+      read: false,
+      entityId: order.id,
+    });
   }
 
   return notifications;
 }
 
-// ── Persistare ─────────────────────────────────────────────
-
-const NOTIFICATIONS_KEY = STORAGE_KEYS.notifications;
-
 function loadReadIds(): Set<string> {
   try {
-    const raw = localStorage.getItem(`${NOTIFICATIONS_KEY}_read`);
+    const raw = localStorage.getItem(READ_KEY);
     return raw ? new Set(JSON.parse(raw)) : new Set();
   } catch {
     return new Set();
@@ -167,164 +142,17 @@ function loadReadIds(): Set<string> {
 }
 
 function saveReadIds(ids: Set<string>) {
-  localStorage.setItem(`${NOTIFICATIONS_KEY}_read`, JSON.stringify([...ids]));
+  localStorage.setItem(READ_KEY, JSON.stringify([...ids]));
 }
-
-// ── Icoane per tip ─────────────────────────────────────────
-
-function NotificationIcon({ type }: { type: AppNotification["type"] }) {
-  if (type === "document_expiry")
-    return <FileWarning className="h-4 w-4 shrink-0 text-yellow-500" />;
-  if (type === "delayed_trip")
-    return <Clock className="h-4 w-4 shrink-0 text-red-500" />;
-  return <PackageOpen className="h-4 w-4 shrink-0 text-blue-500" />;
-}
-
-// ── Lista notificari ───────────────────────────────────────
-
-function NotificationsList({
-  notifications,
-  onMarkAsRead,
-  onMarkAllAsRead,
-  unreadCount,
-}: {
-  notifications: (AppNotification & { read: boolean })[];
-  onMarkAsRead: (id: string) => void;
-  onMarkAllAsRead: () => void;
-  unreadCount: number;
-}) {
-  const { t } = useTranslation();
-
-  return (
-    <div className="flex flex-col">
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="font-semibold">{t("notifications.title")}</span>
-          {unreadCount > 0 && (
-            <Badge variant="secondary" className="text-xs">
-              {t("notifications.newBadge", { count: unreadCount })}
-            </Badge>
-          )}
-        </div>
-        {unreadCount > 0 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1.5 text-xs text-muted-foreground"
-            onClick={onMarkAllAsRead}
-          >
-            <CheckCheck className="h-3.5 w-3.5" />
-            <span>{t("notifications.markAllRead")}</span>
-          </Button>
-        )}
-      </div>
-
-      <Separator className="shrink-0" />
-
-      <ScrollArea className="h-[320px]">
-        {notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
-            <Bell className="h-8 w-8 opacity-30" />
-            <p className="text-sm">{t("notifications.empty")}</p>
-          </div>
-        ) : (
-          <div className="divide-y">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={cn(
-                  "flex items-start gap-3 px-4 py-3 transition-colors",
-                  !notification.read ? "bg-muted/50 hover:bg-muted" : "hover:bg-muted/30",
-                )}
-              >
-                <div className="mt-0.5">
-                  <NotificationIcon type={notification.type} />
-                </div>
-                <div className="flex-1 space-y-0.5 min-w-0">
-                  <p className={cn("text-sm leading-snug", !notification.read && "font-medium")}>
-                    {notification.title}
-                  </p>
-                  <p className="text-xs text-muted-foreground leading-snug break-words">
-                    {notification.message}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground/70 pt-0.5">
-                    {formatDistanceToNow(parseISO(notification.createdAt), {
-                      addSuffix: true,
-                      locale: ro,
-                    })}
-                  </p>
-                </div>
-                {!notification.read && (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-6 w-6 shrink-0 text-muted-foreground hover:text-foreground"
-                    onClick={() => onMarkAsRead(notification.id)}
-                    aria-label={t("notifications.markRead")}
-                  >
-                    <Check className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </ScrollArea>
-
-      {notifications.length > 0 && (
-        <>
-          <Separator className="shrink-0" />
-          <div className="px-4 py-2 text-center text-xs text-muted-foreground shrink-0">
-            {t("notifications.total", { count: notifications.length })}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-// ── Bell Button ────────────────────────────────────────────
-
-function BellButton({ unreadCount, onClick }: { unreadCount: number; onClick?: () => void }) {
-  const { t } = useTranslation();
-  return (
-    <Button
-      variant="outline"
-      size="icon"
-      className="relative"
-      aria-label={t("notifications.title")}
-      onClick={onClick}
-    >
-      <Bell className="h-4 w-4" />
-      {unreadCount > 0 && (
-        <Badge
-          className="absolute -right-1.5 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full p-0 px-1 text-[10px] leading-none"
-          variant="destructive"
-        >
-          {unreadCount > 99 ? "99+" : unreadCount}
-        </Badge>
-      )}
-    </Button>
-  );
-}
-
-// ── Componenta principala ──────────────────────────────────
 
 export function NotificationsCenter() {
   const { t } = useTranslation();
-  const isMobile = useMobile(640);
-  const [open, setOpen] = useDialogState(false);
   const [readIds, setReadIds] = useState<Set<string>>(loadReadIds);
 
-  const notifications = useMemo(() => {
-    return generateNotifications(t).map((n) => ({
-      ...n,
-      read: readIds.has(n.id),
-    }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, readIds, t]);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const notifications = useMemo(
+    () => generateNotifications(t).map((n) => ({ ...n, read: readIds.has(n.id) })),
+    [t, readIds],
+  );
 
   useEffect(() => {
     saveReadIds(readIds);
@@ -333,40 +161,27 @@ export function NotificationsCenter() {
   const markAsRead = (id: string) => setReadIds((prev) => new Set([...prev, id]));
   const markAllAsRead = () => setReadIds(new Set(notifications.map((n) => n.id)));
 
-  const listProps = { notifications, onMarkAsRead: markAsRead, onMarkAllAsRead: markAllAsRead, unreadCount };
-
   return (
-    <>
-      <BellButton unreadCount={unreadCount} onClick={() => setOpen(true)} />
-
-      {/* Mobile: Sheet din jos */}
-      <Sheet open={isMobile && open} onOpenChange={(v) => { if (isMobile) setOpen(v); }}>
-        <SheetContent side="bottom" className="p-0 rounded-t-xl max-h-[85dvh] flex flex-col">
-          <SheetHeader className="sr-only">
-            <SheetTitle>{t("notifications.title")}</SheetTitle>
-          </SheetHeader>
-          <div className="flex justify-center pt-3 pb-1 shrink-0">
-            <div className="h-1 w-10 rounded-full bg-muted-foreground/30" />
-          </div>
-          <div className="flex-1 overflow-hidden min-h-0">
-            <NotificationsList {...listProps} />
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      {/* Desktop: Popover */}
-      <Popover open={!isMobile && open} onOpenChange={(v) => { if (!isMobile) setOpen(v); }}>
-        <PopoverTrigger asChild>
-          <span className="absolute" aria-hidden />
-        </PopoverTrigger>
-        <PopoverContent
-          align="end"
-          className="w-[calc(100vw-2rem)] max-w-[380px] p-0 max-h-[480px] flex flex-col overflow-hidden"
-          sideOffset={8}
-        >
-          <NotificationsList {...listProps} />
-        </PopoverContent>
-      </Popover>
-    </>
+    <NotificationCenter
+      labels={{
+        title: t("notifications.title"),
+        empty: t("notifications.empty"),
+        markAllRead: t("notifications.markAllRead"),
+        markRead: t("notifications.markRead"),
+        newBadge: (count) => t("notifications.newBadge", { count }),
+        total: (count) => t("notifications.total", { count }),
+      }}
+      notifications={notifications}
+      onMarkAsRead={markAsRead}
+      onMarkAllAsRead={markAllAsRead}
+      renderItem={(n) => ({
+        icon:
+          n.type === "document_expiry" ? <FileWarning className="h-4 w-4 text-yellow-500" /> :
+          n.type === "delayed_trip" ? <Clock className="h-4 w-4 text-red-500" /> :
+          <PackageOpen className="h-4 w-4 text-blue-500" />,
+        title: n.title,
+        message: n.message,
+      })}
+    />
   );
 }
