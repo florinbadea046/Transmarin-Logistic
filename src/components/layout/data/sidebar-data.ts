@@ -58,11 +58,6 @@ export const sidebarData: SidebarData = {
           icon: DollarSign,
         },
         {
-          title: "Comparatie Performanta Flota",
-          url: "/fleet-comparison",
-          icon: BarChart3,
-        },
-        {
           title: "Istoric Activitati",
           url: "/activity-log",
           icon: History,

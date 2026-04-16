@@ -8,7 +8,6 @@ import NotFoundPage from "@/pages/not-found";
 import UnauthorizedPage from "@/pages/unauthorized";
 import CostsPage from "@/pages/costs";
 import ActivityLogPage from "@/pages/activity-log";
-import FleetComparisonPageNew from "@/pages/fleet-comparison";
 import DriverPerformancePage from "@/modules/transport/pages/_components/driver-performance";
 
 import TransportPage from "@/modules/transport/index";
@@ -104,12 +103,6 @@ const costsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/costs",
   component: CostsPage,
-});
-
-const fleetComparisonNewRoute = createRoute({
-  getParentRoute: () => authenticatedRoute,
-  path: "/fleet-comparison",
-  component: FleetComparisonPageNew,
 });
 
 const activityLogRoute = createRoute({
@@ -410,7 +403,6 @@ const routeTree = rootRoute.addChildren([
   authenticatedRoute.addChildren([
     dashboardRoute,
     costsRoute,
-    fleetComparisonNewRoute,
     activityLogRoute,
 
     // Transport
