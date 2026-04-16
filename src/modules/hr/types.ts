@@ -190,3 +190,34 @@ export interface Equipment {
   value: number;
   notes?: string;
 }
+
+// ── Onboarding Checklist ──────────────────────────────────
+
+export const ONBOARDING_STEP_KEYS = [
+  "contract",
+  "account",
+  "safetyTraining",
+  "equipment",
+  "teamIntro",
+  "systemAccess",
+] as const;
+
+export type OnboardingStepKey = (typeof ONBOARDING_STEP_KEYS)[number];
+
+export interface OnboardingStep {
+  key: OnboardingStepKey;
+  completed: boolean;
+  completedAt?: string; // YYYY-MM-DD
+  note?: string;
+}
+
+export type OnboardingStatus = "in_progress" | "completed";
+
+export interface OnboardingChecklist {
+  id: string;
+  employeeId: string;
+  startedAt: string; // YYYY-MM-DD (de regula hireDate)
+  steps: OnboardingStep[];
+  status: OnboardingStatus;
+  completedAt?: string; // YYYY-MM-DD când toate sunt bifate
+}

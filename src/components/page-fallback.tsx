@@ -1,20 +1,16 @@
 // Fallback afisat cat un chunk lazy e incarcat.
-// Tine o structura stabila (Header + schelet card) ca sa evite layout shift.
+// Spinner centrat, discret — nu deranjeaza vizual tranzitiile intre rute.
 
-import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 
 export function PageFallback() {
   return (
-    <div className="flex h-full w-full flex-col gap-4 p-4 sm:p-6">
-      <Skeleton className="h-8 w-48" />
-      <Skeleton className="h-4 w-72" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-24 w-full" />
-      </div>
-      <Skeleton className="h-64 w-full" />
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex h-[calc(100vh-4rem)] w-full items-center justify-center"
+    >
+      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
     </div>
   );
 }
