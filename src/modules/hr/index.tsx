@@ -48,6 +48,7 @@ export default function HRPage() {
     { title: t("hr.nav.leaves"), href: "/hr/leaves", isActive: false },
     { title: t("hr.nav.payroll"), href: "/hr/payroll", isActive: false },
     { title: t("hr.nav.attendance"), href: "/hr/attendance", isActive: false },
+    { title: t("hr.nav.shifts"), href: "/hr/shifts", isActive: false },
     { title: t("hr.nav.evaluations"), href: "/hr/evaluations", isActive: false },
     { title: t("hr.nav.trainings"), href: "/hr/trainings", isActive: false },
     { title: t("hrSettings.nav"), href: "/hr/settings", isActive: false },

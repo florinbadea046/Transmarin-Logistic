@@ -48,6 +48,7 @@ import EvaluationsPage from "@/modules/hr/pages/evaluations";
 import TrainingsPage from "@/modules/hr/pages/trainings";
 import RecruitmentPage from "@/modules/hr/pages/recruitment";
 import SelfServicePage from "@/pages/self-service";
+import ShiftsPage from "@/modules/hr/pages/shifts";
 
 import ReportsPage from "@/modules/reports/index";
 import TransportReportsPage from "@/modules/reports/pages/transport-reports";
@@ -309,6 +310,10 @@ const selfServiceRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr/self-service",
   component: SelfServicePage,
+const shiftsRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/shifts",
+  component: ShiftsPage,
 });
 
 // Reports
@@ -452,6 +457,7 @@ const routeTree = rootRoute.addChildren([
     trainingsRoute,
     recruitmentRoute,
     selfServiceRoute,
+    shiftsRoute,
 
     // Reports
     reportsRoute,

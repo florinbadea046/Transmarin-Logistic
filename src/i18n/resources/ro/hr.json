@@ -22,7 +22,52 @@
       "activityLog": "Istoric",
       "evaluations": "Evaluări",
       "trainings": "Training & Certificări",
-      "recruitment": "Recrutare"
+      "recruitment": "Recrutare",
+      "shifts": "Planificare Ture"
+    },
+    "shifts": {
+      "title": "Planificare Ture / Schimburi",
+      "subtitle": "Calendar saptamanal cu 3 ture pe departament",
+      "department": "Departament",
+      "shiftType": "Tip tura",
+      "weekOf": "Saptamana",
+      "prevWeek": "Saptamana anterioara",
+      "nextWeek": "Saptamana urmatoare",
+      "today": "Saptamana curenta",
+      "employee": "Angajat",
+      "exportPdf": "Export PDF",
+      "noEmployees": "Nu exista angajati in acest departament.",
+      "assign": "Asigneaza tura",
+      "clear": "Sterge",
+      "summary": "Sumar tura/zi",
+      "total": "Total",
+      "types": {
+        "morning": "Dimineata (06-14)",
+        "afternoon": "Dupa-amiaza (14-22)",
+        "night": "Noapte (22-06)"
+      },
+      "short": {
+        "morning": "D",
+        "afternoon": "A",
+        "night": "N"
+      },
+      "validation": {
+        "nightThenMorning": "Noaptea nu poate fi urmata de tura de dimineata.",
+        "blocked": "Validare esuata"
+      },
+      "pdf": {
+        "title": "Planificare Ture",
+        "generated": "Generat:"
+      },
+      "days": {
+        "mon": "Luni",
+        "tue": "Marti",
+        "wed": "Miercuri",
+        "thu": "Joi",
+        "fri": "Vineri",
+        "sat": "Sambata",
+        "sun": "Duminica"
+      }
     },
     "documentAlerts": {
       "title": "Alerte Documente",
@@ -662,7 +707,8 @@
       "attendance": "Pontaj",
       "evaluation": "Evaluare",
       "training": "Training",
-      "candidate": "Candidat"
+      "candidate": "Candidat",
+      "shift": "Tura"
     }
   },
   "trainings": {
