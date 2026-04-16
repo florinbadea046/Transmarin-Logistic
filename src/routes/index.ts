@@ -310,6 +310,7 @@ const selfServiceRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr/self-service",
   component: SelfServicePage,
+});
 const shiftsRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr/shifts",
