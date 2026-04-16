@@ -28,6 +28,7 @@ export const STORAGE_KEYS = {
   clients: "transmarin_clients",
   accounting_audit_log: "transmarin_accounting_audit_log",
   payments: "transmarin_payments",
+  accounting_notifications: "transmarin_accounting_notifications",
   // HR
   employees: "transmarin_employees",
   leaveRequests: "transmarin_leave_requests",

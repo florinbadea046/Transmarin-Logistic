@@ -3,8 +3,9 @@ import { BarChart3, TrendingUp, AlertTriangle, Receipt } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer,
+  ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import type { Invoice } from "@/modules/accounting/types";
 
 interface Props {
@@ -185,7 +186,7 @@ export function FinancialSection({ invoices }: Props) {
                 width={55}
                 tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
               />
-              <Tooltip
+              <ChartTooltip
                 contentStyle={{
                   fontSize: 12,
                   backgroundColor: "hsl(var(--card))",

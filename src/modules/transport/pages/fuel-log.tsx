@@ -25,8 +25,9 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import * as XLSX from "xlsx";
 
 import { Header } from "@/components/layout/header";
@@ -212,7 +213,7 @@ function FuelChart({ logs }: { logs: FuelLog[] }) {
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
             <XAxis dataKey="month" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
-            <Tooltip
+            <ChartTooltip
               formatter={(value, name) => {
                 const num = typeof value === "number" ? value : 0;
                 return [

@@ -11,9 +11,10 @@ import type { DateRange } from "react-day-picker";
 import {
   BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
   RadialBarChart, RadialBar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import { CalendarIcon, Download, Loader2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
@@ -279,7 +280,7 @@ export default function AdvancedReportsPage() {
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis dataKey="name" {...xAxisProps} />
                       <YAxis tick={{ fontSize: isMobile ? 10 : 11 }} width={isMobile ? 40 : 50} />
-                      <Tooltip formatter={(val) => [`${(val ?? 0).toLocaleString("ro-RO")} km`, t("reports.tooltip.km")]} />
+                      <ChartTooltip formatter={(val) => [`${(val ?? 0).toLocaleString("ro-RO")} km`, t("reports.tooltip.km")]} />
                       <Bar dataKey="km" fill={COLORS[0]} radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -299,7 +300,7 @@ export default function AdvancedReportsPage() {
                       <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                       <XAxis dataKey="luna" {...xAxisProps} />
                       <YAxis tick={{ fontSize: isMobile ? 10 : 11 }} width={isMobile ? 40 : 50} />
-                      <Tooltip formatter={(val) => [`${(val ?? 0).toLocaleString("ro-RO")} RON`, t("reports.tooltip.cost")]} />
+                      <ChartTooltip formatter={(val) => [`${(val ?? 0).toLocaleString("ro-RO")} RON`, t("reports.tooltip.cost")]} />
                       <Line type="monotone" dataKey="cost" stroke={COLORS[1]} strokeWidth={2} dot={{ r: isMobile ? 3 : 4 }} activeDot={{ r: isMobile ? 5 : 6 }} />
                     </LineChart>
                   </ResponsiveContainer>
@@ -325,7 +326,7 @@ export default function AdvancedReportsPage() {
                       >
                         {routeData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                       </Pie>
-                      <Tooltip formatter={(val, name) => [val ?? 0, name ?? ""]} />
+                      <ChartTooltip formatter={(val, name) => [val ?? 0, name ?? ""]} />
                       <Legend
                         iconSize={8} layout="vertical" align="center" verticalAlign="bottom"
                         wrapperStyle={{ fontSize: isMobile ? "10px" : "11px", lineHeight: "1.6", paddingTop: "8px", width: "100%", whiteSpace: "normal", wordBreak: "break-word" }}
@@ -351,7 +352,7 @@ export default function AdvancedReportsPage() {
                   <ResponsiveContainer width="100%" height={chartHeight}>
                     <RadialBarChart innerRadius="20%" outerRadius="90%" data={utilData} startAngle={180} endAngle={0}>
                       <RadialBar dataKey="utilizare" label={{ position: "insideStart", fill: "#fff", fontSize: isMobile ? 9 : 11 }} background />
-                      <Tooltip formatter={(val) => [`${val ?? 0}%`, t("reports.tooltip.utilization")]} />
+                      <ChartTooltip formatter={(val) => [`${val ?? 0}%`, t("reports.tooltip.utilization")]} />
                       <Legend iconSize={isMobile ? 8 : 10} formatter={(value) => <span className={isMobile ? "text-[10px]" : "text-xs"}>{value}</span>} />
                     </RadialBarChart>
                   </ResponsiveContainer>

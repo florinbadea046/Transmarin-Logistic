@@ -7,8 +7,8 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
   ResponsiveContainer,
-  Tooltip,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -337,7 +337,7 @@ export function RadarDialog({
                 fill="#3b82f6"
                 fillOpacity={0.3}
               />
-              <Tooltip />
+              <ChartTooltip />
             </RadarChart>
           </ResponsiveContainer>
 

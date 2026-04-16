@@ -9,7 +9,8 @@ import { TopNav } from "@/components/layout/top-nav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend, ResponsiveContainer } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import { getCollection } from "@/utils/local-storage";
 import { formatCurrency } from "@/utils/format";
 import { STORAGE_KEYS } from "@/data/mock-data";
@@ -156,7 +157,7 @@ export default function AccountingPage() {
                       new Intl.NumberFormat("ro-RO", { notation: "compact", compactDisplay: "short" }).format(v)
                     }
                   />
-                  <Tooltip formatter={(value) => (typeof value === "number" ? formatCurrency(value) : String(value ?? ""))} />
+                  <ChartTooltip formatter={(value) => (typeof value === "number" ? formatCurrency(value) : String(value ?? ""))} />
                   <Legend />
                   <Bar dataKey={t("accounting.chartRevenue")} fill="#16a34a" radius={[4, 4, 0, 0]} />
                   <Bar dataKey={t("accounting.chartExpenses")} fill="#dc2626" radius={[4, 4, 0, 0]} />

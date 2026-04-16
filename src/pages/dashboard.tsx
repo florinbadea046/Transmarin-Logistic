@@ -10,9 +10,9 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 
 import {
   padTwo,
@@ -174,7 +174,7 @@ export default function DashboardPage() {
                         axisLine={false}
                         width={40}
                       />
-                      <Tooltip
+                      <ChartTooltip
                         contentStyle={{ fontSize: 12 }}
                         formatter={(v) => [
                           `${v ?? 0} km`,

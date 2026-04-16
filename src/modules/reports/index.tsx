@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   BarChart, Bar, AreaChart, Area, LineChart, Line,
   PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import {
   TrendingUp, TrendingDown, Wallet, FileWarning, Truck, Users, Route,
 } from "lucide-react";
@@ -285,7 +286,7 @@ export default function ReportsDashboardPage() {
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis dataKey="luna" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 11 }} width={55} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                    <Tooltip formatter={(val) => [formatCurrency(Number(val))]} labelFormatter={(l) => `${t("reportsDashboard.month")} ${l}`} />
+                    <ChartTooltip formatter={(val) => [formatCurrency(Number(val))]} labelFormatter={(l) => `${t("reportsDashboard.month")} ${l}`} />
                     <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} />
                     <Bar dataKey="venituri" name={t("reportsDashboard.income")} fill={COLORS[1]} radius={[4, 4, 0, 0]} />
                     <Bar dataKey="cheltuieli" name={t("reportsDashboard.expenses")} fill={COLORS[3]} radius={[4, 4, 0, 0]} />
@@ -306,7 +307,7 @@ export default function ReportsDashboardPage() {
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis dataKey="luna" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 11 }} width={55} tickFormatter={(v) => `${v.toLocaleString("ro-RO")}`} />
-                    <Tooltip formatter={(val) => [`${Number(val).toLocaleString("ro-RO")} km`, t("reportsDashboard.kmTooltip")]} labelFormatter={(l) => `${t("reportsDashboard.month")} ${l}`} />
+                    <ChartTooltip formatter={(val) => [`${Number(val).toLocaleString("ro-RO")} km`, t("reportsDashboard.kmTooltip")]} labelFormatter={(l) => `${t("reportsDashboard.month")} ${l}`} />
                     <Line type="monotone" dataKey="km" stroke={COLORS[0]} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                   </LineChart>
                 </ResponsiveContainer>
@@ -333,7 +334,7 @@ export default function ReportsDashboardPage() {
                     >
                       {pieData.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
                     </Pie>
-                    <Tooltip formatter={(val) => [formatCurrency(Number(val))]} />
+                    <ChartTooltip formatter={(val) => [formatCurrency(Number(val))]} />
                     <Legend iconSize={10} wrapperStyle={{ fontSize: 12 }} verticalAlign="bottom" />
                   </PieChart>
                 </ResponsiveContainer>
@@ -358,7 +359,7 @@ export default function ReportsDashboardPage() {
                     <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                     <XAxis dataKey="luna" tick={{ fontSize: 11 }} />
                     <YAxis tick={{ fontSize: 11 }} width={55} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                    <Tooltip formatter={(val) => [formatCurrency(Number(val)), t("reportsDashboard.income")]} labelFormatter={(l) => `${t("reportsDashboard.month")} ${l}`} />
+                    <ChartTooltip formatter={(val) => [formatCurrency(Number(val)), t("reportsDashboard.income")]} labelFormatter={(l) => `${t("reportsDashboard.month")} ${l}`} />
                     <Area type="monotone" dataKey="venituri" name={t("reportsDashboard.income")} stroke={COLORS[1]} strokeWidth={2} fill="url(#gradVenituri)" dot={{ r: 3 }} activeDot={{ r: 5 }} />
                   </AreaChart>
                 </ResponsiveContainer>

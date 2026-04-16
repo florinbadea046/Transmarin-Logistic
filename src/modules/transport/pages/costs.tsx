@@ -8,10 +8,10 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
   Cell,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import {
   Select,
   SelectContent,
@@ -275,7 +275,7 @@ export default function CostsPage() {
                     interval="preserveStartEnd"
                   />
                   <YAxis tick={{ fontSize: 10 }} width={48} />
-                  <Tooltip />
+                  <ChartTooltip />
                   <Area
                     type="monotone"
                     dataKey="profit"
@@ -315,7 +315,7 @@ export default function CostsPage() {
                       width={72}
                       tick={{ fontSize: 10 }}
                     />
-                    <Tooltip
+                    <ChartTooltip
                       formatter={(value) => [
                         `${Number(value).toLocaleString()} RON`,
                         t("costs.driverChart.profit"),

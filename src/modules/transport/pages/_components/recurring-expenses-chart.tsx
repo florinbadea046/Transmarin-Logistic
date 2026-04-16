@@ -2,8 +2,9 @@
 
 import { useTranslation } from "react-i18next";
 import {
-  PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend, ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -38,7 +39,7 @@ export function CategoryChart({ expenses }: { expenses: RecurringExpense[] }) {
               labelLine={false}>
               {data.map((_, i) => <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />)}
             </Pie>
-            <Tooltip formatter={(val) => [`${Number(val).toLocaleString("ro-RO")} RON`]} />
+            <ChartTooltip formatter={(val) => [`${Number(val).toLocaleString("ro-RO")} RON`]} />
             <Legend />
           </PieChart>
         </ResponsiveContainer>

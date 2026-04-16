@@ -1,9 +1,10 @@
 import { useTranslation } from "react-i18next";
 import {
   BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -37,7 +38,7 @@ export function FinancialCharts({ barData, pieData, isMobile }: FinancialChartsP
                   <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
                   <XAxis dataKey="luna" tick={{ fontSize: isMobile ? 10 : 11 }} angle={-30} textAnchor="end" interval={0} />
                   <YAxis tick={{ fontSize: isMobile ? 10 : 11 }} width={isMobile ? 45 : 60} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(val) => [formatCurrency(val as number)]} />
+                  <ChartTooltip formatter={(val) => [formatCurrency(val as number)]} />
                   <Legend wrapperStyle={{ fontSize: isMobile ? "10px" : "11px" }} />
                   <Bar dataKey="venituri" name={t("financialReports.typeIncome")} fill={COLORS[1]} radius={[4, 4, 0, 0]} />
                   <Bar dataKey="cheltuieli" name={t("financialReports.typeExpense")} fill={COLORS[3]} radius={[4, 4, 0, 0]} />
@@ -67,7 +68,7 @@ export function FinancialCharts({ barData, pieData, isMobile }: FinancialChartsP
                   >
                     {pieData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                   </Pie>
-                  <Tooltip formatter={(val) => [formatCurrency(val as number)]} />
+                  <ChartTooltip formatter={(val) => [formatCurrency(val as number)]} />
                   <Legend
                     iconSize={8} layout="vertical" align="center" verticalAlign="bottom"
                     wrapperStyle={{ fontSize: isMobile ? "10px" : "11px", lineHeight: "1.6", paddingTop: "8px" }}

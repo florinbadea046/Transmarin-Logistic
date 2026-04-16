@@ -12,9 +12,10 @@ import {
   PieChart, Pie, Cell,
   BarChart, Bar,
   RadialBarChart, RadialBar,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  XAxis, YAxis, CartesianGrid, Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import {
   CalendarIcon, Download, Loader2,
   Users, CalendarDays, TrendingUp, TrendingDown,
@@ -484,7 +485,7 @@ export default function HRReportsPage() {
                           <Cell key={i} fill={COLORS[i % COLORS.length]} />
                         ))}
                       </Pie>
-                      <Tooltip formatter={(val, name) => [val, name]} />
+                      <ChartTooltip formatter={(val, name) => [val, name]} />
                       <Legend
                         iconSize={8}
                         wrapperStyle={{ fontSize: isMobile ? "10px" : "11px" }}
@@ -518,7 +519,7 @@ export default function HRReportsPage() {
                         interval={0}
                       />
                       <YAxis tick={{ fontSize: isMobile ? 10 : 11 }} width={35} />
-                      <Tooltip
+                      <ChartTooltip
                         formatter={(val, name) => [
                           t("hrReports.tooltip.days", { val }),
                           name === "CO" ? t("hrReports.tooltip.annualLeave") : t("hrReports.tooltip.sickLeave"),
@@ -560,7 +561,7 @@ export default function HRReportsPage() {
                         tick={{ fontSize: isMobile ? 10 : 11 }}
                         width={isMobile ? 80 : 110}
                       />
-                      <Tooltip formatter={(val) => [formatCurrency(Number(val)), t("hrReports.tooltip.bonuses")]} />
+                      <ChartTooltip formatter={(val) => [formatCurrency(Number(val)), t("hrReports.tooltip.bonuses")]} />
                       <Bar dataKey="total" fill={COLORS[1]} radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
@@ -590,7 +591,7 @@ export default function HRReportsPage() {
                         label={{ position: "insideStart", fill: "#fff", fontSize: isMobile ? 9 : 11 }}
                         background
                       />
-                      <Tooltip formatter={(val) => [`${val}%`, t("hrReports.tooltip.absenceRate")]} />
+                      <ChartTooltip formatter={(val) => [`${val}%`, t("hrReports.tooltip.absenceRate")]} />
                       <Legend
                         iconSize={isMobile ? 8 : 10}
                         formatter={(value) => (

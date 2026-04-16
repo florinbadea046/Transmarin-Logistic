@@ -3,7 +3,8 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/context/auth-provider";
 import { Header } from "@/components/layout/header";
 import { Main } from "@/components/layout/main";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { SettingsProfile } from "./_components/settings-profile";
 import { SettingsAppearance } from "./_components/settings-appearance";
 import { SettingsNotifications } from "./_components/settings-notifications";
@@ -45,7 +46,9 @@ export default function SettingsPage() {
     { value: "display", label: t("settings.tabs.display"), visible: true },
     { value: "hr", label: t("settings.tabs.hr"), visible: hasAccess("hr") },
     { value: "invoicing", label: t("settings.tabs.invoicing"), visible: hasAccess("accounting") },
-  ];
+  ].filter((tab) => tab.visible);
+
+  const handleTabChange = (value: string) => navigate({ to: tabToPathname(value) });
 
   return (
     <>
@@ -53,15 +56,20 @@ export default function SettingsPage() {
         <h1 className="text-lg font-semibold">{t("settings.title")}</h1>
       </Header>
       <Main>
-        <Tabs value={activeTab} onValueChange={(v) => navigate({ to: tabToPathname(v) })}>
-          <div className="mb-4 flex justify-center overflow-x-auto -mx-4 px-4">
-            <TabsList className="inline-flex w-max">
-              {tabs.filter((tab) => tab.visible).map((tab) => (
-                <TabsTrigger key={tab.value} value={tab.value}>
-                  {tab.label}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
+          <div className="mb-4 sm:hidden">
+            <Select value={activeTab} onValueChange={handleTabChange}>
+              <SelectTrigger className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {tabs.map((tab) => (
+                  <SelectItem key={tab.value} value={tab.value}>
+                    {tab.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <TabsContent value="profile">

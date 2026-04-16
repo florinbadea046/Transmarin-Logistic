@@ -16,6 +16,7 @@
       "dueDates": "Scadențar",
       "suppliers": "Furnizori",
       "budget": "Buget",
+      "journals": "Jurnale Contabile",
       "activityLog": "Audit Log"
     },
 
@@ -147,6 +148,70 @@
       "payment": "Plată",
       "budget": "Buget",
       "recurringExpense": "Cheltuială recurentă"
+    }
+  },
+
+  "accountingNotifications": {
+    "title": "Notificări Contabilitate",
+    "bellAriaLabel": "Notificări Contabilitate",
+    "empty": "Nicio notificare contabilitate",
+    "newBadge": "{{count}} noi",
+    "markAllRead": "Marchează toate ca citite",
+    "markRead": "Marchează ca citit",
+    "total_one": "{{count}} notificare total",
+    "total_other": "{{count}} notificări total",
+    "types": {
+      "invoiceDueToday": {
+        "title": "Factura {{number}} scadentă azi",
+        "message": "{{client}} — scadență {{date}}."
+      },
+      "invoiceOverdue": {
+        "title": "Restanță {{days}} zile — {{number}}",
+        "message": "{{client}} — scadența a fost {{date}}."
+      },
+      "budgetExceeded": {
+        "title": "Buget depășit: {{name}}",
+        "message": "Cheltuieli reale depășesc bugetul alocat cu {{amount}}."
+      },
+      "paymentUnconfirmed": {
+        "title": "Plată neconfirmată {{days}} zile — {{number}}",
+        "message": "{{client}} — înregistrată {{date}}."
+      }
+    }
+  },
+
+  "accountingJournals": {
+    "title": "Jurnale Contabile",
+    "registerFor": "Registru {{month}}",
+    "selectPrompt": "Selectează luna și tipul de jurnal.",
+    "emptyMonth": "Nu există facturi pentru luna selectată.",
+    "subtotalMonth": "Subtotal lună",
+    "totalFooter": "Total",
+    "tabs": {
+      "sales": "Jurnal Vânzări",
+      "purchases": "Jurnal Cumpărări"
+    },
+    "cards": {
+      "salesBase": "Total bază vânzări",
+      "vatCollected": "TVA colectat",
+      "purchasesBase": "Total bază cumpărări",
+      "vatDeductible": "TVA deductibil"
+    },
+    "partner": {
+      "client": "Client",
+      "supplier": "Furnizor"
+    },
+    "columns": {
+      "invoiceNumber": "Nr. factură",
+      "date": "Dată",
+      "base": "Bază impozabilă",
+      "vat": "TVA 19%",
+      "total": "Total"
+    },
+    "export": {
+      "pdf": "PDF",
+      "excel": "Excel",
+      "monthSubtitle": "Luna: {{month}}"
     }
   }
 }

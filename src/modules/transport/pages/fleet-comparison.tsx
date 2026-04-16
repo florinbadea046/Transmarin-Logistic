@@ -19,8 +19,9 @@ import {
 } from "@tanstack/react-table";
 import {
   RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-  ResponsiveContainer, Legend, Tooltip,
+  ResponsiveContainer, Legend,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 import { Trophy, Download, FileText } from "lucide-react";
 import type { TFunction } from "i18next";
 import jsPDF from "jspdf";
@@ -215,7 +216,7 @@ function ComparisonRadar({ selected, stats }: {
               />
             ))}
             <Legend />
-            <Tooltip formatter={(val) => [`${val}%`]} />
+            <ChartTooltip formatter={(val) => [`${val}%`]} />
           </RadarChart>
         </ResponsiveContainer>
         <p className="text-xs text-muted-foreground mt-2">{t("fleetComparison.radar.note")}</p>

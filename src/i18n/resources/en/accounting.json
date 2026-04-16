@@ -16,6 +16,7 @@
       "dueDates": "Due Dates",
       "suppliers": "Suppliers",
       "budget": "Budget",
+      "journals": "Accounting Journals",
       "activityLog": "Audit Log"
     },
 
@@ -147,6 +148,70 @@
       "payment": "Payment",
       "budget": "Budget",
       "recurringExpense": "Recurring expense"
+    }
+  },
+
+  "accountingNotifications": {
+    "title": "Accounting Notifications",
+    "bellAriaLabel": "Accounting notifications",
+    "empty": "No accounting notifications",
+    "newBadge": "{{count}} new",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "total_one": "{{count}} notification total",
+    "total_other": "{{count}} notifications total",
+    "types": {
+      "invoiceDueToday": {
+        "title": "Invoice {{number}} due today",
+        "message": "{{client}} — due on {{date}}."
+      },
+      "invoiceOverdue": {
+        "title": "Overdue by {{days}} days — {{number}}",
+        "message": "{{client}} — was due on {{date}}."
+      },
+      "budgetExceeded": {
+        "title": "Budget exceeded: {{name}}",
+        "message": "Actual expenses exceed the allocated budget by {{amount}}."
+      },
+      "paymentUnconfirmed": {
+        "title": "Payment unconfirmed for {{days}} days — {{number}}",
+        "message": "{{client}} — recorded on {{date}}."
+      }
+    }
+  },
+
+  "accountingJournals": {
+    "title": "Accounting Journals",
+    "registerFor": "Register {{month}}",
+    "selectPrompt": "Select the month and journal type.",
+    "emptyMonth": "No invoices for the selected month.",
+    "subtotalMonth": "Monthly subtotal",
+    "totalFooter": "Total",
+    "tabs": {
+      "sales": "Sales Journal",
+      "purchases": "Purchases Journal"
+    },
+    "cards": {
+      "salesBase": "Total sales base",
+      "vatCollected": "VAT collected",
+      "purchasesBase": "Total purchases base",
+      "vatDeductible": "VAT deductible"
+    },
+    "partner": {
+      "client": "Client",
+      "supplier": "Supplier"
+    },
+    "columns": {
+      "invoiceNumber": "Invoice no.",
+      "date": "Date",
+      "base": "Taxable base",
+      "vat": "VAT 19%",
+      "total": "Total"
+    },
+    "export": {
+      "pdf": "PDF",
+      "excel": "Excel",
+      "monthSubtitle": "Month: {{month}}"
     }
   }
 }

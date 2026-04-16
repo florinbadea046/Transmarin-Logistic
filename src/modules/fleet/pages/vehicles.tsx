@@ -14,9 +14,9 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import { ChartTooltip } from "@/components/charts/chart-tooltip";
 
 export default function VehiclesPage() {
   const { t } = useTranslation();
@@ -67,7 +67,7 @@ export default function VehiclesPage() {
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="month" />
                   <YAxis unit=" RON" />
-              <Tooltip formatter={(val) => [Number(val).toLocaleString("ro-RO") + " RON", "Cost"]} />
+              <ChartTooltip formatter={(val) => [Number(val).toLocaleString("ro-RO") + " RON", "Cost"]} />
                   <Line
                     type="monotone"
                     dataKey="cost"
