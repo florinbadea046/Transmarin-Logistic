@@ -710,7 +710,8 @@
       "training": "Training",
       "candidate": "Candidat",
       "equipment": "Echipament",
-      "shift": "Tura"
+      "shift": "Tura",
+      "onboarding": "Onboarding"
     }
   },
   "trainings": {
@@ -965,6 +966,87 @@
       "deleted": "Echipament șters cu succes",
       "markedReturned": "Echipament marcat ca returnat",
       "unreturnedWarning": "Atenție: angajatul are {{count}} echipament(e) nereturnat(e)!"
+    }
+  },
+  "onboarding": {
+    "title": "Onboarding Angajați",
+    "listTitle": "Checklist-uri onboarding",
+    "listSubtitle": "Progresul fiecărui angajat prin pașii de integrare.",
+    "empty": "Nu există checklist-uri de onboarding.",
+    "refresh": "Reîmprospătează",
+    "kpi": {
+      "inProgress": "În curs",
+      "completed": "Finalizate",
+      "overdue": "Restante (>14 zile)"
+    },
+    "columns": {
+      "employee": "Angajat",
+      "department": "Departament",
+      "startDate": "Data angajării",
+      "progress": "Progres",
+      "status": "Status",
+      "actions": "Acțiuni"
+    },
+    "status": {
+      "inProgress": "În curs",
+      "completed": "Finalizat",
+      "overdue": "Restant"
+    },
+    "actions": {
+      "open": "Deschide"
+    },
+    "dialog": {
+      "title": "Onboarding — {{name}}",
+      "progress": "Completat {{done}} din {{total}} pași",
+      "close": "Închide"
+    },
+    "steps": {
+      "contract": "Contract semnat",
+      "account": "Cont creat în sistem",
+      "safetyTraining": "Training de siguranță",
+      "equipment": "Echipament primit",
+      "teamIntro": "Prezentare echipă",
+      "systemAccess": "Acces sisteme acordat",
+      "completedOn": "Completat pe {{date}}",
+      "completedAt": "Data completare",
+      "note": "Notă",
+      "notePlaceholder": "Observații opționale..."
+    },
+    "toast": {
+      "completed": "Onboarding finalizat"
+    }
+  },
+  "salaryAnalysis": {
+    "title": "Comparație Salarială & Buget HR",
+    "empty": "Nu există date salariale.",
+    "kpi": {
+      "totalSalaries": "Fond total salarii",
+      "bonusesMonth": "Cost bonusuri (luna)",
+      "diurnaMonth": "Cost diurnă (luna)",
+      "grossTotal": "Cost total brut (luna)"
+    },
+    "budget": {
+      "title": "Buget maxim lunar",
+      "subtitle": "Setează pragul lunar pentru a primi alertă când este depășit.",
+      "input": "Buget maxim (RON)",
+      "overAlert": "Buget depășit cu {{over}}"
+    },
+    "chart": {
+      "title": "Salarii pe departament — min / mediu / max",
+      "min": "Minim",
+      "avg": "Mediu",
+      "max": "Maxim"
+    },
+    "history": {
+      "title": "Evoluție fond salarii — ultimele 6 luni",
+      "gross": "Cost brut"
+    },
+    "table": {
+      "title": "Detaliu departamente",
+      "department": "Departament",
+      "count": "Angajați",
+      "avg": "Salariu mediu",
+      "total": "Cost total"
     }
   }
 }

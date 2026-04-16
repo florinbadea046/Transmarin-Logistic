@@ -111,6 +111,8 @@ export const sidebarData: RawSidebarData = {
             { titleKey: "hr.nav.shifts", url: "/hr/shifts", icon: Calendar },
             { titleKey: "hr.nav.trainings", url: "/hr/trainings", icon: GraduationCap },
             { titleKey: "hr.nav.equipment", url: "/hr/equipment", icon: Package },
+            { titleKey: "onboarding.title", url: "/hr/onboarding", icon: ClipboardList },
+            { titleKey: "salaryAnalysis.title", url: "/hr/salary-analysis", icon: BarChart3 },
             { titleKey: "hr.selfService.title", url: "/hr/self-service", icon: UserCog },
             { titleKey: "hr.nav.activityLog", url: "/hr/activity-log", icon: History },
           ],

@@ -61,6 +61,8 @@ const EvaluationsPage = lazy(() => import("@/modules/hr/pages/evaluations"));
 const TrainingsPage = lazy(() => import("@/modules/hr/pages/trainings"));
 const RecruitmentPage = lazy(() => import("@/modules/hr/pages/recruitment"));
 const EquipmentPage = lazy(() => import("@/modules/hr/pages/equipment"));
+const OnboardingPage = lazy(() => import("@/modules/hr/pages/onboarding"));
+const SalaryAnalysisPage = lazy(() => import("@/modules/hr/pages/salary-analysis"));
 const SelfServicePage = lazy(() => import("@/modules/hr/pages/self-service"));
 const ShiftsPage = lazy(() => import("@/modules/hr/pages/shifts"));
 
@@ -327,6 +329,16 @@ const equipmentRoute = createRoute({
   path: "/hr/equipment",
   component: EquipmentPage,
 });
+const onboardingRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/onboarding",
+  component: OnboardingPage,
+});
+const salaryAnalysisRoute = createRoute({
+  getParentRoute: () => authenticatedRoute,
+  path: "/hr/salary-analysis",
+  component: SalaryAnalysisPage,
+});
 const selfServiceRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: "/hr/self-service",
@@ -480,6 +492,8 @@ const routeTree = rootRoute.addChildren([
     trainingsRoute,
     recruitmentRoute,
     equipmentRoute,
+    onboardingRoute,
+    salaryAnalysisRoute,
     selfServiceRoute,
     shiftsRoute,
 

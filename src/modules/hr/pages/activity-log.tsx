@@ -31,6 +31,7 @@ import {
   Package,
   HelpCircle,
   Clock3,
+  ClipboardList,
 } from "lucide-react";
 import { useLocation } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
@@ -142,6 +143,10 @@ const ENTITY_CONFIG: Record<
   shift: {
     icon: <Clock3 className="h-4 w-4" />,
     labelKey: "hrAuditLog.entities.shift",
+  },
+  onboarding: {
+    icon: <ClipboardList className="h-4 w-4" />,
+    labelKey: "hrAuditLog.entities.onboarding",
   },
 };
 

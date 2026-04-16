@@ -709,7 +709,8 @@
       "training": "Training",
       "candidate": "Candidate",
       "equipment": "Equipment",
-      "shift": "Shift"
+      "shift": "Shift",
+      "onboarding": "Onboarding"
     }
   },
   "trainings": {
@@ -963,6 +964,87 @@
       "deleted": "Equipment deleted successfully",
       "markedReturned": "Equipment marked as returned",
       "unreturnedWarning": "Warning: employee has {{count}} unreturned equipment item(s)!"
+    }
+  },
+  "onboarding": {
+    "title": "Employee Onboarding",
+    "listTitle": "Onboarding checklists",
+    "listSubtitle": "Each employee's progress through integration steps.",
+    "empty": "No onboarding checklists.",
+    "refresh": "Refresh",
+    "kpi": {
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "overdue": "Overdue (>14 days)"
+    },
+    "columns": {
+      "employee": "Employee",
+      "department": "Department",
+      "startDate": "Hire date",
+      "progress": "Progress",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "inProgress": "In progress",
+      "completed": "Completed",
+      "overdue": "Overdue"
+    },
+    "actions": {
+      "open": "Open"
+    },
+    "dialog": {
+      "title": "Onboarding — {{name}}",
+      "progress": "Completed {{done}} of {{total}} steps",
+      "close": "Close"
+    },
+    "steps": {
+      "contract": "Contract signed",
+      "account": "System account created",
+      "safetyTraining": "Safety training",
+      "equipment": "Equipment received",
+      "teamIntro": "Team introduction",
+      "systemAccess": "System access granted",
+      "completedOn": "Completed on {{date}}",
+      "completedAt": "Completion date",
+      "note": "Note",
+      "notePlaceholder": "Optional remarks..."
+    },
+    "toast": {
+      "completed": "Onboarding completed"
+    }
+  },
+  "salaryAnalysis": {
+    "title": "Salary Comparison & HR Budget",
+    "empty": "No salary data.",
+    "kpi": {
+      "totalSalaries": "Total salary fund",
+      "bonusesMonth": "Bonuses cost (month)",
+      "diurnaMonth": "Per diem cost (month)",
+      "grossTotal": "Gross total cost (month)"
+    },
+    "budget": {
+      "title": "Monthly budget cap",
+      "subtitle": "Set the monthly threshold to receive an alert when exceeded.",
+      "input": "Max budget (RON)",
+      "overAlert": "Budget exceeded by {{over}}"
+    },
+    "chart": {
+      "title": "Salaries by department — min / avg / max",
+      "min": "Min",
+      "avg": "Avg",
+      "max": "Max"
+    },
+    "history": {
+      "title": "Salary fund evolution — last 6 months",
+      "gross": "Gross cost"
+    },
+    "table": {
+      "title": "Department breakdown",
+      "department": "Department",
+      "count": "Employees",
+      "avg": "Average salary",
+      "total": "Total cost"
     }
   }
 }
