@@ -241,6 +241,11 @@ export const sidebarData: SidebarData = {
               icon: GraduationCap,
             },
             {
+              title: "Inventar Echipamente",
+              url: "/hr/equipment",
+              icon: Package,
+            },
+            {
               title: "Profilul Meu",
               url: "/hr/self-service",
               icon: UserCog,

@@ -23,7 +23,8 @@
       "evaluations": "Evaluations",
       "trainings": "Training & Certifications",
       "recruitment": "Recruitment",
-      "shifts": "Shift Planning"
+      "shifts": "Shift Planning",
+      "equipment": "Equipment Inventory"
     },
     "shifts": {
       "title": "Shift Planning",
