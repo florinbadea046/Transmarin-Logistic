@@ -117,6 +117,17 @@ export interface Training {
   issuedCertificates: TrainingCertificate[];
 }
 
+// ── Planificare Ture / Schimburi ──────────────────────────
+
+export type ShiftType = "morning" | "afternoon" | "night";
+
+export interface Shift {
+  id: string;
+  employeeId: string;
+  date: string; // YYYY-MM-DD
+  type: ShiftType;
+}
+
 // ── Recrutare ─────────────────────────────────────────────
 
 export const CANDIDATE_STATUSES = [

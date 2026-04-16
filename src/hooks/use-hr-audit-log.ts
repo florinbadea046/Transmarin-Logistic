@@ -6,7 +6,7 @@
 import { STORAGE_KEYS } from "@/data/mock-data";
 
 export type HrAuditAction = "create" | "update" | "delete" | "approve" | "reject";
-export type HrAuditEntity = "employee" | "leave" | "bonus" | "document" | "attendance" | "evaluation" | "training" | "candidate";
+export type HrAuditEntity = "employee" | "leave" | "bonus" | "document" | "attendance" | "evaluation" | "training" | "candidate" | "shift";
 
 export interface HrAuditEntry {
   id: string;

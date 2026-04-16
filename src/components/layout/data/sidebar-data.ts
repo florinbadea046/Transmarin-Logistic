@@ -226,6 +226,11 @@ export const sidebarData: SidebarData = {
               icon: CalendarDays,
             },
             {
+              title: "Planificare Ture",
+              url: "/hr/shifts",
+              icon: Calendar,
+            },
+            {
               title: "Training & Certificări",
               url: "/hr/trainings",
               icon: GraduationCap,
