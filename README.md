@@ -1,6 +1,6 @@
 # Transmarin Logistic — Transport & Logistics ERP
 
-A full-featured ERP system for **Transmarin Logistic**, a road freight transport company. Manages the entire operational lifecycle — orders, fleet dispatching, driver management, accounting, human resources and business intelligence — all in a modern, responsive, bilingual (RO/EN) web interface.
+A full-featured ERP system for **Transmarin Logistic**, a road freight logistics and transport company. Manages the entire operational lifecycle — orders, dispatching with live tracking, fleet and driver management, maintenance, accounting, human resources and analytical reports — all in a modern, responsive, bilingual (RO/EN) web interface with role-based access, per-module audit trails and a centralized notification center.
 
 > **No backend required.** All data is persisted locally via `localStorage`. Ready for API integration.
 
